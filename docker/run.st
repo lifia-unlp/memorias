@@ -43,17 +43,17 @@ app
 	sessionClass: MemoriasSession;
 	exceptionHandler: LifiometroEmailErrorHandler.
 
-app := WAAdmin register: ReportComponent  asApplicationAt: 'memoria-centro'.
+app := WAAdmin register: ReportComponent  asApplicationAt: 'center-profile'.
 app
 	addLibrary: TBSDeploymentLibrary;
 	exceptionHandler: LifiometroEmailErrorHandler.
 
-app := WAAdmin register: ResearcherReportComponent  asApplicationAt: 'perfil-investigador'.
+app := WAAdmin register: ResearcherReportComponent  asApplicationAt: 'researcher-profile'.
 app
         addLibrary: TBSDeploymentLibrary;
         exceptionHandler: LifiometroEmailErrorHandler.
 	
-app := WAAdmin register: ProjectReportComponent   asApplicationAt: 'memoria-proyecto'.
+app := WAAdmin register: ProjectReportComponent   asApplicationAt: 'project-profile'.
 app
         addLibrary: TBSDeploymentLibrary;
         exceptionHandler: LifiometroEmailErrorHandler.
