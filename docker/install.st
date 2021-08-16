@@ -1,5 +1,5 @@
 Metacello new
 	baseline: 'Lifiometro';
-	repository: 'github://casco/lifianator';
+	repository: 'github://lifia-unlp/memorias:main';
 	onConflictUseLoaded;
 	load.
