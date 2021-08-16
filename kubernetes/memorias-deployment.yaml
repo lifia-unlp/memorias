@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: memorias
+  name: memorias
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     app: memorias        
+  template:
+    metadata:            
+      labels:
+        app: memorias        
+    spec:
+      containers:
+        - name: memorias
+          image: cientopolis/memorias:1.0.8988726
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              protocol: TCP     
+          env:
+            - name: DB-HOST
+              value: "mongo-memorias"
+            - name: DB
+              value: "lifiometro"
+

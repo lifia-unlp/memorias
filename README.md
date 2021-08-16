@@ -4,10 +4,12 @@ Sistema de registro de publicaciones, proyectos, becas, y dirección de recursos
 
 La imagen docker se encuentra disponible en [[https://hub.docker.com/repository/docker/cientopolis/memorias]]
 
+Para construir desde los fuentes, en una imagen Pharo 8.0 evalue la siguiente expresión.
+
 ```Smalltalk
 Metacello new
 	baseline: 'Lifiometro';
-	repository: 'github://casco/lifianator';
+	repository: 'github://cientopolis/memorias';
 	onConflictUseLoaded;
 	load.
 ```

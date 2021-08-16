@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:  
+  name: memorias
+spec:
+  ports:    
+    - name: memorias
+      protocol: TCP
+      port: 8080
+      targetPort: 8080    
+  selector:
+    app: memorias
+
+

@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:  
+  name: mongo-memorias
+spec:
+  ports:    
+    - name: mongodb-memorias
+      protocol: TCP
+      port: 27017
+      targetPort: 27017    
+  selector:
+    app: mongo-memorias
+  clusterIP: None  
+  type: ClusterIP
+  sessionAffinity: None
