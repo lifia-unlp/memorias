@@ -1,3 +1,0 @@
-rendering
-renderButtonsOn: html
-	self subclassResponsibility

@@ -1,3 +1,0 @@
-urls
-applicationName
-	^ 'gaf'

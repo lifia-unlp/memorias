@@ -1,3 +1,0 @@
-testing
-passwordsMatch
-	^ password = repeatPassword

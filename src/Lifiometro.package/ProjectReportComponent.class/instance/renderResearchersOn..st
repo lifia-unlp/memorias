@@ -1,2 +1,0 @@
-hooks
-renderResearchersOn: html

@@ -1,3 +1,0 @@
-rendering
-allowedTypes
-	^ self subclassResponsibility

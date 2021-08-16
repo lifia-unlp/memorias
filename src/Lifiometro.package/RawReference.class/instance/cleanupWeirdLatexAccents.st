@@ -1,3 +1,0 @@
-utility
-cleanupWeirdLatexAccents
-	^ self

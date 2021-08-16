@@ -1,3 +1,0 @@
-initialization
-initializeGroupingAndFilteringAdapter
-	^ self subclassResponsibility

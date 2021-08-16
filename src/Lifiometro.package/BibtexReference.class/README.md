@@ -1,1 +1,0 @@
-https://nwalsh.com/tex/texhelp/bibtx-7.html

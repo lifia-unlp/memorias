@@ -1,3 +1,0 @@
-password
-hashedPassword
-	^ hashedPassword

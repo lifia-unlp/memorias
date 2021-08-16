@@ -1,3 +1,0 @@
-accessing
-researchers
-	^ self lifians

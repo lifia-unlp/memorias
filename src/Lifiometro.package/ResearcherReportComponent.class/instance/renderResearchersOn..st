@@ -1,3 +1,0 @@
-rendering
-renderResearchersOn: html
-	^ self

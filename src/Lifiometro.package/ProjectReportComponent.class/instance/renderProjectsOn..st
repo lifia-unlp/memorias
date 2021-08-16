@@ -1,3 +1,0 @@
-hooks
-renderProjectsOn: html
-	^ self

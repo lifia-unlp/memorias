@@ -1,3 +1,0 @@
-accessing
-users
-	^ LifiaUser selectAll

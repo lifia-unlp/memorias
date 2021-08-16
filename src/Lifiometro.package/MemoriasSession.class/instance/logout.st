@@ -1,3 +1,0 @@
-testing
-logout
-	currentUser := nil

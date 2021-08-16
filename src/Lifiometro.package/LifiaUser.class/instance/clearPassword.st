@@ -1,3 +1,0 @@
-password
-clearPassword
-	hashedPassword := nil

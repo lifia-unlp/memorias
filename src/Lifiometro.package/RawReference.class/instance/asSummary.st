@@ -1,3 +1,0 @@
-printing
-asSummary
-	^ self asReference
