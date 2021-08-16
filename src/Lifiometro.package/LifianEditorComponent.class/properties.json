@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "PluggableEditorComponent",
+	"category" : "Lifiometro-Web",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "LifianEditorComponent",
+	"type" : "normal"
+}

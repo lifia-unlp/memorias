@@ -1,0 +1,3 @@
+printing
+asReference
+	^ reference

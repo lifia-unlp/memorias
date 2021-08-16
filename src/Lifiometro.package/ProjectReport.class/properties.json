@@ -1,0 +1,14 @@
+{
+	"commentStamp" : "",
+	"super" : "IndividualReport",
+	"category" : "Lifiometro-Reports",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"researchers",
+		"project"
+	],
+	"name" : "ProjectReport",
+	"type" : "normal"
+}

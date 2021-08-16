@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "TabbedListComponent",
+	"category" : "Lifiometro-Web",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "LifianListComponent",
+	"type" : "normal"
+}

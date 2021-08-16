@@ -1,0 +1,16 @@
+{
+	"commentStamp" : "",
+	"super" : "PeriodBoundedEntry",
+	"category" : "Lifiometro-Model",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"title",
+		"notes",
+		"type",
+		"moreInfoUrl"
+	],
+	"name" : "ScheduleItem",
+	"type" : "normal"
+}

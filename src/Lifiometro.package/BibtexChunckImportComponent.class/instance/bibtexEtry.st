@@ -1,0 +1,3 @@
+accessing
+bibtexEtry
+	^ bibtexEntry

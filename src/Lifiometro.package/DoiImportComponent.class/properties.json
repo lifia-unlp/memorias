@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "BibtexChunckImportComponent",
+	"category" : "Lifiometro-Web",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "DoiImportComponent",
+	"type" : "normal"
+}

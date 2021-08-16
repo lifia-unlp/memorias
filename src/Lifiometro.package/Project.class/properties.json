@@ -1,0 +1,20 @@
+{
+	"commentStamp" : "",
+	"super" : "PeriodBoundedEntry",
+	"category" : "Lifiometro-Model",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"title",
+		"code",
+		"director",
+		"coDirector",
+		"responsibleGroup",
+		"fundingAgency",
+		"amount",
+		"summary"
+	],
+	"name" : "Project",
+	"type" : "normal"
+}

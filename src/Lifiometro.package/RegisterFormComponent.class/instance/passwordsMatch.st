@@ -1,0 +1,3 @@
+testing
+passwordsMatch
+	^ password = repeatPassword

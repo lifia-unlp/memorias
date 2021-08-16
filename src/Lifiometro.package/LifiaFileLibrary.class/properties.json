@@ -1,0 +1,14 @@
+{
+	"commentStamp" : "",
+	"super" : "WAFileLibrary",
+	"category" : "Lifiometro-Web",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"cite",
+		"error"
+	],
+	"name" : "LifiaFileLibrary",
+	"type" : "normal"
+}

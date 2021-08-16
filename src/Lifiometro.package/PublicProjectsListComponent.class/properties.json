@@ -1,0 +1,14 @@
+{
+	"commentStamp" : "Casco 7/16/2021 16:20",
+	"super" : "PublicReportComponent",
+	"category" : "Lifiometro-Reports",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"finishedProjects",
+		"activeProjects"
+	],
+	"name" : "PublicProjectsListComponent",
+	"type" : "normal"
+}

@@ -1,0 +1,3 @@
+accessing
+asSummary
+	^ self asReference

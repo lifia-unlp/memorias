@@ -1,0 +1,18 @@
+{
+	"commentStamp" : "",
+	"super" : "Object",
+	"category" : "Lifiometro-Web",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"list",
+		"groupingBlock",
+		"groups",
+		"filteringBlock",
+		"filters",
+		"selectedFilter"
+	],
+	"name" : "GroupingAndFilteringListAdapter",
+	"type" : "normal"
+}

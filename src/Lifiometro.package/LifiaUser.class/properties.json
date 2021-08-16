@@ -1,0 +1,18 @@
+{
+	"commentStamp" : "",
+	"super" : "Object",
+	"category" : "Lifiometro-Model",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"fullname",
+		"email",
+		"lastConnected",
+		"isAdmin",
+		"enabled",
+		"hashedPassword"
+	],
+	"name" : "LifiaUser",
+	"type" : "normal"
+}

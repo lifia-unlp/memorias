@@ -1,0 +1,16 @@
+{
+	"commentStamp" : "",
+	"super" : "LifiaLogEntry",
+	"category" : "Lifiometro-Model",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"year",
+		"type",
+		"reference",
+		"selfArchivingUrl"
+	],
+	"name" : "RawReference",
+	"type" : "normal"
+}

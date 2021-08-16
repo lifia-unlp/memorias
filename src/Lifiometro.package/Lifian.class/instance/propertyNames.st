@@ -1,0 +1,4 @@
+accessing
+propertyNames
+	^ #(firstName lastName highestDegree coursesAtUNLP startDate endDate positionAtUnlp category positionAtCIC positionAtCONICET projects publications advicedThesis advicedScholarships personalEmail institutionalEmail shortCvInSpanish shortCvInEnglish relatedProjects interestsInEnglish interestsInSpanish  notes orcid dblpProfile googleResearchProfile researchGateProfile phone webPage)
+		collect: #asString

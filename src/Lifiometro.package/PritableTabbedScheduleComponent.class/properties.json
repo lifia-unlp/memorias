@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "TabbedScheduleComponent",
+	"category" : "Lifiometro-Web",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "PritableTabbedScheduleComponent",
+	"type" : "normal"
+}

@@ -1,0 +1,3 @@
+accessing
+propertyNames
+	self subclassResponsibility

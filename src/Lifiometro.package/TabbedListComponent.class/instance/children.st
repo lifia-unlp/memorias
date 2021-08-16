@@ -1,0 +1,3 @@
+initialization
+children
+	^ {filteringTabsComponent}

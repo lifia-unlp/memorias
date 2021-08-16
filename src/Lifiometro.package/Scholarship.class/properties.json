@@ -1,0 +1,19 @@
+{
+	"commentStamp" : "",
+	"super" : "PeriodBoundedEntry",
+	"category" : "Lifiometro-Model",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"title",
+		"director",
+		"coDirector",
+		"student",
+		"fundingAgency",
+		"type",
+		"summary"
+	],
+	"name" : "Scholarship",
+	"type" : "normal"
+}

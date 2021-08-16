@@ -1,0 +1,15 @@
+{
+	"commentStamp" : "",
+	"super" : "Object",
+	"category" : "Lifiometro-Tools",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"researchers",
+		"guesses",
+		"references"
+	],
+	"name" : "InvolvedResearchersGuesser",
+	"type" : "normal"
+}

@@ -1,0 +1,3 @@
+testing
+logout
+	currentUser := nil

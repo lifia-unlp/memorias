@@ -1,0 +1,3 @@
+rendering
+guessArticleAuthors
+	self call: GuessInvolvedResearchersComponent new

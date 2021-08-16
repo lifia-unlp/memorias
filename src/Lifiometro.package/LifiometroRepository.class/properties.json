@@ -1,0 +1,15 @@
+{
+	"commentStamp" : "",
+	"super" : "Object",
+	"category" : "Lifiometro-Repository",
+	"classinstvars" : [
+		"singleton"
+	],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"latestReport"
+	],
+	"name" : "LifiometroRepository",
+	"type" : "normal"
+}

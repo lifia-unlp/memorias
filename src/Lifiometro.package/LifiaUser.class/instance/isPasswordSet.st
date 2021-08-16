@@ -1,0 +1,3 @@
+password
+isPasswordSet
+	^ hashedPassword notNil

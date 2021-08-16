@@ -1,0 +1,3 @@
+hooks
+renderProjectsOn: html
+	^ self

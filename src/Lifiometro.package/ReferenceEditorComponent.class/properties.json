@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "TypedItemEditorComponent",
+	"category" : "Lifiometro-Web",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "ReferenceEditorComponent",
+	"type" : "normal"
+}

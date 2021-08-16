@@ -1,0 +1,3 @@
+printing
+asSummary
+	^ self asReference

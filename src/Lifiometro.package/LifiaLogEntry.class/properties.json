@@ -1,0 +1,18 @@
+{
+	"commentStamp" : "",
+	"super" : "Object",
+	"category" : "Lifiometro-Model",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"lastEditedOn",
+		"lastEditedBy",
+		"trashed",
+		"excludeFromReports",
+		"relatedLifians",
+		"relatedProjects"
+	],
+	"name" : "LifiaLogEntry",
+	"type" : "normal"
+}

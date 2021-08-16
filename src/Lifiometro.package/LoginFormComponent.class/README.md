@@ -1,0 +1,1 @@
+WAAdmin register: LoginFormComponent asApplicationAt: 'test'

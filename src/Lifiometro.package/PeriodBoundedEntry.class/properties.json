@@ -1,0 +1,14 @@
+{
+	"commentStamp" : "",
+	"super" : "LifiaLogEntry",
+	"category" : "Lifiometro-Model",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"endDate",
+		"startDate"
+	],
+	"name" : "PeriodBoundedEntry",
+	"type" : "normal"
+}

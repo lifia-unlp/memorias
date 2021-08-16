@@ -1,0 +1,3 @@
+password
+clearPassword
+	hashedPassword := nil
