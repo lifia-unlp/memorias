@@ -1,14 +1,39 @@
 "
-| app |
-(VOMongoRepository 
-    host: 'localhost' database: 'memorias' username: 'memoriasadm' password: '1234')
-	enableSingleton.
-DoiToBibAPI ensureBibtexMimeTypeIsNotBinary.
-ChronologyConstants useSpanishMonthNames.
-app := WAAdmin register: MemoriasLandingComponent asApplicationAt: 'lifia'.
+| app dbhost db dbuser dbpassword smtpServer |
+
+dbhost := OSEnvironment current at: 'DB-HOST' ifAbsent: 'mongodb'.
+db := OSEnvironment current at: 'DB' ifAbsent: 'lifiometro'.
+dbuser := OSEnvironment current at: 'DB-USER' ifAbsent: nil.
+dbpassword := OSEnvironment current at: 'DB-PASSWORD' ifAbsent: nil.
+smtpServer := OSEnvironment current at: 'SMTP' ifAbsent: 'localhost'.
+
+""SMTP server for error reporting""
+MailComposition setSmtpServer: smtpServer.
+
+dbuser
+	ifNil: [ (VOMongoRepository
+			host: dbhost
+			database: db) enableSingleton ]
+	ifNotNil: [ (VOMongoRepository
+			host: dbhost
+			database: db
+			username: dbuser
+			password: dbpassword) enableSingleton ].
+
+WAAdmin defaultServerManager adaptors
+        do: [ :each | WAAdmin defaultServerManager unregister: each ].
+ZnZincServerAdaptor startOn: 8080.
+
 WAAdmin applicationDefaults
 	removeParent: WADevelopmentConfiguration instance.
-WAAdmin defaultDispatcher defaultName: 'lifia'.
+
+DoiToBibAPI ensureBibtexMimeTypeIsNotBinary.
+ChronologyConstants useSpanishMonthNames.
+
+app := WAAdmin register: MemoriasLandingComponent asApplicationAt: 'memorias'.
+WAAdmin applicationDefaults
+	removeParent: WADevelopmentConfiguration instance.
+WAAdmin defaultDispatcher defaultName: 'memorias'.
 app
 	addLibrary: JQDeploymentLibrary;
 	addLibrary: JQUiDeploymentLibrary;
@@ -18,6 +43,23 @@ app
 	addLibrary: LifiaFileLibrary;
 	sessionClass: MemoriasSession;
 	exceptionHandler: LifiometroEmailErrorHandler.
+
+app := WAAdmin register: ReportComponent  asApplicationAt: 'memoria-centro'.
+app
+	addLibrary: TBSDeploymentLibrary;
+	exceptionHandler: LifiometroEmailErrorHandler.
+
+app := WAAdmin register: ResearcherReportComponent  asApplicationAt: 'perfil-investigador'.
+app
+        addLibrary: TBSDeploymentLibrary;
+        exceptionHandler: LifiometroEmailErrorHandler.
+	
+app := WAAdmin register: ProjectReportComponent   asApplicationAt: 'memoria-proyecto'.
+app
+        addLibrary: TBSDeploymentLibrary;
+        exceptionHandler: LifiometroEmailErrorHandler.
+
+Transcript cr; show: 'Memorias starting  (dbhost: ', dbhost, ', db: ', db, ')'; cr; cr.
 "
 Class {
 	#name : #MemoriasLandingComponent,
@@ -27,7 +69,7 @@ Class {
 		'loginComponent',
 		'registerComponent'
 	],
-	#category : 'Lifiometro-Web-Login'
+	#category : #'Lifiometro-Web-Login'
 }
 
 { #category : #urls }
