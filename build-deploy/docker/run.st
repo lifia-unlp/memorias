@@ -1,9 +1,9 @@
 | app dbhost db dbuser dbpassword smtpServer |
 
-dbhost := OSEnvironment current at: 'DB-HOST' ifAbsent: 'mongodb'.
+dbhost := OSEnvironment current at: 'DB_HOST' ifAbsent: 'mongodb'.
 db := OSEnvironment current at: 'DB' ifAbsent: 'lifiometro'.
-dbuser := OSEnvironment current at: 'DB-USER' ifAbsent: nil.
-dbpassword := OSEnvironment current at: 'DB-PASSWORD' ifAbsent: nil.
+dbuser := OSEnvironment current at: 'DB_USER' ifAbsent: nil.
+dbpassword := OSEnvironment current at: 'DB_PASSWORD' ifAbsent: nil.
 smtpServer := OSEnvironment current at: 'SMTP' ifAbsent: 'localhost'.
 
 "SMTP server for error reporting"

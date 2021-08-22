@@ -22,7 +22,7 @@ spec:
             - containerPort: 8080
               protocol: TCP     
           env:
-            - name: DB-HOST
+            - name: DB_HOST
               value: "mongo-memorias"
             - name: DB
               value: "lifiometro"
