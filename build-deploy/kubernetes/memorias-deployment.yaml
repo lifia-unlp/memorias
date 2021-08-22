@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: memorias
-          image: cientopolis/memorias:1.0.8988726
+          image: cientopolis/memorias:29b28eb
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
