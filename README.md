@@ -9,7 +9,7 @@ Para construir desde los fuentes, en una imagen Pharo 8.0 evalue la siguiente ex
 ```Smalltalk
 Metacello new
 	baseline: 'Lifiometro';
-	repository: 'github://lifia-unlp/memorias';
+	repository: 'github://lifia-unlp/memorias:main';
 	onConflictUseLoaded;
 	load.
 ```
