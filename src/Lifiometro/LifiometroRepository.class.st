@@ -2,17 +2,28 @@ Class {
 	#name : #LifiometroRepository,
 	#superclass : #Object,
 	#instVars : [
-		'latestReport'
+		'latestReport',
+		'auditingEnabled'
 	],
 	#classInstVars : [
 		'singleton'
 	],
-	#category : 'Lifiometro-Repository'
+	#category : #'Lifiometro-Repository'
 }
 
 { #category : #singleton }
 LifiometroRepository class >> singleton [
 	^ singleton ifNil: [ singleton := self new ]
+]
+
+{ #category : #auditing }
+LifiometroRepository >> auditingEnabled [
+	^ auditingEnabled
+]
+
+{ #category : #auditing }
+LifiometroRepository >> auditingEnabled: anObject [
+	auditingEnabled := anObject
 ]
 
 { #category : #tools }
@@ -30,51 +41,67 @@ LifiometroRepository >> filter: aCollection toYears: years [
 			[ :each | each yearsActive anySatisfy: [ :year | years includes: year ] ]
 ]
 
-{ #category : #accessing }
+{ #category : #initialization }
+LifiometroRepository >> initialize [
+	super initialize.
+	auditingEnabled := true. 
+]
+
+{ #category : #query }
 LifiometroRepository >> lifianWithEmail: email [
 	^ Lifian selectAll
 		detect: [ :each | each institutionalEmail = email ]
 		ifNone: [ nil ]
 ]
 
-{ #category : #accessing }
+{ #category : #query }
 LifiometroRepository >> lifians [
 	^ Lifian selectAll reject: [ :each | each trashed ]
 ]
 
-{ #category : #accessing }
+{ #category : #query }
 LifiometroRepository >> projectWithVoyageId: void [
 	^ Project selectAll
 		detect: [ :each | each voyageId printString = void ]
 		ifNone: [ nil ]
 ]
 
-{ #category : #accessing }
+{ #category : #query }
 LifiometroRepository >> projects [
 	^ Project selectAll reject: [ :each | each trashed ]
 ]
 
-{ #category : #accessing }
+{ #category : #query }
 LifiometroRepository >> projectsActiveIn: years [
 	^ self filter: self projects toYears: years
 ]
 
-{ #category : #accessing }
+{ #category : #query }
 LifiometroRepository >> references [
 	^ RawReference selectAll , BibtexReference selectAll
 		reject: [ :each | each trashed ]
 ]
 
-{ #category : #accessing }
+{ #category : #query }
 LifiometroRepository >> referencesActiveIn: years [
 	^ self filter: self references toYears: years
 ]
 
-{ #category : #accessing }
+{ #category : #update }
 LifiometroRepository >> remove: anObject onBehalfOf: aUser [
+	| when |
+	anObject trashed: true.
+	when := DateAndTime now.
 	anObject
-		trashed: true.
-	self save: anObject onBehalfOf: aUser.
+		lastEditedOn: when;
+		lastEditedBy: aUser;
+		save.
+	auditingEnabled
+		ifTrue: [ (RepositoryAuditRecord
+				what: anObject
+				who: aUser
+				when: DateAndTime now
+				action: #remove) save ]
 ]
 
 { #category : #reports }
@@ -135,69 +162,77 @@ LifiometroRepository >> reportForYears: years [
 	^ latestReport
 ]
 
-{ #category : #accessing }
+{ #category : #query }
 LifiometroRepository >> researcherWithVoyageId: void [
 	^ Lifian selectAll
 		detect: [ :each | each voyageId printString = void ]
 		ifNone: [ nil ]
 ]
 
-{ #category : #accessing }
+{ #category : #query }
 LifiometroRepository >> researchers [
 	^ self lifians
 ]
 
-{ #category : #accessing }
+{ #category : #query }
 LifiometroRepository >> researchersActiveIn: years [
 	^ self filter: self researchers toYears: years
 ]
 
-{ #category : #accessing }
+{ #category : #update }
 LifiometroRepository >> save: anObject onBehalfOf: aUser [
+	| when |
+	when := DateAndTime now.
 	anObject
-		lastEditedOn: DateAndTime now;
+		lastEditedOn: when;
 		lastEditedBy: aUser;
-		save
+		save.
+	auditingEnabled
+		ifTrue: [ (RepositoryAuditRecord
+				what: anObject
+				who: aUser
+				when: when
+				action: #save) save ]
 ]
 
-{ #category : #accessing }
+{ #category : #update }
 LifiometroRepository >> saveUser: aUser [
 	aUser save
 ]
 
-{ #category : #accessing }
+{ #category : #query }
 LifiometroRepository >> scheduleItems [
 	^ ScheduleItem selectAll reject: [ :each | each trashed ]
 ]
 
-{ #category : #accessing }
+{ #category : #query }
 LifiometroRepository >> scholarships [
 	^ Scholarship selectAll reject: [ :each | each trashed ]
 ]
 
-{ #category : #accessing }
+{ #category : #query }
 LifiometroRepository >> scholarshipsActiveIn: years [
 	^ self filter: self scholarships toYears: years
 ]
 
-{ #category : #accessing }
+{ #category : #query }
 LifiometroRepository >> thesis [
 	^ Thesis selectAll reject: [ :each | each trashed ]
 ]
 
-{ #category : #accessing }
+{ #category : #query }
 LifiometroRepository >> thesisActiveIn: years [
 	^ self filter: self thesis toYears: years
 ]
 
-{ #category : #accessing }
+{ #category : #query }
 LifiometroRepository >> userWithEmail: anEmailAddress [
 	^ LifiaUser selectAll
 		detect: [ :each | each email = anEmailAddress ]
 		ifNone: [ nil ]
 ]
 
-{ #category : #accessing }
+{ #category : #query }
 LifiometroRepository >> users [
 	^ LifiaUser selectAll
 ]
