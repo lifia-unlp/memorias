@@ -1,7 +1,7 @@
 Class {
 	#name : #LifianEditorComponent,
 	#superclass : #PluggableEditorComponent,
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Web'
 }
 
 { #category : #rendering }
@@ -47,6 +47,11 @@ startDate endDate title code director coDirector responsibleGroup fundingAgency 
 		renderDateInputEditorFor: 'endDate'
 		label: 'Fecha de egreso'
 		instructions: 'Deje vacío para miembros en funciones'
+		on: html.
+	self
+		renderTextInputEditorFor: 'affiliations'
+		label: 'Afiliaciones'
+		instructions: nil
 		on: html.
 	self
 		renderTextInputEditorFor: 'positionAtUnlp'

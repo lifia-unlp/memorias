@@ -26,9 +26,10 @@ Class {
 		'googleResearchProfile',
 		'researchGateProfile',
 		'phone',
-		'webPage'
+		'webPage',
+		'affiliations'
 	],
-	#category : 'Lifiometro-Model'
+	#category : #'Lifiometro-Model'
 }
 
 { #category : #voyage }
@@ -54,6 +55,16 @@ Lifian >> advicedThesis [
 { #category : #accessing }
 Lifian >> advicedThesis: anObject [
 	advicedThesis := anObject
+]
+
+{ #category : #accessing }
+Lifian >> affiliations [
+	^ affiliations
+]
+
+{ #category : #accessing }
+Lifian >> affiliations: anObject [
+	affiliations := anObject
 ]
 
 { #category : #accessing }
@@ -252,7 +263,7 @@ Lifian >> projects: anObject [
 
 { #category : #accessing }
 Lifian >> propertyNames [
-	^ #(firstName lastName highestDegree coursesAtUNLP startDate endDate positionAtUnlp category positionAtCIC positionAtCONICET projects publications advicedThesis advicedScholarships personalEmail institutionalEmail shortCvInSpanish shortCvInEnglish relatedProjects interestsInEnglish interestsInSpanish  notes orcid dblpProfile googleResearchProfile researchGateProfile phone webPage)
+	^ #(firstName lastName highestDegree coursesAtUNLP startDate endDate positionAtUnlp category positionAtCIC positionAtCONICET projects publications advicedThesis advicedScholarships personalEmail institutionalEmail shortCvInSpanish shortCvInEnglish relatedProjects interestsInEnglish interestsInSpanish  notes orcid dblpProfile googleResearchProfile researchGateProfile phone webPage affiliations)
 		collect: #asString
 ]
 

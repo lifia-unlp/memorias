@@ -7,7 +7,7 @@ app
 Class {
 	#name : #ResearcherReportComponent,
 	#superclass : #ProfileReportComponent,
-	#category : 'Lifiometro-Reports'
+	#category : #'Lifiometro-Reports'
 }
 
 { #category : #rendering }
@@ -94,6 +94,11 @@ ResearcherReportComponent >> renderPropertiesOn: html [
 				ifNotNilNotEmpty: [ :it | 
 					html
 						text: 'E-mail: ' , it;
+						break ].
+			report researcher affiliations
+				ifNotNilNotEmpty: [ :it | 
+					html
+						text: 'Afiliaciones: ' , it;
 						break ].
 			self renderExternalLinksOn: html ]
 ]
