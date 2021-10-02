@@ -1,7 +1,7 @@
 Class {
 	#name : #AdministrationComponent,
 	#superclass : #WAComponent,
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Web'
 }
 
 { #category : #rendering }
@@ -61,6 +61,26 @@ AdministrationComponent >> renderContentOn: html [
 ]
 
 { #category : #rendering }
+AdministrationComponent >> renderDisabledUsersListOn: html [
+	 html tbsPanel
+		beDefault;
+		with: [ html tbsPanelHeading: [ html label: 'Disabled users' ].
+			html
+				tbsPanelBody: [ (LifiometroRepository singleton users reject: [ :each | each enabled ])
+						do: [ :each | self renderUser: each on: html ] ] ]
+]
+
+{ #category : #rendering }
+AdministrationComponent >> renderEnabledUsersListOn: html [
+	 html tbsPanel
+		beDefault;
+		with: [ html tbsPanelHeading: [ html label: 'Enabled users' ].
+			html
+				tbsPanelBody: [ (LifiometroRepository singleton users select: [ :each | each enabled ])
+						do: [ :each | self renderUser: each on: html ] ] ]
+]
+
+{ #category : #rendering }
 AdministrationComponent >> renderUser: each on: html [
 	html
 		paragraph: [ html
@@ -84,12 +104,8 @@ AdministrationComponent >> renderUser: each on: html [
 
 { #category : #rendering }
 AdministrationComponent >> renderUsersListOn: html [
-	^ html tbsPanel
-		beDefault;
-		with: [ html tbsPanelHeading: [ html label: 'Users' ].
-			html
-				tbsPanelBody: [ LifiometroRepository singleton users
-						do: [ :each | self renderUser: each on: html ] ] ]
+	self renderEnabledUsersListOn: html.
+	self renderDisabledUsersListOn: html.
 ]
 
 { #category : #callbacks }
