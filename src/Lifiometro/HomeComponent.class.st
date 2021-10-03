@@ -11,7 +11,7 @@ Class {
 		'scheduleComponent',
 		'lifiansComponent'
 	],
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Web'
 }
 
 { #category : #children }
@@ -21,7 +21,8 @@ HomeComponent >> children [
 	projectsListComponent.
 	studentsListComponent.
 	adminComponent.
-	scheduleComponent}
+	scheduleComponent.
+	lifiansComponent }
 ]
 
 { #category : #initialization }
