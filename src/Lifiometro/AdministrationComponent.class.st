@@ -87,11 +87,11 @@ AdministrationComponent >> renderUser: each on: html [
 				strong: each email;
 				text: ' - Admin: '.
 			html anchor
-				callback: [ each toogleAdmin ];
+				callback: [ self toggleAdminFor: each ];
 				with: each isAdmin printString.
 			html text: ' - Activado: '.
 			html anchor
-				callback: [ each toggleEnabled ];
+				callback: [ self toggleEnabledFor: each ];
 				with: each enabled printString.
 			each isPasswordSet
 				ifTrue: [ html anchor
@@ -118,4 +118,18 @@ AdministrationComponent >> sendTestEmail [
 	message
 		body: 'Si te llega este correo es porque funciona la configuración'.
 	message send
+]
+
+{ #category : #callbacks }
+AdministrationComponent >> toggleAdminFor: aUser [
+
+	aUser toggleAdmin.
+	LifiometroRepository singleton saveUser: aUser 
+
+]
+
+{ #category : #callbacks }
+AdministrationComponent >> toggleEnabledFor: aUser [
+	aUser toggleEnabled.
+	LifiometroRepository singleton saveUser: aUser
 ]

@@ -9,7 +9,7 @@ Class {
 		'enabled',
 		'hashedPassword'
 	],
-	#category : 'Lifiometro-Model'
+	#category : #'Lifiometro-Model'
 }
 
 { #category : #'instance creation' }
@@ -113,11 +113,11 @@ LifiaUser >> lastConnected: anObject [
 ]
 
 { #category : #accessing }
-LifiaUser >> toggleEnabled [
-	enabled := self enabled not
+LifiaUser >> toggleAdmin [
+	isAdmin := self isAdmin not
 ]
 
 { #category : #accessing }
-LifiaUser >> toogleAdmin [
-	isAdmin := self isAdmin not
+LifiaUser >> toggleEnabled [
+	enabled := self enabled not
 ]
