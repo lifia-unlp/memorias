@@ -1,9 +1,9 @@
-| app dbhost db dbuser dbpassword smtpServer |
+| apps dbhost db dbuser dbpassword smtpServer |
 
-dbhost := OSEnvironment current at: 'DB-HOST' ifAbsent: 'mongodb'.
+dbhost := OSEnvironment current at: 'DB_HOST' ifAbsent: 'mongodb'.
 db := OSEnvironment current at: 'DB' ifAbsent: 'lifiometro'.
-dbuser := OSEnvironment current at: 'DB-USER' ifAbsent: nil.
-dbpassword := OSEnvironment current at: 'DB-PASSWORD' ifAbsent: nil.
+dbuser := OSEnvironment current at: 'DB_USER' ifAbsent: nil.
+dbpassword := OSEnvironment current at: 'DB_PASSWORD' ifAbsent: nil.
 smtpServer := OSEnvironment current at: 'SMTP' ifAbsent: nil.
 
 "SMTP server for error reporting"
@@ -32,37 +32,27 @@ ChronologyConstants useSpanishMonthNames.
 WAAdmin applicationDefaults
 	removeParent: WADevelopmentConfiguration instance.
 
-app := WAAdmin register: MemoriasLandingComponent asApplicationAt: 'memorias'. 
-smtpServer ifNotNil: [ app	
+apps := OrderedCollection new.
+apps add: ((WAAdmin register: MemoriasLandingComponent asApplicationAt: 'memorias') 
+				sessionClass: MemoriasSession; 
+				yourself). 
+apps add: (WAAdmin register: ReportComponent  asApplicationAt: 'center-profile').
+apps add: (WAAdmin register: ResearcherReportComponent  asApplicationAt: 'researcher-profile').
+apps add: (WAAdmin register: PublicProjectsListComponent asApplicationAt: 'project-list').
+apps add: (WAAdmin register: ProjectReportComponent   asApplicationAt: 'project-profile').
+
+apps do: [:app | 
+ smtpServer ifNotNil: [ app	
 	exceptionHandler: LifiometroEmailErrorHandler].
-WAAdmin defaultDispatcher defaultName: 'memorias'.
-app
+ app
 	addLibrary: JQDeploymentLibrary;
 	addLibrary: JQUiDeploymentLibrary;
 	addLibrary: TBSDeploymentLibrary;
 	addLibrary: TBSJasnyDeploymentLibrary;
 	addLibrary: TBSVerticalTabsDeploymentLibrary;
-	addLibrary: LifiaFileLibrary;
-	sessionClass: MemoriasSession.	
+	addLibrary: LifiaFileLibrary.	
+].
 
-app := WAAdmin register: ReportComponent  asApplicationAt: 'center-profile'.
-smtpServer ifNotNil: [ app	
-	exceptionHandler: LifiometroEmailErrorHandler].
-app 	addLibrary: TBSDeploymentLibrary.
-
-app := WAAdmin register: ResearcherReportComponent  asApplicationAt: 'researcher-profile'.
-smtpServer ifNotNil: [ app	
-	exceptionHandler: LifiometroEmailErrorHandler].
-app addLibrary: TBSDeploymentLibrary.
-	
-app := WAAdmin register: ProjectReportComponent   asApplicationAt: 'project-profile'.
-smtpServer ifNotNil: [ app	
-	exceptionHandler: LifiometroEmailErrorHandler].
-app addLibrary: TBSDeploymentLibrary.
-
-app := WAAdmin register: PublicProjectsListComponent asApplicationAt: 'project-list'.
-smtpServer ifNotNil: [ app	
-	exceptionHandler: LifiometroEmailErrorHandler].
-app addLibrary: TBSDeploymentLibrary.
+WAAdmin defaultDispatcher defaultName: 'memorias'.
 
 Transcript cr; show: 'Memorias starting  (dbhost: ', dbhost, ', db: ', db, ')'; cr; cr.
