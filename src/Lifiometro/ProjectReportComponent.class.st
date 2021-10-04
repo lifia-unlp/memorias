@@ -76,7 +76,13 @@ ProjectReportComponent >> renderPropertiesOn: html [
 			html
 				tableRow: [ html
 						tableData: 'Participantes (del LIFIA)';
-						tableData: (report researchers collect: #fullName) asCommaStringAnd ] ].
+						tableData: [ report researchers
+								do: [ :each | 
+									html anchor
+										target: '_blank';
+										url: '/' , (ResearcherReportComponent relativeUrlFor: each);
+										with: each fullName ]
+								separatedBy: [ html text: ', ' ] ] ] ].
 	html heading level2 with: 'Resúmen'.
 	html paragraph: report project summary
 ]
