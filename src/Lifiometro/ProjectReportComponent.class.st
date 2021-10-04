@@ -7,8 +7,18 @@ app
 Class {
 	#name : #ProjectReportComponent,
 	#superclass : #ProfileReportComponent,
-	#category : 'Lifiometro-Reports'
+	#category : #'Lifiometro-Reports'
 }
+
+{ #category : #urls }
+ProjectReportComponent class >> relativeUrl [
+	^ 'project-profile'
+]
+
+{ #category : #urls }
+ProjectReportComponent class >> relativeUrlFor: aProject [
+	^ 'project-profile?vid=' , aProject voyageId printString
+]
 
 { #category : #hooks }
 ProjectReportComponent >> fetchReport [

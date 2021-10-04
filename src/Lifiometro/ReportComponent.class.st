@@ -23,8 +23,13 @@ Class {
 		'specialization',
 		'report'
 	],
-	#category : 'Lifiometro-Reports'
+	#category : #'Lifiometro-Reports'
 }
+
+{ #category : #urls }
+ReportComponent class >> relativeUrl [
+	^ 'center-profile'
+]
 
 { #category : #initialization }
 ReportComponent >> initialize [
@@ -222,7 +227,7 @@ ReportComponent >> renderProject: each on: html [
 				break.
 			html anchor
 				target: '_blank';
-				url: (self urlForProjectProfile: each);
+				url: '/' , (ProjectReportComponent relativeUrlFor: each);
 				with: 'Mas detalles' ]
 ]
 
@@ -350,7 +355,7 @@ ReportComponent >> renderResearcher: each on: html [
 						ifNil: [ html text: '-' ] ];
 				tableData: [ html anchor
 						target: '_blank';
-						url: (self urlForResearcherProfile: each);
+						url: '/' , (ResearcherReportComponent relativeUrlFor: each);
 						with: 'Mas detalles' ] ]
 ]
 

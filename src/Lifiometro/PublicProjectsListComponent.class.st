@@ -10,8 +10,13 @@ Class {
 		'finishedProjects',
 		'activeProjects'
 	],
-	#category : 'Lifiometro-Reports'
+	#category : #'Lifiometro-Reports'
 }
+
+{ #category : #urls }
+PublicProjectsListComponent class >> relativeUrl [
+	^ 'project-list'
+]
 
 { #category : #initialization }
 PublicProjectsListComponent >> initialize [
@@ -62,7 +67,7 @@ PublicProjectsListComponent >> renderProject: project on: html [
 						, project endDate ddmmyyyy , ' .'.
 			html space.
 			html anchor
-				url: (self urlForProjectProfile: project);
+				url: '/' , (ProjectReportComponent relativeUrlFor: project);
 				with: 'Ver Mas ...' ]
 ]
 
