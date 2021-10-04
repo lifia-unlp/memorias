@@ -10,6 +10,16 @@ Class {
 	#category : #'Lifiometro-Reports'
 }
 
+{ #category : #urls }
+ResearcherReportComponent class >> relativeUrl [
+	^ 'researcher-profile'
+]
+
+{ #category : #urls }
+ResearcherReportComponent class >> relativeUrlFor: aResearcher [
+	^ 'researcher-profile?vid=' , aResearcher voyageId printString
+]
+
 { #category : #rendering }
 ResearcherReportComponent >> fetchReport [
 	| void project |

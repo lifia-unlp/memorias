@@ -6,7 +6,7 @@ Class {
 		'newValues',
 		'errors'
 	],
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Web'
 }
 
 { #category : #'instance creation' }
@@ -227,8 +227,9 @@ PluggableEditorComponent >> renderRelatedProjectsEditorOn: html [
 				size: 10;
 				class: 'form-control';
 				labels: [ :project | 
-					'(' , project startDate ddmmyyyy  , ' - '
-						, project endDate ddmmyyyy  , ' ) ' , project title ];
+					'(' , project startDate ddmmyyyy , ' - ' , project endDate ddmmyyyy
+						, ' - ' , (project director ifNil: [ '' ]) , ' ) '
+						, project title ];
 				callback: [ :value | newValues at: 'relatedProjects' put: value ];
 				with: currentValue;
 				id: 'relatedProjects' ]

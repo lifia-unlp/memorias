@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'report'
 	],
-	#category : 'Lifiometro-Reports'
+	#category : #'Lifiometro-Reports'
 }
 
 { #category : #rendering }
@@ -37,7 +37,10 @@ ProfileReportComponent >> renderHeaderOn: html [
 { #category : #rendering }
 ProfileReportComponent >> renderProject: project on: html [
 	html
-		paragraph: [ html text: project title , '.'.
+		paragraph: [ html anchor
+				target: '_blank';
+				url: '/' , (ProjectReportComponent relativeUrlFor: project);
+				with: project title , '.'.
 			html space.
 			project fundingAgency
 				ifNotEmpty: [ :it | html text: 'Financiado por ' , it , '. ' ].
@@ -99,8 +102,13 @@ ProfileReportComponent >> renderPublicationsOn: html [
 ProfileReportComponent >> renderResearchersOn: html [
 	html heading level2 with: 'Integrantes'.
 	html
-		unorderedList:
-			[ report researchers do: [ :each | html listItem: each fullName ] ]
+		unorderedList: [ report researchers
+				do: [ :each | 
+					html
+						listItem: [ html anchor
+								target: '_blank';
+								url: '/' , (ResearcherReportComponent relativeUrlFor: each);
+								with: 'each fullName' ] ] ]
 ]
 
 { #category : #rendering }

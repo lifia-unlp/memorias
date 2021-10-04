@@ -37,10 +37,10 @@ apps := OrderedCollection new.
 apps add: ((WAAdmin register: MemoriasLandingComponent asApplicationAt: 'memorias') 
 				sessionClass: MemoriasSession; 
 				yourself). 
-apps add: (WAAdmin register: ReportComponent  asApplicationAt: 'center-profile').
-apps add: (WAAdmin register: ResearcherReportComponent  asApplicationAt: 'researcher-profile').
-apps add: (WAAdmin register: PublicProjectsListComponent asApplicationAt: 'project-list').
-apps add: (WAAdmin register: ProjectReportComponent   asApplicationAt: 'project-profile').
+apps add: (WAAdmin register: ReportComponent  asApplicationAt: ReportComponent relativeUrl ).
+apps add: (WAAdmin register: ResearcherReportComponent  asApplicationAt: ResearcherReportComponent relativeUrl).
+apps add: (WAAdmin register: PublicProjectsListComponent asApplicationAt: PublicProjectsListComponent relativeUrl ).
+apps add: (WAAdmin register: ProjectReportComponent   asApplicationAt: ProjectReportComponent relativeUrl).
 
 apps do: [:app | 
  smtpServer ifNotNil: [ app	
