@@ -83,19 +83,18 @@ ProfileReportComponent >> renderPublication: each on: html [
 ProfileReportComponent >> renderPublicationsOn: html [
 	| publications |
 	html heading level2 with: 'Publicaciones'.
-	publications := (Dictionary new)
-		at: 'Publicaciones en revistas' put: report articlePublications;
-		at: 'Publicaciones en conferencias'
-			put: report inproceedingsPublications;
-		at: 'Libros' put: report bookPublications;
-		at: 'Partes de libros' put: report inbookPublications;
-		at: 'Otras publicaciones' put: report miscPublications;
+	publications := OrderedCollection new
+		add: 'Publicaciones en revistas' -> report articlePublications;
+		add: 'Publicaciones en conferencias' -> report inproceedingsPublications;
+		add: 'Libros' -> report bookPublications;
+		add: 'Partes de libros' -> report inbookPublications;
+		add: 'Otras publicaciones' -> report miscPublications;
 		yourself.
 	publications
-		keysAndValuesDo: [ :title :articles | 
-			articles
-				ifNotEmpty: [ html label with: title. 
-					articles do: [ :each | self renderPublication: each on: html ] ] ]
+		do: [ :ass | 
+			ass value
+				ifNotEmpty: [ html label with: ass key.
+					ass value do: [ :each | self renderPublication: each on: html ] ] ]
 ]
 
 { #category : #rendering }
