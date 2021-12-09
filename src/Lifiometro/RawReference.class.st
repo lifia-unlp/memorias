@@ -7,7 +7,7 @@ Class {
 		'reference',
 		'selfArchivingUrl'
 	],
-	#category : 'Lifiometro-Model'
+	#category : #'Lifiometro-Model'
 }
 
 { #category : #testing }
@@ -26,7 +26,7 @@ RawReference >> asSummary [
 ]
 
 { #category : #utility }
-RawReference >> cleanupWeirdLatexAccents [
+RawReference >> cleanupLatexAccentsAndBraces [
 	^ self
 ]
 

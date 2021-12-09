@@ -1,7 +1,7 @@
 Extension { #name : #String }
 
 { #category : #'*Lifiometro' }
-String >> copyWithoutWeirdLatexAccents [
+String >> copyWithoutLatexAccentsAndBraces [
 	| replacements newString |
 	newString := self.
 	replacements := Dictionary new.
@@ -13,7 +13,9 @@ String >> copyWithoutWeirdLatexAccents [
 		at: '{\''{\i}}' put: 'i';
 		at: '{\''{u}}' put: 'ú';
 		at: 'l{\"{o}}' put: 'ö';
-		at: 'l{\"{u}}' put: 'ü'.
+		at: 'l{\"{u}}' put: 'ü';
+		at: '{' put: '';
+		at: '}' put: ''.
 	replacements
 		associationsDo:
 			[ :ass | newString := newString copyReplaceAll: ass key with: ass value ].

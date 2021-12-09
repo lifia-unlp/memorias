@@ -8,7 +8,7 @@ Class {
 		'bibtexEntry',
 		'selfArchivingUrl'
 	],
-	#category : 'Lifiometro-Model'
+	#category : #'Lifiometro-Model'
 }
 
 { #category : #'instance creation' }
@@ -82,16 +82,16 @@ BibtexReference >> booktitle [
 ]
 
 { #category : #utility }
-BibtexReference >> cleanupWeirdLatexAccents [
-	self title: self title copyWithoutWeirdLatexAccents.
+BibtexReference >> cleanupLatexAccentsAndBraces [
+	self title: self title copyWithoutLatexAccentsAndBraces.
 	(self bibtexEntry at: 'author')
 		ifNotNil: [ self bibtexEntry
 				at: 'author'
-				put: (self bibtexEntry at: 'author') copyWithoutWeirdLatexAccents ].
+				put: (self bibtexEntry at: 'author') copyWithoutLatexAccentsAndBraces ].
 	(self bibtexEntry at: 'editor')
 		ifNotNil: [ self bibtexEntry
 				at: 'editor'
-				put: (self bibtexEntry at: 'editor') copyWithoutWeirdLatexAccents ]
+				put: (self bibtexEntry at: 'editor') copyWithoutLatexAccentsAndBraces ]
 ]
 
 { #category : #accessing }

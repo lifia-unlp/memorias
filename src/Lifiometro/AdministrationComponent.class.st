@@ -6,9 +6,9 @@ Class {
 
 { #category : #rendering }
 AdministrationComponent >> cleanupTitlesAndAuthors [
-	self session references
+	LifiometroRepository singleton references
 		do: [ :each | 
-			each cleanupWeirdLatexAccents.
+			each cleanupLatexAccentsAndBraces.
 			self session save: each ]
 ]
 
@@ -41,7 +41,7 @@ AdministrationComponent >> renderBulkActionsOn: html [
 					html break.
 					html anchor
 						callback: [ self cleanupTitlesAndAuthors ];
-						with: 'Cleanup titles'.
+						with: 'Cleanup latex accents and braces'.
 					html break.
 					html anchor
 						callback: [ self sendTestEmail ];

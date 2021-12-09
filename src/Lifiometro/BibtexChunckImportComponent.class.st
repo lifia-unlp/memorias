@@ -7,7 +7,7 @@ Class {
 		'error',
 		'newType'
 	],
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Web'
 }
 
 { #category : #callbacks }
@@ -17,7 +17,7 @@ BibtexChunckImportComponent >> accept [
 	newType notNil
 		ifTrue: [ bibtexEntry type: newType ].
 	self
-		answer: (BibtexReference bibtexEntry: bibtexEntry) cleanupWeirdLatexAccents
+		answer: (BibtexReference bibtexEntry: bibtexEntry) cleanupLatexAccentsAndBraces
 ]
 
 { #category : #accessing }

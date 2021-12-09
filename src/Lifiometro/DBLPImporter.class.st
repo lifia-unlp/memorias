@@ -10,7 +10,7 @@ Class {
 		'titlesYearsToIgnore',
 		'bibtexEntries'
 	],
-	#category : 'Lifiometro-Model'
+	#category : #'Lifiometro-Model'
 }
 
 { #category : #'instance creation' }
@@ -69,7 +69,7 @@ DBLPImporter >> fetchIgnoringDuplicatesIn: aCollectionOfReferences [
 	entriesIgnoredAsDuplicates := OrderedCollection new.
 	DoiToBibAPI ensureBibtexMimeTypeIsNotBinary.
 	[ candidateBibtexEntries := PPBibtexParser new
-		parse: (ZnClient new get: url) copyWithoutWeirdLatexAccents ]
+		parse: (ZnClient new get: url) copyWithoutLatexAccentsAndBraces ]
 		on: Error
 		do: [ :ex | 
 			error := ex messageText.
