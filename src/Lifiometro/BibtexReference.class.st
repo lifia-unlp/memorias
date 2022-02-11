@@ -83,15 +83,7 @@ BibtexReference >> booktitle [
 
 { #category : #utility }
 BibtexReference >> cleanupLatexAccentsAndBraces [
-	self title: self title copyWithoutLatexAccentsAndBraces.
-	(self bibtexEntry at: 'author')
-		ifNotNil: [ self bibtexEntry
-				at: 'author'
-				put: (self bibtexEntry at: 'author') copyWithoutLatexAccentsAndBraces ].
-	(self bibtexEntry at: 'editor')
-		ifNotNil: [ self bibtexEntry
-				at: 'editor'
-				put: (self bibtexEntry at: 'editor') copyWithoutLatexAccentsAndBraces ]
+	bibtexEntry cleanupLatexAccentsAndBraces
 ]
 
 { #category : #accessing }
