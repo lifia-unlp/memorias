@@ -7,7 +7,7 @@ Class {
 		'filteringTabsComponent',
 		'parent'
 	],
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Web'
 }
 
 { #category : #initialization }
@@ -133,4 +133,16 @@ TabbedListComponent >> renderRelatedProjectsFor: each on: html [
 				,
 					((each relatedProjects ifNil: [ Set new ])
 						collect: [ :project | project title ]) asCommaString
+]
+
+{ #category : #rendering }
+TabbedListComponent >> renderSelfArchivingUrlFor: each on: html [
+	each selfArchivingUrl ifNil: [ ^ self ].
+	each selfArchivingUrl ifEmpty: [ ^ self ].
+	html space.
+	html anchor
+		url: each selfArchivingUrl;
+		target: '_blank';
+		with: '(PDF)'.
+	html space
 ]

@@ -145,6 +145,18 @@ ReportComponent >> renderContentOn: html [
 			self renderReportOn: html ]
 ]
 
+{ #category : #'rendering-publications' }
+ReportComponent >> renderDownloadIconFor: each on: html [
+	each selfArchivingUrl
+		ifNotNil: [ :url | 
+			url
+				ifNotEmpty: [ html space.
+					html anchor
+						url: url;
+						target: '_new';
+						with: [ html tbsGlyphIcon iconDownloadAlt ] ] ]
+]
+
 { #category : #'rendering-form' }
 ReportComponent >> renderFormOn: html [
 	html
@@ -246,14 +258,7 @@ ReportComponent >> renderProjectsReportOn: html [
 { #category : #'rendering-publications' }
 ReportComponent >> renderPublication: each on: html [
 	html text: each asReference.
-	each selfArchivingUrl
-		ifNotNil: [ :url | 
-			url
-				ifNotEmpty: [ html space.
-					html anchor
-						url: url;
-						target: '_new';
-						with: [ html tbsGlyphIcon iconDownloadAlt ] ] ]
+	self renderDownloadIconFor: each on: html
 ]
 
 { #category : #'rendering-publications' }
@@ -432,14 +437,14 @@ ReportComponent >> renderThesis: each on: html [
 		ifNotNil: [ :it | each endDate asDate printString ].
 	html paragraph
 		style: 'padding:5px;';
-		with: [ html
+		with: [ html text: 'Título: ' , each title.
+			self renderDownloadIconFor: each on: html.
+			html break.
+			html
 				text: 'Alumno(s): ' , each student;
 				break.
 			html
 				text: 'Fechas: ' , each startDate asDate printString , ' - ' , endDate;
-				break.
-			html
-				text: 'Título: ' , each title;
 				break.
 			html
 				text: 'Director(es): ' , each director;

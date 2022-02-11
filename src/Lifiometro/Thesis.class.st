@@ -9,9 +9,10 @@ Class {
 		'otherAdvisors',
 		'level',
 		'student',
-		'summary'
+		'summary',
+		'selfArchivingUrl'
 	],
-	#category : 'Lifiometro-Model'
+	#category : #'Lifiometro-Model'
 }
 
 { #category : #testing }
@@ -73,7 +74,17 @@ Thesis >> otherAdvisors: anObject [
 Thesis >> propertyNames [
 	^ {'student' . 'title' . 'career' . 'level' . 'startDate' . 'endDate'.
 	'director' . 'coDirector' . 'otherAdvisors' . 'summary' . 'relatedLifians'.
-	'relatedProjects'}
+	'relatedProjects'. 'selfArchivingUrl'.}
+]
+
+{ #category : #accessing }
+Thesis >> selfArchivingUrl [
+	^ selfArchivingUrl
+]
+
+{ #category : #accessing }
+Thesis >> selfArchivingUrl: anObject [
+	selfArchivingUrl := anObject
 ]
 
 { #category : #accessing }

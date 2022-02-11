@@ -1,7 +1,7 @@
 Class {
 	#name : #ThesisListComponent,
 	#superclass : #TabbedListComponent,
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Web'
 }
 
 { #category : #adding }
@@ -71,6 +71,12 @@ ThesisListComponent >> render: each on: html [
 			html
 				text: 'Resumen: ' , each summary;
 				break ]
+]
+
+{ #category : #rendering }
+ThesisListComponent >> renderActionsFor: each on: html [
+   	self renderSelfArchivingUrlFor: each on: html.
+   super renderActionsFor: each on: html.
 ]
 
 { #category : #rendering }

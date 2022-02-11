@@ -1,7 +1,7 @@
 Class {
 	#name : #ThesisEditorComponent,
 	#superclass : #PluggableEditorComponent,
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Web'
 }
 
 { #category : #'accept/cancel' }
@@ -61,6 +61,12 @@ ThesisEditorComponent >> renderPropertyEditorsOn: html [
 		label: 'Carrera'
 		instructions: nil
 		on: html.
+	self
+		renderTextInputEditorFor: 'selfArchivingUrl'
+		label: 'URL de auto-archivado'
+		instructions: nil
+		on: html.
+
 	self
 		renderDateInputEditorFor: 'startDate'
 		label: 'Fecha de inicio'
