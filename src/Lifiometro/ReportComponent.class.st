@@ -18,10 +18,10 @@ Class {
 		'pdh',
 		'projects',
 		'scholarships',
-		'lastFiveYearsSelectors',
 		'selectedYears',
 		'specialization',
-		'report'
+		'report',
+		'lastSevenYearsSelectors'
 	],
 	#category : #'Lifiometro-Reports'
 }
@@ -35,7 +35,7 @@ ReportComponent class >> relativeUrl [
 ReportComponent >> initialize [
    super initialize.
 	older := false.
-	lastFiveYearsSelectors := {true . true . false . false . false . false}.
+	lastSevenYearsSelectors := {true . true . false . false . false . false. false}.
 	article := true.
 	inbook := true.
 	book := true.
@@ -258,7 +258,7 @@ ReportComponent >> renderPublication: each on: html [
 
 { #category : #'rendering-publications' }
 ReportComponent >> renderPublicationsIn: aCollection on: html [
-	aCollection
+	(aCollection asSortedCollection: [ :a :b | a year > b year ] )
 		do: [ :each | 
 			html paragraph
 				style: 'padding-left:5px;';
@@ -517,10 +517,10 @@ ReportComponent >> renderYearSelectorsOn: html [
 		tbsFormGroup: [ html
 				label: 'Años a incluir';
 				break.
-			0 to: 5 do: [ :i | 
+			0 to: 6 do: [ :i | 
 				html checkbox
-					value: (lastFiveYearsSelectors at: i + 1);
-					callback: [ :value | lastFiveYearsSelectors at: i + 1 put: value ].
+					value: (lastSevenYearsSelectors at: i + 1);
+					callback: [ :value | lastSevenYearsSelectors at: i + 1 put: value ].
 				html space.
 				html text: (Date today year - i) printString.
 				html break ].
@@ -591,14 +591,14 @@ h1 {
 { #category : #callbacks }
 ReportComponent >> update [
 	selectedYears := Set new.
-	Date today year - (0 to: 5)
-		with: lastFiveYearsSelectors
+	Date today year - (0 to: 6)
+		with: lastSevenYearsSelectors
 		do: [ :a :b | 
 			b
 				ifTrue: [ selectedYears add: a printString ] ].
 	older
 		ifTrue: [ selectedYears
-				addAll: ((2000 to: Date today year - 6) collect: #printString) ]
+				addAll: ((2000 to: Date today year - 7) collect: #printString) ]
 ]
 
 { #category : #callbacks }
