@@ -19,9 +19,6 @@ LifianEditorComponent >> accept [
 
 { #category : #rendering }
 LifianEditorComponent >> renderPropertyEditorsOn: html [
-	"
-startDate endDate title code director coDirector responsibleGroup fundingAgency amount summary"
-
 	self
 		renderTextInputEditorFor: 'firstName'
 		label: 'Nombre'
@@ -30,6 +27,12 @@ startDate endDate title code director coDirector responsibleGroup fundingAgency 
 	self
 		renderTextInputEditorFor: 'lastName'
 		label: 'Apellido'
+		instructions: nil
+		on: html.
+	self
+		renderSelectionEditorFor: 'positionAtLIFIA'
+		label: 'Función actual'
+		values: {'Investigador' . 'Estudiante de grado' . 'Estudiante de posgrado'}
 		instructions: nil
 		on: html.
 	self

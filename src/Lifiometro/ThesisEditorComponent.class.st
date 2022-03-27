@@ -24,26 +24,6 @@ ThesisEditorComponent >> accept [
 ]
 
 { #category : #'accept/cancel' }
-ThesisEditorComponent >> renderLevelEditorOn: html [
-	html
-		tbsFormGroup: [ html label
-				for: 'level';
-				with: 'Nivel'.
-			html break.
-			html radioGroup
-				callback: [ :value | newValues at: 'level' put: value ];
-				selected: (newValues at: 'level');
-				with: [ :group | 
-					{'Undergraduate' . 'Specialization' . 'Masters' . 'PhD'}
-						do: [ :each | 
-							group radioButton value: each.
-							html
-								space;
-								text: each;
-								break ] ] ]
-]
-
-{ #category : #'accept/cancel' }
 ThesisEditorComponent >> renderPropertyEditorsOn: html [
 	self
 		renderTextInputEditorFor: 'student'
@@ -55,7 +35,12 @@ ThesisEditorComponent >> renderPropertyEditorsOn: html [
 		label: 'Título de la tesis/tesina/trabajo'
 		instructions: nil
 		on: html.
-	self renderLevelEditorOn: html.
+	self
+		renderSelectionEditorFor: 'level'
+		label: 'Nivel'
+		values: {'Undergraduate' . 'Specialization' . 'Masters' . 'PhD'}
+		instructions: nil
+		on: html.
 	self
 		renderTextInputEditorFor: 'career'
 		label: 'Carrera'
@@ -66,7 +51,6 @@ ThesisEditorComponent >> renderPropertyEditorsOn: html [
 		label: 'URL de auto-archivado'
 		instructions: nil
 		on: html.
-
 	self
 		renderDateInputEditorFor: 'startDate'
 		label: 'Fecha de inicio'
