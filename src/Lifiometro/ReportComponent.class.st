@@ -338,31 +338,37 @@ ReportComponent >> renderPublicationsReportOn: html [
 				id: 'publications';
 				with: 'Publicaciones' ].
 	article
-		ifTrue: [ html heading
+		ifTrue: [ | articles |
+			articles := self report articlePublications.
+			html heading
 				level2;
 				id: 'article';
-				with: 'Articulos de revista'.
-			self renderPublicationsIn: self report articlePublications on: html ].
+				with: 'Articulos de revista (' , articles size greaseString , ')'.
+			self renderPublicationsIn: articles on: html ].
 	inproceedings
-		ifTrue: [ html heading
+		ifTrue: [ | articles |
+			articles := self report inproceedingsPublications.
+			html heading
 				level2;
 				id: 'inproceedings';
-				with: 'Articulos de conferencia'.
-			self
-				renderPublicationsIn: report inproceedingsPublications
-				on: html ].
+				with: 'Articulos de conferencia (' , articles size greaseString , ')'.
+			self renderPublicationsIn: articles on: html ].
 	inbook
-		ifTrue: [ html heading
+		ifTrue: [ | articles |
+			articles := self report inbookPublications.
+			html heading
 				level2;
 				id: 'inbook';
-				with: 'Capítulos de libro'.
-			self renderPublicationsIn:  self report inbookPublications on: html ].
+				with: 'Capítulos de libro (' , articles size greaseString , ')'.
+			self renderPublicationsIn: articles on: html ].
 	book
-		ifTrue: [ html heading
+		ifTrue: [ | articles |
+			articles := self report bookPublications.
+			html heading
 				level2;
 				id: 'book';
-				with: 'Libros'.
-			self renderPublicationsIn:  self report bookPublications on: html ]
+				with: 'Libros (' , articles size greaseString , ')'.
+			self renderPublicationsIn: articles on: html ]
 ]
 
 { #category : #rendering }
