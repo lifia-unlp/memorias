@@ -236,6 +236,29 @@ PluggableEditorComponent >> renderRelatedProjectsEditorOn: html [
 ]
 
 { #category : #'rendering input' }
+PluggableEditorComponent >> renderSelectionEditorFor: property label: label values: aCollectionOfValues instructions: instructions on: html [
+	| currentValue |
+	currentValue := (newValues at: property) ifNil: [ false ].
+	html
+		tbsFormGroup: [ html label
+				for: property;
+				with: label.
+			html break.
+			html radioGroup
+				callback: [ :value | newValues at: property put: value ];
+				selected: (newValues at: property);
+				with: [ :group | 
+					aCollectionOfValues
+						do: [ :each | 
+							group radioButton value: each.
+							html
+								space;
+								text: each;
+								break ] ].
+			self renderEditorInstructions: instructions on: html ]
+]
+
+{ #category : #'rendering input' }
 PluggableEditorComponent >> renderTextInputEditorFor: property label: label instructions: instructions on: html [
 	| currentValue |
 	currentValue := (newValues at: property) ifNil: [ '' ].

@@ -6,6 +6,7 @@ Class {
 		'lastName',
 		'highestDegree',
 		'coursesAtUNLP',
+		'positionAtLIFIA',
 		'positionAtUnlp',
 		'category',
 		'positionAtCIC',
@@ -242,6 +243,16 @@ Lifian >> positionAtCONICET: anObject [
 ]
 
 { #category : #accessing }
+Lifian >> positionAtLIFIA [
+	^ positionAtLIFIA
+]
+
+{ #category : #accessing }
+Lifian >> positionAtLIFIA: anObject [
+	positionAtLIFIA := anObject
+]
+
+{ #category : #accessing }
 Lifian >> positionAtUnlp [
 	^ positionAtUnlp
 ]
@@ -263,7 +274,7 @@ Lifian >> projects: anObject [
 
 { #category : #accessing }
 Lifian >> propertyNames [
-	^ #(firstName lastName highestDegree coursesAtUNLP startDate endDate positionAtUnlp category positionAtCIC positionAtCONICET projects publications advicedThesis advicedScholarships personalEmail institutionalEmail shortCvInSpanish shortCvInEnglish relatedProjects interestsInEnglish interestsInSpanish  notes orcid dblpProfile googleResearchProfile researchGateProfile phone webPage affiliations)
+	^ #(firstName lastName highestDegree coursesAtUNLP startDate endDate positionAtLIFIA positionAtUnlp category positionAtCIC positionAtCONICET projects publications advicedThesis advicedScholarships personalEmail institutionalEmail shortCvInSpanish shortCvInEnglish relatedProjects interestsInEnglish interestsInSpanish  notes orcid dblpProfile googleResearchProfile researchGateProfile phone webPage affiliations)
 		collect: #asString
 ]
 
