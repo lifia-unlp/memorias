@@ -32,7 +32,7 @@ LifianEditorComponent >> renderPropertyEditorsOn: html [
 	self
 		renderSelectionEditorFor: 'positionAtLIFIA'
 		label: 'Función actual'
-		values: {'Investigador' . 'Estudiante de grado' . 'Estudiante de posgrado'}
+		values: {'Investigador' . 'Estudiante de grado' . 'Estudiante de posgrado'. 'Investigador externo'}
 		instructions: nil
 		on: html.
 	self

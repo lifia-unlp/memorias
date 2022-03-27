@@ -157,6 +157,16 @@ ReportComponent >> renderDownloadIconFor: each on: html [
 						with: [ html tbsGlyphIcon iconDownloadAlt ] ] ]
 ]
 
+{ #category : #'rendering-researchers' }
+ReportComponent >> renderExternalResearchersOn: html [
+	self
+		renderMembers:
+			(report researchers
+				select: [ :each | each positionAtLIFIA = 'Investigador externo' ])
+		heading: 'Investigadores externos'
+		on: html
+]
+
 { #category : #'rendering-form' }
 ReportComponent >> renderFormOn: html [
 	html
@@ -240,7 +250,7 @@ ReportComponent >> renderOtherMembersOn: html [
 		renderMembers:
 			(report researchers
 				select: [ :each | each positionAtLIFIA isNil ])
-		heading: 'Asistente de investigación'
+		heading: 'Asistentes de investigación'
 		on: html
 ]
 
@@ -400,8 +410,8 @@ ReportComponent >> renderReportOn: html [
 		renderResearchersOn: html;
 		renderOtherMembersOn: html;
 		renderGraduateStudentsOn: html;
-		renderUndergraduateStudentsOn: html
-
+		renderUndergraduateStudentsOn: html;
+		renderExternalResearchersOn: html
 ]
 
 { #category : #'rendering-researchers' }
