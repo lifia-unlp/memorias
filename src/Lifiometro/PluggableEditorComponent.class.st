@@ -237,8 +237,6 @@ PluggableEditorComponent >> renderRelatedProjectsEditorOn: html [
 
 { #category : #'rendering input' }
 PluggableEditorComponent >> renderSelectionEditorFor: property label: label values: aCollectionOfValues instructions: instructions on: html [
-	| currentValue |
-	currentValue := (newValues at: property) ifNil: [ false ].
 	html
 		tbsFormGroup: [ html label
 				for: property;
