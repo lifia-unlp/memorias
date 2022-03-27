@@ -174,6 +174,16 @@ ReportComponent >> renderFormOn: html [
 						mediumSize: 4 ] ]
 ]
 
+{ #category : #'rendering-researchers' }
+ReportComponent >> renderGraduateStudentsOn: html [
+	self
+		renderMembers:
+			(report researchers
+				select: [ :each | each positionAtLIFIA = 'Estudiante de posgrado' ])
+		heading: 'Estudiantes de posgrado'
+		on: html
+]
+
 { #category : #rendering }
 ReportComponent >> renderIndexOn: html [
 	html heading
@@ -201,7 +211,37 @@ ReportComponent >> renderIndexOn: html [
 			html
 				listItem: [ html anchor
 						url: '#researchers';
-						with: 'Investigadores' ] ]
+						with: 'Participantes' ] ]
+]
+
+{ #category : #'rendering-researchers' }
+ReportComponent >> renderMembers: aCollection heading: aHeading on: html [
+	projects
+		ifFalse: [ ^ self ].
+	html heading
+		level2;
+		with: aHeading .
+	html
+		tbsTable: [ html
+				tableHead: [ html
+						tableHeading: 'Nombre';
+						tableHeading: 'Ingreso';
+						tableHeading: 'Egreso';
+						tableHeading: 'Memoria técnica' ].
+			html
+				tableBody: [ (aCollection 
+						asSortedCollection: [ :a :b | a fullName < b fullName ])
+						do: [ :each | self renderResearcher: each on: html ] ] ]
+]
+
+{ #category : #'rendering-researchers' }
+ReportComponent >> renderOtherMembersOn: html [
+	self
+		renderMembers:
+			(report researchers
+				select: [ :each | each positionAtLIFIA isNil ])
+		heading: 'Asistente de investigación'
+		on: html
 ]
 
 { #category : #'rendering-projects' }
@@ -345,8 +385,17 @@ ReportComponent >> renderReportOn: html [
 		renderPublicationsReportOn: html;
 		renderThesisReportOn: html;
 		renderScholarshipReportOn: html;
-		renderProjectsReportOn: html;
-		renderResearchersOn: html
+		renderProjectsReportOn: html.
+	html heading
+		level1;
+		id: 'researchers';
+		with: 'Participantes'.
+	self
+		renderResearchersOn: html;
+		renderOtherMembersOn: html;
+		renderGraduateStudentsOn: html;
+		renderUndergraduateStudentsOn: html
+
 ]
 
 { #category : #'rendering-researchers' }
@@ -366,23 +415,12 @@ ReportComponent >> renderResearcher: each on: html [
 
 { #category : #'rendering-researchers' }
 ReportComponent >> renderResearchersOn: html [
-	projects
-		ifFalse: [ ^ self ].
-	html heading
-		level1;
-		id: 'researchers';
-		with: 'Investigadores'.
-	html
-		tbsTable: [ html
-				tableHead: [ html
-						tableHeading: 'Nombre';
-						tableHeading: 'Ingreso';
-						tableHeading: 'Egreso';
-						tableHeading: 'Memoria técnica' ].
-			html
-				tableBody: [ (report researchers
-						asSortedCollection: [ :a :b | a fullName < b fullName ])
-						do: [ :each | self renderResearcher: each on: html ] ] ]
+	self
+		renderMembers:
+			(report researchers
+				select: [ :each | each positionAtLIFIA = 'Investigador' ])
+		heading: 'Investigadores'
+		on: html
 ]
 
 { #category : #'rendering-scholarhips' }
@@ -514,6 +552,16 @@ ReportComponent >> renderThesisReportOn: html [
 				with: 'Grado (tesina)'.
 			report undergraduateThesis
 				do: [ :each | self renderThesis: each on: html ] ]
+]
+
+{ #category : #'rendering-researchers' }
+ReportComponent >> renderUndergraduateStudentsOn: html [
+	self
+		renderMembers:
+			(report researchers
+				select: [ :each | each positionAtLIFIA = 'Estudiante de grado' ])
+		heading: 'Estudiantes de grado'
+		on: html
 ]
 
 { #category : #'rendering-form' }
