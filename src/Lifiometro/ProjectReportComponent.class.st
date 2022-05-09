@@ -83,7 +83,7 @@ ProjectReportComponent >> renderPropertiesOn: html [
 										url: '/' , (ResearcherReportComponent relativeUrlFor: each);
 										with: each fullName ]
 								separatedBy: [ html text: ', ' ] ] ] ].
-	html heading level2 with: 'Resúmen'.
+	html heading level2 with: 'Resumen'.
 	html paragraph: report project summary
 ]
 
