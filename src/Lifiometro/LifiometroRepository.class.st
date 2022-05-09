@@ -150,16 +150,13 @@ LifiometroRepository >> reportForResearcher: aLifian [
 
 { #category : #reports }
 LifiometroRepository >> reportForYears: years [
-	(latestReport notNil and: [ latestReport years asSet = years asSet ])
-		ifTrue: [ ^ latestReport ].
-	latestReport := GeneralReport
+	^ GeneralReport
 		years: years
 		projects: (self projectsActiveIn: years)
 		publications: (self referencesActiveIn: years)
 		researchers: (self researchersActiveIn: years)
 		scholarships: (self scholarshipsActiveIn: years)
-		thesis: (self thesisActiveIn: years).
-	^ latestReport
+		thesis: (self thesisActiveIn: years)
 ]
 
 { #category : #query }
