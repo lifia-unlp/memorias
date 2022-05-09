@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'newType'
 	],
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Web'
 }
 
 { #category : #callbacks }
@@ -76,5 +76,10 @@ startDate endDate title code director coDirector responsibleGroup fundingAgency 
 		label: 'Resumen'
 		instructions: nil
 		on: html.
+	self
+		renderTextInputEditorFor: 'website'
+		label: 'Sitio Web'
+		instructions: nil
+		on: html.		
 	self renderRelatedLifiansEditorOn: html
 ]

@@ -9,9 +9,10 @@ Class {
 		'responsibleGroup',
 		'fundingAgency',
 		'amount',
-		'summary'
+		'summary',
+		'website'
 	],
-	#category : 'Lifiometro-Model'
+	#category : #'Lifiometro-Model'
 }
 
 { #category : #testing }
@@ -77,7 +78,7 @@ Project >> isActive [
 { #category : #utility }
 Project >> propertyNames [
 	^ {'title' . 'code' . 'startDate' . 'endDate' . 'director' . 'coDirector'.
-	'responsibleGroup' . 'fundingAgency' . 'amount' . 'summary'. 'relatedLifians'}
+	'responsibleGroup' . 'fundingAgency' . 'amount' . 'summary'. 'relatedLifians'. 'website'}
 ]
 
 { #category : #accessing }
@@ -108,4 +109,14 @@ Project >> title [
 { #category : #accessing }
 Project >> title: anObject [
 	title := anObject
+]
+
+{ #category : #accessing }
+Project >> website [
+	^ website
+]
+
+{ #category : #accessing }
+Project >> website: anObject [
+	website := anObject
 ]

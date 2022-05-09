@@ -65,6 +65,15 @@ ProjectReportComponent >> renderPropertiesOn: html [
 				tableRow: [ html
 						tableData: 'Grupo responsable:';
 						tableData: report project responsibleGroup ].
+			report project website
+				ifNotNil: [ :website | 
+					html
+						tableRow: [ html
+								tableData: 'Sitio web:';
+								tableData: [ html anchor
+										url: website;
+										target: '_blank';
+										with: website ] ] ].
 			html
 				tableRow: [ html
 						tableData: 'Financiador:';
