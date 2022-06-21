@@ -8,6 +8,11 @@ Class {
 }
 
 { #category : #rendering }
+ProfileReportComponent >> fetchReport [
+	self subclassResponsibility
+]
+
+{ #category : #rendering }
 ProfileReportComponent >> renderContentOn: html [
 	html div
 		id: #page;
@@ -167,6 +172,11 @@ ProfileReportComponent >> renderThesisOn: html [
 ]
 
 { #category : #rendering }
+ProfileReportComponent >> renderTitleOn: html [
+	self subclassResponsibility 
+]
+
+{ #category : #rendering }
 ProfileReportComponent >> style [
 	^ '
 
@@ -213,5 +223,6 @@ table tbody th, table td {
 { #category : #rendering }
 ProfileReportComponent >> updateRoot: aWARoot [
 	super updateRoot: aWARoot.
-	aWARoot title: 'Memorias - LIFIA'
+	aWARoot title: 'Memorias - LIFIA'.
+	report := self fetchReport.
 ]

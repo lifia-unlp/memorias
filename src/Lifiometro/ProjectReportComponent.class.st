@@ -7,6 +7,9 @@ app
 Class {
 	#name : #ProjectReportComponent,
 	#superclass : #ProfileReportComponent,
+	#instVars : [
+		'void'
+	],
 	#category : #'Lifiometro-Reports'
 }
 
@@ -22,7 +25,7 @@ ProjectReportComponent class >> relativeUrlFor: aProject [
 
 { #category : #hooks }
 ProjectReportComponent >> fetchReport [
-	| void project |
+	| project |
 	void := self requestContext request at: 'vid'.
 	void ifNil: [ ^ nil ].
 	project := LifiometroRepository singleton projectWithVoyageId: void.
@@ -94,4 +97,17 @@ ProjectReportComponent >> renderResearchersOn: html [
 { #category : #hooks }
 ProjectReportComponent >> renderTitleOn: html [
 	html heading level1 with: report project title
+]
+
+{ #category : #rendering }
+ProjectReportComponent >> updateRoot: aWARoot [
+	| source |
+	
+   super updateRoot: aWARoot.
+   source := report asJsonLD.
+
+   aWARoot javascript
+  		type: 'application/json+ld';
+		with: (JSStream on: source).
+   
 ]

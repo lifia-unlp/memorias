@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'researcher'
 	],
-	#category : 'Lifiometro-Reports'
+	#category : #'Lifiometro-Reports'
 }
 
 { #category : #'instance-creation' }
@@ -29,7 +29,12 @@ ResearcherReport class >> researcher: aResearcher publications: thePublications 
 ]
 
 { #category : #export }
-ResearcherReport >> asJsonLD [
+ResearcherReport >> asJsonLDDictionary [
+	^ JsonLDWriter new researcherReportAsDictionary: self
+]
+
+{ #category : #export }
+ResearcherReport >> asJsonLD_old [
 	| researcherDict writer |
 	writer := JsonLDWriter new.
 	researcherDict := writer researcherAsDictionary: researcher.

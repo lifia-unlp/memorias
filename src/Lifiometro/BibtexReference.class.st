@@ -3,10 +3,9 @@ https://nwalsh.com/tex/texhelp/bibtx-7.html
 "
 Class {
 	#name : #BibtexReference,
-	#superclass : #LifiaLogEntry,
+	#superclass : #PublicationReference,
 	#instVars : [
-		'bibtexEntry',
-		'selfArchivingUrl'
+		'bibtexEntry'
 	],
 	#category : #'Lifiometro-Model'
 }
@@ -21,6 +20,11 @@ BibtexReference class >> bibtexEntry: anObject [
 { #category : #'instance creation' }
 BibtexReference class >> isVoyageRoot [
 	^ true 
+]
+
+{ #category : #converting }
+BibtexReference >> asJsonLDWithWriter: aJsonLDWriter [
+	^ aJsonLDWriter renderBibtexReference: self
 ]
 
 { #category : #accessing }
@@ -43,11 +47,6 @@ BibtexReference >> asReference [
 ]
 
 { #category : #accessing }
-BibtexReference >> asSummary [
-	^ self asReference
-]
-
-{ #category : #accessing }
 BibtexReference >> at: aPropertyName [
 	(self instanceVariableProperties includes: aPropertyName)
 		ifTrue: [ ^ self perform: aPropertyName asValidSelector ].
@@ -64,6 +63,20 @@ BibtexReference >> at: aPropertyName put: aValue [
 { #category : #accessing }
 BibtexReference >> authors [
 	^ self withSimplifiedAnds: bibtexEntry author
+]
+
+{ #category : #accessing }
+BibtexReference >> authorsAsCollection [
+	| stream authorsString |
+	authorsString := bibtexEntry author.
+	authorsString ifNil: [ ^ OrderedCollection new ].
+	stream := String new writeStream.
+	authorsString
+		do: [ :each | 
+			(each = Character lf or: [ each = Character cr ])
+				ifTrue: [ stream nextPut: Character space ]
+				ifFalse: [ stream nextPut: each ] ].
+	^ stream contents withBlanksCondensed splitOn: ' and '.
 ]
 
 { #category : #accessing }
@@ -94,6 +107,16 @@ BibtexReference >> editors [
 { #category : #accessing }
 BibtexReference >> instanceVariableProperties [
 	^ {'selfArchivingUrl' . 'relatedLifians' . 'relatedProjects'}
+]
+
+{ #category : #testing }
+BibtexReference >> isArticle [
+	^ bibtexEntry type = 'article'
+]
+
+{ #category : #testing }
+BibtexReference >> isPartOfBook [
+	^ bibtexEntry type = 'inproceedings' or: bibtexEntry type = 'inbook'
 ]
 
 { #category : #accessing }
@@ -146,16 +169,6 @@ BibtexReference >> propertyNames [
 { #category : #accessing }
 BibtexReference >> publisher [
 	^ (bibtexEntry at: 'publisher') ifNil: [ '' ]
-]
-
-{ #category : #accessing }
-BibtexReference >> selfArchivingUrl [
-	^ selfArchivingUrl
-]
-
-{ #category : #accessing }
-BibtexReference >> selfArchivingUrl: anObject [
-	selfArchivingUrl := anObject
 ]
 
 { #category : #accessing }

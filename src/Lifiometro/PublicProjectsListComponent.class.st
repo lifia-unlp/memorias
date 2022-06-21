@@ -30,6 +30,11 @@ PublicProjectsListComponent >> initialize [
 ]
 
 { #category : #initialization }
+PublicProjectsListComponent >> jsonLDDictionary [
+	^ JsonLDWriter new renderProjectListWithActive: activeProjects andFinishedProjects: finishedProjects
+]
+
+{ #category : #initialization }
 PublicProjectsListComponent >> projects [
 	^ LifiometroRepository singleton projects
 ]
@@ -134,8 +139,7 @@ a {
 '
 ]
 
-{ #category : #initialization }
-PublicProjectsListComponent >> updateRoot: aWARoot [
-	super updateRoot: aWARoot.
-	aWARoot title: 'LIFIA - Projectos de investigación'
+{ #category : #accessing }
+PublicProjectsListComponent >> title [
+	^ 'LIFIA - Projectos de investigación'
 ]

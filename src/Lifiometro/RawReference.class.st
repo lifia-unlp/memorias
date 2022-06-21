@@ -1,11 +1,10 @@
 Class {
 	#name : #RawReference,
-	#superclass : #LifiaLogEntry,
+	#superclass : #PublicationReference,
 	#instVars : [
 		'year',
 		'type',
-		'reference',
-		'selfArchivingUrl'
+		'reference'
 	],
 	#category : #'Lifiometro-Model'
 }
@@ -15,14 +14,14 @@ RawReference class >> isVoyageRoot [
 	^ true 
 ]
 
-{ #category : #printing }
-RawReference >> asReference [
-	^ reference
+{ #category : #converting }
+RawReference >> asJsonLDWithWriter: aJsonLDWriter [
+	^ aJsonLDWriter renderRawReference: self
 ]
 
 { #category : #printing }
-RawReference >> asSummary [
-	^ self asReference
+RawReference >> asReference [
+	^ reference
 ]
 
 { #category : #utility }
@@ -43,16 +42,6 @@ RawReference >> reference [
 { #category : #accessing }
 RawReference >> reference: anObject [
 	reference := anObject
-]
-
-{ #category : #accessing }
-RawReference >> selfArchivingUrl [
-	^ selfArchivingUrl
-]
-
-{ #category : #accessing }
-RawReference >> selfArchivingUrl: anObject [
-	selfArchivingUrl := anObject
 ]
 
 { #category : #accessing }

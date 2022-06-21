@@ -15,7 +15,7 @@ Class {
 		'specializationThesis',
 		'researchers'
 	],
-	#category : 'Lifiometro-Reports'
+	#category : #'Lifiometro-Reports'
 }
 
 { #category : #'instance creation' }
@@ -56,6 +56,11 @@ GeneralReport >> mastersThesis [
 ]
 
 { #category : #accessing }
+GeneralReport >> miscPublications [
+	^ OrderedCollection new
+]
+
+{ #category : #accessing }
 GeneralReport >> phdThesis [
 	^ phdThesis
 ]
@@ -68,6 +73,11 @@ GeneralReport >> projects [
 { #category : #accessing }
 GeneralReport >> researchers [
 	^ researchers
+]
+
+{ #category : #'as yet unclassified' }
+GeneralReport >> researchersWithPosition: aString [
+	^ self researchers select: [ :each | each positionAtLIFIA = aString ]
 ]
 
 { #category : #accessing }

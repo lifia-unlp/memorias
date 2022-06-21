@@ -48,6 +48,11 @@ ReportComponent >> initialize [
 	self update
 ]
 
+{ #category : #callbacks }
+ReportComponent >> jsonLDDictionary [
+	^ JsonLDWriter new renderGeneralReport: self report.
+]
+
 { #category : #'rendering-form' }
 ReportComponent >> renderActivitySelectorsOn: html [
 	html
@@ -657,6 +662,11 @@ h1 {
 '
 ]
 
+{ #category : #accessing }
+ReportComponent >> title [
+	^ 'Memorias - LIFIA 2'
+]
+
 { #category : #callbacks }
 ReportComponent >> update [
 	selectedYears := Set new.
@@ -668,10 +678,4 @@ ReportComponent >> update [
 	older
 		ifTrue: [ selectedYears
 				addAll: ((2000 to: Date today year - 7) collect: #printString) ]
-]
-
-{ #category : #callbacks }
-ReportComponent >> updateRoot: aWARoot [
-	super updateRoot: aWARoot.
-	aWARoot title: 'Memorias - LIFIA'
 ]
