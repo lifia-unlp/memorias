@@ -5,7 +5,7 @@ Class {
 		'researchers',
 		'project'
 	],
-	#category : 'Lifiometro-Reports'
+	#category : #'Lifiometro-Reports'
 }
 
 { #category : #'instance creation' }
@@ -17,6 +17,11 @@ ProjectReport class >> project: theProject researchers: theResearchers publicati
 			scholarships: theScholarships
 			thesis: theThesis;
 		yourself
+]
+
+{ #category : #converting }
+ProjectReport >> asJsonLDDictionary [
+	^ JsonLDWriter new projectReportAsDictionary: self
 ]
 
 { #category : #accessing }
