@@ -217,7 +217,7 @@ ReportComponent >> renderIndexOn: html [
 			html
 				listItem: [ html anchor
 						url: '#projects';
-						with: 'Projectos' ].
+						with: 'Proyectos' ].
 			html
 				listItem: [ html anchor
 						url: '#researchers';
