@@ -122,3 +122,15 @@ ResearcherReportComponent >> renderResearchersOn: html [
 ResearcherReportComponent >> renderTitleOn: html [
 	html heading level1 with: report researcher fullName
 ]
+
+{ #category : #rendering }
+ResearcherReportComponent >> updateRoot: aWARoot [
+	| source |
+	
+   super updateRoot: aWARoot.
+   source := report asJsonLD.
+
+   aWARoot javascript
+  		type: 'application/json+ld';
+		with: (JSStream on: source).
+]
