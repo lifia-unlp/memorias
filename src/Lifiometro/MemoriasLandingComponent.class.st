@@ -150,7 +150,7 @@ MemoriasLandingComponent >> renderFooterNoteOn: html [
 							html
 								paragraph: [ html text: 'Esta aplicación se '.
 									html anchor
-										url: 'https://github.com/AndresMarconi/ProyectoHuertas';
+										url: 'https://github.com/lifia-unlp/memorias';
 										target: '_blank';
 										with: 'encuentra disponible'.
 									html text: ' bajo licencia GPL3' ] ] ] ].
