@@ -3,3 +3,6 @@ Metacello new
 	repository: 'github://lifia-unlp/memorias:main';
 	onConflictUseLoaded;
 	load.
+PharoCommandLineHandler forcePreferencesOmission: true.
+
+
