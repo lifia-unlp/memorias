@@ -26,4 +26,6 @@ spec:
               value: "mongo-memorias"
             - name: DB
               value: "lifiometro"
+            - name: DEBUG
+              value: "false"
 
