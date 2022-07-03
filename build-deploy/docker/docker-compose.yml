@@ -5,9 +5,11 @@ services:
   web:
     image: cientopolis/memorias:latest
     restart: unless-stopped
+    read_only: true
     environment: 
-      DB-HOST: your-mongodb-server-ip
+      DB_HOST: your-mongodb-server-ip
       DB: lifiometro
+      DEBUG: true
     ports:
         - "8080:8080"
 
