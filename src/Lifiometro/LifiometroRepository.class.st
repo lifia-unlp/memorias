@@ -2,7 +2,7 @@ Class {
 	#name : #LifiometroRepository,
 	#superclass : #Object,
 	#instVars : [
-		'latestReport',
+		'reportsCache',
 		'auditingEnabled'
 	],
 	#classInstVars : [
@@ -32,6 +32,66 @@ LifiometroRepository >> checkConsistency [
 	BibtexReference selectAll collect: [ :each | each lastEditedBy printString].
 
 
+]
+
+{ #category : #'reports-private' }
+LifiometroRepository >> clearReportsCache [
+	reportsCache := nil
+]
+
+{ #category : #'reports-private' }
+LifiometroRepository >> createReportForProject: aProject [
+	| publications scholarships researchers thesis |
+	publications := (self references
+		select: [ :each | each relatedProjects includes: aProject ])
+		asSortedCollection: [ :a :b | a year < b year ].
+	scholarships := (self scholarships
+		select: [ :each | each relatedProjects includes: aProject ])
+		asSortedCollection: [ :a :b | a startDate < b startDate ].
+	thesis := (self thesis
+		select: [ :each | each relatedProjects includes: aProject ])
+		asSortedCollection: [ :a :b | a startDate < b startDate ].
+	researchers := aProject relatedLifians.
+	^ ProjectReport 
+		project: aProject
+		researchers: researchers
+		publications: publications
+		scholarships: scholarships
+		thesis: thesis
+]
+
+{ #category : #'reports-private' }
+LifiometroRepository >> createReportForResearcher: aLifian [
+	| publications scholarships projects thesis |
+	publications := (self references
+		select: [ :each | each relatedLifians includes: aLifian ])
+		asSortedCollection: [ :a :b | a year < b year ].
+	scholarships := (self scholarships
+		select: [ :each | each relatedLifians includes: aLifian ])
+		asSortedCollection: [ :a :b | a startDate < b startDate ].
+	thesis := (self thesis
+		select: [ :each | each relatedLifians includes: aLifian ])
+		asSortedCollection: [ :a :b | a startDate < b startDate ].
+	projects := (self projects
+		select: [ :each | each relatedLifians includes: aLifian ])
+		asSortedCollection: [ :a :b | a startDate < b startDate ].
+	^ ResearcherReport
+		researcher: aLifian
+		publications: publications
+		projects: projects
+		scholarships: scholarships
+		thesis: thesis
+]
+
+{ #category : #'reports-private' }
+LifiometroRepository >> createReportForYears: years [
+	^ GeneralReport
+		years: years
+		projects: (self projectsActiveIn: years)
+		publications: (self referencesActiveIn: years)
+		researchers: (self researchersActiveIn: years)
+		scholarships: (self scholarshipsActiveIn: years)
+		thesis: (self thesisActiveIn: years)
 ]
 
 { #category : #private }
@@ -106,57 +166,28 @@ LifiometroRepository >> remove: anObject onBehalfOf: aUser [
 
 { #category : #reports }
 LifiometroRepository >> reportForProject: aProject [
-	| publications scholarships researchers thesis |
-	publications := (self references
-		select: [ :each | each relatedProjects includes: aProject ])
-		asSortedCollection: [ :a :b | a year < b year ].
-	scholarships := (self scholarships
-		select: [ :each | each relatedProjects includes: aProject ])
-		asSortedCollection: [ :a :b | a startDate < b startDate ].
-	thesis := (self thesis
-		select: [ :each | each relatedProjects includes: aProject ])
-		asSortedCollection: [ :a :b | a startDate < b startDate ].
-	researchers := aProject relatedLifians.
-	^ ProjectReport 
-		project: aProject
-		researchers: researchers
-		publications: publications
-		scholarships: scholarships
-		thesis: thesis
+	^ self reportsCache
+		at: aProject
+		ifAbsentPut: [ self createReportForProject: aProject ]
 ]
 
 { #category : #reports }
 LifiometroRepository >> reportForResearcher: aLifian [
-	| publications scholarships projects thesis |
-	publications := (self references
-		select: [ :each | each relatedLifians includes: aLifian ])
-		asSortedCollection: [ :a :b | a year < b year ].
-	scholarships := (self scholarships
-		select: [ :each | each relatedLifians includes: aLifian ])
-		asSortedCollection: [ :a :b | a startDate < b startDate ].
-	thesis := (self thesis
-		select: [ :each | each relatedLifians includes: aLifian ])
-		asSortedCollection: [ :a :b | a startDate < b startDate ].
-	projects := (self projects
-		select: [ :each | each relatedLifians includes: aLifian ])
-		asSortedCollection: [ :a :b | a startDate < b startDate ].
-	^ ResearcherReport
-		researcher: aLifian
-		publications: publications
-		projects: projects
-		scholarships: scholarships
-		thesis: thesis
+	^ self reportsCache
+		at: aLifian
+		ifAbsentPut: [ self createReportForResearcher: aLifian ]
 ]
 
 { #category : #reports }
 LifiometroRepository >> reportForYears: years [
-	^ GeneralReport
-		years: years
-		projects: (self projectsActiveIn: years)
-		publications: (self referencesActiveIn: years)
-		researchers: (self researchersActiveIn: years)
-		scholarships: (self scholarshipsActiveIn: years)
-		thesis: (self thesisActiveIn: years)
+	^ self reportsCache
+		at: years
+		ifAbsentPut: [ self createReportForYears: years ]
+]
+
+{ #category : #'reports-private' }
+LifiometroRepository >> reportsCache [
+	^ reportsCache ifNil: [ reportsCache := Dictionary new ]
 ]
 
 { #category : #query }
@@ -179,6 +210,7 @@ LifiometroRepository >> researchersActiveIn: years [
 { #category : #update }
 LifiometroRepository >> save: anObject onBehalfOf: aUser [
 	| when |
+	self clearReportsCache. 
 	when := DateAndTime now.
 	anObject
 		lastEditedOn: when;
