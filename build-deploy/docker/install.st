@@ -1,3 +1,4 @@
+Smalltalk vm maxExternalSemaphoresSilently: 1024.
 "Install the app"
 Metacello new
 	baseline: 'Lifiometro';
