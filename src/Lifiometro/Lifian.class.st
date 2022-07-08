@@ -78,6 +78,17 @@ Lifian >> category: anObject [
 	category := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+Lifian >> contactPoints [
+	^ OrderedCollection new
+		add: (ContactPoint withType: 'ORCID' andUrl: self orcid );
+		add: (ContactPoint withType: 'Web page' andUrl: self webPage );
+		add: (ContactPoint withType: 'Research Gate' andUrl: self researchGateProfile );
+		add: (ContactPoint withType: 'Google Scholar' andUrl: self googleResearchProfile );
+		add: (ContactPoint withType: 'DBLP' andUrl: self dblpProfile );
+		yourself.
+]
+
 { #category : #accessing }
 Lifian >> coursesAtUNLP [
 	^ coursesAtUNLP
@@ -125,7 +136,8 @@ Lifian >> googleResearchProfile: anObject [
 
 { #category : #accessing }
 Lifian >> highestDegree [
-	^ highestDegree
+	highestDegree ifNotNilNotEmpty: [ ^highestDegree ].
+	^ nil
 ]
 
 { #category : #accessing }
