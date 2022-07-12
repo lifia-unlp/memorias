@@ -30,8 +30,16 @@ AdministrationComponent >> importFromDblp [
 ]
 
 { #category : #rendering }
+AdministrationComponent >> renderActiveSessionsFor: app on: html [
+	html
+		paragraph:
+			'Active sessions (' , app , '): '
+				, (WADispatcher default handlerAt: app) sessions size greaseString
+]
+
+{ #category : #rendering }
 AdministrationComponent >> renderBulkActionsOn: html [
-	^ html tbsPanel
+	 html tbsPanel
 		beDefault;
 		with: [ html tbsPanelHeading: [ html label: 'Bulk actions' ].
 			html
@@ -57,7 +65,8 @@ AdministrationComponent >> renderContentOn: html [
 	html
 		tbsPanel: [ html tbsPanelBody:
 				[ self renderUsersListOn: html.
-				self renderBulkActionsOn: html ] ]
+				self renderBulkActionsOn: html. 
+				self renderStatsOn: html ] ]
 ]
 
 { #category : #rendering }
@@ -78,6 +87,22 @@ AdministrationComponent >> renderEnabledUsersListOn: html [
 			html
 				tbsPanelBody: [ (LifiometroRepository singleton users select: [ :each | each enabled ])
 						do: [ :each | self renderUser: each on: html ] ] ]
+]
+
+{ #category : #rendering }
+AdministrationComponent >> renderStatsOn: html [
+	html tbsPanel
+		beDefault;
+		with: [ html tbsPanelHeading: [ html label: 'Statistics' ].
+			html
+				tbsPanelBody: [ {'memorias' . 'center-profile' . 'researcher-profile'.
+					'project-profile'}
+						do: [ :app | self renderActiveSessionsFor: app on: html ].
+					html
+						paragraph:
+							'Memory usage: '
+								, (Smalltalk vm memorySize / 1048576) truncated greaseString
+								, ' MB' ] ]
 ]
 
 { #category : #rendering }
