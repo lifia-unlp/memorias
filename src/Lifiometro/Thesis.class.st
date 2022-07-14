@@ -10,7 +10,9 @@ Class {
 		'level',
 		'student',
 		'summary',
-		'selfArchivingUrl'
+		'selfArchivingUrl',
+		'progress',
+		'keywords'
 	],
 	#category : #'Lifiometro-Model'
 }
@@ -51,6 +53,16 @@ Thesis >> director: anObject [
 ]
 
 { #category : #accessing }
+Thesis >> keywords [
+	^ keywords
+]
+
+{ #category : #accessing }
+Thesis >> keywords: anObject [
+	keywords := anObject
+]
+
+{ #category : #accessing }
 Thesis >> level [
 	^ level
 ]
@@ -71,10 +83,20 @@ Thesis >> otherAdvisors: anObject [
 ]
 
 { #category : #accessing }
+Thesis >> progress [
+	^ progress
+]
+
+{ #category : #accessing }
+Thesis >> progress: anObject [
+	progress := anObject
+]
+
+{ #category : #accessing }
 Thesis >> propertyNames [
 	^ {'student' . 'title' . 'career' . 'level' . 'startDate' . 'endDate'.
 	'director' . 'coDirector' . 'otherAdvisors' . 'summary' . 'relatedLifians'.
-	'relatedProjects'. 'selfArchivingUrl'.}
+	'relatedProjects' . 'selfArchivingUrl' . 'progress' . 'keywords'}
 ]
 
 { #category : #accessing }

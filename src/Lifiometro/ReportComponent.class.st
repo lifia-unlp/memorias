@@ -494,12 +494,20 @@ ReportComponent >> renderThesis: each on: html [
 		with: [ html text: 'Título: ' , each title.
 			self renderDownloadIconFor: each on: html.
 			html break.
+			each keywords
+				ifNotNil: [ html
+						text: 'Palabras clave: ' , each keywords;
+						break ].
 			html
 				text: 'Alumno(s): ' , each student;
 				break.
 			html
 				text: 'Fechas: ' , each startDate asDate printString , ' - ' , endDate;
 				break.
+			each progress
+				ifNotNil: [ html
+						text: 'Grado de avance: ' , each progress;
+						break ].
 			html
 				text: 'Director(es): ' , each director;
 				break.

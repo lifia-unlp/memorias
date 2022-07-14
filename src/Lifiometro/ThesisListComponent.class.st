@@ -60,6 +60,12 @@ ThesisListComponent >> render: each on: html [
 				text: 'Título: ' , each title;
 				break.
 			html
+				text: 'Keywords: ' , (each keywords ifNil:['']);
+				break.
+			html
+				text: 'Grado de avance: ' , (each progress ifNil: ['N/A']);
+				break.
+			html
 				text: 'Director(es): ' , each director;
 				break.
 			html

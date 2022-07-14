@@ -36,10 +36,21 @@ ThesisEditorComponent >> renderPropertyEditorsOn: html [
 		instructions: nil
 		on: html.
 	self
+		renderTextInputEditorFor: 'keywords'
+		label: 'Keywords (separadas con coma)'
+		instructions: nil
+		on: html.
+	self
 		renderSelectionEditorFor: 'level'
 		label: 'Nivel'
 		values: {'Undergraduate' . 'Specialization' . 'Masters' . 'PhD'}
 		instructions: nil
+		on: html.
+	self
+		renderSelectionEditorFor: 'progress'
+		label: 'Grado de avance'
+		values: {'0%' . '25%' . '50%' . '75%' . '90%' . '100%'}
+		instructions: 'Si el grado de avance es 90% solo faltaría defender'
 		on: html.
 	self
 		renderTextInputEditorFor: 'career'
