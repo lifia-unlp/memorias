@@ -94,7 +94,7 @@ BibtexReference >> editors [
 
 { #category : #accessing }
 BibtexReference >> instanceVariableProperties [
-	^ {'selfArchivingUrl' . 'relatedLifians' . 'relatedProjects'}
+	^ {'selfArchivingUrl' . 'relatedLifians' . 'relatedProjects'. 'relatedThesis'}
 ]
 
 { #category : #accessing }
@@ -137,7 +137,6 @@ BibtexReference >> propertyNames [
 			{'author' . 'editor' . 'title' . 'publisher' . 'year' . 'volume'.
 			'series' . 'address' . 'edition' . 'month' . 'note'}.
 	existing addAll: (standardFields at: bibtexEntry type).
-	existing := existing asOrderedCollection.
 	existing
 		add: 'selfArchivingUrl';
 		add: 'relatedProjects';

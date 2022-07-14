@@ -167,6 +167,11 @@ ProfileReportComponent >> renderThesisOn: html [
 ]
 
 { #category : #rendering }
+ProfileReportComponent >> renderTitleOn: html [
+	self subclassResponsibility 
+]
+
+{ #category : #rendering }
 ProfileReportComponent >> style [
 	^ '
 

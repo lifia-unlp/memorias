@@ -15,6 +15,79 @@ ThesisReportComponent class >> relativeUrlFor: item [
 ]
 
 { #category : #rendering }
-ThesisReportComponent >> renderContentOn: html [
+ThesisReportComponent >> fetchReport [
+	| void project |
+	void := self requestContext request at: 'vid'.
+	void ifNil: [ ^ nil ].
+	project := LifiometroRepository singleton thesisWithVoyageId: void.
+	project ifNil: [ ^ nil ].
+	^ LifiometroRepository singleton reportForThesis: project
+]
+
+{ #category : #rendering }
+ThesisReportComponent >> renderPropertiesOn: html [
+	html heading level2 with: 'Ficha técnica'.
+	html
+		table: [ html
+				tableRow: [ html
+						tableData: 'Título:';
+						tableData: report thesis title ].
+			html
+				tableRow: [ html
+						tableData: 'Alumno:';
+						tableData: report thesis student ].
+			html
+				tableRow: [ html
+						tableData: 'Duración:';
+						tableData:
+							report thesis startDate asDate printString , ' - '
+								, report thesis endDate asDate printString ].
+			html
+				tableRow: [ html
+						tableData: 'Dirección:';
+						tableData: report thesis director ].
+			html
+				tableRow: [ html
+						tableData: 'Co-Dirección:';
+						tableData: report thesis coDirector ].
+			report thesis website
+				ifNotNil: [ :website | 
+					html
+						tableRow: [ html
+								tableData: 'Sitio web:';
+								tableData: [ html anchor
+										url: website;
+										target: '_blank';
+										with: website ] ] ].
+			html
+				tableRow: [ html
+						tableData: 'Participantes (del LIFIA)';
+						tableData: [ report relatedLifians
+								do: [ :each | 
+									html anchor
+										target: '_blank';
+										url: '/' , (ResearcherReportComponent relativeUrlFor: each);
+										with: each fullName ]
+								separatedBy: [ html text: ', ' ] ] ] ].
+	html heading level2 with: 'Resumen'.
+	html paragraph: report thesis summary
+]
+
+{ #category : #rendering }
+ThesisReportComponent >> renderResearchersOn: html [
+]
+
+{ #category : #rendering }
+ThesisReportComponent >> renderScholarshipsOn: html [
+
+]
+
+{ #category : #rendering }
+ThesisReportComponent >> renderThesisOn: html [
 	
+]
+
+{ #category : #rendering }
+ThesisReportComponent >> renderTitleOn: html [
+	html heading level1 with: report thesis title
 ]

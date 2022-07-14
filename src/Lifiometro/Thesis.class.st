@@ -12,7 +12,8 @@ Class {
 		'summary',
 		'selfArchivingUrl',
 		'progress',
-		'keywords'
+		'keywords',
+		'website'
 	],
 	#category : #'Lifiometro-Model'
 }
@@ -96,7 +97,7 @@ Thesis >> progress: anObject [
 Thesis >> propertyNames [
 	^ {'student' . 'title' . 'career' . 'level' . 'startDate' . 'endDate'.
 	'director' . 'coDirector' . 'otherAdvisors' . 'summary' . 'relatedLifians'.
-	'relatedProjects' . 'selfArchivingUrl' . 'progress' . 'keywords'}
+	'relatedProjects' . 'selfArchivingUrl' . 'progress' . 'keywords'. 'website'}
 ]
 
 { #category : #accessing }
@@ -137,4 +138,14 @@ Thesis >> title [
 { #category : #accessing }
 Thesis >> title: anObject [
 	title := anObject
+]
+
+{ #category : #accessing }
+Thesis >> website [
+	^ website
+]
+
+{ #category : #accessing }
+Thesis >> website: anObject [
+	website := anObject
 ]

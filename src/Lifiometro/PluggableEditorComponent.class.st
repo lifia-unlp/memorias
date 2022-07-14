@@ -237,7 +237,7 @@ PluggableEditorComponent >> renderRelatedProjectsEditorOn: html [
 				id: 'relatedProjects' ]
 ]
 
-{ #category : #utility }
+{ #category : #'rendering input' }
 PluggableEditorComponent >> renderRelatedThesisEditorOn: html [
 	| currentValue |
 	currentValue := newValues at: 'relatedThesis'.
@@ -254,7 +254,7 @@ PluggableEditorComponent >> renderRelatedThesisEditorOn: html [
 				size: 10;
 				class: 'form-control';
 				labels: [ :thesis | thesis student , '. ' , thesis title ];
-				callback: [ :value | newValues at: 'relatedThesis' put: value ];
+				callback: [ :value | newValues at: 'relatedThesis' put: value . ];
 				with: currentValue;
 				id: 'relatedThesis' ]
 ]

@@ -84,6 +84,18 @@ LifiometroRepository >> createReportForResearcher: aLifian [
 ]
 
 { #category : #'reports-private' }
+LifiometroRepository >> createReportForThesis: thesis [
+	| publications |
+	publications := (self references
+		select: [ :each | 
+			each relatedThesis
+				ifNil: [ false ]
+				ifNotNil: [ :relatedThesis | relatedThesis includes: thesis ] ])
+		asSortedCollection: [ :a :b | a year < b year ].
+	^ ThesisReport thesis: thesis publications: publications
+]
+
+{ #category : #'reports-private' }
 LifiometroRepository >> createReportForYears: years [
 	^ GeneralReport
 		years: years
@@ -179,6 +191,13 @@ LifiometroRepository >> reportForResearcher: aLifian [
 ]
 
 { #category : #reports }
+LifiometroRepository >> reportForThesis: aThesis [
+	^ self reportsCache
+		at: aThesis
+		ifAbsentPut: [ self createReportForThesis: aThesis ]
+]
+
+{ #category : #reports }
 LifiometroRepository >> reportForYears: years [
 	^ self reportsCache
 		at: years
@@ -252,6 +271,13 @@ LifiometroRepository >> thesis [
 { #category : #query }
 LifiometroRepository >> thesisActiveIn: years [
 	^ self filter: self thesis toYears: years
+]
+
+{ #category : #query }
+LifiometroRepository >> thesisWithVoyageId: void [
+	^ Thesis selectAll
+		detect: [ :each | each voyageId printString = void ]
+		ifNone: [ nil ]
 ]
 
 { #category : #query }
