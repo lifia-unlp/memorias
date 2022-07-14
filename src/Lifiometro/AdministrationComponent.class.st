@@ -96,7 +96,7 @@ AdministrationComponent >> renderStatsOn: html [
 		with: [ html tbsPanelHeading: [ html label: 'Statistics' ].
 			html
 				tbsPanelBody: [ {'memorias' . 'center-profile' . 'researcher-profile'.
-					'project-profile'}
+					'project-profile'. 'project-list'}
 						do: [ :app | self renderActiveSessionsFor: app on: html ].
 					html
 						paragraph:
