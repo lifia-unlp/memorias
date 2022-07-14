@@ -40,6 +40,8 @@ apps add: (WAAdmin register: ReportComponent  asApplicationAt: 'center-profile')
 apps add: (WAAdmin register: ResearcherReportComponent  asApplicationAt: 'researcher-profile').
 apps add: (WAAdmin register: PublicProjectsListComponent asApplicationAt: 'project-list').
 apps add: (WAAdmin register: ProjectReportComponent   asApplicationAt: 'project-profile').
+apps add: (WAAdmin register: PublicThesisListComponent asApplicationAt: 'thesis-list').
+apps add: (WAAdmin register: ThesisReportComponent asApplicationAt: 'thesis-profile').
 
 apps do: [:app | 
  smtpServer ifNotNil: [ app	
