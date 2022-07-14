@@ -41,7 +41,7 @@ PluggableEditorComponent >> item: anItemWithProperties [
 		do: [ :each | newValues at: each put: ((item at: each) ifNil: [ '' ]) ]
 ]
 
-{ #category : #'rendering input' }
+{ #category : #accessing }
 PluggableEditorComponent >> lifians [
 	^ LifiometroRepository singleton  lifians
 		asSortedCollection: [ :a :b | a lastName < b lastName ]
@@ -60,7 +60,7 @@ PluggableEditorComponent >> obtainDateValueFromString: aString [
 	^ newDate asDate
 ]
 
-{ #category : #'rendering input' }
+{ #category : #accessing }
 PluggableEditorComponent >> projects [
 	^ LifiometroRepository singleton projects
 		asSortedCollection: [ :a :b | a startDate > b startDate ]
@@ -169,6 +169,8 @@ PluggableEditorComponent >> renderInputEditorFor: property on: html [
 		ifTrue: [ ^ self renderRelatedLifiansEditorOn: html ].
 	property = 'relatedProjects'
 		ifTrue: [ ^ self renderRelatedProjectsEditorOn: html ].
+	property = 'relatedThesis'
+		ifTrue: [ ^ self renderRelatedThesisEditorOn: html ].
 	^ self renderTextInputEditorFor: property on: html
 ]
 
@@ -235,6 +237,28 @@ PluggableEditorComponent >> renderRelatedProjectsEditorOn: html [
 				id: 'relatedProjects' ]
 ]
 
+{ #category : #utility }
+PluggableEditorComponent >> renderRelatedThesisEditorOn: html [
+	| currentValue |
+	currentValue := newValues at: 'relatedThesis'.
+	html
+		tbsFormGroup: [ html label
+				for: 'relatedThesis';
+				with: 'Tesis/tesinas vinculadas'.
+			html
+				break;
+				small: 'Use control+click para seleccionar varios'.
+			html multiSelect
+				list: self thesis;
+				selected: currentValue;
+				size: 10;
+				class: 'form-control';
+				labels: [ :thesis | thesis student , '. ' , thesis title ];
+				callback: [ :value | newValues at: 'relatedThesis' put: value ];
+				with: currentValue;
+				id: 'relatedThesis' ]
+]
+
 { #category : #'rendering input' }
 PluggableEditorComponent >> renderSelectionEditorFor: property label: label values: aCollectionOfValues instructions: instructions on: html [
 	html
@@ -293,6 +317,12 @@ PluggableEditorComponent >> renderTextInputEditorFor: property on: html [
 				callback: [ :value | newValues at: property put: value ];
 				with: currentValue;
 				id: property ]
+]
+
+{ #category : #accessing }
+PluggableEditorComponent >> thesis [
+	^ LifiometroRepository singleton  thesis
+		asSortedCollection: [ :a :b | a startDate > b startDate ]
 ]
 
 { #category : #rendering }

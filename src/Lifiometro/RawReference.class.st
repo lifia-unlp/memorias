@@ -5,7 +5,8 @@ Class {
 		'year',
 		'type',
 		'reference',
-		'selfArchivingUrl'
+		'selfArchivingUrl',
+		'relatedThesis'
 	],
 	#category : #'Lifiometro-Model'
 }
@@ -32,7 +33,7 @@ RawReference >> cleanupLatexAccentsAndBraces [
 
 { #category : #accessing }
 RawReference >> propertyNames [
-	^ {'reference' . 'year' . 'selfArchivingUrl' . 'relatedLifians'. 'relatedProjects'}
+	^ {'reference' . 'year' . 'selfArchivingUrl' . 'relatedLifians'. 'relatedProjects'. 'relatedThesis' }
 ]
 
 { #category : #accessing }
@@ -43,6 +44,16 @@ RawReference >> reference [
 { #category : #accessing }
 RawReference >> reference: anObject [
 	reference := anObject
+]
+
+{ #category : #accessing }
+RawReference >> relatedThesis [
+	^ relatedThesis
+]
+
+{ #category : #accessing }
+RawReference >> relatedThesis: anObject [
+	relatedThesis := anObject
 ]
 
 { #category : #accessing }

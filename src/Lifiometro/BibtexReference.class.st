@@ -6,7 +6,8 @@ Class {
 	#superclass : #LifiaLogEntry,
 	#instVars : [
 		'bibtexEntry',
-		'selfArchivingUrl'
+		'selfArchivingUrl',
+		'relatedThesis'
 	],
 	#category : #'Lifiometro-Model'
 }
@@ -136,16 +137,28 @@ BibtexReference >> propertyNames [
 			{'author' . 'editor' . 'title' . 'publisher' . 'year' . 'volume'.
 			'series' . 'address' . 'edition' . 'month' . 'note'}.
 	existing addAll: (standardFields at: bibtexEntry type).
+	existing := existing asOrderedCollection.
 	existing
 		add: 'selfArchivingUrl';
 		add: 'relatedProjects';
-		add: 'relatedLifians'.
+		add: 'relatedLifians';
+		add: 'relatedThesis'.
 	^ existing
 ]
 
 { #category : #accessing }
 BibtexReference >> publisher [
 	^ (bibtexEntry at: 'publisher') ifNil: [ '' ]
+]
+
+{ #category : #accessing }
+BibtexReference >> relatedThesis [
+	^ relatedThesis
+]
+
+{ #category : #accessing }
+BibtexReference >> relatedThesis: anObject [
+	relatedThesis := anObject
 ]
 
 { #category : #accessing }
