@@ -34,11 +34,6 @@ PublicThesisListComponent >> prepareSections [
 			((allThesis select: [ :each | each level = 'Masters' ])
 				asSortedCollection: [ :a :b | a startDate > b startDate ]).
 	self
-		addSectionTitled: 'Masters'
-		with:
-			((allThesis select: [ :each | each level = 'Masters' ])
-				asSortedCollection: [ :a :b | a startDate > b startDate ]).
-	self
 		addSectionTitled: 'Especialización'
 		with:
 			((allThesis select: [ :each | each level = 'Specialization' ])
