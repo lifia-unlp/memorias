@@ -55,7 +55,7 @@ ThesisReportComponent >> renderPropertiesOn: html [
 						tableData: 'Co-Dirección:';
 						tableData: report thesis coDirector ].
 			report thesis website
-				ifNotNil: [ :website | 
+				ifNotNilNotEmpty: [ :website | 
 					html
 						tableRow: [ html
 								tableData: 'Sitio web:';
@@ -63,13 +63,14 @@ ThesisReportComponent >> renderPropertiesOn: html [
 										url: website;
 										target: '_blank';
 										with: website ] ] ].
-			report thesis selfArchivingUrl isEmptyOrNil
-				ifFalse: [ html
+			report thesis selfArchivingUrl
+				ifNotNilNotEmpty: [ :it | 
+					html
 						tableRow: [ html
 								tableData: 'Informe final:';
 								tableData: [ html anchor
 										target: '_blank';
-										url: report thesis selfArchivingUrl;
+										url: it;
 										with: 'descargar' ] ] ].
 			html
 				tableRow: [ html
