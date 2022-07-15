@@ -59,8 +59,13 @@ ThesisEditorComponent >> renderPropertyEditorsOn: html [
 		on: html.
 	self
 		renderTextInputEditorFor: 'selfArchivingUrl'
-		label: 'URL de auto-archivado'
+		label: 'URL de auto-archivado (reporte final)'
 		instructions: nil
+		on: html.
+	self
+		renderTextInputEditorFor: 'website'
+		label: 'Sitio web'
+		instructions: 'Utilizar en caso de que exista un sitio web para el seguimiento del trabajo'
 		on: html.
 	self
 		renderDateInputEditorFor: 'startDate'

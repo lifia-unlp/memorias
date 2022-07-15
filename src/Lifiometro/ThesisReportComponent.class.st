@@ -71,7 +71,7 @@ ThesisReportComponent >> renderPropertiesOn: html [
 								tableData: [ html anchor
 										target: '_blank';
 										url: it;
-										with: 'descargar' ] ] ].
+										with: it ] ] ].
 			html
 				tableRow: [ html
 						tableData: 'Participantes (del LIFIA)';
