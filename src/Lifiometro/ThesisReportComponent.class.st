@@ -63,14 +63,13 @@ ThesisReportComponent >> renderPropertiesOn: html [
 										url: website;
 										target: '_blank';
 										with: website ] ] ].
-			report thesis selfArchivingUrl
-				ifNotNil: [ :it | 
-					html
+			report thesis selfArchivingUrl isEmptyOrNil
+				ifFalse: [ html
 						tableRow: [ html
 								tableData: 'Informe final:';
 								tableData: [ html anchor
 										target: '_blank';
-										url: it;
+										url: report thesis selfArchivingUrl;
 										with: 'descargar' ] ] ].
 			html
 				tableRow: [ html
