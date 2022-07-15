@@ -41,7 +41,10 @@ ThesisReportComponent >> renderPropertiesOn: html [
 						tableData: 'Duración:';
 						tableData:
 							report thesis startDate asDate printString , ' - '
-								, report thesis endDate asDate printString ].
+								,
+									(report thesis endDate
+										ifNil: [ '' ]
+										ifNotNil: [ :it | it asDate printString ]) ].
 			html
 				tableRow: [ html
 						tableData: 'Dirección:';
