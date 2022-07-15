@@ -38,13 +38,14 @@ ThesisReportComponent >> renderPropertiesOn: html [
 						tableData: report thesis student ].
 			html
 				tableRow: [ html
-						tableData: 'Duración:';
-						tableData:
-							report thesis startDate asDate printString , ' - '
-								,
-									(report thesis endDate
-										ifNil: [ '' ]
-										ifNotNil: [ :it | it asDate printString ]) ].
+						tableData: 'Inicio:';
+						tableData: report thesis startDate asDate printString ].
+			report thesis endDate
+				ifNotNil: [ :it | 
+					html
+						tableRow: [ html
+								tableData: 'Fecha de defensa:';
+								tableData: it asDate printString ] ].
 			html
 				tableRow: [ html
 						tableData: 'Dirección:';
@@ -62,6 +63,15 @@ ThesisReportComponent >> renderPropertiesOn: html [
 										url: website;
 										target: '_blank';
 										with: website ] ] ].
+			report thesis selfArchivingUrl
+				ifNotNil: [ :it | 
+					html
+						tableRow: [ html
+								tableData: 'Informe final:';
+								tableData: [ html anchor
+										target: '_blank';
+										url: it;
+										with: 'descargar' ] ] ].
 			html
 				tableRow: [ html
 						tableData: 'Participantes (del LIFIA)';

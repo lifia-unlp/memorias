@@ -74,7 +74,7 @@ PublicThesisListComponent >> renderItem: item on: html [
 
 { #category : #initialization }
 PublicThesisListComponent >> reportTitle [
-	^ 'Tesis, trabajos finales y tesinas '
+	^ 'Doctorados, tesis, y tesinas '
 		,
 			(self completed
 				ifFalse: [ 'en curso' ]
