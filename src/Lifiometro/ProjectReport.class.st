@@ -19,11 +19,6 @@ ProjectReport class >> project: theProject researchers: theResearchers publicati
 		yourself
 ]
 
-{ #category : #converting }
-ProjectReport >> asJsonLDDictionary [
-	^ JsonLDWriter new projectReportAsDictionary: self
-]
-
 { #category : #accessing }
 ProjectReport >> project [
 	^ project

@@ -80,6 +80,11 @@ GeneralReport >> researchersWithPosition: aString [
 	^ self researchers select: [ :each | each positionAtLIFIA = aString ]
 ]
 
+{ #category : #'as yet unclassified' }
+GeneralReport >> researchersWithoutPosition [
+	^ self researchers select: [ :each | each positionAtLIFIA isNil ]
+]
+
 { #category : #accessing }
 GeneralReport >> scholarships [
 	^ scholarships

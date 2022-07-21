@@ -23,6 +23,11 @@ ProjectReportComponent class >> relativeUrlFor: aProject [
 	^ 'project-profile?vid=' , aProject voyageId printString
 ]
 
+{ #category : #'as yet unclassified' }
+ProjectReportComponent >> buildJsonLDDictionary [
+	^ JsonLDWriter new projectReportAsDictionary: report
+]
+
 { #category : #hooks }
 ProjectReportComponent >> fetchReport [
 	| project |
@@ -91,23 +96,6 @@ ProjectReportComponent >> renderPropertiesOn: html [
 ]
 
 { #category : #hooks }
-ProjectReportComponent >> renderResearchersOn: html [
-]
-
-{ #category : #hooks }
 ProjectReportComponent >> renderTitleOn: html [
 	html heading level1 with: report project title
-]
-
-{ #category : #rendering }
-ProjectReportComponent >> updateRoot: aWARoot [
-	| source |
-	
-   super updateRoot: aWARoot.
-   source := report asJsonLD.
-
-   aWARoot javascript
-  		type: 'application/json+ld';
-		with: (JSStream on: source).
-   
 ]

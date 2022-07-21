@@ -15,20 +15,6 @@ IndividualReport >> articlePublications [
 	^ publications select: [ :each | each type = 'article' ]
 ]
 
-{ #category : #converting }
-IndividualReport >> asJsonLD [
-  ^ String
-		streamContents: [ :stream | 
-			(NeoJSONWriter on: stream)
-				prettyPrint: true;
-				nextPut: self asJsonLDDictionary ]
-]
-
-{ #category : #converting }
-IndividualReport >> asJsonLDDictionary [
-	^ self subclassResponsibility
-]
-
 { #category : #accessing }
 IndividualReport >> bookPublications [
 	^ publications select: [ :each | each type = 'book' ]

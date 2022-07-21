@@ -151,7 +151,7 @@ HomeComponent >> renderWaitForActivationOn: html [
 
 { #category : #callback }
 HomeComponent >> showReports [
-	self show: ReportComponent new.
+	self show: GeneralReportComponent new.
 ]
 
 { #category : #callback }

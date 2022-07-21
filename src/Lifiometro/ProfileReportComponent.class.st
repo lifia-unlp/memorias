@@ -1,6 +1,6 @@
 Class {
 	#name : #ProfileReportComponent,
-	#superclass : #WAComponent,
+	#superclass : #ReportComponent,
 	#instVars : [
 		'report'
 	],
@@ -13,18 +13,22 @@ ProfileReportComponent >> fetchReport [
 ]
 
 { #category : #rendering }
+ProfileReportComponent >> initialize [ 
+	super initialize.
+	report := self fetchReport.
+]
+
+{ #category : #rendering }
 ProfileReportComponent >> renderContentOn: html [
 	html div
 		id: #page;
 		with: [ self renderHeaderOn: html.
-			report := self fetchReport.
 			report
 				ifNil: [ ^ html
 						render:
 							'Por ahora no tengo información suficiente para generar el reporte. ¿Tal vez la URL no es correcta? ' ].
 			self renderTitleOn: html.
 			self renderPropertiesOn: html.
-			self renderResearchersOn: html.
 			self renderPublicationsOn: html.
 			self renderProjectsOn: html.
 			self renderScholarshipsOn: html.
@@ -104,6 +108,7 @@ ProfileReportComponent >> renderPublicationsOn: html [
 
 { #category : #rendering }
 ProfileReportComponent >> renderResearchersOn: html [
+	"This method is not used currently, should probably be deleted"
 	html heading level2 with: 'Integrantes'.
 	html
 		unorderedList: [ report researchers
@@ -218,11 +223,4 @@ table tbody th, table td {
 }
 
 '
-]
-
-{ #category : #rendering }
-ProfileReportComponent >> updateRoot: aWARoot [
-	super updateRoot: aWARoot.
-	aWARoot title: 'Memorias - LIFIA'.
-	report := self fetchReport.
 ]

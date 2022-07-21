@@ -5,7 +5,7 @@ app addLibrary: TBSDeploymentLibrary
 "
 Class {
 	#name : #PublicProjectsListComponent,
-	#superclass : #PublicReportComponent,
+	#superclass : #ReportComponent,
 	#instVars : [
 		'finishedProjects',
 		'activeProjects'
@@ -19,6 +19,11 @@ PublicProjectsListComponent class >> relativeUrl [
 ]
 
 { #category : #initialization }
+PublicProjectsListComponent >> buildJsonLDDictionary [ 
+	^ JsonLDWriter new projectListAsDictionary: self projects
+]
+
+{ #category : #initialization }
 PublicProjectsListComponent >> initialize [
 	super initialize.
 	finishedProjects := SortedCollection
@@ -27,11 +32,6 @@ PublicProjectsListComponent >> initialize [
 	activeProjects := SortedCollection
 		sortBlock: [ :a :b | a startDate > b startDate ].
 	activeProjects addAll: (self projects select: #isActive)
-]
-
-{ #category : #initialization }
-PublicProjectsListComponent >> jsonLDDictionary [
-	^ JsonLDWriter new renderProjectListWithActive: activeProjects andFinishedProjects: finishedProjects
 ]
 
 { #category : #initialization }

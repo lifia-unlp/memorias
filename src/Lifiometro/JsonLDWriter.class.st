@@ -4,126 +4,52 @@ Class {
 	#category : #'Lifiometro-Reports'
 }
 
-{ #category : #'as yet unclassified' }
-JsonLDWriter >> grantWithFunder: aString andAmount: aNumber [
-	^ KeyedTree new
-		at: '@type' put: 'MonetaryGrant';
-		at: 'funder' put: (self organizationWithName: aString);
-		at: 'amount' put: (self monetaryAmountWithValue: aNumber andCurrency: 'ARG');
-		yourself
-]
-
-{ #category : #'as yet unclassified' }
-JsonLDWriter >> graphWith: aCollection [
-	^ KeyedTree new
-		at: '@context' put: 'http://schema.org';
-		at: '@graph' put: aCollection;
-		yourself 
-]
-
-{ #category : #'as yet unclassified' }
-JsonLDWriter >> itemListWithName: aString andElements: aCollection [
-	^ KeyedTree new
-		at: '@type' put: 'ItemList';
-		at: 'name' put: aString;
-		at: 'itemListElement' put: aCollection;
-		yourself 
+{ #category : #rendering }
+JsonLDWriter >> generalReportAsDictionary: aGeneralReport [
+	^ self
+		renderGraphWith:
+			(OrderedCollection new
+				add: (self renderPublicationsByType: aGeneralReport);
+				add: (self renderThesesByType: aGeneralReport);
+				add: (self renderScholarships: aGeneralReport);
+				add:
+					(self
+						renderList:
+							(aGeneralReport projects collect: [ :each | self renderProject: each ])
+						withName: 'Proyectos');
+				add: (self renderParticipantsByType: aGeneralReport);
+				add: self renderLifiaAsOrganization;
+				yourself)
 ]
 
 { #category : #writing }
-JsonLDWriter >> lifiaAsDictionary [
-	^ Dictionary new
-		at: '@context' put: 'https://schema.org';
-		at: '@type' put: 'Organization';
-		at: '@id' put: 'main-organization';
-		at: 'name' put: 'Centro de Investigación LIFIA';
-		at: 'url' put: 'http://www.lifia.info.unlp.edu.ar/';
-		yourself
-]
-
-{ #category : #'as yet unclassified' }
-JsonLDWriter >> monetaryAmountWithValue: aNumber andCurrency: aString [
-	^ KeyedTree new
-		at: '@type' put: 'MonetaryAmount';
-		at: 'currency' put: aString;
-		at: 'value' put: aNumber;
-		yourself 
-]
-
-{ #category : #'as yet unclassified' }
-JsonLDWriter >> organizationWithName: aString [
-	^ KeyedTree new
-		at: '@type' put: 'Organization';
-		at: 'name' put: aString;
-		yourself
-]
-
-{ #category : #'as yet unclassified' }
-JsonLDWriter >> personWithName: aString [
-	^ KeyedTree new 
-		at: '@type' put: 'Person';
-		at: 'name' put: aString;
-		yourself
-]
-
-{ #category : #'as yet unclassified' }
-JsonLDWriter >> personWithName: aString andUrl: anotherString [
-	^ (self personWithName: aString)
-		at: 'mainEntityOfPage' put: anotherString;
-		yourself
-]
-
-{ #category : #writing }
-JsonLDWriter >> projectAsDictionary: aProject [
-	| members |
-	members := OrderedCollection new
-		add: (self roleWith: (self personWithName: aProject director) andRoleName: 'Director' andName: 'members');
-		add: (self roleWith: (self personWithName: aProject coDirector) andRoleName: 'Co-Director' andName: 'members');
-		addAll: (
-			aProject relatedLifians collect: [ :lifian | 
-				self roleWith: (self researcherWithNameAndUrl: lifian) andRoleName: 'Participante' andName: 'members' 
-				]);
-		yourself.
-		
-	^ KeyedTree new
-		at: '@type' put: 'ResearchProject';
-		at: '@id' put: aProject voyageId printString;
-		at: 'name' put: aProject title;
-		at: 'identifier' put: aProject code;
-		at: 'mainEntityOfPage' put: '/' , (ProjectReportComponent relativeUrlFor: aProject);
-		at: 'foundingDate' put: aProject startDate asDate yyyymmdd;
-		at: 'dissolutionDate' put: aProject endDate asDate yyyymmdd;
-		at: 'members' put: members ;
-		at: 'funding' put: (self grantWithFunder: (aProject fundingAgency) andAmount: (aProject amount));
-		at: 'description' put: aProject summary;
-		at: 'parentOrganization' put: self lifiaAsDictionary;
-		yourself
+JsonLDWriter >> projectListAsDictionary: aCollection [
+	| activeProjects finishedProjects |
+	activeProjects := aCollection
+		select: #isActive
+		thenCollect: [ :each | self renderProject: each ].
+	finishedProjects := aCollection
+		reject: #isActive
+		thenCollect: [ :each | self renderProject: each ].
+	^ self
+		renderGraphWith:
+			(OrderedCollection new
+				add: (self renderList: finishedProjects withName: 'Proyectos finalizados');
+				add: (self renderList: activeProjects withName: 'Proyectos en curso');
+				yourself)
 ]
 
 { #category : #'as yet unclassified' }
 JsonLDWriter >> projectReportAsDictionary: aProjectReport [
 	| topLevelItems |
 	topLevelItems := OrderedCollection new
-		add: (self projectAsDictionary: aProjectReport project);
-		add: (self reportPublicationsByType: aProjectReport);
-		add: (self renderReportScholarships: aProjectReport);
+		add: (self renderProject: aProjectReport project);
+		add: (self renderPublicationsByType: aProjectReport);
+		add: (self renderScholarships: aProjectReport);
 		add: (self renderReportThesisList: aProjectReport);
 		yourself.
 	 
-	^ self graphWith: topLevelItems 
-]
-
-{ #category : #writing }
-JsonLDWriter >> publicationAsDictionary: aPublication [
-	| dict |
-	dict := Dictionary new.
-	dict
-		at: '@context' put: 'https://schema.org';
-		at: '@type' put: 'ScholarlyArticle'.
-	aPublication selfArchivingUrl
-		ifNotNil: [ :it | dict at: 'url' put: it ].
-	dict at: 'description' put: aPublication asSummary.
-	^ dict
+	^ self renderGraphWith: topLevelItems 
 ]
 
 { #category : #rendering }
@@ -133,7 +59,7 @@ JsonLDWriter >> renderBibtexReference: aBibtexReference [
 		at: '@type' put: 'ScholarlyArticle';
 		at: 'name' put: aBibtexReference title;
 		at: 'author' put: (
-			aBibtexReference authorsAsCollection collect: [ :each | self personWithName: each ]);
+			aBibtexReference authorsAsCollection collect: [ :each | self renderPerson: each ]);
 		yourself.
 	
 	aBibtexReference selfArchivingUrl
@@ -166,6 +92,23 @@ JsonLDWriter >> renderContactPointWithType: aString andUrl: anotherString [
 ]
 
 { #category : #rendering }
+JsonLDWriter >> renderContributorWithName: aString andTitle: anotherString [
+	^ self
+		renderRoleWith: (self renderPerson: aString)
+		andRoleName: anotherString
+		andName: 'contributor'
+]
+
+{ #category : #'as yet unclassified' }
+JsonLDWriter >> renderCurrency: aString withValue: aNumber [
+	^ KeyedTree new
+		at: '@type' put: 'MonetaryAmount';
+		at: 'currency' put: aString;
+		at: 'value' put: aNumber;
+		yourself 
+]
+
+{ #category : #rendering }
 JsonLDWriter >> renderDegreeWithName: aString [
 	^ KeyedTree new
 		at: '@type' put: 'EducationalOccupationalCredential';
@@ -173,23 +116,21 @@ JsonLDWriter >> renderDegreeWithName: aString [
 		yourself
 ]
 
-{ #category : #rendering }
-JsonLDWriter >> renderGeneralReport: aGeneralReport [
-	^ self
-		graphWith:
-			(OrderedCollection new
-				add: (self reportPublicationsByType: aGeneralReport);
-				add: (self reportThesisByType: aGeneralReport);
-				add: (self renderReportScholarships: aGeneralReport);
-				add:
-					(self
-						itemListWithName: 'Proyectos'
-						andElements:
-							(aGeneralReport projects
-								collect: [ :each | self projectAsDictionary: each ]));
-				add: (self reportParticipantsByType: aGeneralReport);
-				add: self lifiaAsDictionary;
-				yourself)
+{ #category : #'as yet unclassified' }
+JsonLDWriter >> renderGrantWithFunder: aString andAmount: aNumber [
+	^ KeyedTree new
+		at: '@type' put: 'MonetaryGrant';
+		at: 'funder' put: (self renderOrganizationWithName: aString);
+		at: 'amount' put: (self renderCurrency: 'ARG' withValue: aNumber);
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+JsonLDWriter >> renderGraphWith: aCollection [
+	^ KeyedTree new
+		at: '@context' put: 'http://schema.org';
+		at: '@graph' put: aCollection;
+		yourself 
 ]
 
 { #category : #rendering }
@@ -206,6 +147,26 @@ JsonLDWriter >> renderJournalWithName: aString andVolume: anotherString [
 		yourself
 ]
 
+{ #category : #writing }
+JsonLDWriter >> renderLifiaAsOrganization [
+	^ Dictionary new
+		at: '@context' put: 'https://schema.org';
+		at: '@type' put: 'Organization';
+		at: '@id' put: 'main-organization';
+		at: 'name' put: 'Centro de Investigación LIFIA';
+		at: 'url' put: 'http://www.lifia.info.unlp.edu.ar/';
+		yourself
+]
+
+{ #category : #'as yet unclassified' }
+JsonLDWriter >> renderList: aCollection withName: aString [
+	^ KeyedTree new
+		at: '@type' put: 'ItemList';
+		at: 'name' put: aString;
+		at: 'itemListElement' put: aCollection;
+		yourself 
+]
+
 { #category : #'as yet unclassified' }
 JsonLDWriter >> renderOrganizationWithName: aString [
 	^ KeyedTree new 
@@ -214,27 +175,121 @@ JsonLDWriter >> renderOrganizationWithName: aString [
 		yourself
 ]
 
-{ #category : #writing }
-JsonLDWriter >> renderProjectListWithActive: aCollection andFinishedProjects: anotherCollection [
-	| activeList finishedList |
-	activeList := self
-		itemListWithName: 'Proyectos en curso'
-		andElements: (aCollection collect: [ :each | self projectAsDictionary: each ]).
-	finishedList := self
-		itemListWithName: 'Proyectos finalizados'
-		andElements:
-			(anotherCollection collect: [ :each | self projectAsDictionary: each ]).
+{ #category : #rendering }
+JsonLDWriter >> renderParticipants: aCollection withName: aString [
 	^ self
-		graphWith:
-			(OrderedCollection new
-				add: activeList;
-				add: finishedList;
-				yourself)
+		renderList: (aCollection collect: [ :each | self renderReducedResearcher: each ])
+		withName: aString
+]
+
+{ #category : #'as yet unclassified' }
+JsonLDWriter >> renderParticipantsByType: aGeneralReport [
+	| list |
+	list := OrderedCollection new
+		add:
+			(self
+				renderParticipants: (aGeneralReport researchersWithPosition: 'Investigador')
+				withName: 'Investigadores');
+		add:
+			(self
+				renderParticipants: aGeneralReport researchersWithoutPosition
+				withName: 'Asistentes de investigación');
+		add:
+			(self
+				renderParticipants: (aGeneralReport researchersWithPosition: 'Estudiante de posgrado')
+				withName: 'Estudiantes de posgrado');
+		add:
+			(self
+				renderParticipants: (aGeneralReport researchersWithPosition: 'Estudiante de grado')
+				withName: 'Estudiantes de grado');
+		add:
+			(self
+				renderParticipants: (aGeneralReport researchersWithPosition: 'Investigador externo')
+				withName: 'Investigadores externo');
+		yourself.
+	^ self renderList: list withName: 'Participantes'
+]
+
+{ #category : #'as yet unclassified' }
+JsonLDWriter >> renderPerson: aString [
+	^ KeyedTree new 
+		at: '@type' put: 'Person';
+		at: 'name' put: aString;
+		yourself
+]
+
+{ #category : #writing }
+JsonLDWriter >> renderProject: aProject [
+	| members |
+	members := OrderedCollection new
+		add: (self renderRoleWith: (self renderPerson: aProject director) andRoleName: 'Director' andName: 'members');
+		add: (self renderRoleWith: (self renderPerson: aProject coDirector) andRoleName: 'Co-Director' andName: 'members');
+		addAll: (
+			aProject relatedLifians collect: [ :lifian | 
+				self renderRoleWith: (self renderReducedResearcher: lifian) andRoleName: 'Participante' andName: 'members' 
+				]);
+		yourself.
+		
+	^ KeyedTree new
+		at: '@type' put: 'ResearchProject';
+		at: '@id' put: aProject voyageId printString;
+		at: 'name' put: aProject title;
+		at: 'identifier' put: aProject code;
+		at: 'mainEntityOfPage' put: '/' , (ProjectReportComponent relativeUrlFor: aProject);
+		at: 'foundingDate' put: aProject startDate asDate yyyymmdd;
+		at: 'dissolutionDate' put: aProject endDate asDate yyyymmdd;
+		at: 'members' put: members ;
+		at: 'funding' put: (self renderGrantWithFunder: (aProject fundingAgency) andAmount: (aProject amount));
+		at: 'description' put: aProject summary;
+		at: 'parentOrganization' put: self renderLifiaAsOrganization;
+		yourself
+]
+
+{ #category : #rendering }
+JsonLDWriter >> renderProjectList: aCollection [
+	^ self
+		renderList: (aCollection collect: [ :each | self renderProject: each ])
+		withName: 'Proyectos'
 ]
 
 { #category : #rendering }
 JsonLDWriter >> renderPublication: aPublication [
 	^ aPublication asJsonLDWithWriter: self
+]
+
+{ #category : #'as yet unclassified' }
+JsonLDWriter >> renderPublicationsByType: aProjectReport [
+	| publicationLists |
+	publicationLists := OrderedCollection new
+		add:
+			(self
+				renderPublicationsWithName: 'Publicaciones en revistas'
+				andPublications: aProjectReport articlePublications);
+		add:
+			(self
+				renderPublicationsWithName: 'Publicaciones en conferencias'
+				andPublications: aProjectReport inproceedingsPublications);
+		add:
+			(self
+				renderPublicationsWithName: 'Libros'
+				andPublications: aProjectReport bookPublications);
+		add:
+			(self
+				renderPublicationsWithName: 'Partes de libros'
+				andPublications: aProjectReport inbookPublications);
+		add:
+			(self
+				renderPublicationsWithName: 'Otras publicaciones'
+				andPublications: aProjectReport miscPublications);
+		yourself.
+	^ self renderList: publicationLists withName: 'Publicaciones'
+]
+
+{ #category : #rendering }
+JsonLDWriter >> renderPublicationsWithName: aString andPublications: aCollection [
+	^ self
+		renderList: (aCollection collect: [ :each | self renderPublication: each ])
+		withName: aString
 ]
 
 { #category : #rendering }
@@ -251,46 +306,55 @@ JsonLDWriter >> renderRawReference: aRawReference [
 	^ tree
 ]
 
-{ #category : #'as yet unclassified' }
-JsonLDWriter >> renderReportScholarships: aProjectReport [
-	| grants |
-	grants := aProjectReport scholarships collect: [ :each | self renderScholarship: each ].
-	
-	^ self itemListWithName: 'Becas y pasantías' andElements: grants
-]
-
-{ #category : #'as yet unclassified' }
-JsonLDWriter >> renderReportThesis: aThesis [
-	| tree contributors |
-	contributors := OrderedCollection new.
-	aThesis director
-		ifNotNilNotEmpty: [ 
-			contributors add: (self roleWith: (self personWithName: aThesis director) andRoleName: 'Director' andName: 'contributor') ].
-	aThesis coDirector
-		ifNotNilNotEmpty: [ 
-			contributors add: (self roleWith: (self personWithName: aThesis coDirector) andRoleName: 'Co-Director' andName: 'contributor') ].
-	
-	tree := KeyedTree new
-		at: '@type' put: 'Thesis';
-		at: 'name' put: aThesis title;
-		at: 'author' put: (self personWithName: aThesis student);
-		at: 'contributor' put: contributors;
-		at: 'description' put: aThesis summary;
-		yourself.
-		
-	aThesis career
-		ifEmpty: [ tree at: 'inSupportOf' put: aThesis level ]
-		ifNotEmpty: [ tree at: 'inSupportOf' put: aThesis career ]. 
-	
-	^ tree
-	
+{ #category : #writing }
+JsonLDWriter >> renderReducedResearcher: aLifian [
+	^ Dictionary new
+		at: '@context' put: 'https://schema.org';
+		at: '@type' put: 'Person';
+		at: 'url'
+			put:
+			'http://memorias.lifia.info.unlp.edu.ar/researcher/'
+				, aLifian institutionalEmail;
+		at: 'email' put: aLifian institutionalEmail;
+		at: 'givenName' put: aLifian firstName;
+		at: 'familyName' put: aLifian lastName;
+		at: 'mainEntityOfPage'
+			put: '/' , (ResearcherReportComponent relativeUrlFor: aLifian);
+		yourself
 ]
 
 { #category : #'as yet unclassified' }
 JsonLDWriter >> renderReportThesisList: aProjectReport [
-	^ self itemListWithName: 'Tesis y trabajos finales de carrera' andElements: 
-		(aProjectReport thesis collect: [ :each | self renderReportThesis: each ])
+	^ self
+		renderList: (aProjectReport thesis collect: [ :each | self renderThesis: each ])
+		withName: 'Tesis y trabajos finales de carrera'
+]
+
+{ #category : #rendering }
+JsonLDWriter >> renderResearcher: aLifian [
+	| researcherDict affiliations |
 	
+	affiliations := OrderedCollection with: self renderLifiaAsOrganization.
+	"This is not the best way to represent affiliations, but we would need them in a collection"
+	aLifian affiliations
+		ifNotNilNotEmpty: [ affiliations add: (self renderOrganizationWithName: aLifian affiliations) ].
+	
+	researcherDict := KeyedTree new
+		at: '@type' put: 'Person';
+		at: '@id' put: aLifian voyageId printString;
+		at: 'givenName' put: aLifian firstName;
+		at: 'familyName' put: aLifian lastName;
+		at: 'affiliation' put: affiliations;
+		at: 'contactPoints' put: (self renderResearcherContactPoints: aLifian);
+		yourself.
+	
+	aLifian institutionalEmail
+		ifNotNilNotEmpty: [ researcherDict at: 'email' put: aLifian institutionalEmail ].
+	
+	aLifian highestDegree
+		ifNotNilNotEmpty: [ researcherDict at: 'hasCredential' put: (self renderDegreeWithName: aLifian highestDegree) ].
+		
+	^ researcherDict 
 ]
 
 { #category : #rendering }
@@ -312,22 +376,31 @@ JsonLDWriter >> renderResearcherContactPoints: researcher [
 ]
 
 { #category : #'as yet unclassified' }
+JsonLDWriter >> renderRoleWith: aDictionary andRoleName: aString andName: anotherString [
+	^ KeyedTree new
+		at: '@type' put: 'Role';
+		at: 'roleName' put: aString;
+		at: anotherString put: aDictionary;
+		yourself 
+]
+
+{ #category : #'as yet unclassified' }
 JsonLDWriter >> renderScholarship: aScholarship [
 	| tree fundedItem contributors |
 	contributors := OrderedCollection new.
 	
 	aScholarship director
 		ifNotNilNotEmpty: [ contributors add: 
-			(self roleWith: (self personWithName: aScholarship director) andRoleName: 'Director' andName: 'contributor') ].
+			(self renderRoleWith: (self renderPerson: aScholarship director) andRoleName: 'Director' andName: 'contributor') ].
 		
 	aScholarship coDirector
 		ifNotNilNotEmpty: [ contributors add: 
-			(self roleWith: (self personWithName: aScholarship coDirector) andRoleName: 'Co-Director' andName: 'contributor') ].
+			(self renderRoleWith: (self renderPerson: aScholarship coDirector) andRoleName: 'Co-Director' andName: 'contributor') ].
 		
 	fundedItem := KeyedTree new
 		at: '@type' put: 'CreativeWork';
 		at: 'name' put: aScholarship title;
-		at: 'author' put: (self personWithName: aScholarship student);
+		at: 'author' put: (self renderPerson: aScholarship student);
 		at: 'contributor' put: contributors;
 		at: 'description' put: aScholarship summary;
 		yourself.
@@ -346,149 +419,82 @@ JsonLDWriter >> renderScholarship: aScholarship [
 ]
 
 { #category : #'as yet unclassified' }
-JsonLDWriter >> reportParticipantsByType: aGeneralReport [
+JsonLDWriter >> renderScholarships: aProjectReport [
+	| grants |
+	grants := aProjectReport scholarships
+		collect: [ :each | self renderScholarship: each ].
+	^ self renderList: grants withName: 'Becas y pasantías'
+]
+
+{ #category : #rendering }
+JsonLDWriter >> renderTheses: aCollection withName: aString [
+	^ self
+		renderList: (aCollection collect: [ :each | self renderThesis: each ])
+		withName: aString
+]
+
+{ #category : #'as yet unclassified' }
+JsonLDWriter >> renderThesesByType: aGeneralReport [
 	| list |
 	list := OrderedCollection new
 		add:
 			(self
-				itemListWithName: 'Investigadores'
-				andElements:
-					((aGeneralReport researchersWithPosition: 'Investigador')
-						collect: [ :each | self researcherAsDictionary: each ]));
-		yourself.
-	^ self itemListWithName: 'Participantes' andElements: list
-]
-
-{ #category : #'as yet unclassified' }
-JsonLDWriter >> reportPublicationsByType: aProjectReport [
-	| publicationLists |
-	publicationLists := OrderedCollection new 
-		add: (
-			self itemListWithName: 'Publicaciones en revistas' andElements: (
-				aProjectReport articlePublications collect: [ :each | self renderPublication: each])
-			);
-		add: (
-			self itemListWithName: 'Publicaciones en conferencias' andElements: (
-				aProjectReport inproceedingsPublications collect: [ :each | self renderPublication: each])
-			);
-		add: (
-			self itemListWithName: 'Libros' andElements: (
-				aProjectReport bookPublications collect: [ :each | self renderPublication: each])
-			);
-		add: (
-			self itemListWithName: 'Partes de libros' andElements: (
-				aProjectReport inbookPublications collect: [ :each | self renderPublication: each])
-			);
-		add: (
-			self itemListWithName: 'Otras publicaciones' andElements: (
-				aProjectReport miscPublications collect: [ :each | self renderPublication: each])
-			);
-		yourself.
-	
-	^ self itemListWithName: 'Publicaciones' andElements: publicationLists
-]
-
-{ #category : #'as yet unclassified' }
-JsonLDWriter >> reportThesisByType: aGeneralReport [
-	| list |
-	list := OrderedCollection new
+				renderTheses: aGeneralReport phdThesis
+				withName: 'Tesis de doctorado');
 		add:
 			(self
-				itemListWithName: 'Tesis de doctorado'
-				andElements:
-					(aGeneralReport phdThesis
-						collect: [ :each | self renderReportThesis: each ]));
+				renderTheses: aGeneralReport mastersThesis
+				withName: 'Tesis de maestría');
 		add:
 			(self
-				itemListWithName: 'Tesis de maestría'
-				andElements:
-					(aGeneralReport mastersThesis
-						collect: [ :each | self renderReportThesis: each ]));
+				renderTheses: aGeneralReport specializationThesis
+				withName: 'Trabajos finales de especialización');
 		add:
 			(self
-				itemListWithName: 'Trabajos finales de especialización'
-				andElements:
-					(aGeneralReport specializationThesis
-						collect: [ :each | self renderReportThesis: each ]));
-		add:
-			(self
-				itemListWithName: 'Tesinas de grado'
-				andElements:
-					(aGeneralReport undergraduateThesis 
-						collect: [ :each | self renderReportThesis: each ]));
+				renderTheses: aGeneralReport undergraduateThesis
+				withName: 'Tesinas de grado');
 		yourself.
 	^ self
-		itemListWithName: 'Direccion de tesis y trabajos finales'
-		andElements: list
+		renderList: list
+		withName: 'Direccion de tesis y trabajos finales'
 ]
 
-{ #category : #writing }
-JsonLDWriter >> researcherAsDictionary: aResearcher [
-	^ Dictionary new
-		at: '@context' put: 'https://schema.org';
-		at: '@type' put: 'Person';
-		at: 'url'
-			put:
-			'http://memorias.lifia.info.unlp.edu.ar/researcher/'
-				, aResearcher institutionalEmail;
-		at: 'email' put: aResearcher institutionalEmail;
-		at: 'givenName' put: aResearcher firstName;
-		at: 'familyName' put: aResearcher lastName;
-		yourself
-]
-
-{ #category : #writing }
-JsonLDWriter >> researcherReportAsDictionary: aResearcherReport [
-	| researcherDict researcher affiliations projectList |
-	researcher := aResearcherReport researcher.
-	
-	affiliations := OrderedCollection with: self lifiaAsDictionary.
-	"This is not the best way to represent affiliations, but we would need them in a collection"
-	researcher affiliations
-		ifNotNilNotEmpty: [ affiliations add: (self organizationWithName: researcher affiliations) ].
-	
-	researcherDict := KeyedTree new
-		at: '@type' put: 'Person';
-		at: '@id' put: researcher voyageId printString;
-		at: 'givenName' put: researcher firstName;
-		at: 'familyName' put: researcher lastName;
-		at: 'affiliation' put: affiliations;
-		at: 'contactPoints' put: (self renderResearcherContactPoints: researcher);
+{ #category : #'as yet unclassified' }
+JsonLDWriter >> renderThesis: aThesis [
+	| tree contributors |
+	contributors := OrderedCollection new.
+	aThesis director
+		ifNotNilNotEmpty: [ contributors
+				add:
+					(self renderContributorWithName: aThesis director andTitle: 'Director') ].
+	aThesis coDirector
+		ifNotNilNotEmpty: [ contributors
+				add:
+					(self
+						renderContributorWithName: aThesis coDirector
+						andTitle: 'Co-Director') ].
+	tree := KeyedTree new
+		at: '@type' put: 'Thesis';
+		at: 'name' put: aThesis title;
+		at: 'author' put: (self renderPerson: aThesis student);
+		at: 'contributor' put: contributors;
+		at: 'description' put: aThesis summary;
 		yourself.
-	
-	researcher institutionalEmail
-		ifNotNilNotEmpty: [ researcherDict at: 'email' put: researcher institutionalEmail ].
-	
-	researcher highestDegree
-		ifNotNilNotEmpty: [ researcherDict at: 'hasCredential' put: (self renderDegreeWithName: researcher highestDegree) ].
-	
-	projectList := self itemListWithName: 'Proyectos' andElements: (
-		aResearcherReport projects collect: [ :each | self projectAsDictionary: each ]).
-	
-	^ self graphWith: (
+	aThesis career
+		ifEmpty: [ tree at: 'inSupportOf' put: aThesis level ]
+		ifNotEmpty: [ tree at: 'inSupportOf' put: aThesis career ].
+	^ tree
+]
+
+{ #category : #writing }
+JsonLDWriter >> researcherReportAsDictionary: aResearcherReport [	
+	^ self renderGraphWith: (
 		OrderedCollection new
-			add: researcherDict;
-			add: (self reportPublicationsByType: aResearcherReport);
-			add: projectList;
-			add: (self renderReportScholarships: aResearcherReport);
+			add: (self renderResearcher: aResearcherReport researcher);
+			add: (self renderPublicationsByType: aResearcherReport);
+			add: (self renderProjectList: aResearcherReport projects);
+			add: (self renderScholarships: aResearcherReport);
 			add: (self renderReportThesisList: aResearcherReport);
 			yourself
 		)
-]
-
-{ #category : #'as yet unclassified' }
-JsonLDWriter >> researcherWithNameAndUrl: aLifian [
-	| person |
-	person := self personWithName: (aLifian fullName) andUrl: '/' , (ResearcherReportComponent relativeUrlFor: aLifian).
-	person at: '@id' put: aLifian voyageId printString.	
-	^ person
-]
-
-{ #category : #'as yet unclassified' }
-JsonLDWriter >> roleWith: aDictionary andRoleName: aString andName: anotherString [
-	^ KeyedTree new
-		at: '@type' put: 'Role';
-		at: 'roleName' put: aString;
-		at: anotherString put: aDictionary;
-		yourself 
 ]

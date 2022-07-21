@@ -20,6 +20,11 @@ ResearcherReportComponent class >> relativeUrlFor: aResearcher [
 	^ 'researcher-profile?vid=' , aResearcher voyageId printString
 ]
 
+{ #category : #'as yet unclassified' }
+ResearcherReportComponent >> buildJsonLDDictionary [
+	^ JsonLDWriter new researcherReportAsDictionary: report
+]
+
 { #category : #rendering }
 ResearcherReportComponent >> fetchReport [
 	| void project |
@@ -114,23 +119,6 @@ ResearcherReportComponent >> renderPropertiesOn: html [
 ]
 
 { #category : #rendering }
-ResearcherReportComponent >> renderResearchersOn: html [
-	^ self
-]
-
-{ #category : #rendering }
 ResearcherReportComponent >> renderTitleOn: html [
 	html heading level1 with: report researcher fullName
-]
-
-{ #category : #rendering }
-ResearcherReportComponent >> updateRoot: aWARoot [
-	| source |
-	
-   super updateRoot: aWARoot.
-   source := report asJsonLD.
-
-   aWARoot javascript
-  		type: 'application/json+ld';
-		with: (JSStream on: source).
 ]
