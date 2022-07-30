@@ -193,3 +193,9 @@ MemoriasLandingComponent >> renderPresentationColumnOn: html [
 					'Lleve registro de publicaciones, proyectos, becas, y dirección de recursos humanos de investigación, simplificando la generación de reportes y su publicación en la web.' ]
 		mediumSize: 6
 ]
+
+{ #category : #rendering }
+MemoriasLandingComponent >> updateRoot: aWARoot [
+	super updateRoot: aWARoot.
+	aWARoot title: 'Memorias - LIFIA'
+]
