@@ -10,6 +10,11 @@ Class {
 	#category : #'Lifiometro-Reports'
 }
 
+{ #category : #accessing }
+PublicThesisListComponent class >> relativeUrl [
+	^ 'thesis-list'
+]
+
 { #category : #initialization }
 PublicThesisListComponent >> completed [
 	^ (self requestContext request at: 'completed') = 'true'

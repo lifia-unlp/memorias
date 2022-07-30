@@ -1,7 +1,8 @@
 "
-| apps dbhost db dbuser dbpassword smtpServer |
+| apps dbhost db dbuser dbpassword smtpServer debug |
 
-dbhost := OSEnvironment current at: 'DB_HOST' ifAbsent: 'mongodb'.
+debug := (OSEnvironment current at: 'DEBUG' ifAbsent: 'false') = 'true'.
+dbhost := OSEnvironment current at: 'DB_HOST' ifAbsent: 'localhost'.
 db := OSEnvironment current at: 'DB' ifAbsent: 'lifiometro'.
 dbuser := OSEnvironment current at: 'DB_USER' ifAbsent: nil.
 dbpassword := OSEnvironment current at: 'DB_PASSWORD' ifAbsent: nil.
@@ -20,27 +21,28 @@ dbuser
 			username: dbuser
 			password: dbpassword) enableSingleton ].
 
-WAAdmin defaultServerManager adaptors
+debug ifFalse: [
+	WAAdmin defaultServerManager adaptors
         do: [ :each | WAAdmin defaultServerManager unregister: each ].
-ZnZincServerAdaptor startOn: 8080.
+	WAAdmin applicationDefaults
+		removeParent: WADevelopmentConfiguration instance.
+].
 
-WAAdmin applicationDefaults
-	removeParent: WADevelopmentConfiguration instance.
+ZnZincServerAdaptor startOn: 8080.
 
 DoiToBibAPI ensureBibtexMimeTypeIsNotBinary.
 ChronologyConstants useSpanishMonthNames.
-
-WAAdmin applicationDefaults
-	removeParent: WADevelopmentConfiguration instance.
 
 apps := OrderedCollection new.
 apps add: ((WAAdmin register: MemoriasLandingComponent asApplicationAt: 'memorias') 
 				sessionClass: MemoriasSession; 
 				yourself). 
-apps add: (WAAdmin register: ReportComponent  asApplicationAt: ReportComponent relativeUrl ).
+apps add: (WAAdmin register: ReportComponent  asApplicationAt: ReportComponent relativeUrl).
 apps add: (WAAdmin register: ResearcherReportComponent  asApplicationAt: ResearcherReportComponent relativeUrl).
-apps add: (WAAdmin register: PublicProjectsListComponent asApplicationAt: PublicProjectsListComponent relativeUrl ).
-apps add: (WAAdmin register: ProjectReportComponent   asApplicationAt: ProjectReportComponent relativeUrl).
+apps add: (WAAdmin register: PublicProjectsListComponent asApplicationAt: PublicProjectsListComponent relativeUrl).
+apps add: (WAAdmin register: ProjectReportComponent asApplicationAt: PublicProjectsListComponent relativeUrl).
+apps add: (WAAdmin register: PublicThesisListComponent asApplicationAt: PublicThesisListComponent relativeUrl).
+apps add: (WAAdmin register: ThesisReportComponent asApplicationAt: ThesisReportComponent relativeUrl).
 
 apps do: [:app | 
  smtpServer ifNotNil: [ app	

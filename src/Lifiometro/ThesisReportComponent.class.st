@@ -11,7 +11,7 @@ ThesisReportComponent class >> relativeUrl [
 
 { #category : #urls }
 ThesisReportComponent class >> relativeUrlFor: item [
-	^ 'thesis-profile?vid=' , item voyageId printString
+	^ self relativeUrl, '?vid=' , item voyageId printString
 ]
 
 { #category : #rendering }

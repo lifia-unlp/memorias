@@ -17,7 +17,7 @@ ProjectReportComponent class >> relativeUrl [
 
 { #category : #urls }
 ProjectReportComponent class >> relativeUrlFor: aProject [
-	^ 'project-profile?vid=' , aProject voyageId printString
+	^ self relativeUrl, '?vid=' , aProject voyageId printString
 ]
 
 { #category : #hooks }

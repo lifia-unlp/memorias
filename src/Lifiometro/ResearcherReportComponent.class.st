@@ -17,7 +17,7 @@ ResearcherReportComponent class >> relativeUrl [
 
 { #category : #urls }
 ResearcherReportComponent class >> relativeUrlFor: aResearcher [
-	^ 'researcher-profile?vid=' , aResearcher voyageId printString
+	^ self relativeUrl, '?vid=' , aResearcher voyageId printString
 ]
 
 { #category : #rendering }
