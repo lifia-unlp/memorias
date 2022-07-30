@@ -40,7 +40,7 @@ apps add: ((WAAdmin register: MemoriasLandingComponent asApplicationAt: 'memoria
 apps add: (WAAdmin register: ReportComponent  asApplicationAt: ReportComponent relativeUrl).
 apps add: (WAAdmin register: ResearcherReportComponent  asApplicationAt: ResearcherReportComponent relativeUrl).
 apps add: (WAAdmin register: PublicProjectsListComponent asApplicationAt: PublicProjectsListComponent relativeUrl).
-apps add: (WAAdmin register: ProjectReportComponent asApplicationAt: PublicProjectsListComponent relativeUrl).
+apps add: (WAAdmin register: ProjectReportComponent asApplicationAt: ProjectReportComponent relativeUrl).
 apps add: (WAAdmin register: PublicThesisListComponent asApplicationAt: PublicThesisListComponent relativeUrl).
 apps add: (WAAdmin register: ThesisReportComponent asApplicationAt: ThesisReportComponent relativeUrl).
 
