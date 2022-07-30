@@ -2,7 +2,7 @@
 | apps dbhost db dbuser dbpassword smtpServer debug |
 
 debug := (OSEnvironment current at: 'DEBUG' ifAbsent: 'false') = 'true'.
-dbhost := OSEnvironment current at: 'DB_HOST' ifAbsent: 'localhost'.
+dbhost := OSEnvironment current at: 'DB_HOST' ifAbsent: 'mongodb'.
 db := OSEnvironment current at: 'DB' ifAbsent: 'lifiometro'.
 dbuser := OSEnvironment current at: 'DB_USER' ifAbsent: nil.
 dbpassword := OSEnvironment current at: 'DB_PASSWORD' ifAbsent: nil.
@@ -34,7 +34,7 @@ DoiToBibAPI ensureBibtexMimeTypeIsNotBinary.
 ChronologyConstants useSpanishMonthNames.
 
 apps := OrderedCollection new.
-apps add: ((WAAdmin register: MemoriasLandingComponent asApplicationAt: 'memorias') 
+apps add: ((WAAdmin register: MemoriasLandingComponent asApplicationAt: MemoriasLandingComponent relativeUrl) 
 				sessionClass: MemoriasSession; 
 				yourself). 
 apps add: (WAAdmin register: ReportComponent  asApplicationAt: ReportComponent relativeUrl).
@@ -56,7 +56,7 @@ apps do: [:app |
 	addLibrary: LifiaFileLibrary.	
 ].
 
-WAAdmin defaultDispatcher defaultName: 'memorias'.
+WAAdmin defaultDispatcher defaultName: MemoriasLandingComponent relativeUrl.
 
 Transcript cr; show: 'Memorias starting  (dbhost: ', dbhost, ', db: ', db, ')'; cr; cr.
 "
@@ -71,14 +71,9 @@ Class {
 	#category : #'Lifiometro-Web-Login'
 }
 
-{ #category : #urls }
-MemoriasLandingComponent class >> applicationName [
-	^ 'gaf'
-]
-
-{ #category : #urls }
-MemoriasLandingComponent class >> url [
-	^ '/' , self applicationName
+{ #category : #'access options' }
+MemoriasLandingComponent class >> relativeUrl [
+	^ 'memorias'
 ]
 
 { #category : #initialization }
