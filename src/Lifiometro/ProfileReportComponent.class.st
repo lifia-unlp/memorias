@@ -148,7 +148,9 @@ ProfileReportComponent >> renderThesis: thesis on: html [
 	html
 		paragraph: [ html text: thesis student.
 			html text: ' (' , level , '). '.
-			html text: thesis title , '. '.
+			html anchor
+				url: '/' , (ThesisReportComponent relativeUrlFor: thesis);
+				with: thesis title , '. '.
 			thesis career ifNotEmpty: [ :it | html text: it , '. ' ].
 			thesis director
 				ifNotEmpty: [ :it | html text: 'Dirigido por ' , it , '. ' ].
