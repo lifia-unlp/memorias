@@ -322,7 +322,7 @@ PluggableEditorComponent >> renderTextInputEditorFor: property on: html [
 { #category : #accessing }
 PluggableEditorComponent >> thesis [
 	^ LifiometroRepository singleton  thesis
-		asSortedCollection: [ :a :b | a startDate > b startDate ]
+		asSortedCollection: [ :a :b | a student < b student ]
 ]
 
 { #category : #rendering }

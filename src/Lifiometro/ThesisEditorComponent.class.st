@@ -28,7 +28,7 @@ ThesisEditorComponent >> renderPropertyEditorsOn: html [
 	self
 		renderTextInputEditorFor: 'student'
 		label: 'Alumno(s)'
-		instructions: nil
+		instructions: 'Ingrese nombre y apellido. Si son varios, separelos con coma y con "y" en el último.'
 		on: html.
 	self
 		renderTextInputEditorFor: 'title'
@@ -80,17 +80,17 @@ ThesisEditorComponent >> renderPropertyEditorsOn: html [
 	self
 		renderTextInputEditorFor: 'director'
 		label: 'Director(es)'
-		instructions: nil
+		instructions: 'Ingrese nombre y apellido. Si son varios, separelos con coma y con "y" en el último.'
 		on: html.
 	self
 		renderTextInputEditorFor: 'coDirector'
 		label: 'Co-Director(es)'
-		instructions: nil
+		instructions: 'Ingrese nombre y apellido. Si son varios, separelos con coma y con "y" en el último.'
 		on: html.
 	self
 		renderTextInputEditorFor: 'otherAdvisors'
 		label: 'Asesores'
-		instructions: nil
+		instructions: 'Ingrese nombre y apellido. Si son varios, separelos con coma y con "y" en el último.'
 		on: html.
 	self
 		renderTextInputEditorFor: 'summary'
