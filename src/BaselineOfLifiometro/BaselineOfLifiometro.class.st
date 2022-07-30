@@ -1,7 +1,7 @@
 Class {
 	#name : #BaselineOfLifiometro,
 	#superclass : #BaselineOf,
-	#category : 'BaselineOfLifiometro'
+	#category : #BaselineOfLifiometro
 }
 
 { #category : #baselines }
@@ -40,14 +40,14 @@ BaselineOfLifiometro >> bootstrap: spec [
 BaselineOfLifiometro >> doi: spec [
 	spec
 		package: 'DOI'
-		with: [ spec repository: 'bitbucket://casco/petitbibtex' ]
+		with: [ spec repository: 'github://cientopolis/petitbibtex' ]
 ]
 
 { #category : #baselines }
 BaselineOfLifiometro >> petitBibtex: spec [
 	spec
 		baseline: 'PetitBibtex'
-		with: [ spec repository: 'bitbucket://casco/petitbibtex' ]
+		with: [ spec repository: 'github://cientopolis/petitbibtex' ]
 ]
 
 { #category : #baselines }
