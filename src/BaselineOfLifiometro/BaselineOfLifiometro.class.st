@@ -20,7 +20,7 @@ BaselineOfLifiometro >> baseline: spec [
 				with: [ spec
 						requires:
 							#('Seaside3' 'Bootstrap-Core' 'Bootstrap-Widgets' 'Voyage') ] ].
-	spec postLoadDoIt: #postLoadActions
+
 ]
 
 { #category : #baselines }
@@ -51,14 +51,6 @@ BaselineOfLifiometro >> petitBibtex: spec [
 ]
 
 { #category : #baselines }
-BaselineOfLifiometro >> postLoadActions [
-	GTPlayground
-		edit:
-			'"To deploy Lifiometro take a look at the comment of class MemoriasLandingComponent in the Lifiometro package"'
-		label: 'Deploys instructions'
-]
-
-{ #category : #baselines }
 BaselineOfLifiometro >> seaside: spec [
 	spec
 		baseline: 'Seaside3'
@@ -70,7 +62,9 @@ BaselineOfLifiometro >> seaside: spec [
 
 { #category : #baselines }
 BaselineOfLifiometro >> voyage: spec [
-	spec
-		baseline: 'Voyage'
-		with: [ spec repository: 'github://pharo-nosql/voyage:1.6/mc' ]
+
+	spec baseline: 'Voyage' with: [ 
+		spec
+			loads: #( mongo );
+			repository: 'github://pharo-nosql/voyage:pharo10-ready/mc' ]
 ]
