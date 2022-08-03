@@ -12,8 +12,14 @@ Class {
 }
 
 { #category : #singleton }
+LifiometroRepository class >> resetSingleton [
+
+	singleton := nil
+]
+
+{ #category : #singleton }
 LifiometroRepository class >> singleton [
-	^ singleton ifNil: [ singleton := self new ]
+	^ singleton ifNil: [ singleton := WarningIgnoringLifiometroRepository  new ]
 ]
 
 { #category : #auditing }
