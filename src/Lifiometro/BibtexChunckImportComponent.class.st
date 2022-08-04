@@ -72,7 +72,7 @@ BibtexChunckImportComponent >> parse: aBibtexString [
 		ifTrue: [ bibtexEntry := nil.
 			error := 'No puero obtener una entrada válida.'.
 			^ self ].
-	bibtexEntry := bibtexEntry first
+	bibtexEntry := bibtexEntry first cleanupLatexAccentsAndBraces
 ]
 
 { #category : #rendering }
