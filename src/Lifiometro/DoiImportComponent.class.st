@@ -16,7 +16,7 @@ DoiImportComponent >> doi: anObject [
 
 { #category : #callbacks }
 DoiImportComponent >> fetch [
-	bibtexEntry := DoiToBibAPI new get: doi.
+	bibtexEntry := DoiOrgAPI  new get: 'https://doi.org/',doi.
 	bibtexEntry ifNil: [ ^ error := 'No encontré nada.' ].
 	bibtexEntry := bibtexEntry cleanupLatexAccentsAndBraces.
 ]
