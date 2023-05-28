@@ -57,4 +57,7 @@ apps do: [:app |
 
 WAAdmin defaultDispatcher defaultName: MemoriasLandingComponent relativeUrl.
 
+"Temporary hack to update the database; remove in the next release"
+RepositoryAuditRecord selectAll do: [:each | each action: each action asString; save ].
+
 Transcript cr; show: 'Memorias starting  (dbhost: ', dbhost, ', db: ', db, ')'; cr; cr.
