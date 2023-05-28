@@ -3,7 +3,7 @@
 version: "3.9"  
 services:
   web:
-    image: memorias:pharo10
+    image: memorias:latest
     restart: unless-stopped
     read_only: true
     environment: 
