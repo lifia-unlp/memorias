@@ -31,6 +31,11 @@ RepositoryAuditRecord >> action [
 ]
 
 { #category : #accessing }
+RepositoryAuditRecord >> action: aString [
+	action := aString.
+]
+
+{ #category : #accessing }
 RepositoryAuditRecord >> what [
 	^ what
 ]

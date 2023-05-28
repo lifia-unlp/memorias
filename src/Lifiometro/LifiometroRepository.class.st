@@ -12,8 +12,14 @@ Class {
 }
 
 { #category : #singleton }
+LifiometroRepository class >> resetSingleton [
+
+	singleton := nil
+]
+
+{ #category : #singleton }
 LifiometroRepository class >> singleton [
-	^ singleton ifNil: [ singleton := self new ]
+	^ singleton ifNil: [ singleton := LifiometroRepository  new ]
 ]
 
 { #category : #auditing }
@@ -173,7 +179,7 @@ LifiometroRepository >> remove: anObject onBehalfOf: aUser [
 				what: anObject
 				who: aUser
 				when: DateAndTime now
-				action: #remove) save ]
+				action: 'remove') save ]
 ]
 
 { #category : #reports }
@@ -240,7 +246,7 @@ LifiometroRepository >> save: anObject onBehalfOf: aUser [
 				what: anObject
 				who: aUser
 				when: when
-				action: #save) save ]
+				action: 'save') save ]
 ]
 
 { #category : #update }
