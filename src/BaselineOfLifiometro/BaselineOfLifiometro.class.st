@@ -47,8 +47,8 @@ BaselineOfLifiometro >> doi: spec [
 { #category : #baselines }
 BaselineOfLifiometro >> openAiPapi: spec [
 	spec
-		package: 'OpenAI-PAPI'
-		with: [ spec repository: 'github://casco/openai-papi/' ].
+		package: 'OpenAI-API'
+		with: [ spec repository: 'github://casco/openai-papi:main/' ].
 ]
 
 { #category : #baselines }
