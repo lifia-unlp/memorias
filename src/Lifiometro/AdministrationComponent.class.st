@@ -4,6 +4,12 @@ Class {
 	#category : #'Lifiometro-Web'
 }
 
+{ #category : #callbacks }
+AdministrationComponent >> callEnglishCritic [
+
+	self call: GptEnglishCriticComponent new
+]
+
 { #category : #rendering }
 AdministrationComponent >> cleanupTitlesAndAuthors [
 	LifiometroRepository singleton references
@@ -39,11 +45,13 @@ AdministrationComponent >> renderActiveSessionsFor: app on: html [
 
 { #category : #rendering }
 AdministrationComponent >> renderBulkActionsOn: html [
-	 html tbsPanel
+
+	html tbsPanel
 		beDefault;
-		with: [ html tbsPanelHeading: [ html label: 'Bulk actions' ].
-			html
-				tbsPanelBody: [ html anchor
+		with: [ 
+			html tbsPanelHeading: [ html label: 'Bulk actions' ].
+			html tbsPanelBody: [ 
+					html anchor
 						callback: [ self importFromDblp ];
 						with: 'Import from DBLP'.
 					html break.
@@ -57,7 +65,12 @@ AdministrationComponent >> renderBulkActionsOn: html [
 					html break.
 					html anchor
 						callback: [ self guessArticleAuthors ];
-						with: 'Guess article authors' ] ]
+						with: 'Guess article authors'.
+
+					html break.
+					html anchor
+						callback: [ self callEnglishCritic ];
+						with: 'GPT English Critic' ] ]
 ]
 
 { #category : #rendering }
