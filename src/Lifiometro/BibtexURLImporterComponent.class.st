@@ -6,7 +6,7 @@ Class {
 		'yearSelectors',
 		'selectedArticles'
 	],
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Tools'
 }
 
 { #category : #callbacks }
