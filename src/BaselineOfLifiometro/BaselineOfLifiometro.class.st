@@ -14,6 +14,7 @@ BaselineOfLifiometro >> baseline: spec [
 				doi: spec;
 				bootstrap: spec;
 				voyage: spec;
+				openAiPapi: spec;
 				petitBibtex: spec.
 			spec
 				package: 'Lifiometro'
@@ -41,6 +42,13 @@ BaselineOfLifiometro >> doi: spec [
 	spec
 		package: 'DOI'
 		with: [ spec repository: 'github://cientopolis/petitbibtex' ]
+]
+
+{ #category : #baselines }
+BaselineOfLifiometro >> openAiPapi: spec [
+	spec
+		package: 'OpenAI-PAPI'
+		with: [ spec repository: 'github://casco/openai-papi/' ].
 ]
 
 { #category : #baselines }
