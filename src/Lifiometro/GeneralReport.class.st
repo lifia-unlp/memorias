@@ -15,7 +15,7 @@ Class {
 		'specializationThesis',
 		'researchers'
 	],
-	#category : 'Lifiometro-Reports'
+	#category : #'Lifiometro-Reports'
 }
 
 { #category : #'instance creation' }
@@ -41,6 +41,12 @@ GeneralReport >> bookPublications [
 ]
 
 { #category : #accessing }
+GeneralReport >> countsFor: aListOfPublications [
+
+	^ (aListOfPublications collect: #year) asBag sortedElements
+]
+
+{ #category : #accessing }
 GeneralReport >> inbookPublications [
 	^ inbookPublications
 ]
@@ -63,6 +69,20 @@ GeneralReport >> phdThesis [
 { #category : #accessing }
 GeneralReport >> projects [
 	^ projects
+]
+
+{ #category : #accessing }
+GeneralReport >> publicationCounts [
+
+	^ OrderedCollection
+		  with:
+		  'Articulos de revista'
+		  -> (self countsFor: self articlePublications)
+		  with: 'Articulos de conferencia'
+			  -> (self countsFor: self inproceedingsPublications)
+		  with:
+		  'Capitulos de libro' -> (self countsFor: self inbookPublications)
+
 ]
 
 { #category : #accessing }

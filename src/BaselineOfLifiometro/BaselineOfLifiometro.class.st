@@ -15,12 +15,13 @@ BaselineOfLifiometro >> baseline: spec [
 				bootstrap: spec;
 				voyage: spec;
 				openAiPapi: spec;
+				plotly: spec;
 				petitBibtex: spec.
 			spec
 				package: 'Lifiometro'
 				with: [ spec
 						requires:
-							#('Seaside3' 'Bootstrap-Core' 'Bootstrap-Widgets' 'Voyage') ] ].
+							#('Seaside3' 'Bootstrap-Core' 'Bootstrap-Widgets' 'Voyage' 'Seaside-Plotly-Core') ] ].
 
 ]
 
@@ -56,6 +57,14 @@ BaselineOfLifiometro >> petitBibtex: spec [
 	spec
 		baseline: 'PetitBibtex'
 		with: [ spec repository: 'github://cientopolis/petitbibtex' ]
+]
+
+{ #category : #baselines }
+BaselineOfLifiometro >> plotly: spec [
+	spec
+		package: 'Seaside-Plotly-Core'
+		with: [ spec repository: 'github://emaringolo/seaside-plotlyjs/src' ].
+
 ]
 
 { #category : #baselines }
