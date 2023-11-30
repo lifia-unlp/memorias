@@ -649,7 +649,7 @@ ReportComponent >> setupScriptForScatterPlot: script elementId: elementId [
 
 	| plotly data |
 	plotly := script plotly: elementId.
-	data := report publicationCounts asArray collect: [ :each | 
+	data := self report publicationCounts asArray collect: [ :each | 
 		        PlotlyTrace scatter
 			        name: each key;
 			        showlegend: true;
