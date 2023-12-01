@@ -2,7 +2,7 @@ Smalltalk vm maxExternalSemaphoresSilently: 1024.
 "Install the app"
 Metacello new
 	baseline: 'Lifiometro';
-	repository: 'github://lifia-unlp/memorias:migration-pharo10';
+	repository: 'github://lifia-unlp/memorias:main';
 	onConflictUseLoaded;
 	onWarningLog;
 	load.
