@@ -649,7 +649,7 @@ ReportComponent >> setupScriptForScatterPlot: script elementId: elementId [
 
 	| plotly data |
 	plotly := script plotly: elementId.
-	data := self report publicationCounts asArray collect: [ :each | 
+	data := self report publicationCounts asArray collect: [ :each |
 		        PlotlyTrace scatter
 			        name: each key;
 			        showlegend: true;
@@ -661,6 +661,9 @@ ReportComponent >> setupScriptForScatterPlot: script elementId: elementId [
 		layout: (PlotlyLayout new
 				 title: (PlotlyText text: 'Evolución de las publicaciones');
 				 width: 1000 height: 300;
+				 propertyAt: 'xaxis' put: (Dictionary new
+						  at: 'type' put: 'category';
+						  yourself);
 				 yourself).
 	plotly config beResponsive.
 	script << plotly
