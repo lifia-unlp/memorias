@@ -41,9 +41,16 @@ GeneralReport >> bookPublications [
 ]
 
 { #category : #accessing }
-GeneralReport >> countsFor: aListOfPublications [
+GeneralReport >> countsFor: aListOfYearlyResults [
 
-	^ (aListOfPublications collect: #year) asBag sortedElements
+	^ self countsFor:  aListOfYearlyResults  considering: #year
+]
+
+{ #category : #accessing }
+GeneralReport >> countsFor: aListOfYearlyResults considering: aSelectorToGetYear [
+
+	^ ((aListOfYearlyResults collect: aSelectorToGetYear) asBag
+		   copyWithout: nil) sortedElements
 ]
 
 { #category : #accessing }
@@ -98,6 +105,19 @@ GeneralReport >> scholarships [
 { #category : #accessing }
 GeneralReport >> specializationThesis [
 	^ specializationThesis
+]
+
+{ #category : #accessing }
+GeneralReport >> thesisCounts [
+
+	^ Array
+		  with: 'Tesis de doctorado'
+			  -> (self countsFor: self phdThesis considering: #endYear)
+		  with: 'Tesis de maestría'
+			  -> (self countsFor: self mastersThesis considering: #endYear)
+		  with: 'Tesinas de grado'
+			  ->
+			  (self countsFor: self undergraduateThesis considering: #endYear)
 ]
 
 { #category : #accessing }

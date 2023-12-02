@@ -5,7 +5,7 @@ Class {
 		'endDate',
 		'startDate'
 	],
-	#category : 'Lifiometro-Model'
+	#category : #'Lifiometro-Model'
 }
 
 { #category : #accessing }
@@ -18,6 +18,13 @@ PeriodBoundedEntry >> endDate [
 { #category : #accessing }
 PeriodBoundedEntry >> endDate: anObject [
 	endDate := anObject
+]
+
+{ #category : #accessing }
+PeriodBoundedEntry >> endYear [
+	"Mongo converted this as DateAndTime"
+
+	^ self endDate ifNotNil: [ :it | it year ]
 ]
 
 { #category : #accessing }

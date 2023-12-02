@@ -37,7 +37,8 @@ YearlyEvolutionPlotSubcomponent >> setupScriptForScatterPlot: script elementId: 
 
 	| plotly data |
 	plotly := script plotly: elementId.
-	data := arrayOfDictionariesWithCounts collect: [ :each |
+	data := (arrayOfDictionariesWithCounts asSortedCollection: [ :a :b |
+		         a value first < b value first ]) collect: [ :each |
 		        PlotlyTrace scatter
 			        name: each key;
 			        showlegend: true;

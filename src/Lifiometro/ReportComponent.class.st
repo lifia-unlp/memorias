@@ -22,7 +22,8 @@ Class {
 		'specialization',
 		'report',
 		'lastSevenYearsSelectors',
-		'publicationsPlot'
+		'publicationsPlot',
+		'thesisPlot'
 	],
 	#category : #'Lifiometro-Reports'
 }
@@ -56,6 +57,8 @@ ReportComponent >> initialize [
 	scholarships := true.
 	publicationsPlot := YearlyEvolutionPlotSubcomponent new.
 	publicationsPlot title: 'Evolución de las publicaciones'.
+	thesisPlot := YearlyEvolutionPlotSubcomponent new.
+	thesisPlot title: 'Evolución de las tesis y tesinas concluidas'.
 	self update
 ]
 
@@ -559,38 +562,43 @@ ReportComponent >> renderThesisIndexOn: html [
 
 { #category : #'rendering-thesis' }
 ReportComponent >> renderThesisReportOn: html [
-	undergraduate | masters | pdh
-		ifTrue: [ html heading
-				level1;
-				id: 'thesis';
-				with: 'Dirección de tesis y trabajos finales' ].
-	pdh
-		ifTrue: [ html heading
-				level2;
-				id: 'phd';
-				with: 'Doctorado'.
-			report phdThesis do: [ :each | self renderThesis: each on: html ] ].
-	masters
-		ifTrue: [ html heading
-				level2;
-				id: 'masters';
-				with: 'Maestría (tesis)'.
-			report mastersThesis
-				do: [ :each | self renderThesis: each on: html ] ].
-	masters
-		ifTrue: [ html heading
-				level2;
-				id: 'specialization';
-				with: 'Especialización (trabajo final)'.
-			report specializationThesis
-				do: [ :each | self renderThesis: each on: html ] ].
-	undergraduate
-		ifTrue: [ html heading
-				level2;
-				id: 'undergraduate';
-				with: 'Grado (tesina)'.
-			report undergraduateThesis
-				do: [ :each | self renderThesis: each on: html ] ]
+
+	undergraduate | masters | pdh ifTrue: [
+		html heading
+			level1;
+			id: 'thesis';
+			with: 'Dirección de tesis y trabajos finales' ].
+
+	thesisPlot arrayOfDictionariesWithCounts: self report thesisCounts.
+	thesisPlot renderContentOn: html.
+
+
+	pdh ifTrue: [
+		html heading
+			level2;
+			id: 'phd';
+			with: 'Doctorado'.
+		report phdThesis do: [ :each | self renderThesis: each on: html ] ].
+	masters ifTrue: [
+		html heading
+			level2;
+			id: 'masters';
+			with: 'Maestría (tesis)'.
+		report mastersThesis do: [ :each | self renderThesis: each on: html ] ].
+	masters ifTrue: [
+		html heading
+			level2;
+			id: 'specialization';
+			with: 'Especialización (trabajo final)'.
+		report specializationThesis do: [ :each |
+			self renderThesis: each on: html ] ].
+	undergraduate ifTrue: [
+		html heading
+			level2;
+			id: 'undergraduate';
+			with: 'Grado (tesina)'.
+		report undergraduateThesis do: [ :each |
+			self renderThesis: each on: html ] ]
 ]
 
 { #category : #'rendering-researchers' }
