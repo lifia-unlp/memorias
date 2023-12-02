@@ -74,7 +74,7 @@ GeneralReport >> projects [
 { #category : #accessing }
 GeneralReport >> publicationCounts [
 
-	^ OrderedCollection
+	^ Array
 		  with:
 		  'Articulos de revista'
 		  -> (self countsFor: self articlePublications)

@@ -21,7 +21,8 @@ Class {
 		'selectedYears',
 		'specialization',
 		'report',
-		'lastSevenYearsSelectors'
+		'lastSevenYearsSelectors',
+		'publicationsPlot'
 	],
 	#category : #'Lifiometro-Reports'
 }
@@ -31,11 +32,19 @@ ReportComponent class >> relativeUrl [
 	^ 'center-profile'
 ]
 
+{ #category : #hooks }
+ReportComponent >> children [
+
+	^ {publicationsPlot}
+]
+
 { #category : #initialization }
 ReportComponent >> initialize [
-   super initialize.
+
+	super initialize.
 	older := false.
-	lastSevenYearsSelectors := {true . true . false . false . false . false. false}.
+	lastSevenYearsSelectors := { true. true. true. false. false. false.
+	                           false }.
 	article := true.
 	inbook := true.
 	book := true.
@@ -45,6 +54,8 @@ ReportComponent >> initialize [
 	pdh := true.
 	projects := true.
 	scholarships := true.
+	publicationsPlot := YearlyEvolutionPlotSubcomponent new.
+	publicationsPlot title: 'Evolución de las publicaciones'.
 	self update
 ]
 
@@ -341,57 +352,48 @@ ReportComponent >> renderPublicationsIndexOn: html [
 ]
 
 { #category : #'rendering-publications' }
-ReportComponent >> renderPublicationsPlotOn: html [
-
-	html div
-		id: html nextId;
-		with: [ "This is the container" ].
-
-	html document addLoadScript:
-		(JSStream on: (html jQuery script: [ :script | 
-				  self setupScriptForScatterPlot: script elementId: html lastId ]))
-]
-
-{ #category : #'rendering-publications' }
 ReportComponent >> renderPublicationsReportOn: html [
-	article | inbook | inproceedings | book
-		ifTrue: [ html heading
-				level1;
-				id: 'publications';
-				with: 'Publicaciones' ].
-	self  renderPublicationsPlotOn: html. 
-	article
-		ifTrue: [ | articles |
-			articles := self report articlePublications.
-			html heading
-				level2;
-				id: 'article';
-				with: 'Articulos de revista (' , articles size greaseString , ')'.
-			self renderPublicationsIn: articles on: html ].
-	inproceedings
-		ifTrue: [ | articles |
-			articles := self report inproceedingsPublications.
-			html heading
-				level2;
-				id: 'inproceedings';
-				with: 'Articulos de conferencia (' , articles size greaseString , ')'.
-			self renderPublicationsIn: articles on: html ].
-	inbook
-		ifTrue: [ | articles |
-			articles := self report inbookPublications.
-			html heading
-				level2;
-				id: 'inbook';
-				with: 'Capítulos de libro (' , articles size greaseString , ')'.
-			self renderPublicationsIn: articles on: html ].
-	book
-		ifTrue: [ | articles |
-			articles := self report bookPublications.
-			html heading
-				level2;
-				id: 'book';
-				with: 'Libros (' , articles size greaseString , ')'.
-			self renderPublicationsIn: articles on: html ]
+
+	article | inbook | inproceedings | book ifTrue: [
+		html heading
+			level1;
+			id: 'publications';
+			with: 'Publicaciones' ].
+	publicationsPlot arrayOfDictionariesWithCounts: self report publicationCounts .
+	publicationsPlot renderContentOn: html.
+	article ifTrue: [
+		| articles |
+		articles := self report articlePublications.
+		html heading
+			level2;
+			id: 'article';
+			with: 'Articulos de revista (' , articles size greaseString , ')'.
+		self renderPublicationsIn: articles on: html ].
+	inproceedings ifTrue: [
+		| articles |
+		articles := self report inproceedingsPublications.
+		html heading
+			level2;
+			id: 'inproceedings';
+			with:
+				'Articulos de conferencia (' , articles size greaseString , ')'.
+		self renderPublicationsIn: articles on: html ].
+	inbook ifTrue: [
+		| articles |
+		articles := self report inbookPublications.
+		html heading
+			level2;
+			id: 'inbook';
+			with: 'Capítulos de libro (' , articles size greaseString , ')'.
+		self renderPublicationsIn: articles on: html ].
+	book ifTrue: [
+		| articles |
+		articles := self report bookPublications.
+		html heading
+			level2;
+			id: 'book';
+			with: 'Libros (' , articles size greaseString , ')'.
+		self renderPublicationsIn: articles on: html ]
 ]
 
 { #category : #rendering }
@@ -644,31 +646,6 @@ ReportComponent >> selectActiveItemsFrom: aCollection [
 			[ :each | each yearsActive anySatisfy: [ :year | yearsAsNumbers includes: year ] ]
 ]
 
-{ #category : #'rendering-publications' }
-ReportComponent >> setupScriptForScatterPlot: script elementId: elementId [
-
-	| plotly data |
-	plotly := script plotly: elementId.
-	data := self report publicationCounts asArray collect: [ :each |
-		        PlotlyTrace scatter
-			        name: each key;
-			        showlegend: true;
-			        x: (each value collect: #key) asArray;
-			        y: (each value collect: #value) asArray;
-			        yourself ].
-	plotly
-		data: data;
-		layout: (PlotlyLayout new
-				 title: (PlotlyText text: 'Evolución de las publicaciones');
-				 width: 1000 height: 300;
-				 propertyAt: 'xaxis' put: (Dictionary new
-						  at: 'type' put: 'category';
-						  yourself);
-				 yourself).
-	plotly config beResponsive.
-	script << plotly
-]
-
 { #category : #rendering }
 ReportComponent >> style [
 	^ '
@@ -714,12 +691,4 @@ ReportComponent >> update [
 	older
 		ifTrue: [ selectedYears
 				addAll: ((2000 to: Date today year - 7) collect: #printString) ]
-]
-
-{ #category : #callbacks }
-ReportComponent >> updateRoot: aWARoot [
-
-	super updateRoot: aWARoot.
-	aWARoot title: 'Memorias - LIFIA'.
-	aWARoot javascript url: 'https://cdn.plot.ly/plotly-2.4.2.min.js'
 ]
