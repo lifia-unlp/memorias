@@ -44,8 +44,8 @@ ReportComponent >> initialize [
 
 	super initialize.
 	older := false.
-	lastSevenYearsSelectors := { true. true. true. false. false. false.
-	                           false }.
+	lastSevenYearsSelectors := { true. true. true. true. true. true.
+	                           true }.
 	article := true.
 	inbook := true.
 	book := true.
