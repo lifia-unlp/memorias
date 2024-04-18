@@ -112,6 +112,18 @@ ReportComponent >> renderActivitySelectorsOn: html [
 				break.]
 ]
 
+{ #category : #'rendering-publications' }
+ReportComponent >> renderArticlePublicationsReportOn: html [
+
+	| articles |
+	articles := self report articlePublications.
+	html heading
+		level2;
+		id: 'article';
+		with: 'Articulos de revista (' , articles size greaseString , ')'.
+	self renderPublicationsIn: articles on: html
+]
+
 { #category : #'rendering-form' }
 ReportComponent >> renderArticleTypeSelectorsOn: html [
 	html
@@ -146,6 +158,18 @@ ReportComponent >> renderArticleTypeSelectorsOn: html [
 			html
 				text: 'Libros';
 				break ]
+]
+
+{ #category : #'rendering-publications' }
+ReportComponent >> renderBookPublicationsReportOn: html [
+
+	| articles |
+	articles := self report bookPublications.
+	html heading
+		level2;
+		id: 'book';
+		with: 'Libros (' , articles size greaseString , ')'.
+	self renderPublicationsIn: articles on: html
 ]
 
 { #category : #rendering }
@@ -206,6 +230,31 @@ ReportComponent >> renderGraduateStudentsOn: html [
 				select: [ :each | each positionAtLIFIA = 'Estudiante de posgrado' ])
 		heading: 'Estudiantes de posgrado'
 		on: html
+]
+
+{ #category : #'rendering-publications' }
+ReportComponent >> renderInBookPublicationsReportOn: html [
+
+	| articles |
+	articles := self report inbookPublications.
+	html heading
+		level2;
+		id: 'inbook';
+		with: 'Capítulos de libro (' , articles size greaseString , ')'.
+	self renderPublicationsIn: articles on: html
+]
+
+{ #category : #'rendering-publications' }
+ReportComponent >> renderInProceedingsPublicationsReportOn: html [
+
+	| articles |
+	articles := self report inproceedingsPublications.
+	html heading
+		level2;
+		id: 'inproceedings';
+		with:
+			'Articulos de conferencia (' , articles size greaseString , ')'.
+	self renderPublicationsIn: articles on: html
 ]
 
 { #category : #rendering }
@@ -355,48 +404,27 @@ ReportComponent >> renderPublicationsIndexOn: html [
 ]
 
 { #category : #'rendering-publications' }
+ReportComponent >> renderPublicationsPlotOn: html [
+
+	publicationsPlot arrayOfDictionariesWithCounts:
+		self report publicationCounts.
+	publicationsPlot renderContentOn: html
+]
+
+{ #category : #'rendering-publications' }
 ReportComponent >> renderPublicationsReportOn: html [
 
-	article | inbook | inproceedings | book ifTrue: [
-		html heading
-			level1;
-			id: 'publications';
-			with: 'Publicaciones' ].
-	publicationsPlot arrayOfDictionariesWithCounts: self report publicationCounts .
-	publicationsPlot renderContentOn: html.
-	article ifTrue: [
-		| articles |
-		articles := self report articlePublications.
-		html heading
-			level2;
-			id: 'article';
-			with: 'Articulos de revista (' , articles size greaseString , ')'.
-		self renderPublicationsIn: articles on: html ].
+	article | inbook | inproceedings | book ifFalse: [ ^ self ].
+	html heading
+		level1;
+		id: 'publications';
+		with: 'Publicaciones'.
+	self renderPublicationsPlotOn: html.
+	article ifTrue: [ self renderArticlePublicationsReportOn: html ].
 	inproceedings ifTrue: [
-		| articles |
-		articles := self report inproceedingsPublications.
-		html heading
-			level2;
-			id: 'inproceedings';
-			with:
-				'Articulos de conferencia (' , articles size greaseString , ')'.
-		self renderPublicationsIn: articles on: html ].
-	inbook ifTrue: [
-		| articles |
-		articles := self report inbookPublications.
-		html heading
-			level2;
-			id: 'inbook';
-			with: 'Capítulos de libro (' , articles size greaseString , ')'.
-		self renderPublicationsIn: articles on: html ].
-	book ifTrue: [
-		| articles |
-		articles := self report bookPublications.
-		html heading
-			level2;
-			id: 'book';
-			with: 'Libros (' , articles size greaseString , ')'.
-		self renderPublicationsIn: articles on: html ]
+		self renderInProceedingsPublicationsReportOn: html ].
+	inbook ifTrue: [ self renderInBookPublicationsReportOn: html ].
+	book ifTrue: [ self renderBookPublicationsReportOn: html ]
 ]
 
 { #category : #rendering }
