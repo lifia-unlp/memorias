@@ -36,8 +36,10 @@ apps := OrderedCollection new.
 apps add: ((WAAdmin register: MemoriasLandingComponent asApplicationAt: MemoriasLandingComponent relativeUrl) 
 				sessionClass: MemoriasSession; 
 				yourself). 
-apps add: ((WAAdmin register: ReportComponent  asApplicationAt: ReportComponent relativeUrl).
-				sessionClass: MemoriasSession; 				yourself). apps add: (WAAdmin register: ResearcherReportComponent  asApplicationAt: ResearcherReportComponent relativeUrl).
+apps add: ((WAAdmin register: ReportComponent asApplicationAt: ReportComponent relativeUrl).
+				sessionClass: MemoriasSession; 
+				yourself). 
+apps add: (WAAdmin register: ResearcherReportComponent  asApplicationAt: ResearcherReportComponent relativeUrl).
 apps add: (WAAdmin register: PublicProjectsListComponent asApplicationAt: PublicProjectsListComponent relativeUrl).
 apps add: (WAAdmin register: ProjectReportComponent asApplicationAt: ProjectReportComponent relativeUrl).
 apps add: (WAAdmin register: PublicThesisListComponent asApplicationAt: PublicThesisListComponent relativeUrl).
