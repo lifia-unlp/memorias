@@ -406,6 +406,8 @@ ReportComponent >> renderPublicationsIndexOn: html [
 { #category : #'rendering-publications' }
 ReportComponent >> renderPublicationsPlotOn: html [
 
+	self session currentUser ifNil: [ ^ self ].
+
 	publicationsPlot arrayOfDictionariesWithCounts:
 		self report publicationCounts.
 	publicationsPlot renderContentOn: html
