@@ -5,6 +5,7 @@ Class {
 	#name : #BibtexReference,
 	#superclass : #LifiaLogEntry,
 	#instVars : [
+		'ranking',
 		'bibtexEntry',
 		'selfArchivingUrl',
 		'relatedThesis'
@@ -154,7 +155,7 @@ BibtexReference >> propertyNames [
 			'relatedThesis'}.
 	fields
 		addAll:
-			{'selfArchivingUrl' . 'relatedProjects' . 'relatedLifians'.
+			{'ranking'. 'selfArchivingUrl' . 'relatedProjects' . 'relatedLifians'.
 			'relatedThesis'}.
 	^ fields
 ]
@@ -162,6 +163,18 @@ BibtexReference >> propertyNames [
 { #category : #accessing }
 BibtexReference >> publisher [
 	^ (bibtexEntry at: 'publisher') ifNil: [ '' ]
+]
+
+{ #category : #accessing }
+BibtexReference >> ranking [
+
+	^ ranking
+]
+
+{ #category : #accessing }
+BibtexReference >> ranking: anObject [
+
+	ranking := anObject
 ]
 
 { #category : #accessing }

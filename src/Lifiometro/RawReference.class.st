@@ -5,6 +5,7 @@ Class {
 		'year',
 		'type',
 		'reference',
+		'ranking',
 		'selfArchivingUrl',
 		'relatedThesis'
 	],
@@ -33,7 +34,19 @@ RawReference >> cleanupLatexAccentsAndBraces [
 
 { #category : #accessing }
 RawReference >> propertyNames [
-	^ {'reference' . 'year' . 'selfArchivingUrl' . 'relatedLifians'. 'relatedProjects'. 'relatedThesis' }
+	^ {'reference' . 'year' . 'ranking'. 'selfArchivingUrl' . 'relatedLifians'. 'relatedProjects'. 'relatedThesis' }
+]
+
+{ #category : #accessing }
+RawReference >> ranking [
+
+	^ ranking
+]
+
+{ #category : #accessing }
+RawReference >> ranking: anObject [
+
+	ranking := anObject
 ]
 
 { #category : #accessing }
