@@ -17,7 +17,25 @@ YearlyEvolutionPlotSubcomponent >> arrayOfDictionariesWithCounts [
 { #category : #accessing }
 YearlyEvolutionPlotSubcomponent >> arrayOfDictionariesWithCounts: anObject [
 
-	arrayOfDictionariesWithCounts := anObject
+	arrayOfDictionariesWithCounts :=  anObject
+]
+
+{ #category : #private }
+YearlyEvolutionPlotSubcomponent >> plotlyTraceFor: titleToCollectionOfAssociations from: startYear to: endYear [
+
+	| yearlyCounts counts |
+	title := titleToCollectionOfAssociations key.
+	yearlyCounts := titleToCollectionOfAssociations value asDictionary.
+	counts := (startYear to: endYear) collect: [ :year |
+		          yearlyCounts at: year ifAbsent: [ 0 ] ].
+
+
+	^ PlotlyTrace scatter
+		  name: title;
+		  showlegend: true;
+		  x: (startYear to: endYear) asArray;
+		  y: counts asArray;
+		  yourself
 ]
 
 { #category : #rendering }
@@ -35,16 +53,15 @@ YearlyEvolutionPlotSubcomponent >> renderContentOn: html [
 { #category : #rendering }
 YearlyEvolutionPlotSubcomponent >> setupScriptForScatterPlot: script elementId: elementId [
 
-	| plotly data |
+	| plotly data years |
 	plotly := script plotly: elementId.
-	data := (arrayOfDictionariesWithCounts asSortedCollection: [ :a :b |
-		         a value first < b value first ]) collect: [ :each |
-		        PlotlyTrace scatter
-			        name: each key;
-			        showlegend: true;
-			        x: (each value collect: #key) asArray;
-			        y: (each value collect: #value) asArray;
-			        yourself ].
+	years := (arrayOfDictionariesWithCounts flatCollect: [ :each |
+		         each value collect: #key ]) .
+	data := nil.
+	years ifNotEmpty: [
+		data := arrayOfDictionariesWithCounts collect: [ :each |
+			        self plotlyTraceFor: each from: years min to: years max ] ].
+
 	plotly
 		data: data;
 		layout: (PlotlyLayout new

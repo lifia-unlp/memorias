@@ -43,13 +43,13 @@ GeneralReport >> bookPublications [
 { #category : #accessing }
 GeneralReport >> countsFor: aListOfYearlyResults [
 
-	^ self countsFor:  aListOfYearlyResults  considering: #year
+	^ self countsFor:  aListOfYearlyResults  considering: [:it | it year asNumber]
 ]
 
 { #category : #accessing }
-GeneralReport >> countsFor: aListOfYearlyResults considering: aSelectorToGetYear [
+GeneralReport >> countsFor: aListOfYearlyResults considering: aBlockToGetTheYear [
 
-	^ ((aListOfYearlyResults collect: aSelectorToGetYear) asBag
+	^ ((aListOfYearlyResults collect: aBlockToGetTheYear) asBag
 		   copyWithout: nil) sortedElements
 ]
 
@@ -110,14 +110,24 @@ GeneralReport >> specializationThesis [
 { #category : #accessing }
 GeneralReport >> thesisCounts [
 
+	| blockToGetTheYearOrNil |
+	blockToGetTheYearOrNil := [ :ref |
+	                          ref endYear
+		                          ifNil: [ nil ]
+		                          ifNotNil: [ :it | it asNumber ] ].
+
 	^ Array
 		  with: 'Tesis de doctorado'
-			  -> (self countsFor: self phdThesis considering: #endYear)
-		  with: 'Tesis de maestría'
-			  -> (self countsFor: self mastersThesis considering: #endYear)
-		  with: 'Tesinas de grado'
 			  ->
-			  (self countsFor: self undergraduateThesis considering: #endYear)
+			  (self
+				   countsFor: self phdThesis
+				   considering: blockToGetTheYearOrNil)
+		  with: 'Tesis de maestría' -> (self
+				   countsFor: self mastersThesis
+				   considering: blockToGetTheYearOrNil)
+		  with: 'Tesinas de grado' -> (self
+				   countsFor: self undergraduateThesis
+				   considering: blockToGetTheYearOrNil)
 ]
 
 { #category : #accessing }
