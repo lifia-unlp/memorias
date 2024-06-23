@@ -1,4 +1,4 @@
-| apps dbhost db dbuser dbpassword mailedSendApiKey debug |
+| apps dbhost db dbuser dbpassword adminEmail mailedSendApiKey debug |
 
 debug := (OSEnvironment current at: 'DEBUG' ifAbsent: 'false') = 'true'.
 dbhost := OSEnvironment current at: 'DB_HOST' ifAbsent: 'mongodb'.
@@ -6,8 +6,10 @@ db := OSEnvironment current at: 'DB' ifAbsent: 'lifiometro'.
 dbuser := OSEnvironment current at: 'DB_USER' ifAbsent: nil.
 dbpassword := OSEnvironment current at: 'DB_PASSWORD' ifAbsent: nil.
 mailedSendApiKey := OSEnvironment current at: 'MAILERSEND_APIKEY' ifAbsent: nil.
+adminEmail := OSEnvironment current at: 'ADMIN_EMAIL' ifAbsent: nil.
 
 MailerSendAPI singleton apiKey: mailedSendApiKey .
+MailerSendAPI singleton adminEmail: adminEmail .
 
 dbuser
 	ifNil: [ (VOMongoRepository
@@ -45,7 +47,7 @@ apps add: (WAAdmin register: PublicThesisListComponent asApplicationAt: PublicTh
 apps add: (WAAdmin register: ThesisReportComponent asApplicationAt: ThesisReportComponent relativeUrl).
 
 apps do: [:app | 
- MailerSendAPI singleton apiKey ifNotNil: [ app	
+ MailerSendAPI singleton isProperlyConfigured ifTrue: [ app	
 	exceptionHandler: MemoriasEmailErrorHandler].
  app
 	addLibrary: JQDeploymentLibrary;
