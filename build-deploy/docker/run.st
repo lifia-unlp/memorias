@@ -1,4 +1,4 @@
-| apps dbhost db dbuser dbpassword adminEmail mailedSendApiKey debug |
+| apps dbhost db dbuser dbpassword emailsSender sendErrorEmailsTo mailedSendApiKey debug |
 
 debug := (OSEnvironment current at: 'DEBUG' ifAbsent: 'false') = 'true'.
 dbhost := OSEnvironment current at: 'DB_HOST' ifAbsent: 'mongodb'.
@@ -6,10 +6,12 @@ db := OSEnvironment current at: 'DB' ifAbsent: 'lifiometro'.
 dbuser := OSEnvironment current at: 'DB_USER' ifAbsent: nil.
 dbpassword := OSEnvironment current at: 'DB_PASSWORD' ifAbsent: nil.
 mailedSendApiKey := OSEnvironment current at: 'MAILERSEND_APIKEY' ifAbsent: nil.
-adminEmail := OSEnvironment current at: 'ADMIN_EMAIL' ifAbsent: nil.
+emailsSender := OSEnvironment current at: 'EMAILS_SENDER' ifAbsent: nil.
+sendErrorEmailsTo := OSEnvironment current at: 'ERROR_EMAILS_TO' ifAbsent: nil.
 
 MailerSendAPI singleton apiKey: mailedSendApiKey .
-MailerSendAPI singleton adminEmail: adminEmail .
+MailerSendAPI singleton emailsSender: emailsSender . 
+MailerSendAPI singleton sendErrorEmailsTo: sendErrorEmailsTo .
 
 dbuser
 	ifNil: [ (VOMongoRepository
@@ -47,7 +49,8 @@ apps add: (WAAdmin register: PublicThesisListComponent asApplicationAt: PublicTh
 apps add: (WAAdmin register: ThesisReportComponent asApplicationAt: ThesisReportComponent relativeUrl).
 
 apps do: [:app | 
- MailerSendAPI singleton isProperlyConfigured ifTrue: [ app	
+ MailerSendAPI singleton isProperlyConfigured & MailerSendAPI singleton sendErrorEmailsTo notNil 
+   ifTrue: [ app	
 	exceptionHandler: MemoriasEmailErrorHandler].
  app
 	addLibrary: JQDeploymentLibrary;
@@ -59,8 +62,5 @@ apps do: [:app |
 ].
 
 WAAdmin defaultDispatcher defaultName: MemoriasLandingComponent relativeUrl.
-
-"Temporary hack to update the database; remove in the next release"
-RepositoryAuditRecord selectAll do: [:each | each action: each action asString; save ].
 
 Transcript cr; show: 'Memorias starting  (dbhost: ', dbhost, ', db: ', db, ')'; cr; cr.
