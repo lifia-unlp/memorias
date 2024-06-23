@@ -1,14 +1,13 @@
-| apps dbhost db dbuser dbpassword smtpServer debug |
+| apps dbhost db dbuser dbpassword mailedSendApiKey debug |
 
 debug := (OSEnvironment current at: 'DEBUG' ifAbsent: 'false') = 'true'.
 dbhost := OSEnvironment current at: 'DB_HOST' ifAbsent: 'mongodb'.
 db := OSEnvironment current at: 'DB' ifAbsent: 'lifiometro'.
 dbuser := OSEnvironment current at: 'DB_USER' ifAbsent: nil.
 dbpassword := OSEnvironment current at: 'DB_PASSWORD' ifAbsent: nil.
-smtpServer := OSEnvironment current at: 'SMTP' ifAbsent: nil.
+mailedSendApiKey := OSEnvironment current at: 'MAILERSEND_APIKEY' ifAbsent: nil.
 
-"SMTP server for error reporting"
-MailComposition setSmtpServer: smtpServer.
+MailerSendAPI singleton apiKey: mailedSendApiKey .
 
 dbuser
 	ifNil: [ (VOMongoRepository
@@ -46,8 +45,8 @@ apps add: (WAAdmin register: PublicThesisListComponent asApplicationAt: PublicTh
 apps add: (WAAdmin register: ThesisReportComponent asApplicationAt: ThesisReportComponent relativeUrl).
 
 apps do: [:app | 
- smtpServer ifNotNil: [ app	
-	exceptionHandler: LifiometroEmailErrorHandler].
+ MailerSendAPI singleton apiKey ifNotNil: [ app	
+	exceptionHandler: MemoriasEmailErrorHandler].
  app
 	addLibrary: JQDeploymentLibrary;
 	addLibrary: JQUiDeploymentLibrary;
