@@ -48,9 +48,9 @@ AdministrationComponent >> renderBulkActionsOn: html [
 
 	html tbsPanel
 		beDefault;
-		with: [ 
+		with: [
 			html tbsPanelHeading: [ html label: 'Bulk actions' ].
-			html tbsPanelBody: [ 
+			html tbsPanelBody: [
 					html anchor
 						callback: [ self importFromDblp ];
 						with: 'Import from DBLP'.
@@ -70,7 +70,13 @@ AdministrationComponent >> renderBulkActionsOn: html [
 					html break.
 					html anchor
 						callback: [ self callEnglishCritic ];
-						with: 'GPT English Critic' ] ]
+						with: 'GPT English Critic'.
+
+
+					html break.
+					html anchor
+						callback: [ 1 / 0 ];
+						with: 'Simulate error' ] ]
 ]
 
 { #category : #rendering }
