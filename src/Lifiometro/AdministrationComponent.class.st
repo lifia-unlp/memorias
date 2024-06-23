@@ -85,7 +85,8 @@ AdministrationComponent >> renderContentOn: html [
 		tbsPanel: [ html tbsPanelBody:
 				[ self renderUsersListOn: html.
 				self renderBulkActionsOn: html. 
-				self renderStatsOn: html ] ]
+				self renderStatsOn: html.
+				self renderEnvironmentVarsOn: html ] ]
 ]
 
 { #category : #rendering }
@@ -106,6 +107,34 @@ AdministrationComponent >> renderEnabledUsersListOn: html [
 			html
 				tbsPanelBody: [ (LifiometroRepository singleton users select: [ :each | each enabled ])
 						do: [ :each | self renderUser: each on: html ] ] ]
+]
+
+{ #category : #rendering }
+AdministrationComponent >> renderEnvironmentVarsOn: html [
+
+	html tbsPanel
+		beDefault;
+		with: [
+			html tbsPanelHeading: [ html label: 'Environment variables' ].
+			html tbsPanelBody: [
+					html paragraph with: [
+							html strong: 'DEBUG: '.
+							html text: (OSEnvironment current at: 'DEBUG') ].
+					html paragraph with: [
+							html strong: 'DB_HOST: '.
+							html text: (OSEnvironment current at: 'DB_HOST') ].
+					html paragraph with: [
+							html strong: 'DB: '.
+							html text: (OSEnvironment current at: 'DB') ].
+					html paragraph with: [
+							html strong: 'MAILERSEND_APIKEY: '.
+							html text: (OSEnvironment current at: 'MAILERSEND_APIKEY') ].
+					html paragraph with: [
+							html strong: 'EMAILS_SENDER: '.
+							html text: (OSEnvironment current at: 'EMAILS_SENDER') ].
+					html paragraph with: [
+							html strong: 'ERROR_EMAILS_TO: '.
+							html text: (OSEnvironment current at: 'ERROR_EMAILS_TO') ] ] ]
 ]
 
 { #category : #rendering }
