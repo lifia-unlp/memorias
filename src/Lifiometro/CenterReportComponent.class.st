@@ -75,6 +75,15 @@ CenterReportComponent >> initialize [
 ]
 
 { #category : #'rendering-projects' }
+CenterReportComponent >> render: anAspect ofProject: aProject labeled: aLabel on: html [
+
+	(aProject perform: anAspect) ifNotNilNotEmpty: [ :value |
+		html
+			text: aLabel , ': ' , value;
+			break ]
+]
+
+{ #category : #'rendering-projects' }
 CenterReportComponent >> renderActiveProjectsReportOn: html [
 
 	activeProjects ifFalse: [ ^ self ].
@@ -411,37 +420,52 @@ CenterReportComponent >> renderPhdThesisSelectorsOn: html [
 
 { #category : #'rendering-projects' }
 CenterReportComponent >> renderProject: each on: html [
+
 	html paragraph
 		style: 'padding:10px;';
-		with: [ html
+		with: [
+			html
 				text: each title;
 				break.
+			self
+				render: #code
+				ofProject: each
+				labeled: 'Código'
+				on: html.
 			html
-				text: 'Código: ' , each code;
+				text: 'Fechas: ' , each startDate asDate printString , ' - '
+					, each endDate asDate printString;
 				break.
-			html
-				text:
-					'Fechas: ' , each startDate asDate printString , ' - '
-						, each endDate asDate printString;
-				break.
-			html
-				text: 'Director(es): ' , each director;
-				break.
-			html
-				text: 'Co-Director(es): ' , each coDirector;
-				break.
-			html
-				text: 'Grupo responsable: ' , each responsibleGroup;
-				break.
-			html
-				text: 'Financiador: ' , each fundingAgency;
-				break.
-			html
-				text: 'Monto: ' , each amount;
-				break.
-			html
-				text: 'Resumen: ' , each summary;
-				break.
+			self
+				render: #director
+				ofProject: each
+				labeled: 'Director(es)'
+				on: html.
+			self
+				render: #coDirector
+				ofProject: each
+				labeled: 'Codirector(es)'
+				on: html.
+			self
+				render: #responsibleGroup
+				ofProject: each
+				labeled: 'Grupo responsable'
+				on: html.
+			self
+				render: #fundingAgency
+				ofProject: each
+				labeled: 'Fianciador'
+				on: html.
+			self
+				render: #amount
+				ofProject: each
+				labeled: 'Monto'
+				on: html.
+			self
+				render: #summary
+				ofProject: each
+				labeled: 'Resumen'
+				on: html.
 			html anchor
 				target: '_blank';
 				url: '/' , (ProjectReportComponent relativeUrlFor: each);
