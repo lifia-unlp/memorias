@@ -1,5 +1,5 @@
 Class {
 	#name : #PublicReportComponent,
-	#superclass : #WAComponent,
+	#superclass : #ReportComponent,
 	#category : #'Lifiometro-Reports'
 }

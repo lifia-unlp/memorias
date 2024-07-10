@@ -1,6 +1,6 @@
 Class {
 	#name : #ProfileReportComponent,
-	#superclass : #WAComponent,
+	#superclass : #ReportComponent,
 	#instVars : [
 		'report'
 	],
@@ -56,8 +56,10 @@ ProfileReportComponent >> renderProject: project on: html [
 
 { #category : #rendering }
 ProfileReportComponent >> renderProjectsOn: html [
+
 	html heading level2 with: 'Proyectos'.
-	report projects do: [ :each | self renderProject: each on: html ]
+	(self asSortedProjects: report projects) do: [ :each |
+		self renderProject: each on: html ]
 ]
 
 { #category : #rendering }
