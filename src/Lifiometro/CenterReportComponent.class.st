@@ -74,10 +74,10 @@ CenterReportComponent >> initialize [
 	self update
 ]
 
-{ #category : #'rendering-projects' }
-CenterReportComponent >> render: anAspect ofProject: aProject labeled: aLabel on: html [
+{ #category : #rendering }
+CenterReportComponent >> render: anAspect of: anObject labeled: aLabel on: html [
 
-	(aProject perform: anAspect) ifNotNilNotEmpty: [ :value |
+	(anObject perform: anAspect) ifNotNilNotEmpty: [ :value |
 		html
 			text: aLabel , ': ' , value;
 			break ]
@@ -215,6 +215,15 @@ CenterReportComponent >> renderContentOn: html [
 			html horizontalRule.
 			"self renderIndexOn: html."
 			self renderReportOn: html ]
+]
+
+{ #category : #rendering }
+CenterReportComponent >> renderDatesOf: anObject labeled: aLabel on: html [
+
+	html
+		text: aLabel , ': ' , anObject startDate asDate printString , ' - '
+			, anObject endDate asDate printString;
+		break
 ]
 
 { #category : #'rendering-publications' }
@@ -429,41 +438,38 @@ CenterReportComponent >> renderProject: each on: html [
 				break.
 			self
 				render: #code
-				ofProject: each
+				of: each
 				labeled: 'Código'
 				on: html.
-			html
-				text: 'Fechas: ' , each startDate asDate printString , ' - '
-					, each endDate asDate printString;
-				break.
+			self renderDatesOf: each labeled: 'Fechas' on: html.
 			self
 				render: #director
-				ofProject: each
+				of: each
 				labeled: 'Director(es)'
 				on: html.
 			self
 				render: #coDirector
-				ofProject: each
+				of: each
 				labeled: 'Codirector(es)'
 				on: html.
 			self
 				render: #responsibleGroup
-				ofProject: each
+				of: each
 				labeled: 'Grupo responsable'
 				on: html.
 			self
 				render: #fundingAgency
-				ofProject: each
+				of: each
 				labeled: 'Fianciador'
 				on: html.
 			self
 				render: #amount
-				ofProject: each
+				of: each
 				labeled: 'Monto'
 				on: html.
 			self
 				render: #summary
-				ofProject: each
+				of: each
 				labeled: 'Resumen'
 				on: html.
 			html anchor
@@ -600,34 +606,47 @@ CenterReportComponent >> renderResearchersOn: html [
 
 { #category : #'rendering-scholarhips' }
 CenterReportComponent >> renderScholarship: each on: html [
+
 	html paragraph
 		style: 'padding: 10px;';
-		with: [ html
-				text: 'Alumno: ' , each student;
-				break.
+		with: [
 			html
-				text:
-					'Fechas: ' , each startDate asDate printString , ' - '
-						, each endDate asDate printString;
+				strong: 'Alumno: ' , each student;
 				break.
-			html
-				text: 'Título: ' , each title;
-				break.
-			html
-				text: 'Director(es): ' , each director;
-				break.
-			html
-				text: 'Co-Director(es): ' , each coDirector;
-				break.
-			html
-				text: 'Financiador: ' , each fundingAgency;
-				break.
-			html
-				text: 'Tipo de beca: ' , each type;
-				break.
-			html
-				text: 'Resumen: ' , each summary;
-				break ]
+			self renderDatesOf: each labeled: 'Fechas' on: html.
+			self
+				render: #title
+				of: each
+				labeled: 'Título'
+				on: html.
+
+
+			self
+				render: #director
+				of: each
+				labeled: 'Director(es)'
+				on: html.
+			self
+				render: #coDirector
+				of: each
+				labeled: 'Codirector(es)'
+				on: html.
+			self
+				render: #fundingAgency
+				of: each
+				labeled: 'Financiador'
+				on: html.
+
+			self
+				render: #type
+				of: each
+				labeled: 'Tipo de beca'
+				on: html.
+			self
+				render: #summary
+				of: each
+				labeled: 'Resumen'
+				on: html ]
 ]
 
 { #category : #'rendering-scholarhips' }
