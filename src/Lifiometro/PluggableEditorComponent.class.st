@@ -63,7 +63,7 @@ PluggableEditorComponent >> obtainDateValueFromString: aString [
 { #category : #accessing }
 PluggableEditorComponent >> projects [
 	^ LifiometroRepository singleton projects
-		asSortedCollection: [ :a :b | a startDate > b startDate ]
+		asSortedCollection: [ :a :b | a endDate > b endDate ]
 ]
 
 { #category : #rendering }
