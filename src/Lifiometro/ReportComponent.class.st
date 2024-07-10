@@ -16,14 +16,15 @@ Class {
 		'undergraduate',
 		'masters',
 		'pdh',
-		'projects',
 		'scholarships',
 		'selectedYears',
 		'specialization',
 		'report',
 		'lastSevenYearsSelectors',
 		'publicationsPlot',
-		'thesisPlot'
+		'thesisPlot',
+		'activeProjects',
+		'finishedProjects'
 	],
 	#category : #'Lifiometro-Reports'
 }
@@ -53,7 +54,8 @@ ReportComponent >> initialize [
 	undergraduate := true.
 	masters := true.
 	pdh := true.
-	projects := true.
+	activeProjects := true.
+	finishedProjects := true.
 	scholarships := true.
 	publicationsPlot := YearlyEvolutionPlotSubcomponent new.
 	publicationsPlot title: 'Evolución de las publicaciones'.
@@ -62,54 +64,75 @@ ReportComponent >> initialize [
 	self update
 ]
 
+{ #category : #'rendering-projects' }
+ReportComponent >> renderActiveProjectsReportOn: html [
+	activeProjects
+		ifFalse: [ ^ self ].
+	html heading
+		level1;
+		id: 'active-projects';
+		with: 'Proyectos en curso'.
+	self report activeProjects 
+		do: [ :each | self renderProject: each on: html ]
+]
+
 { #category : #'rendering-form' }
 ReportComponent >> renderActivitySelectorsOn: html [
-	html
-		tbsFormGroup: [ html
-				label: 'Actividades a incluir';
-				break.
-			html checkbox
-				value: pdh;
-				callback: [ :value | pdh := value ].
-			html space.
-			html
-				text: 'Alumnos doctorales';
-				break.
-			html checkbox
-				value: masters;
-				callback: [ :value | masters := value ].
-			html space.
-			html
-				text: 'Alumnos de maestría (tesis)';
-				break.
-			html checkbox
-				value: undergraduate;
-				callback: [ :value | undergraduate := value ].
-			html space.
-			html
-				text: 'Alumnos de especialización (trabajo final)';
-				break.
-			html checkbox
-				value: undergraduate;
-				callback: [ :value | specialization := value ].
-			html space.
-			html
-				text: 'Alumnos de grado (tesina)';
-				break.
-			html checkbox
-				value: scholarships;
-				callback: [ :value | scholarships := value ].
-			html space.
-			html
-				text: 'Becas';
-				break.
-			html checkbox
-				value: projects;
-				callback: [ :value | projects := value ].
-			html space.
-			html
-				text: 'Proyectos';
-				break.]
+
+	html tbsFormGroup: [
+		html
+			label: 'Actividades a incluir';
+			break.
+		html checkbox
+			value: pdh;
+			callback: [ :value | pdh := value ].
+		html space.
+		html
+			text: 'Alumnos doctorales';
+			break.
+		html checkbox
+			value: masters;
+			callback: [ :value | masters := value ].
+		html space.
+		html
+			text: 'Alumnos de maestría (tesis)';
+			break.
+		html checkbox
+			value: undergraduate;
+			callback: [ :value | undergraduate := value ].
+		html space.
+		html
+			text: 'Alumnos de especialización (trabajo final)';
+			break.
+		html checkbox
+			value: undergraduate;
+			callback: [ :value | specialization := value ].
+		html space.
+		html
+			text: 'Alumnos de grado (tesina)';
+			break.
+		html checkbox
+			value: scholarships;
+			callback: [ :value | scholarships := value ].
+		html space.
+		html
+			text: 'Becas';
+			break.
+		html checkbox
+			value: activeProjects;
+			callback: [ :value | activeProjects := value ].
+		html space.
+		html
+			text: 'Proyectos en curso';
+			break.
+
+		html checkbox
+			value: finishedProjects;
+			callback: [ :value | finishedProjects := value ].
+		html space.
+		html
+			text: 'Proyectos concluídos';
+			break ]
 ]
 
 { #category : #'rendering-publications' }
@@ -205,6 +228,18 @@ ReportComponent >> renderExternalResearchersOn: html [
 		on: html
 ]
 
+{ #category : #'rendering-projects' }
+ReportComponent >> renderFinishedProjectsReportOn: html [
+	finishedProjects
+		ifFalse: [ ^ self ].
+	html heading
+		level1;
+		id: 'finished-projects';
+		with: 'Proyectos concluídos'.
+	self report finishedProjects  
+		do: [ :each | self renderProject: each on: html ]
+]
+
 { #category : #'rendering-form' }
 ReportComponent >> renderFormOn: html [
 	html
@@ -279,8 +314,12 @@ ReportComponent >> renderIndexOn: html [
 						with: 'Becarios' ].
 			html
 				listItem: [ html anchor
-						url: '#projects';
-						with: 'Proyectos' ].
+						url: '#active-projects';
+						with: 'Proyectos en curso' ].
+			html
+				listItem: [ html anchor
+						url: '#finished-projects';
+						with: 'Proyectos concluídos' ].
 			html
 				listItem: [ html anchor
 						url: '#researchers';
@@ -289,7 +328,7 @@ ReportComponent >> renderIndexOn: html [
 
 { #category : #'rendering-researchers' }
 ReportComponent >> renderMembers: aCollection heading: aHeading on: html [
-	projects
+	activeProjects
 		ifFalse: [ ^ self ].
 	html heading
 		level2;
@@ -354,18 +393,6 @@ ReportComponent >> renderProject: each on: html [
 				target: '_blank';
 				url: '/' , (ProjectReportComponent relativeUrlFor: each);
 				with: 'Mas detalles' ]
-]
-
-{ #category : #'rendering-projects' }
-ReportComponent >> renderProjectsReportOn: html [
-	projects
-		ifFalse: [ ^ self ].
-	html heading
-		level1;
-		id: 'projects';
-		with: 'Proyectos'.
-	self report projects
-		do: [ :each | self renderProject: each on: html ]
 ]
 
 { #category : #'rendering-publications' }
@@ -449,7 +476,8 @@ ReportComponent >> renderReportOn: html [
 		renderPublicationsReportOn: html;
 		renderThesisReportOn: html;
 		renderScholarshipReportOn: html;
-		renderProjectsReportOn: html.
+		renderActiveProjectsReportOn: html;
+		renderFinishedProjectsReportOn: html.
 	html heading
 		level1;
 		id: 'researchers';

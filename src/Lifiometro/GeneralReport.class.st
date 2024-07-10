@@ -31,6 +31,12 @@ GeneralReport class >> years: theYears projects: theProjects publications: thePu
 ]
 
 { #category : #accessing }
+GeneralReport >> activeProjects [
+
+	^ self projects select: #isActive. 
+]
+
+{ #category : #accessing }
 GeneralReport >> articlePublications [
 	^ articlePublications
 ]
@@ -51,6 +57,12 @@ GeneralReport >> countsFor: aListOfYearlyResults considering: aBlockToGetTheYear
 
 	^ ((aListOfYearlyResults collect: aBlockToGetTheYear) asBag
 		   copyWithout: nil) sortedElements
+]
+
+{ #category : #accessing }
+GeneralReport >> finishedProjects [
+
+	^ self projects reject: #isActive. 
 ]
 
 { #category : #accessing }
