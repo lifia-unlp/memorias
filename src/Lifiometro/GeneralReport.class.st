@@ -31,9 +31,39 @@ GeneralReport class >> years: theYears projects: theProjects publications: thePu
 ]
 
 { #category : #accessing }
+GeneralReport >> activeMastersThesis [
+
+	^ self mastersThesis  select: #isActive. 
+]
+
+{ #category : #accessing }
+GeneralReport >> activePhdThesis [
+
+	^ self phdThesis select: #isActive. 
+]
+
+{ #category : #accessing }
 GeneralReport >> activeProjects [
 
 	^ self projects select: #isActive. 
+]
+
+{ #category : #accessing }
+GeneralReport >> activeScholarships [
+
+	^ self scholarships select: #isActive
+]
+
+{ #category : #accessing }
+GeneralReport >> activeSpecializationThesis [
+
+	^ self specializationThesis select: #isActive
+]
+
+{ #category : #accessing }
+GeneralReport >> activeUndergraduateThesis [
+
+	^ self undergraduateThesis select: #isActive
 ]
 
 { #category : #accessing }
@@ -60,9 +90,39 @@ GeneralReport >> countsFor: aListOfYearlyResults considering: aBlockToGetTheYear
 ]
 
 { #category : #accessing }
+GeneralReport >> finishedMastersThesis [
+
+	^ self mastersThesis reject: #isActive
+]
+
+{ #category : #accessing }
+GeneralReport >> finishedPhdThesis [
+
+	^ self phdThesis reject: #isActive. 
+]
+
+{ #category : #accessing }
 GeneralReport >> finishedProjects [
 
 	^ self projects reject: #isActive. 
+]
+
+{ #category : #accessing }
+GeneralReport >> finishedScholarships [
+
+	^ self scholarships reject: #isActive
+]
+
+{ #category : #accessing }
+GeneralReport >> finishedSpecializationThesis [
+
+	^ self specializationThesis reject: #isActive
+]
+
+{ #category : #accessing }
+GeneralReport >> finishedUndergraduateThesis [
+
+	^ self undergraduateThesis reject: #isActive
 ]
 
 { #category : #accessing }

@@ -13,18 +13,23 @@ Class {
 		'inbook',
 		'book',
 		'inproceedings',
-		'undergraduate',
-		'masters',
-		'pdh',
-		'scholarships',
 		'selectedYears',
-		'specialization',
 		'report',
 		'lastSevenYearsSelectors',
 		'publicationsPlot',
 		'thesisPlot',
 		'activeProjects',
-		'finishedProjects'
+		'finishedProjects',
+		'activeScholarships',
+		'finishedScholarships',
+		'activePhdThesis',
+		'activeSpecializationThesis',
+		'activeUndergraduateThesis',
+		'activeMastersThesis',
+		'finishedUndergraduateThesis',
+		'finishedMastersThesis',
+		'finishedPhdThesis',
+		'finishedSpecializationThesis'
 	],
 	#category : #'Lifiometro-Reports'
 }
@@ -45,18 +50,23 @@ CenterReportComponent >> initialize [
 
 	super initialize.
 	older := false.
-	lastSevenYearsSelectors := { true. true. true. true. true. true.
-	                           true }.
+	lastSevenYearsSelectors := { true. true. true. true. true. true. true }.
 	article := true.
 	inbook := true.
 	book := true.
 	inproceedings := true.
-	undergraduate := true.
-	masters := true.
-	pdh := true.
+	activeUndergraduateThesis := true.
+	finishedUndergraduateThesis := true.
+	activeSpecializationThesis := true.
+	finishedSpecializationThesis := true.
+	activeMastersThesis := true.
+	finishedMastersThesis := true.
+	activePhdThesis := true.
+	finishedPhdThesis := true.
 	activeProjects := true.
 	finishedProjects := true.
-	scholarships := true.
+	activeScholarships := true.
+	finishedScholarships := true.
 	publicationsPlot := YearlyEvolutionPlotSubcomponent new.
 	publicationsPlot title: 'Evolución de las publicaciones'.
 	thesisPlot := YearlyEvolutionPlotSubcomponent new.
@@ -76,47 +86,24 @@ CenterReportComponent >> renderActiveProjectsReportOn: html [
 		self renderProject: each on: html ]
 ]
 
+{ #category : #'rendering-scholarhips' }
+CenterReportComponent >> renderActiveScholarshipReportOn: html [
+	activeScholarships
+		ifFalse: [ ^ self ].
+	html heading
+		level1;
+		id: 'scholarships';
+		with: 'Becas en curso'.
+	report activeScholarships
+		do: [ :each | self renderScholarship: each on: html ]
+]
+
 { #category : #'rendering-form' }
 CenterReportComponent >> renderActivitySelectorsOn: html [
 
 	html tbsFormGroup: [
 		html
-			label: 'Actividades a incluir';
-			break.
-		html checkbox
-			value: pdh;
-			callback: [ :value | pdh := value ].
-		html space.
-		html
-			text: 'Alumnos doctorales';
-			break.
-		html checkbox
-			value: masters;
-			callback: [ :value | masters := value ].
-		html space.
-		html
-			text: 'Alumnos de maestría (tesis)';
-			break.
-		html checkbox
-			value: undergraduate;
-			callback: [ :value | undergraduate := value ].
-		html space.
-		html
-			text: 'Alumnos de especialización (trabajo final)';
-			break.
-		html checkbox
-			value: undergraduate;
-			callback: [ :value | specialization := value ].
-		html space.
-		html
-			text: 'Alumnos de grado (tesina)';
-			break.
-		html checkbox
-			value: scholarships;
-			callback: [ :value | scholarships := value ].
-		html space.
-		html
-			text: 'Becas';
+			label: 'Proyectos y becas';
 			break.
 		html checkbox
 			value: activeProjects;
@@ -132,6 +119,21 @@ CenterReportComponent >> renderActivitySelectorsOn: html [
 		html space.
 		html
 			text: 'Proyectos concluídos';
+			break.
+
+		html checkbox
+			value: activeScholarships;
+			callback: [ :value | activeScholarships := value ].
+		html space.
+		html
+			text: 'Becas en curso';
+			break.
+		html checkbox
+			value: finishedScholarships;
+			callback: [ :value | finishedScholarships := value ].
+		html space.
+		html
+			text: 'Becas concluídas';
 			break ]
 ]
 
@@ -202,7 +204,7 @@ CenterReportComponent >> renderContentOn: html [
 		with: [ self renderReportHeaderOn: html.
 			self renderFormOn: html.
 			html horizontalRule.
-			self renderIndexOn: html.
+			"self renderIndexOn: html."
 			self renderReportOn: html ]
 ]
 
@@ -240,13 +242,26 @@ CenterReportComponent >> renderFinishedProjectsReportOn: html [
 		self renderProject: each on: html ]
 ]
 
+{ #category : #'rendering-scholarhips' }
+CenterReportComponent >> renderFinishedScholarshipReportOn: html [
+
+	finishedScholarships ifFalse: [ ^ self ].
+	html heading
+		level1;
+		id: 'scholarships';
+		with: 'Becas Concluidas'.
+	report finishedScholarships do: [ :each |
+		self renderScholarship: each on: html ]
+]
+
 { #category : #'rendering-form' }
 CenterReportComponent >> renderFormOn: html [
 	html
 		tbsForm: [ html
-				tbsRow: [ html tbsColumn: [ self renderYearSelectorsOn: html ] mediumSize: 4.
-					html tbsColumn: [ self renderArticleTypeSelectorsOn: html ] mediumSize: 4.
-					html tbsColumn: [ self renderActivitySelectorsOn: html ] mediumSize: 4 ].
+				tbsRow: [ html tbsColumn: [ self renderYearSelectorsOn: html ] mediumSize: 2.
+					html tbsColumn: [ self renderArticleTypeSelectorsOn: html ] mediumSize: 3.
+					html tbsColumn: [ self renderActivitySelectorsOn: html ] mediumSize: 3 .
+					html tbsColumn: [ self renderThesisSelectorsOn: html ] mediumSize: 4].
 			html
 				tbsRow: [ html
 						tbsColumn: [ html tbsButton
@@ -306,7 +321,7 @@ CenterReportComponent >> renderIndexOn: html [
 			html
 				listItem: [ html anchor
 						url: '#thesis';
-						with: 'Dirección de tesis y trabajos finales.' ].
+						with: 'Dirección de tesis y trabajos finales' ].
 			html unorderedList: [ self renderThesisIndexOn: html ].
 			html
 				listItem: [ html anchor
@@ -324,6 +339,25 @@ CenterReportComponent >> renderIndexOn: html [
 				listItem: [ html anchor
 						url: '#researchers';
 						with: 'Participantes' ] ]
+]
+
+{ #category : #'rendering-form' }
+CenterReportComponent >> renderMastersThesisSelectosOn: html [
+
+	html checkbox
+		value: activeMastersThesis;
+		callback: [ :value | activeMastersThesis := value ].
+	html space.
+	html
+		text: 'Tesis de maestría en curso';
+		break.
+	html checkbox
+		value: finishedMastersThesis;
+		callback: [ :value | finishedMastersThesis := value ].
+	html space.
+	html
+		text: 'Tesis de maestría concluídas';
+		break
 ]
 
 { #category : #'rendering-researchers' }
@@ -354,6 +388,25 @@ CenterReportComponent >> renderOtherMembersOn: html [
 				select: [ :each | each positionAtLIFIA isNil ])
 		heading: 'Asistentes de investigación'
 		on: html
+]
+
+{ #category : #'rendering-form' }
+CenterReportComponent >> renderPhdThesisSelectorsOn: html [
+
+	html checkbox
+		value: activePhdThesis;
+		callback: [ :value | activePhdThesis := value ].
+	html space.
+	html
+		text: 'Tesis doctorales en curso';
+		break.
+	html checkbox
+		value: finishedPhdThesis;
+		callback: [ :value | finishedPhdThesis := value ].
+	html space.
+	html
+		text: 'Tesis doctorales concluidas';
+		break
 ]
 
 { #category : #'rendering-projects' }
@@ -393,6 +446,13 @@ CenterReportComponent >> renderProject: each on: html [
 				target: '_blank';
 				url: '/' , (ProjectReportComponent relativeUrlFor: each);
 				with: 'Mas detalles' ]
+]
+
+{ #category : #'rendering-projects' }
+CenterReportComponent >> renderProjectsReportOn: html [
+
+	self renderActiveProjectsReportOn: html.
+	self renderFinishedProjectsReportOn: html
 ]
 
 { #category : #'rendering-publications' }
@@ -476,8 +536,7 @@ CenterReportComponent >> renderReportOn: html [
 		renderPublicationsReportOn: html;
 		renderThesisReportOn: html;
 		renderScholarshipReportOn: html;
-		renderActiveProjectsReportOn: html;
-		renderFinishedProjectsReportOn: html.
+		renderProjectsReportOn: html.
 	html heading
 		level1;
 		id: 'researchers';
@@ -549,14 +608,28 @@ CenterReportComponent >> renderScholarship: each on: html [
 
 { #category : #'rendering-scholarhips' }
 CenterReportComponent >> renderScholarshipReportOn: html [
-	scholarships
-		ifFalse: [ ^ self ].
-	html heading
-		level1;
-		id: 'scholarships';
-		with: 'Becarios'.
-	report scholarships
-		do: [ :each | self renderScholarship: each on: html ]
+
+	self renderActiveScholarshipReportOn: html.
+	self renderFinishedScholarshipReportOn: html
+]
+
+{ #category : #'rendering-form' }
+CenterReportComponent >> renderSpecalizationThesisSelectorsOn: html [
+
+	html checkbox
+		value: activeSpecializationThesis ;
+		callback: [ :value | activeSpecializationThesis := value ].
+	html space.
+	html
+		text: 'Trabajos de especializacion en curso';
+		break.
+	html checkbox
+		value: finishedSpecializationThesis;
+		callback: [ :value | finishedSpecializationThesis  := value ].
+	html space.
+	html
+		text: 'Trabajos de especializacion concluidos';
+		break
 ]
 
 { #category : #'rendering-thesis' }
@@ -598,6 +671,16 @@ CenterReportComponent >> renderThesis: each on: html [
 				break ]
 ]
 
+{ #category : #'rendering-thesis' }
+CenterReportComponent >> renderThesisCollection: aCollectionOfThesis withHeading: aHeading on: html [
+
+	html heading
+		level2;
+		id: aHeading asValidSelector;
+		with: aHeading.
+	aCollectionOfThesis do: [ :each | self renderThesis: each on: html ]
+]
+
 { #category : #rendering }
 CenterReportComponent >> renderThesisIndexOn: html [
 	html
@@ -621,42 +704,82 @@ CenterReportComponent >> renderThesisIndexOn: html [
 { #category : #'rendering-thesis' }
 CenterReportComponent >> renderThesisReportOn: html [
 
-	undergraduate | masters | pdh ifTrue: [
-		html heading
-			level1;
-			id: 'thesis';
-			with: 'Dirección de tesis y trabajos finales' ].
+	activeUndergraduateThesis | activeMastersThesis | activePhdThesis
+	| activeSpecializationThesis | finishedUndergraduateThesis
+	| finishedMastersThesis | finishedPhdThesis
+	| finishedSpecializationThesis
+		ifTrue: [
+			html heading
+				level1;
+				id: 'thesis';
+				with: 'Dirección de tesis y trabajos finales' ]
+		ifFalse: [ ^ self ].
 
 	thesisPlot arrayOfDictionariesWithCounts: self report thesisCounts.
 	thesisPlot renderContentOn: html.
 
+	activePhdThesis ifTrue: [
+		self
+			renderThesisCollection: report activePhdThesis
+			withHeading: 'Tesis doctorales en curso'
+			on: html ].
 
-	pdh ifTrue: [
-		html heading
-			level2;
-			id: 'phd';
-			with: 'Doctorado'.
-		report phdThesis do: [ :each | self renderThesis: each on: html ] ].
-	masters ifTrue: [
-		html heading
-			level2;
-			id: 'masters';
-			with: 'Maestría (tesis)'.
-		report mastersThesis do: [ :each | self renderThesis: each on: html ] ].
-	masters ifTrue: [
-		html heading
-			level2;
-			id: 'specialization';
-			with: 'Especialización (trabajo final)'.
-		report specializationThesis do: [ :each |
-			self renderThesis: each on: html ] ].
-	undergraduate ifTrue: [
-		html heading
-			level2;
-			id: 'undergraduate';
-			with: 'Grado (tesina)'.
-		report undergraduateThesis do: [ :each |
-			self renderThesis: each on: html ] ]
+	finishedPhdThesis ifTrue: [
+		self
+			renderThesisCollection: report finishedPhdThesis
+			withHeading: 'Tesis doctorales concluídas'
+			on: html ].
+
+
+	activeMastersThesis ifTrue: [
+		self
+			renderThesisCollection: report activeMastersThesis
+			withHeading: 'Tesis de maestría en curso'
+			on: html ].
+
+	finishedMastersThesis ifTrue: [
+		self
+			renderThesisCollection: report finishedMastersThesis
+			withHeading: 'Tesis de maestría concluídas'
+			on: html ].
+
+
+	activeSpecializationThesis ifTrue: [
+		self
+			renderThesisCollection: report activeSpecializationThesis
+			withHeading: 'Trabajos de especialización en curso'
+			on: html ].
+
+	finishedSpecializationThesis ifTrue: [
+		self
+			renderThesisCollection: report finishedSpecializationThesis
+			withHeading: 'Trabajos de especialización concluídos'
+			on: html ].
+
+	activeUndergraduateThesis ifTrue: [
+		self
+			renderThesisCollection: report activeUndergraduateThesis 
+			withHeading: 'Tesinas de grado en curso'
+			on: html ].
+
+	finishedUndergraduateThesis ifTrue: [
+		self
+			renderThesisCollection: report finishedUndergraduateThesis 
+			withHeading: 'Tesinas de grado concluídas'
+			on: html ]
+]
+
+{ #category : #'rendering-form' }
+CenterReportComponent >> renderThesisSelectorsOn: html [
+
+	html tbsFormGroup: [
+		html
+			label: 'Dirección de tesis y trabajos finales';
+			break.
+		self renderPhdThesisSelectorsOn: html.
+		self renderMastersThesisSelectosOn: html.
+		self renderSpecalizationThesisSelectorsOn: html.
+		self renderUndergratuadeThesisSelectorsOn: html ]
 ]
 
 { #category : #'rendering-researchers' }
@@ -667,6 +790,25 @@ CenterReportComponent >> renderUndergraduateStudentsOn: html [
 				select: [ :each | each positionAtLIFIA = 'Estudiante de grado' ])
 		heading: 'Estudiantes de grado'
 		on: html
+]
+
+{ #category : #'rendering-form' }
+CenterReportComponent >> renderUndergratuadeThesisSelectorsOn: html [
+
+	html checkbox
+		value: activeUndergraduateThesis  ;
+		callback: [ :value | activeUndergraduateThesis := value ].
+	html space.
+	html
+		text: 'Tesinas de grado en curso';
+		break.
+	html checkbox
+		value: finishedUndergraduateThesis ;
+		callback: [ :value | finishedUndergraduateThesis  := value ].
+	html space.
+	html
+		text: 'Tesinas de grado concluídas';
+		break
 ]
 
 { #category : #'rendering-form' }
