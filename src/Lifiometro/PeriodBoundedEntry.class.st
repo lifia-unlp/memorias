@@ -27,6 +27,11 @@ PeriodBoundedEntry >> endYear [
 	^ self endDate ifNotNil: [ :it | it year ]
 ]
 
+{ #category : #testing }
+PeriodBoundedEntry >> isActive [
+	^ endDate isNil or: [ endDate > Date today ]
+]
+
 { #category : #accessing }
 PeriodBoundedEntry >> startDate [
 	"Mongo converted this as DateAndTime"

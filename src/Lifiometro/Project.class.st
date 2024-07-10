@@ -70,11 +70,6 @@ Project >> fundingAgency: anObject [
 	fundingAgency := anObject
 ]
 
-{ #category : #testing }
-Project >> isActive [
-	^ endDate notNil and: [ endDate > Date today ]
-]
-
 { #category : #utility }
 Project >> propertyNames [
 	^ {'title' . 'code' . 'startDate' . 'endDate' . 'director' . 'coDirector'.
