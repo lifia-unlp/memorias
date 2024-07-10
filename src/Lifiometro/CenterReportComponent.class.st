@@ -222,7 +222,9 @@ CenterReportComponent >> renderDatesOf: anObject labeled: aLabel on: html [
 
 	html
 		text: aLabel , ': ' , anObject startDate asDate printString , ' - '
-			, anObject endDate asDate printString;
+			, (anObject endDate
+					 ifNil: [ '' ]
+					 ifNotNil: [ :it | it asDate printString ]);
 		break
 ]
 
@@ -677,41 +679,53 @@ CenterReportComponent >> renderSpecalizationThesisSelectorsOn: html [
 
 { #category : #'rendering-thesis' }
 CenterReportComponent >> renderThesis: each on: html [
+
 	| endDate |
 	endDate := each endDate
-		ifNil: [ '' ]
-		ifNotNil: [ :it | each endDate asDate printString ].
+		           ifNil: [ '' ]
+		           ifNotNil: [ :it | each endDate asDate printString ].
 	html paragraph
 		style: 'padding:5px;';
-		with: [ html text: 'Título: ' , each title.
+		with: [
+			html strong: 'Título: ' , each title.
 			self renderDownloadIconFor: each on: html.
 			html break.
-			each keywords
-				ifNotNil: [ html
-						text: 'Palabras clave: ' , each keywords;
-						break ].
-			html
-				text: 'Alumno(s): ' , each student;
-				break.
-			html
-				text: 'Fechas: ' , each startDate asDate printString , ' - ' , endDate;
-				break.
-			each progress
-				ifNotNil: [ html
-						text: 'Grado de avance: ' , each progress;
-						break ].
-			html
-				text: 'Director(es): ' , each director;
-				break.
-			html
-				text: 'Co-Director(es): ' , each coDirector;
-				break.
-			html
-				text: 'Carrera: ' , each career;
-				break.
-			html
-				text: 'Resumen: ' , each summary;
-				break ]
+			self
+				render: #keywords
+				of: each
+				labeled: 'Palabras clave'
+				on: html.
+			self
+				render: #student
+				of: each
+				labeled: 'Alumno'
+				on: html.
+			self renderDatesOf: each labeled: 'Fechas' on: html.
+			self
+				render: #progress
+				of: each
+				labeled: 'Grado de avance'
+				on: html.
+			self
+				render: #director
+				of: each
+				labeled: 'Director(es)'
+				on: html.
+			self
+				render: #coDirector
+				of: each
+				labeled: 'Codirector(es)'
+				on: html.
+			self
+				render: #career
+				of: each
+				labeled: 'Carrera'
+				on: html.
+			self
+				render: #summary
+				of: each
+				labeled: 'Resumen'
+				on: html ]
 ]
 
 { #category : #'rendering-thesis' }
