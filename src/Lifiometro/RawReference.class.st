@@ -69,6 +69,11 @@ RawReference >> relatedThesis: anObject [
 	relatedThesis := anObject
 ]
 
+{ #category : #rendering }
+RawReference >> renderAsReferenceWith: aReferenceRenderer on: aCanvas [ 
+	aReferenceRenderer renderRawReference: self on: aCanvas
+]
+
 { #category : #accessing }
 RawReference >> selfArchivingUrl [
 	^ selfArchivingUrl

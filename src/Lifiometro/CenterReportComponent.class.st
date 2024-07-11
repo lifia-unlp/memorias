@@ -495,11 +495,14 @@ CenterReportComponent >> renderPublication: each on: html [
 
 { #category : #'rendering-publications' }
 CenterReportComponent >> renderPublicationsIn: aCollection on: html [
-	(aCollection asSortedCollection: [ :a :b | a year > b year ] )
-		do: [ :each | 
-			html paragraph
-				style: 'padding-left:5px;';
-				with: [ self renderPublication: each on: html ] ]
+
+	| renderer |
+	renderer := ReferenceRenderer new.
+	(aCollection asSortedCollection: [ :a :b | a year > b year ]) do: [
+		:each |
+		html paragraph
+			style: 'padding-left:5px;';
+			with: [ renderer render: each on: html ] ]
 ]
 
 { #category : #rendering }

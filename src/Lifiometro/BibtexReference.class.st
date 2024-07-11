@@ -54,6 +54,11 @@ BibtexReference class >> standardFieldsFor: aType [
 ]
 
 { #category : #accessing }
+BibtexReference >> address [
+	^ (bibtexEntry at: 'address') ifNil: [ '' ]
+]
+
+{ #category : #accessing }
 BibtexReference >> asReference [
 	bibtexEntry type = 'article'
 		ifTrue: [ ^ self authors , ', "' , self title , '," ' , self journal
@@ -117,6 +122,11 @@ BibtexReference >> cleanupLatexAccentsAndBraces [
 ]
 
 { #category : #accessing }
+BibtexReference >> doi [
+	^ (bibtexEntry at: 'doi') ifNil: [ '' ]
+]
+
+{ #category : #accessing }
 BibtexReference >> editors [
 	^ self withSimplifiedAnds: bibtexEntry editor
 ]
@@ -134,6 +144,11 @@ BibtexReference >> journal [
 { #category : #accessing }
 BibtexReference >> month [
 	^ self at: 'month'
+]
+
+{ #category : #accessing }
+BibtexReference >> number [
+	^ (bibtexEntry at: 'number') ifNil: [ '' ]
 ]
 
 { #category : #accessing }
@@ -185,6 +200,19 @@ BibtexReference >> relatedThesis [
 { #category : #accessing }
 BibtexReference >> relatedThesis: anObject [
 	relatedThesis := anObject
+]
+
+{ #category : #rendering }
+BibtexReference >> renderAsReferenceWith: aRenderer on: aCanvas [
+
+	bibtexEntry type = 'article' ifTrue: [
+		^ aRenderer renderJournalArticleReference: self on: aCanvas ].
+	bibtexEntry type = 'inproceedings' ifTrue: [
+		^ aRenderer renderConferenceArticleReference: self on: aCanvas ].
+	bibtexEntry type = 'inbook' ifTrue: [
+		^ aRenderer renderChapterReference: self on: aCanvas ].
+	bibtexEntry type = 'book' ifTrue: [
+		^ aRenderer renderBookReference: self on: aCanvas ] 
 ]
 
 { #category : #accessing }
