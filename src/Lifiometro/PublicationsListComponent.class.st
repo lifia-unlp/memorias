@@ -1,6 +1,9 @@
 Class {
 	#name : #PublicationsListComponent,
 	#superclass : #TabbedListComponent,
+	#instVars : [
+		'referenceRenderer'
+	],
 	#category : #'Lifiometro-Web'
 }
 
@@ -37,14 +40,18 @@ PublicationsListComponent >> edit: each [
 
 { #category : #initialization }
 PublicationsListComponent >> initializeGroupingAndFilteringAdapter [
+
+	referenceRenderer := ReferenceRenderer new.
 	groupingAndFilteringAdapter := GroupingAndFilteringListAdapter
-		groupingBlock: [ :each | each type ]
-		filteringBlock: [ :each :filter | each year = filter ]
-		filters:
-			((Date today year + 1 to: Date today year - 5 by: -1)
-				collect: #printString).
-	groupingAndFilteringAdapter
-		selectedFilter: Date today year printString
+		                               groupingBlock: [ :each | each type ]
+		                               filteringBlock: [ :each :filter |
+		                               each year = filter ]
+		                               filters:
+			                               ((Date today year + 1 to:
+			                                 Date today year - 5 by: -1)
+				                                collect: #printString).
+	groupingAndFilteringAdapter selectedFilter:
+		Date today year printString
 ]
 
 { #category : #rendering }
@@ -55,7 +62,11 @@ PublicationsListComponent >> items [
 
 { #category : #rendering }
 PublicationsListComponent >> render: each on: html [
-	html paragraph: each asSummary
+
+	referenceRenderer render: each on: html.
+	html
+		break;
+		break
 ]
 
 { #category : #rendering }
