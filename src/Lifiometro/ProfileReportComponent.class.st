@@ -2,10 +2,18 @@ Class {
 	#name : #ProfileReportComponent,
 	#superclass : #ReportComponent,
 	#instVars : [
-		'report'
+		'report',
+		'referenceRenderer'
 	],
 	#category : #'Lifiometro-Reports'
 }
+
+{ #category : #initialization }
+ProfileReportComponent >> initialize [
+
+	super initialize.
+	referenceRenderer := ReferenceRenderer new
+]
 
 { #category : #rendering }
 ProfileReportComponent >> renderContentOn: html [
@@ -69,16 +77,8 @@ ProfileReportComponent >> renderPropertiesOn: html [
 
 { #category : #rendering }
 ProfileReportComponent >> renderPublication: each on: html [
-	^ html paragraph
-		with: [ html text: each asSummary.
-			each selfArchivingUrl
-				ifNotNil: [ :url | 
-					url
-						ifNotEmpty: [ html space.
-							html anchor
-								url: url;
-								target: '_new';
-								with: [ html tbsGlyphIcon iconDownloadAlt ] ] ] ]
+
+	html paragraph with: [ referenceRenderer render: each on: html ]
 ]
 
 { #category : #rendering }
