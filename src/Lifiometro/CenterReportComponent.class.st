@@ -91,7 +91,7 @@ CenterReportComponent >> renderActiveProjectsReportOn: html [
 		level1;
 		id: 'active-projects';
 		with: 'Proyectos en curso'.
-	(self asSortedProjects: self report activeProjects) do: [ :each |
+	(self sortDescencingByEndDate: self report activeProjects) do: [ :each |
 		self renderProject: each on: html ]
 ]
 
@@ -221,10 +221,10 @@ CenterReportComponent >> renderContentOn: html [
 CenterReportComponent >> renderDatesOf: anObject labeled: aLabel on: html [
 
 	html
-		text: aLabel , ': ' , anObject startDate asDate printString , ' - '
+		text: aLabel , ': ' , anObject startDate asDate ddmmyyyy , ' - '
 			, (anObject endDate
-					 ifNil: [ '' ]
-					 ifNotNil: [ :it | it asDate printString ]);
+					 ifNil: [ 'en curso' ]
+					 ifNotNil: [ :it | it asDate ddmmyyyy ]);
 		break
 ]
 
@@ -258,7 +258,7 @@ CenterReportComponent >> renderFinishedProjectsReportOn: html [
 		level1;
 		id: 'finished-projects';
 		with: 'Proyectos concluídos'.
-	(self asSortedProjects: self report finishedProjects) do: [ :each |
+	(self sortDescencingByEndDate: self report finishedProjects) do: [ :each |
 		self renderProject: each on: html ]
 ]
 
@@ -738,7 +738,8 @@ CenterReportComponent >> renderThesisCollection: aCollectionOfThesis withHeading
 		level2;
 		id: aHeading asValidSelector;
 		with: aHeading.
-	aCollectionOfThesis do: [ :each | self renderThesis: each on: html ]
+	(self sortDescencingByEndDate: aCollectionOfThesis) do: [ :each |
+		self renderThesis: each on: html ]
 ]
 
 { #category : #rendering }

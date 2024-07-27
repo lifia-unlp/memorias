@@ -5,8 +5,17 @@ Class {
 }
 
 { #category : #'rendering-projects' }
-ReportComponent >> asSortedProjects: aCollecttionOfProjects [
+ReportComponent >> sortDescencingByEndDate: periodBoundedEntities [
+	"If endDate is nil, assume it is still running and therefore comes first, sorted by start date"
 
-	^ aCollecttionOfProjects asSortedCollection: [ :a :b |
-		  a endDate >= b endDate ]
+	^ periodBoundedEntities asSortedCollection: [ :a :b |
+		  a endDate isNil
+			  ifTrue: [
+				  b endDate isNil
+					  ifTrue: [ a startDate >= b startDate ]
+					  ifFalse: [ true ] ]
+			  ifFalse: [
+				  b endDate isNil
+					  ifTrue: [ false ]
+					  ifFalse: [ a endDate >= b endDate ] ] ]
 ]

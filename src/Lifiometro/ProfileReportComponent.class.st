@@ -66,7 +66,7 @@ ProfileReportComponent >> renderProject: project on: html [
 ProfileReportComponent >> renderProjectsOn: html [
 
 	html heading level2 with: 'Proyectos'.
-	(self asSortedProjects: report projects) do: [ :each |
+	(self sortDescencingByEndDate: report projects) do: [ :each |
 		self renderProject: each on: html ]
 ]
 
@@ -132,9 +132,10 @@ ProfileReportComponent >> renderScholarship: scholarship on: html [
 
 { #category : #rendering }
 ProfileReportComponent >> renderScholarshipsOn: html [
+
 	html heading level2 with: self titleForScholarshipsSection.
-	report scholarships
-		do: [ :each | self renderScholarship: each on: html ]
+	(self sortDescencingByEndDate: report scholarships) do: [ :each |
+		self renderScholarship: each on: html ]
 ]
 
 { #category : #rendering }
@@ -167,7 +168,7 @@ ProfileReportComponent >> renderThesis: thesis on: html [
 { #category : #rendering }
 ProfileReportComponent >> renderThesisOn: html [
 	html heading level2 with: self titleForThesisSection.
-	^ report thesis do: [ :each | self renderThesis: each on: html ]
+	^ (self sortDescencingByEndDate: report thesis) do: [ :each | self renderThesis: each on: html ]
 ]
 
 { #category : #rendering }
