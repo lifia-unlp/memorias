@@ -102,5 +102,6 @@ ReferenceRenderer >> renderJournalArticleReference: aReference on: aCanvas [
 { #category : #rendering }
 ReferenceRenderer >> renderRawReference: aRawReference on: aCanvas [
 
-	aCanvas text: aRawReference asReference
+	aCanvas text: aRawReference asReference.
+	self renderDownloadIconFor: aRawReference on: aCanvas
 ]
