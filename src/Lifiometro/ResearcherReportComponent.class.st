@@ -122,3 +122,15 @@ ResearcherReportComponent >> renderResearchersOn: html [
 ResearcherReportComponent >> renderTitleOn: html [
 	html heading level1 with: report researcher fullName
 ]
+
+{ #category : #rendering }
+ResearcherReportComponent >> titleForScholarshipsSection [
+
+	^ 'Dirección de becas y pasantías'
+]
+
+{ #category : #rendering }
+ResearcherReportComponent >> titleForThesisSection [
+
+	^ 'Dirección de tesis y trabajos finales de carrera'
+]

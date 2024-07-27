@@ -132,7 +132,7 @@ ProfileReportComponent >> renderScholarship: scholarship on: html [
 
 { #category : #rendering }
 ProfileReportComponent >> renderScholarshipsOn: html [
-	html heading level2 with: 'Becas y pasantías'.
+	html heading level2 with: self titleForScholarshipsSection.
 	report scholarships
 		do: [ :each | self renderScholarship: each on: html ]
 ]
@@ -166,7 +166,7 @@ ProfileReportComponent >> renderThesis: thesis on: html [
 
 { #category : #rendering }
 ProfileReportComponent >> renderThesisOn: html [
-	html heading level2 with: 'Tesis y trabajos finales de carrera'.
+	html heading level2 with: self titleForThesisSection.
 	^ report thesis do: [ :each | self renderThesis: each on: html ]
 ]
 
@@ -217,6 +217,18 @@ table tbody th, table td {
 }
 
 '
+]
+
+{ #category : #rendering }
+ProfileReportComponent >> titleForScholarshipsSection [
+  ^ 'Becas y pasantías'
+	
+]
+
+{ #category : #rendering }
+ProfileReportComponent >> titleForThesisSection [
+
+	^ 'Tesis y trabajos finales de carrera'
 ]
 
 { #category : #rendering }
