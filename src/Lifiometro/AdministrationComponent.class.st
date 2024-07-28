@@ -119,22 +119,22 @@ AdministrationComponent >> renderEnvironmentVarsOn: html [
 			html tbsPanelBody: [
 					html paragraph with: [
 							html strong: 'DEBUG: '.
-							html text: (OSEnvironment current at: 'DEBUG') ].
+							html text: (OSEnvironment current at: 'DEBUG' ifAbsent: 'not set') ].
 					html paragraph with: [
 							html strong: 'DB_HOST: '.
-							html text: (OSEnvironment current at: 'DB_HOST') ].
+							html text: (OSEnvironment current at: 'DB_HOST' ifAbsent: 'not set') ].
 					html paragraph with: [
 							html strong: 'DB: '.
-							html text: (OSEnvironment current at: 'DB') ].
+							html text: (OSEnvironment current at: 'DB' ifAbsent: 'not set') ].
 					html paragraph with: [
 							html strong: 'MAILERSEND_APIKEY: '.
-							html text: (OSEnvironment current at: 'MAILERSEND_APIKEY') ].
+							html text: (OSEnvironment current at: 'MAILERSEND_APIKEY' ifAbsent: 'not set') ].
 					html paragraph with: [
 							html strong: 'EMAILS_SENDER: '.
-							html text: (OSEnvironment current at: 'EMAILS_SENDER') ].
+							html text: (OSEnvironment current at: 'EMAILS_SENDER' ifAbsent: 'not set') ].
 					html paragraph with: [
 							html strong: 'ERROR_EMAILS_TO: '.
-							html text: (OSEnvironment current at: 'ERROR_EMAILS_TO') ] ] ]
+							html text: (OSEnvironment current at: 'ERROR_EMAILS_TO' ifAbsent: 'not set') ] ] ]
 ]
 
 { #category : #rendering }
