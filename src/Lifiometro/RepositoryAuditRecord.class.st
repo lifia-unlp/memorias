@@ -35,6 +35,12 @@ RepositoryAuditRecord >> action: aString [
 	action := aString.
 ]
 
+{ #category : #testing }
+RepositoryAuditRecord >> isRemoval [
+
+	^ action = 'remove'
+]
+
 { #category : #accessing }
 RepositoryAuditRecord >> what [
 	^ what

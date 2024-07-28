@@ -100,6 +100,11 @@ Thesis >> propertyNames [
 	'relatedProjects' . 'selfArchivingUrl' . 'progress' . 'keywords'. 'website'}
 ]
 
+{ #category : #'double dispatch' }
+Thesis >> renderAsNewsSubjectWith: aRenderer on: aCanvas [
+	aRenderer renderThesis: self on: aCanvas 
+]
+
 { #category : #accessing }
 Thesis >> selfArchivingUrl [
 	^ selfArchivingUrl

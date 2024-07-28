@@ -202,6 +202,11 @@ BibtexReference >> relatedThesis: anObject [
 	relatedThesis := anObject
 ]
 
+{ #category : #'double dispatch' }
+BibtexReference >> renderAsNewsSubjectWith: aRenderer on: aCanvas [
+	aRenderer renderBibtextReference: self on: aCanvas 
+]
+
 { #category : #rendering }
 BibtexReference >> renderAsReferenceWith: aRenderer on: aCanvas [
 

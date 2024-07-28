@@ -9,7 +9,7 @@ Class {
 		'relatedLifians',
 		'relatedProjects'
 	],
-	#category : 'Lifiometro-Model'
+	#category : #'Lifiometro-Model'
 }
 
 { #category : #utility }
@@ -80,6 +80,12 @@ LifiaLogEntry >> relatedProjects [
 { #category : #accessing }
 LifiaLogEntry >> relatedProjects: anObject [
 	relatedProjects := anObject
+]
+
+{ #category : #'double dispatch' }
+LifiaLogEntry >> renderAsNewsSubjectWith: aRenderer on: aCanvas [
+	aRenderer renderLogEntry: self on: aCanvas 
+
 ]
 
 { #category : #accessing }

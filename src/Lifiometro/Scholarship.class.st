@@ -10,7 +10,7 @@ Class {
 		'type',
 		'summary'
 	],
-	#category : 'Lifiometro-Model'
+	#category : #'Lifiometro-Model'
 }
 
 { #category : #testing }
@@ -53,6 +53,11 @@ Scholarship >> propertyNames [
 	^ {'title' . 'student' . 'type' . 'startDate' . 'endDate' . 'director'.
 	'coDirector' . 'fundingAgency' . 'summary' . 'relatedLifians'.
 	'relatedProjects'}
+]
+
+{ #category : #'double dispatch' }
+Scholarship >> renderAsNewsSubjectWith: aRenderer on: aCanvas [
+	aRenderer renderScholarship: self on: aCanvas 
 ]
 
 { #category : #accessing }

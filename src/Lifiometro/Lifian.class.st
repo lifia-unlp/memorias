@@ -288,6 +288,12 @@ Lifian >> publications: anObject [
 	publications := anObject
 ]
 
+{ #category : #'double dispatch' }
+Lifian >> renderAsNewsSubjectWith: aRenderer on: aCanvas [
+	aRenderer renderLifian: self on: aCanvas 
+
+]
+
 { #category : #accessing }
 Lifian >> researchGateProfile [
 	^ researchGateProfile

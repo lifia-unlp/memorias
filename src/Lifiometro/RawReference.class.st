@@ -69,6 +69,11 @@ RawReference >> relatedThesis: anObject [
 	relatedThesis := anObject
 ]
 
+{ #category : #'double dispatch' }
+RawReference >> renderAsNewsSubjectWith: aRenderer on: aCanvas [
+	aRenderer renderRawReference: self on: aCanvas 
+]
+
 { #category : #rendering }
 RawReference >> renderAsReferenceWith: aReferenceRenderer on: aCanvas [ 
 	aReferenceRenderer renderRawReference: self on: aCanvas

@@ -76,6 +76,11 @@ Project >> propertyNames [
 	'responsibleGroup' . 'fundingAgency' . 'amount' . 'summary'. 'relatedLifians'. 'website'}
 ]
 
+{ #category : #'double dispatch' }
+Project >> renderAsNewsSubjectWith: aRenderer on: aCanvas [
+	aRenderer renderProject: self on: aCanvas 
+]
+
 { #category : #accessing }
 Project >> responsibleGroup [
 	^ responsibleGroup
