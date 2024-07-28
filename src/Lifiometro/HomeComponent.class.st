@@ -9,7 +9,8 @@ Class {
 		'studentsListComponent',
 		'adminComponent',
 		'scheduleComponent',
-		'lifiansComponent'
+		'lifiansComponent',
+		'lifiaUserResearcherReportComponent'
 	],
 	#category : #'Lifiometro-Web'
 }
@@ -27,26 +28,29 @@ HomeComponent >> children [
 
 { #category : #initialization }
 HomeComponent >> initialize [
+
 	super initialize.
 	publicationsListComponent := PublicationsListComponent new
-		parent: self;
-		yourself.
+		                             parent: self;
+		                             yourself.
 	scholarshipsListComponent := ScholarshipsListComponent new
-		parent: self;
-		yourself.
+		                             parent: self;
+		                             yourself.
 	projectsListComponent := ProjectsListComponent new
-		parent: self;
-		yourself.
+		                         parent: self;
+		                         yourself.
 	studentsListComponent := ThesisListComponent new
-		parent: self;
-		yourself.
+		                         parent: self;
+		                         yourself.
 	adminComponent := AdministrationComponent new yourself.
 	scheduleComponent := TabbedScheduleComponent new
-		parent: self;
-		yourself.
+		                     parent: self;
+		                     yourself.
 	lifiansComponent := LifianListComponent new
-		parent: self;
-		yourself.
+		                    parent: self;
+		                    yourself.
+	lifiaUserResearcherReportComponent := LifiaUserResearcherReportComponent
+		                                      new.
 	selectedTab := 'Publicaciones'
 ]
 
@@ -58,60 +62,66 @@ HomeComponent >> logout [
 
 { #category : #rendering }
 HomeComponent >> renderContentOn: html [
-	html
-		tbsRow: [ html tbsColumn: [ self renderLeftMenuOn: html ] mediumSize: 2.
-			html
-				tbsColumn: [ self session currentUser enabled
-						ifFalse: [ ^ self renderWaitForActivationOn: html ].
-					selectedTab = 'Publicaciones'
-						ifTrue: [ html render: publicationsListComponent ].
-					selectedTab = 'Proyectos'
-						ifTrue: [ html render: projectsListComponent ].
-					selectedTab = 'Becas'
-						ifTrue: [ html render: scholarshipsListComponent ].
-					selectedTab = 'Tesis'
-						ifTrue: [ html render: studentsListComponent ].
-		"			selectedTab = 'Agenda'
+
+	html tbsRow: [
+		html tbsColumn: [ self renderLeftMenuOn: html ] mediumSize: 2.
+		html
+			tbsColumn: [
+				self session currentUser enabled ifFalse: [
+					^ self renderWaitForActivationOn: html ].
+				selectedTab = 'Mi ficha técnica' ifTrue: [
+					html render: lifiaUserResearcherReportComponent ].
+				selectedTab = 'Publicaciones' ifTrue: [
+					html render: publicationsListComponent ].
+				selectedTab = 'Proyectos' ifTrue: [
+					html render: projectsListComponent ].
+				selectedTab = 'Becas' ifTrue: [
+					html render: scholarshipsListComponent ].
+				selectedTab = 'Tesis' ifTrue: [
+					html render: studentsListComponent ].
+				"			selectedTab = 'Agenda'
 						ifTrue: [ html render: scheduleComponent ]."
-					selectedTab = 'Investigadores'
-						ifTrue: [ html render: lifiansComponent ].
-					selectedTab = 'Administrar'
-						ifTrue: [ html render: adminComponent ] ]
-				mediumSize: 10 ]
+				selectedTab = 'Investigadores' ifTrue: [
+					html render: lifiansComponent ].
+				selectedTab = 'Administrar' ifTrue: [ html render: adminComponent ] ]
+			mediumSize: 10 ]
 ]
 
 { #category : #rendering }
 HomeComponent >> renderLeftMenuOn: html [
+
 	| tabs |
-	tabs := {}.
-	self session currentUser enabled
-		ifTrue: [ tabs := {'Publicaciones' . 'Proyectos' . 'Becas'.
-			'Tesis' . 'Investigadores'}.
-			self session currentUser isAdmin
-				ifTrue: [ tabs := tabs copyWith: 'Administrar' ] ].
-	html
-		tbsPanel: [ html
-				tbsPanelBody: [ html image url: LifiaFileLibrary / #lifialogoPng.
-					html tbsNav
-						bePills;
-						beStacked;
-						with: [ tabs
-								do: [ :each | 
-									html tbsNavItem
-										beActiveIf: each = selectedTab;
-										with: [ html anchor
-												callback: [ selectedTab := each ];
-												with: each ] ].
-							self session currentUser enabled
-								ifTrue: [ html
-										tbsNavItem: [ html anchor
-												target: '_blank';
-												callback: [ self showReports ];
-												with: 'Reportes' ] ].
-							html
-								tbsNavItem: [ html anchor
-										callback: [ self logout ];
-										with: 'Salir' ] ] ] ]
+	tabs := OrderedCollection new.
+	self session currentUser enabled ifTrue: [
+		tabs addAll:
+			{ 'Publicaciones'. 'Proyectos'. 'Becas'. 'Tesis'. 'Investigadores' }.
+		self session currentUser isAdmin ifTrue: [ tabs add: 'Administrar' ].
+		self session currentUser lifian ifNotNil: [ :it |
+			tabs addFirst: 'Mi ficha técnica' ] ].
+	html tbsPanel: [
+		html tbsPanelBody: [
+			html image url: LifiaFileLibrary / #lifialogoPng.
+			html tbsNav
+				bePills;
+				beStacked;
+				with: [
+					tabs do: [ :each |
+							html tbsNavItem
+								beActiveIf: each = selectedTab;
+								with: [
+									html anchor
+										callback: [ selectedTab := each ];
+										with: each ] ].
+					self session currentUser enabled ifTrue: [
+						html tbsNavItem: [
+							html anchor
+								target: '_blank';
+								callback: [ self showReports ];
+								with: 'Reportes' ] ].
+					html tbsNavItem: [
+						html anchor
+							callback: [ self logout ];
+							with: 'Salir' ] ] ] ]
 ]
 
 { #category : #rendering }
