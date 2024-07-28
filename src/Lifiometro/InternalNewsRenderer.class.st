@@ -41,6 +41,14 @@ InternalNewsRenderer >> renderRawReference: aRawReference on: html [
 ]
 
 { #category : #rendering }
+InternalNewsRenderer >> renderScholarship: aScholarship on: html [
+
+	html text:
+		'Beca ' , aScholarship type , ' de ' , aScholarship student
+		, ' dirigida por ' , aScholarship director
+]
+
+{ #category : #rendering }
 InternalNewsRenderer >> renderThesis: aThesis on: html [
 
 	html text:
