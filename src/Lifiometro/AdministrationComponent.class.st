@@ -155,30 +155,51 @@ AdministrationComponent >> renderStatsOn: html [
 
 { #category : #rendering }
 AdministrationComponent >> renderUser: each on: html [
-	html
-		paragraph: [ html
-				strong: each email;
-				text: ' - Admin: '.
-			html anchor
-				callback: [ self toggleAdminFor: each ];
-				with: each isAdmin printString.
-			html text: ' - Activado: '.
-			html anchor
-				callback: [ self toggleEnabledFor: each ];
-				with: each enabled printString.
-			each isPasswordSet
-				ifTrue: [ html anchor
-						callback: [ self clearPasswordFor: each ];
-						with: ' - Limpiar password' ]
-				ifFalse: [ html span
-						style: 'color: red;';
-						with: ' - Sin password' ] ]
+
+	html paragraph: [
+		html
+			strong: each email;
+			text: ' - Admin: '.
+		html anchor
+			callback: [ self toggleAdminFor: each ];
+			with: each isAdmin printString.
+		html text: ' - Activado: '.
+		html anchor
+			callback: [ self toggleEnabledFor: each ];
+			with: each enabled printString.
+
+		html text: ' - Investigador: '.
+
+		html anchor
+			callback: [ self selectLifianFor: each ];
+			with:
+				(each lifian ifNil: [ 'not set' ] ifNotNil: [ :it | it fullName ]).
+
+
+
+		each isPasswordSet
+			ifTrue: [
+				html anchor
+					callback: [ self clearPasswordFor: each ];
+					with: ' - Limpiar password' ]
+			ifFalse: [
+				html span
+					style: 'color: red;';
+					with: ' - Sin password' ] ]
 ]
 
 { #category : #rendering }
 AdministrationComponent >> renderUsersListOn: html [
 	self renderEnabledUsersListOn: html.
 	self renderDisabledUsersListOn: html.
+]
+
+{ #category : #callbacks }
+AdministrationComponent >> selectLifianFor: aLifiaUser [
+
+	self call: (AssignLifianToLifiaUserComponent new
+			 lifiaUser: aLifiaUser;
+			 yourself)
 ]
 
 { #category : #callbacks }

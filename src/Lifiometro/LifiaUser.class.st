@@ -7,7 +7,8 @@ Class {
 		'lastConnected',
 		'isAdmin',
 		'enabled',
-		'hashedPassword'
+		'hashedPassword',
+		'lifian'
 	],
 	#category : #'Lifiometro-Model'
 }
@@ -110,6 +111,18 @@ LifiaUser >> lastConnected [
 { #category : #accessing }
 LifiaUser >> lastConnected: anObject [
 	lastConnected := anObject
+]
+
+{ #category : #accessing }
+LifiaUser >> lifian [
+
+	^ lifian
+]
+
+{ #category : #accessing }
+LifiaUser >> lifian: anObject [
+
+	lifian := anObject
 ]
 
 { #category : #accessing }
