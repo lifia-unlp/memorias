@@ -25,6 +25,12 @@ CheckboxListModel >> addCheckboxFor: anId labeled: aLabel [
 	^ checkbox
 ]
 
+{ #category : #checking }
+CheckboxListModel >> checkAll [
+
+	checkboxModels do: [ :each | each beChecked ]
+]
+
 { #category : #accessing }
 CheckboxListModel >> checkboxModels [
 
@@ -46,4 +52,10 @@ CheckboxListModel >> heading: anObject [
 { #category : #initialization }
 CheckboxListModel >> initialize [
 	checkboxModels := OrderedCollection new.
+]
+
+{ #category : #checking }
+CheckboxListModel >> uncheckAll [
+
+	checkboxModels do: [ :each | each beUnchecked ]
 ]

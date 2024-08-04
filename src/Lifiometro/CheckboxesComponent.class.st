@@ -2,7 +2,8 @@ Class {
 	#name : #CheckboxesComponent,
 	#superclass : #WAComponent,
 	#instVars : [
-		'checkboxListModels'
+		'checkboxListModels',
+		'columnSizes'
 	],
 	#category : #'Lifiometro-Web-Components'
 }
@@ -20,6 +21,22 @@ CheckboxesComponent >> addListWithHeading: aHeading [
 CheckboxesComponent >> checkboxListModels [
 
 	^ checkboxListModels
+]
+
+{ #category : #accessing }
+CheckboxesComponent >> columnSizes [
+
+	(columnSizes isNil or: [ columnSizes size ~= checkboxListModels size ])
+		ifTrue: [
+			^ checkboxListModels collect: [ :each |
+				  12 // checkboxListModels size ] ].
+	^ columnSizes
+]
+
+{ #category : #accessing }
+CheckboxesComponent >> columnSizes: anObject [
+
+	columnSizes := anObject
 ]
 
 { #category : #initialization }
@@ -47,11 +64,9 @@ CheckboxesComponent >> renderAllNoneLinksFor: aCheckboxListModel on: html [
 { #category : #rendering }
 CheckboxesComponent >> renderContentOn: html [
 
-	| columnSize |
-	columnSize := 12 // checkboxListModels size.
 	html tbsForm: [
 		html tbsRow: [
-			checkboxListModels do: [ :each |
+			checkboxListModels with: self columnSizes do: [ :each :columnSize |
 				html
 					tbsColumn: [ self renderListModel: each on: html ]
 					mediumSize: columnSize ] ].
