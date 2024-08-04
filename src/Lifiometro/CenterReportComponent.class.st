@@ -356,6 +356,14 @@ CenterReportComponent >> renderIndexOn: html [
 						with: 'Participantes' ] ]
 ]
 
+{ #category : #'rendering-thesis' }
+CenterReportComponent >> renderLinkToThesisProfile: aThesis on: html [
+
+	html anchor
+		url: '/' , (ThesisReportComponent relativeUrlFor: aThesis);
+		with: 'Mas detalles'
+]
+
 { #category : #'rendering-researchers' }
 CenterReportComponent >> renderMembers: aCollection heading: aHeading on: html [
 	activeProjects checked
@@ -658,6 +666,11 @@ CenterReportComponent >> renderThesis: each on: html [
 				labeled: 'Codirector(es)'
 				on: html.
 			self
+				render: #otherAdvisors
+				of: each
+				labeled: 'Asesor(es)'
+				on: html.
+			self
 				render: #career
 				of: each
 				labeled: 'Carrera'
@@ -666,7 +679,8 @@ CenterReportComponent >> renderThesis: each on: html [
 				render: #summary
 				of: each
 				labeled: 'Resumen'
-				on: html ]
+				on: html.
+			self renderLinkToThesisProfile: each on: html ]
 ]
 
 { #category : #'rendering-thesis' }
