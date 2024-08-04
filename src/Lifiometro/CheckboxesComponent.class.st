@@ -30,6 +30,21 @@ CheckboxesComponent >> initialize [
 ]
 
 { #category : #rendering }
+CheckboxesComponent >> renderAllNoneLinksFor: aCheckboxListModel on: html [
+
+	| checkboxIds |
+	checkboxIds := (aCheckboxListModel checkboxModels collect: #id) asJson.
+	
+	html anchor
+		onClick: 'selectAll(', checkboxIds ,'); return false;';
+		with: 'all'.
+	html text: ' - '.
+	html anchor
+		onClick: 'selectNone(', checkboxIds ,'); return false;';
+		with: 'none'
+]
+
+{ #category : #rendering }
 CheckboxesComponent >> renderContentOn: html [
 
 	| columnSize |
@@ -58,11 +73,44 @@ CheckboxesComponent >> renderListModel: aCheckboxListModel on: html [
 		html
 			label: aCheckboxListModel heading;
 			break.
+		self renderAllNoneLinksFor: aCheckboxListModel on: html.
+
+		html break.
 		aCheckboxListModel checkboxModels do: [ :each |
 			html checkbox
 				value: each checked;
-				callback: [ :value | each checked: value ].
+				callback: [ :value | each checked: value ];
+				id: each id.
 			html space.
 			html text: each label.
 			html break ] ]
+]
+
+{ #category : #rendering }
+CheckboxesComponent >> selectAllOrNoneJsFunctions [
+
+	^ 'function selectAll(checkboxes) {
+            checkboxes.forEach(function(id) {
+                var checkbox = document.querySelector(''input[id="'' + id + ''"]'');
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            });
+        }
+        
+        function selectNone(checkboxes) {
+            checkboxes.forEach(function(id) {
+                var checkbox = document.querySelector(''input[id="'' + id + ''"]'');
+                if (checkbox) {
+                    checkbox.checked = false;
+                }
+            });
+        }'
+]
+
+{ #category : #rendering }
+CheckboxesComponent >> updateRoot: aWARoot [
+
+	super updateRoot: aWARoot.
+	aWARoot addScript: self selectAllOrNoneJsFunctions
 ]
