@@ -166,8 +166,8 @@ BibtexReference >> propertyNames [
 	"The following is just to make sure these properties are the last ones"
 	fields
 		removeAllFoundIn:
-			{'selfArchivingUrl' . 'relatedProjects' . 'relatedLifians'.
-			'relatedThesis'}.
+			{'ranking'. 'selfArchivingUrl' . 'relatedProjects' . 'relatedLifians'.
+			'relatedThesis'. }.
 	fields
 		addAll:
 			{'ranking'. 'selfArchivingUrl' . 'relatedProjects' . 'relatedLifians'.
