@@ -29,7 +29,8 @@ Class {
 		'finishedPhdThesis',
 		'finishedSpecializationThesis',
 		'selectedYears',
-		'older'
+		'older',
+		'indexComponent'
 	],
 	#category : #'Lifiometro-Reports'
 }
@@ -42,7 +43,7 @@ CenterReportComponent class >> relativeUrl [
 { #category : #hooks }
 CenterReportComponent >> children [
 
-	^ {publicationsPlot. checkboxesComponent }
+	^ {publicationsPlot. checkboxesComponent . indexComponent }
 ]
 
 { #category : #initialization }
@@ -53,6 +54,7 @@ CenterReportComponent >> initialize [
 	publicationsPlot title: 'Evolución de las publicaciones'.
 	thesisPlot := YearlyEvolutionPlotSubcomponent new.
 	thesisPlot title: 'Evolución de las tesis y tesinas concluidas'.
+	indexComponent := IndexInjectorComponent new. 
 	self initializeCheckboxesComponent
 ]
 
@@ -225,7 +227,7 @@ CenterReportComponent >> renderContentOn: html [
 		with: [ self renderReportHeaderOn: html.
 			html render: checkboxesComponent .
 			html horizontalRule .
-			"self renderIndexOn: html."
+			self renderIndexOn: html.
 			self renderReportOn: html ]
 ]
 
@@ -324,36 +326,8 @@ CenterReportComponent >> renderInProceedingsPublicationsReportOn: html [
 
 { #category : #rendering }
 CenterReportComponent >> renderIndexOn: html [
-	html heading
-		level1;
-		with: 'Indice'.
-	html
-		unorderedList: [ html
-				listItem: [ html anchor
-						url: '#publications';
-						with: 'Publicaciones' ].
-			html unorderedList: [ self renderPublicationsIndexOn: html ].
-			html
-				listItem: [ html anchor
-						url: '#thesis';
-						with: 'Dirección de tesis y trabajos finales' ].
-			html unorderedList: [ self renderThesisIndexOn: html ].
-			html
-				listItem: [ html anchor
-						url: '#scholarships';
-						with: 'Becarios' ].
-			html
-				listItem: [ html anchor
-						url: '#active-projects';
-						with: 'Proyectos en curso' ].
-			html
-				listItem: [ html anchor
-						url: '#finished-projects';
-						with: 'Proyectos concluídos' ].
-			html
-				listItem: [ html anchor
-						url: '#researchers';
-						with: 'Participantes' ] ]
+
+	html render: indexComponent 
 ]
 
 { #category : #'rendering-thesis' }
