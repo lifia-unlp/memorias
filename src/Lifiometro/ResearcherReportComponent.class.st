@@ -110,6 +110,17 @@ ResearcherReportComponent >> renderPropertiesOn: html [
 					html
 						text: 'Afiliaciones: ' , it;
 						break ].
+			report researcher category
+				ifNotNilNotEmpty: [ :it | 
+					html
+						text: 'Categoría en el programa de incentivos: ' , it;
+						break ].
+			report researcher sicadiCategory
+				ifNotNilNotEmpty: [ :it | 
+					html
+						text: 'Categoría en SICADI-UNLP: ' , it;
+						break ].
+
 			self renderExternalLinksOn: html ]
 ]
 
