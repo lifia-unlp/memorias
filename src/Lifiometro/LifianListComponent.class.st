@@ -1,7 +1,7 @@
 Class {
 	#name : #LifianListComponent,
 	#superclass : #TabbedListComponent,
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Web'
 }
 
 { #category : #rendering }
@@ -58,7 +58,12 @@ LifianListComponent >> render: each on: html [
 			each category
 				ifNotNilNotEmpty: [ :it | 
 					html
-						text: 'Categoria de incentivos: ' , it;
+						text: 'Categoría de incentivos: ' , it;
+						break ].
+			each sicadiCategory
+				ifNotNilNotEmpty: [ :it | 
+					html
+						text: 'Categoría SICADI: ' , it;
 						break ].
 			each positionAtCIC
 				ifNotNilNotEmpty: [ :it | 

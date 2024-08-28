@@ -9,6 +9,7 @@ Class {
 		'positionAtLIFIA',
 		'positionAtUnlp',
 		'category',
+		'sicadiCategory',
 		'positionAtCIC',
 		'positionAtCONICET',
 		'projects',
@@ -274,7 +275,7 @@ Lifian >> projects: anObject [
 
 { #category : #accessing }
 Lifian >> propertyNames [
-	^ #(firstName lastName highestDegree coursesAtUNLP startDate endDate positionAtLIFIA positionAtUnlp category positionAtCIC positionAtCONICET projects publications advicedThesis advicedScholarships personalEmail institutionalEmail shortCvInSpanish shortCvInEnglish relatedProjects interestsInEnglish interestsInSpanish  notes orcid dblpProfile googleResearchProfile researchGateProfile phone webPage affiliations)
+	^ #(firstName lastName highestDegree coursesAtUNLP startDate endDate positionAtLIFIA positionAtUnlp category sicadiCategory positionAtCIC positionAtCONICET projects publications advicedThesis advicedScholarships personalEmail institutionalEmail shortCvInSpanish shortCvInEnglish relatedProjects interestsInEnglish interestsInSpanish  notes orcid dblpProfile googleResearchProfile researchGateProfile phone webPage affiliations)
 		collect: #asString
 ]
 
@@ -322,6 +323,18 @@ Lifian >> shortCvInSpanish [
 { #category : #accessing }
 Lifian >> shortCvInSpanish: anObject [
 	shortCvInSpanish := anObject
+]
+
+{ #category : #accessing }
+Lifian >> sicadiCategory [
+
+	^ sicadiCategory
+]
+
+{ #category : #accessing }
+Lifian >> sicadiCategory: anObject [
+
+	sicadiCategory := anObject
 ]
 
 { #category : #accessing }

@@ -67,6 +67,11 @@ LifianEditorComponent >> renderPropertyEditorsOn: html [
 		instructions: 'indique la fecha de obtención entre paréntesis'
 		on: html.
 	self
+		renderTextInputEditorFor: 'sicadiCategory'
+		label: 'Categoria en SICADI'
+		instructions: 'indique la fecha de obtención entre paréntesis'
+		on: html.
+	self
 		renderTextInputEditorFor: 'positionAtCIC'
 		label: 'Cargo en la CICPBA'
 		instructions: 'deje vacío si no corresponde'
