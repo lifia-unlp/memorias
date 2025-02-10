@@ -45,7 +45,7 @@ ReferenceRenderer >> renderChapterReference: aReference on: aCanvas [
 		aCanvas text: ', pp. ' , aReference pages ].
 	aCanvas text: '.'.
 	aReference doi ifNotNilNotEmpty: [ :doi |
-		aCanvas text: ' ' , doi ].
+		self renderDoi: doi on: aCanvas ].
 	self renderDownloadIconFor: aReference on: aCanvas
 ]
 
@@ -68,6 +68,18 @@ ReferenceRenderer >> renderConferenceArticleReference: aReference on: aCanvas [
 	aReference doi ifNotNilNotEmpty: [ :doi |
 		aCanvas text: ' ' , doi ].
 	self renderDownloadIconFor: aReference on: aCanvas
+]
+
+{ #category : #rendering }
+ReferenceRenderer >> renderDoi: doi on: aCanvas [
+
+	| realDoi |
+	realDoi := doi startsWithDigit
+		           ifTrue: [ 'https://doi.org/' , doi ]
+		           ifFalse: [ doi ].
+	^ aCanvas anchor
+		  url: realDoi;
+		  with: ' ' , doi , ' .'
 ]
 
 { #category : #rendering }
@@ -95,7 +107,7 @@ ReferenceRenderer >> renderJournalArticleReference: aReference on: aCanvas [
 		aCanvas text: ', pp. ' , aReference pages ].
 	aCanvas text: ', ' , aReference year , '.'.
 	aReference doi ifNotNilNotEmpty: [ :doi |
-		aCanvas text: ' ' , doi ].
+		self renderDoi: doi on: aCanvas ].
 	self renderDownloadIconFor: aReference on: aCanvas
 ]
 
