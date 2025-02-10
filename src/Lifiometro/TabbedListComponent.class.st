@@ -15,6 +15,14 @@ TabbedListComponent >> children [
 	^ {filteringTabsComponent}
 ]
 
+{ #category : #callbacks }
+TabbedListComponent >> confirmDeletionOf: each [
+
+	^ self call: (DeletionConfirmer new
+			   entry: each;
+			   yourself)
+]
+
 { #category : #initialization }
 TabbedListComponent >> initialize [
 	super initialize.
@@ -55,6 +63,8 @@ TabbedListComponent >> plainView: anObject [
 
 { #category : #callbacks }
 TabbedListComponent >> remove: each [
+
+	(self confirmDeletionOf: each) ifFalse: [ ^ self ].
 	self session remove: each
 ]
 
