@@ -66,7 +66,7 @@ ReferenceRenderer >> renderConferenceArticleReference: aReference on: aCanvas [
 		aCanvas text: ', pp. ' , aReference pages ].
 	aCanvas text: '.'.
 	aReference doi ifNotNilNotEmpty: [ :doi |
-		aCanvas text: ' ' , doi ].
+		self renderDoi: doi on: aCanvas ].
 	self renderDownloadIconFor: aReference on: aCanvas
 ]
 
