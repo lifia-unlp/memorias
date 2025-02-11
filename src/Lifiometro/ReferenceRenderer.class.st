@@ -91,7 +91,7 @@ ReferenceRenderer >> renderDownloadIconFor: aReference on: aCanvas [
 			aCanvas anchor
 				url: url;
 				target: '_new';
-				with: [ aCanvas tbsGlyphIcon iconDownloadAlt ] ] ]
+				with: [ aCanvas tbsGlyphIcon class: 'glyphicon-save-file' ] ] ]
 ]
 
 { #category : #rendering }
