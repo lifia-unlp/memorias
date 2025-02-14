@@ -211,13 +211,15 @@ BibtexReference >> renderAsNewsSubjectWith: aRenderer on: aCanvas [
 BibtexReference >> renderAsReferenceWith: aRenderer on: aCanvas [
 
 	bibtexEntry type = 'article' ifTrue: [
-		^ aRenderer renderJournalArticleReference: self on: aCanvas ].
+		aRenderer renderJournalArticleReference: self on: aCanvas ].
 	bibtexEntry type = 'inproceedings' ifTrue: [
-		^ aRenderer renderConferenceArticleReference: self on: aCanvas ].
+		aRenderer renderConferenceArticleReference: self on: aCanvas ].
 	bibtexEntry type = 'inbook' ifTrue: [
-		^ aRenderer renderChapterReference: self on: aCanvas ].
+		aRenderer renderChapterReference: self on: aCanvas ].
 	bibtexEntry type = 'book' ifTrue: [
-		^ aRenderer renderBookReference: self on: aCanvas ] 
+		aRenderer renderBookReference: self on: aCanvas ].
+	aCanvas space.
+	aCanvas tbsGlyphIcon iconCheck
 ]
 
 { #category : #accessing }

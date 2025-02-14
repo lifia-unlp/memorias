@@ -10,6 +10,10 @@ Class {
 	#category : #'Lifiometro-Web'
 }
 
+{ #category : #callbacks }
+TabbedListComponent >> addToDoFor: anEntry [
+]
+
 { #category : #initialization }
 TabbedListComponent >> children [
 	^ {filteringTabsComponent}
@@ -75,15 +79,25 @@ TabbedListComponent >> render: each on: html [
 
 { #category : #rendering }
 TabbedListComponent >> renderActionsFor: each on: html [
+
 	html anchor
 		callback: [ self edit: each ];
 		title: 'Editar esta entrada';
 		with: [ html tbsGlyphIcon iconPencil ].
 	html space.
 	html anchor
+		callback: [ self addToDoFor: each ];
+		title: 'Solicitar cambios';
+		with: [ html tbsGlyphIcon iconComment ].
+	html space.
+	html space.
+	html anchor
 		callback: [ self remove: each ];
 		title: 'Archivar esta entrada';
-		with: [ html tbsGlyphIcon iconTrash ]
+		with: [
+			html tbsGlyphIcon
+				iconTrash;
+				style: 'color: red;' ]
 ]
 
 { #category : #rendering }

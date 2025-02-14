@@ -70,16 +70,6 @@ PublicationsListComponent >> render: each on: html [
 ]
 
 { #category : #rendering }
-PublicationsListComponent >> renderActionsFor: each on: html [
-	self renderSelfArchivingUrlFor: each on: html.
-	super renderActionsFor: each on: html.
-	each class = BibtexReference
-		ifTrue: [ html space.
-			html tbsGlyphIcon iconCheck ].
-
-]
-
-{ #category : #rendering }
 PublicationsListComponent >> renderButtonsOn: html [
 	html div
 		style: 'padding-top:10px;padding-bottom:10px';
