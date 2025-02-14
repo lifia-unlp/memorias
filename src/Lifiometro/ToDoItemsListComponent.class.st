@@ -55,7 +55,7 @@ ToDoItemsListComponent >> render: each on: html [
 			html text: 'Estado: ' , (each isCompleted
 					 ifTrue: [ 'Completado' ]
 					 ifFalse: [ 'Pendiente' ]) , ' - Fecha límite: '
-				, each deadline ddmmyyyy.
+				, each deadline asDate ddmmyyyy.
 			html break.
 			html text: 'Solicitante: ' , each requestor fullName.
 			html text: ' - Responsable: ' , each assignee fullName ] ]
