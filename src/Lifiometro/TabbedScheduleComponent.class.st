@@ -1,7 +1,7 @@
 Class {
 	#name : #TabbedScheduleComponent,
 	#superclass : #TabbedListComponent,
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Lists'
 }
 
 { #category : #callbacks }
@@ -28,14 +28,6 @@ TabbedScheduleComponent >> duplicate: each [
 				ifNotNil: [ :date | (date asDate addMonths: 12) mmddyyyy ]);
 		yourself.
 	self session save: copy
-]
-
-{ #category : #callbacks }
-TabbedScheduleComponent >> edit: each [
-	| result |
-	result := self call: (ScheduleItemEditorComponent item: each).
-	result ifNil: [ ^ self ].
-	self session save: result
 ]
 
 { #category : #initialization }
@@ -72,6 +64,12 @@ TabbedScheduleComponent >> monthNameFor: each [
 TabbedScheduleComponent >> monthNames [
 	^ {'Enero' . 'Febrero' . 'Marzo' . 'Abril' . 'Mayo' . 'Junio' . 'Julio'.
 	'Agosto' . 'Septiembre' . 'Octubre' . 'Noviembre' . 'Diciembre'}
+]
+
+{ #category : #'factory-methods' }
+TabbedScheduleComponent >> newEditorFor: anEntry [
+
+  ^ ScheduleItemEditorComponent item: anEntry 
 ]
 
 { #category : #callbacks }

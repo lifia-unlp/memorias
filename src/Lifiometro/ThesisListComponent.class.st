@@ -1,7 +1,7 @@
 Class {
 	#name : #ThesisListComponent,
 	#superclass : #TabbedListComponent,
-	#category : #'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Lists'
 }
 
 { #category : #adding }
@@ -13,14 +13,6 @@ ThesisListComponent >> addThesis [
 				item: Thesis new;
 				yourself).
 	result ifNotNil: [ self session save: result ]
-]
-
-{ #category : #rendering }
-ThesisListComponent >> edit: each [
-	| result |
-	result := self call: (ThesisEditorComponent item: each).
-	result ifNil: [ ^ self ].
-	self session save: result
 ]
 
 { #category : #initialization }
@@ -41,6 +33,12 @@ ThesisListComponent >> initializeGroupingAndFilteringAdapter [
 ThesisListComponent >> items [
 	^ LifiometroRepository singleton  thesis
 		asSortedCollection: [ :a :b | a startDate asDate > b startDate asDate ]
+]
+
+{ #category : #'factory-methods' }
+ThesisListComponent >> newEditorFor: anEntry [
+
+  ^ ThesisEditorComponent item: anEntry 
 ]
 
 { #category : #adding }

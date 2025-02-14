@@ -6,7 +6,7 @@ Class {
 		'newValues',
 		'errors'
 	],
-	#category : #'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Editors'
 }
 
 { #category : #'instance creation' }

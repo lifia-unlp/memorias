@@ -1,7 +1,7 @@
 Class {
 	#name : #ScholarshipEditorComponent,
 	#superclass : #PluggableEditorComponent,
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Editors'
 }
 
 { #category : #'accept/cancel' }

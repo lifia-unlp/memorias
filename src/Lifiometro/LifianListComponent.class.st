@@ -1,7 +1,7 @@
 Class {
 	#name : #LifianListComponent,
 	#superclass : #TabbedListComponent,
-	#category : #'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Lists'
 }
 
 { #category : #rendering }
@@ -13,14 +13,6 @@ LifianListComponent >> addLifian [
 				item: Lifian new;
 				yourself).
 	result ifNotNil: [ self session save: result ]
-]
-
-{ #category : #rendering }
-LifianListComponent >> edit: each [
-	| result |
-	result := self call: (LifianEditorComponent item: each).
-	result ifNil: [ ^ self ].
-	self session save: result
 ]
 
 { #category : #rendering }
@@ -47,6 +39,12 @@ LifianListComponent >> initializeGroupingAndFilteringAdapter [
 LifianListComponent >> items [
 	^ LifiometroRepository singleton lifians
 		asSortedCollection: [ :a :b | a lastName < b lastName ]
+]
+
+{ #category : #'factory-methods' }
+LifianListComponent >> newEditorFor: anEntry [
+
+	^ LifianEditorComponent item: anEntry
 ]
 
 { #category : #rendering }

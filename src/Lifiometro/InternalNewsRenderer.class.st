@@ -1,7 +1,7 @@
 Class {
 	#name : #InternalNewsRenderer,
 	#superclass : #Object,
-	#category : #'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Renderers'
 }
 
 { #category : #rendering }
@@ -53,4 +53,12 @@ InternalNewsRenderer >> renderThesis: aThesis on: html [
 
 	html text:
 		'Tesis: ' , aThesis title , '" de ' , aThesis student
+]
+
+{ #category : #rendering }
+InternalNewsRenderer >> renderToDoItem: aToDoItem on: aCanvas [
+
+	aCanvas text:
+		'Solicitud de ' , aToDoItem requestor fullName , ' para '
+		, aToDoItem assignee fullName , ': ' , aToDoItem request
 ]

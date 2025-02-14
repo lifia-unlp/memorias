@@ -1,7 +1,7 @@
 Class {
 	#name : #ReferenceRenderer,
 	#superclass : #Object,
-	#category : #'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Renderers'
 }
 
 { #category : #rendering }

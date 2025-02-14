@@ -85,10 +85,21 @@ ToDoItem >> isCompleted: anObject [
 	isCompleted := anObject
 ]
 
+{ #category : #accessing }
+ToDoItem >> isPending [
+
+	^ isCompleted not
+]
+
 { #category : #hooks }
 ToDoItem >> propertyNames [
-	^ #(requestor assignee request deadline)
+	^ #(requestor assignee request deadline isCompleted)
 		collect: #asString
+]
+
+{ #category : #'double dispatch' }
+ToDoItem >> renderAsNewsSubjectWith: aRenderer on: aCanvas [
+	aRenderer renderToDoItem: self on: aCanvas 
 ]
 
 { #category : #accessing }

@@ -1,7 +1,7 @@
 Class {
 	#name : #ProjectsListComponent,
 	#superclass : #TabbedListComponent,
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Lists'
 }
 
 { #category : #rendering }
@@ -13,14 +13,6 @@ ProjectsListComponent >> addProject [
 				item: Project new;
 				yourself).
 	result ifNotNil: [ self session save: result ]
-]
-
-{ #category : #accessing }
-ProjectsListComponent >> edit: each [
-	| result |
-	result := self call: (ProjectEditorComponent item: each).
-	result ifNil: [ ^ self ].
-	self session save: result
 ]
 
 { #category : #initialization }
@@ -39,6 +31,12 @@ ProjectsListComponent >> initializeGroupingAndFilteringAdapter [
 ProjectsListComponent >> items [
 	^ LifiometroRepository singleton projects
 		asSortedCollection: [ :a :b | a endDate asDate > b endDate asDate ]
+]
+
+{ #category : #'factory-methods' }
+ProjectsListComponent >> newEditorFor: anEntry [
+
+  ^ProjectEditorComponent item: anEntry 
 ]
 
 { #category : #rendering }

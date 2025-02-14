@@ -1,7 +1,7 @@
 Class {
 	#name : #ToDoEditorComponent,
 	#superclass : #PluggableEditorComponent,
-	#category : #'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Editors'
 }
 
 { #category : #rendering }
@@ -31,14 +31,16 @@ ToDoEditorComponent >> renderPropertyEditorsOn: html [
 		renderComboSelectFor: 'requestor'
 		from: { nil } , self lifians
 		label: 'Solicitante'
-		itemsLabelBlock: [ :each | each ifNotNil: [ each formalName  ] ifNil: [ '' ] ]
+		itemsLabelBlock: [ :each |
+		each ifNotNil: [ each formalName ] ifNil: [ '' ] ]
 		instructions: 'Seleccione al solicitante'
 		on: html.
 	self
 		renderComboSelectFor: 'assignee'
 		from: { nil } , self lifians
 		label: 'Responsable'
-		itemsLabelBlock: [ :each | each ifNotNil: [ each formalName  ] ifNil: [ '' ] ]
+		itemsLabelBlock: [ :each |
+		each ifNotNil: [ each formalName ] ifNil: [ '' ] ]
 		instructions: 'Seleccione al responsable'
 		on: html.
 	self
@@ -50,5 +52,28 @@ ToDoEditorComponent >> renderPropertyEditorsOn: html [
 		renderTextInputEditorFor: 'request'
 		label: 'Detalle su solicitud'
 		instructions: nil
-		on: html
+		on: html.
+	self renderStatusEditorOn: html
+]
+
+{ #category : #rendering }
+ToDoEditorComponent >> renderStatusEditorOn: html [
+
+	html tbsFormGroup: [
+		html label
+			for: 'isCompleted';
+			with: 'Estado'.
+		html break.
+		html radioGroup
+			callback: [ :value | newValues at: 'isCompleted' put: value ];
+			selected: (newValues at: 'isCompleted');
+			with: [ :group |
+				{
+					(true -> 'Completado').
+					(false -> 'Pendiente') } do: [ :each |
+						group radioButton value: each key.
+						html
+							space;
+							text: each value;
+							break ] ] ]
 ]

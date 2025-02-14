@@ -287,6 +287,11 @@ LifiometroRepository >> thesisWithVoyageId: void [
 ]
 
 { #category : #query }
+LifiometroRepository >> toDoItems [
+	^ ToDoItem selectAll reject: [ :each | each trashed ]
+]
+
+{ #category : #query }
 LifiometroRepository >> userWithEmail: anEmailAddress [
 	^ LifiaUser selectAll
 		detect: [ :each | each email = anEmailAddress ]

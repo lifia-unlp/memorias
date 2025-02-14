@@ -1,7 +1,7 @@
 Class {
 	#name : #ScholarshipsListComponent,
 	#superclass : #TabbedListComponent,
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Lists'
 }
 
 { #category : #accessing }
@@ -13,14 +13,6 @@ ScholarshipsListComponent >> addScholarship [
 				item: Scholarship new;
 				yourself).
 	result ifNotNil: [ self session save: result ]
-]
-
-{ #category : #rendering }
-ScholarshipsListComponent >> edit: each [
-	| result |
-	result := self call: (ScholarshipEditorComponent item: each).
-	result ifNil: [ ^ self ].
-	self session save: result
 ]
 
 { #category : #initialization }
@@ -39,6 +31,12 @@ ScholarshipsListComponent >> initializeGroupingAndFilteringAdapter [
 ScholarshipsListComponent >> items [
 	^ LifiometroRepository singleton scholarships
 		asSortedCollection: [ :a :b | a endDate asDate > b endDate asDate ]
+]
+
+{ #category : #'factory-methods' }
+ScholarshipsListComponent >> newEditorFor: anEntry [
+
+  ^ ScholarshipEditorComponent item: anEntry 
 ]
 
 { #category : #accessing }

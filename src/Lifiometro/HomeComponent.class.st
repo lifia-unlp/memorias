@@ -11,7 +11,8 @@ Class {
 		'scheduleComponent',
 		'lifiansComponent',
 		'lifiaUserResearcherReportComponent',
-		'internalNewsComponent'
+		'internalNewsComponent',
+		'toDoItemsListComponent'
 	],
 	#category : #'Lifiometro-Web'
 }
@@ -19,6 +20,8 @@ Class {
 { #category : #children }
 HomeComponent >> children [
 	^ {publicationsListComponent.
+	toDoItemsListComponent .
+	internalNewsComponent.
 	scholarshipsListComponent.
 	projectsListComponent.
 	studentsListComponent.
@@ -35,6 +38,9 @@ HomeComponent >> initialize [
 	publicationsListComponent := PublicationsListComponent new
 		                             parent: self;
 		                             yourself.
+	toDoItemsListComponent := ToDoItemsListComponent new
+		                          parent: self;
+		                          yourself.
 	scholarshipsListComponent := ScholarshipsListComponent new
 		                             parent: self;
 		                             yourself.
@@ -71,6 +77,8 @@ HomeComponent >> renderContentOn: html [
 			tbsColumn: [
 				self session currentUser enabled ifFalse: [
 					^ self renderWaitForActivationOn: html ].
+				selectedTab = 'Tareas pendientes' ifTrue: [
+					html render: toDoItemsListComponent ].
 				selectedTab = 'Novedades' ifTrue: [
 					html render: internalNewsComponent ].
 				selectedTab = 'Mi ficha técnica' ifTrue: [
@@ -98,7 +106,7 @@ HomeComponent >> renderLeftMenuOn: html [
 	tabs := OrderedCollection new.
 	self session currentUser enabled ifTrue: [
 		tabs addAll:
-			{ 'Novedades'. 'Publicaciones'. 'Proyectos'. 'Becas'. 'Tesis'. 'Investigadores' }.
+			{ 'Tareas pendientes'. 'Novedades'.  'Publicaciones'. 'Proyectos'. 'Becas'. 'Tesis'. 'Investigadores' }.
 		self session currentUser isAdmin ifTrue: [ tabs add: 'Administrar' ].
 		self session currentUser lifian ifNotNil: [ :it |
 			tabs addFirst: 'Mi ficha técnica' ] ].

@@ -1,7 +1,7 @@
 Class {
 	#name : #ReferenceEditorComponent,
 	#superclass : #TypedItemEditorComponent,
-	#category : #'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Editors'
 }
 
 { #category : #utility }

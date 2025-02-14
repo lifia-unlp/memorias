@@ -7,7 +7,7 @@ Class {
 		'filteringTabsComponent',
 		'parent'
 	],
-	#category : #'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Lists'
 }
 
 { #category : #callbacks }
@@ -38,6 +38,15 @@ TabbedListComponent >> confirmDeletionOf: each [
 			   yourself)
 ]
 
+{ #category : #'rendering-hooks' }
+TabbedListComponent >> edit: each [
+
+	| result |
+	result := self call: (self newEditorFor: each).
+	result ifNil: [ ^ self ].
+	self session save: result
+]
+
 { #category : #initialization }
 TabbedListComponent >> initialize [
 	super initialize.
@@ -55,6 +64,12 @@ TabbedListComponent >> initializeGroupingAndFilteringAdapter [
 { #category : #accessing }
 TabbedListComponent >> items [
 	^ self subclassResponsibility
+]
+
+{ #category : #'factory-methods' }
+TabbedListComponent >> newEditorFor: anEntry [
+
+  ^self subclassResponsibility 
 ]
 
 { #category : #callbacks }
@@ -83,12 +98,12 @@ TabbedListComponent >> remove: each [
 	self session remove: each
 ]
 
-{ #category : #rendering }
+{ #category : #'rendering-hooks' }
 TabbedListComponent >> render: each on: html [
 	self subclassResponsibility
 ]
 
-{ #category : #rendering }
+{ #category : #'rendering-hooks' }
 TabbedListComponent >> renderActionsFor: each on: html [
 
 	html anchor
@@ -111,7 +126,7 @@ TabbedListComponent >> renderActionsFor: each on: html [
 				style: 'color: red;' ]
 ]
 
-{ #category : #rendering }
+{ #category : #'rendering-hooks' }
 TabbedListComponent >> renderButtonsOn: html [
 	self subclassResponsibility
 ]
@@ -127,24 +142,21 @@ TabbedListComponent >> renderContentOn: html [
 					self renderItemsOn: html ] ]
 ]
 
-{ #category : #rendering }
+{ #category : #'rendering-hooks' }
 TabbedListComponent >> renderItems: items on: html [
-	html
-		tbsTable: [ html
-				tableBody: [ items
-						do: [ :each | 
-							each trashed
-								ifFalse: [ html
-										tableRow: [ html
-												tableData: [ self render: each on: html.
-													html
-														paragraph: [ self renderRelatedLifiansFor: each on: html.
-															self renderRelatedProjectsFor: each on: html ].
-													plainView
-														ifFalse: [ self renderActionsFor: each on: html ] ] ] ] ] ] ]
+
+	html tbsTable: [
+		html tableBody: [
+			items do: [ :each |
+				each trashed ifFalse: [
+					html tableRow: [
+						html tableData: [
+							self render: each on: html.
+							self renderRelatedObjectsFor: each on: html.
+							plainView ifFalse: [ self renderActionsFor: each on: html ] ] ] ] ] ] ]
 ]
 
-{ #category : #rendering }
+{ #category : #'rendering-hooks' }
 TabbedListComponent >> renderItemsOn: html [
 	self subclassResponsibility
 ]
@@ -157,6 +169,14 @@ TabbedListComponent >> renderRelatedLifiansFor: each on: html [
 				,
 					((each relatedLifians ifNil: [ Set new ])
 						collect: [ :lifian | lifian fullName ]) asCommaString.
+]
+
+{ #category : #'rendering-hooks' }
+TabbedListComponent >> renderRelatedObjectsFor: each on: html [
+
+	html paragraph: [
+		self renderRelatedLifiansFor: each on: html.
+		self renderRelatedProjectsFor: each on: html ]
 ]
 
 { #category : #rendering }

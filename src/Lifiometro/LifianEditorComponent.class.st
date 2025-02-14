@@ -1,7 +1,7 @@
 Class {
 	#name : #LifianEditorComponent,
 	#superclass : #PluggableEditorComponent,
-	#category : #'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Editors'
 }
 
 { #category : #rendering }

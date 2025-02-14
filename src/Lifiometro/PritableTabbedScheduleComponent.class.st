@@ -1,7 +1,7 @@
 Class {
 	#name : #PritableTabbedScheduleComponent,
 	#superclass : #TabbedScheduleComponent,
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Lists'
 }
 
 { #category : #rendering }

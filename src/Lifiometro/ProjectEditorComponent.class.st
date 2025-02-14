@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'newType'
 	],
-	#category : #'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Editors'
 }
 
 { #category : #callbacks }

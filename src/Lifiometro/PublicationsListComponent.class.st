@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'referenceRenderer'
 	],
-	#category : #'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Lists'
 }
 
 { #category : #callbacks }
@@ -30,14 +30,6 @@ PublicationsListComponent >> addPublicationFromRawCite [
 	cite ifNotNil: [ self session save: cite ]
 ]
 
-{ #category : #callbacks }
-PublicationsListComponent >> edit: each [
-	| result |
-	result := self call: (ReferenceEditorComponent item: each).
-	result ifNil: [ ^ self ].
-	self session save: result
-]
-
 { #category : #initialization }
 PublicationsListComponent >> initializeGroupingAndFilteringAdapter [
 
@@ -58,6 +50,12 @@ PublicationsListComponent >> initializeGroupingAndFilteringAdapter [
 PublicationsListComponent >> items [
 	^ LifiometroRepository singleton references
 		asSortedCollection: [ :a :b | a asSummary < b asSummary ]
+]
+
+{ #category : #'factory-methods' }
+PublicationsListComponent >> newEditorFor: anEntry [
+
+	^ ReferenceEditorComponent item: anEntry
 ]
 
 { #category : #rendering }

@@ -1,7 +1,7 @@
 Class {
 	#name : #ScheduleItemEditorComponent,
 	#superclass : #TypedItemEditorComponent,
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Editors'
 }
 
 { #category : #'accept/cancel' }
