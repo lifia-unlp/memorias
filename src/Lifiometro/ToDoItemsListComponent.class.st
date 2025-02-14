@@ -40,7 +40,11 @@ ToDoItemsListComponent >> render: each on: html [
 	html paragraph: [
 		html paragraph: [
 			html text: 'Item: '.
-			renderer render: each entry on: html.
+			each entry trashed
+				ifTrue: [
+					html text: '(eliminado) '.
+					html tag: 's' with: [ renderer render: each entry on: html ] ]
+				ifFalse: [ renderer render: each entry on: html ].
 			html break.
 			html text: 'Solicitud: ' , each request.
 			html break.
