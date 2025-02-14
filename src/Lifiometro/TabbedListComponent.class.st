@@ -13,11 +13,14 @@ Class {
 { #category : #callbacks }
 TabbedListComponent >> addToDoFor: anEntry [
 
-	| result |
+	| result toDoItem |
+	toDoItem := ToDoItem new
+		            entry: anEntry;
+		            yourself.
+	self session currentUser lifian ifNotNil: [ :it |
+		toDoItem requestor: it ].
 	result := self call: (ToDoEditorComponent new
-			           item: (ToDoItem new
-					            entry: anEntry;
-					            yourself);
+			           item: toDoItem;
 			           yourself).
 	result ifNotNil: [ self session save: result ]
 ]
