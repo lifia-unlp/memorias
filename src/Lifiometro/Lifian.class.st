@@ -110,6 +110,11 @@ Lifian >> firstName: anObject [
 ]
 
 { #category : #accessing }
+Lifian >> formalName [
+	^ lastName, ', ', firstName 
+]
+
+{ #category : #accessing }
 Lifian >> fullName [
 	^ firstName , ' ' , lastName
 ]

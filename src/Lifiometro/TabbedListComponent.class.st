@@ -12,6 +12,14 @@ Class {
 
 { #category : #callbacks }
 TabbedListComponent >> addToDoFor: anEntry [
+
+	| result |
+	result := self call: (ToDoEditorComponent new
+			           item: (ToDoItem new
+					            entry: anEntry;
+					            yourself);
+			           yourself).
+	result ifNotNil: [ self session save: result ]
 ]
 
 { #category : #initialization }

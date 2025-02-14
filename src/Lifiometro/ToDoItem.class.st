@@ -67,6 +67,13 @@ ToDoItem >> entry: anObject [
 ]
 
 { #category : #accessing }
+ToDoItem >> initialize [
+	super initialize .
+	isCompleted := false.
+	 
+]
+
+{ #category : #accessing }
 ToDoItem >> isCompleted [
 
 	^ isCompleted
@@ -76,6 +83,12 @@ ToDoItem >> isCompleted [
 ToDoItem >> isCompleted: anObject [
 
 	isCompleted := anObject
+]
+
+{ #category : #hooks }
+ToDoItem >> propertyNames [
+	^ #(requestor assignee request deadline)
+		collect: #asString
 ]
 
 { #category : #accessing }

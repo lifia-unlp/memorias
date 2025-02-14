@@ -97,6 +97,28 @@ PluggableEditorComponent >> renderCheckboxEditorFor: property label: label instr
 			self renderEditorInstructions: instructions on: html ]
 ]
 
+{ #category : #'rendering input' }
+PluggableEditorComponent >> renderComboSelectFor: property from: items label: aLabel itemsLabelBlock: aBlock instructions: instructions on: html [
+
+	| currentValue |
+	currentValue := newValues at: property.
+	html tbsFormGroup: [
+		html label
+			for: property;
+			with: aLabel.
+		html
+			break;
+			small: instructions.
+		html select
+			list: items;
+			selected: currentValue;
+			class: 'form-control';
+			labels: aBlock;
+			callback: [ :value | newValues at: property put: value ];
+			with: currentValue;
+			id: property ]
+]
+
 { #category : #rendering }
 PluggableEditorComponent >> renderContentOn: html [
 	html
