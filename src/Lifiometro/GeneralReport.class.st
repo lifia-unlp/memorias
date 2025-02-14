@@ -13,7 +13,8 @@ Class {
 		'projects',
 		'scholarships',
 		'specializationThesis',
-		'researchers'
+		'researchers',
+		'miscPublications'
 	],
 	#category : #'Lifiometro-Reports'
 }
@@ -141,6 +142,11 @@ GeneralReport >> mastersThesis [
 ]
 
 { #category : #accessing }
+GeneralReport >> miscPublications [ 
+	^ miscPublications
+]
+
+{ #category : #accessing }
 GeneralReport >> phdThesis [
 	^ phdThesis
 ]
@@ -229,6 +235,8 @@ GeneralReport >> years: theYears projects: theProjects publications: thePublicat
 		select: [ :each | each type = 'book' ].
 	inproceedingsPublications := thePublications
 		select: [ :each | each type = 'inproceedings' ].
+   miscPublications := thePublications
+		select: [ :each | each type = 'misc' ].
 	researchers := theResearchers.
 	scholarships := theScholarships.
 	undergraduateThesis := theThesis

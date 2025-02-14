@@ -30,7 +30,8 @@ Class {
 		'finishedSpecializationThesis',
 		'selectedYears',
 		'older',
-		'indexComponent'
+		'indexComponent',
+		'misc'
 	],
 	#category : #'Lifiometro-Reports'
 }
@@ -89,6 +90,7 @@ checkboxesComponent columnSizes: #(2 3 3 4).
 		initializeActivityTypeCheckboxes;
 		initializeThesisTypeCheckboxes.
 
+
 ]
 
 { #category : #initialization }
@@ -105,6 +107,7 @@ CenterReportComponent >> initializePublicationTypeCheckboxes [
 		                 labeled: 'Artículos de conferencias'.
 	inbook := list addCheckboxFor: 'inbook' labeled: 'Capítulos de libro'.
 	book := list addCheckboxFor: 'book' labeled: 'Libros'.
+	misc := list addCheckboxFor: 'misc' labeled: 'Otros (misc)'.
 	list checkAll
 ]
 
@@ -358,6 +361,18 @@ CenterReportComponent >> renderMembers: aCollection heading: aHeading on: html [
 						do: [ :each | self renderResearcher: each on: html ] ] ]
 ]
 
+{ #category : #'rendering-publications' }
+CenterReportComponent >> renderMiscPublicationsReportOn: html [
+
+	| articles |
+	articles := self report miscPublications.
+	html heading
+		level2;
+		id: 'misc';
+		with: 'Otras publicaciones (' , articles size greaseString , ')'.
+	self renderPublicationsIn: articles on: html
+]
+
 { #category : #'rendering-researchers' }
 CenterReportComponent >> renderOtherMembersOn: html [
 	self
@@ -477,7 +492,7 @@ CenterReportComponent >> renderPublicationsPlotOn: html [
 { #category : #'rendering-publications' }
 CenterReportComponent >> renderPublicationsReportOn: html [
 
-	article checked | inbook checked | inproceedings checked | book checked ifFalse: [ ^ self ].
+	article checked | inbook checked | inproceedings checked | book checked | misc checked ifFalse: [ ^ self ].
 	html heading
 		level1;
 		id: 'publications';
@@ -487,7 +502,8 @@ CenterReportComponent >> renderPublicationsReportOn: html [
 	inproceedings checked ifTrue: [
 		self renderInProceedingsPublicationsReportOn: html ].
 	inbook checked ifTrue: [ self renderInBookPublicationsReportOn: html ].
-	book checked ifTrue: [ self renderBookPublicationsReportOn: html ]
+	book checked ifTrue: [ self renderBookPublicationsReportOn: html ].
+	misc checked ifTrue: [ self renderMiscPublicationsReportOn: html ]
 ]
 
 { #category : #rendering }
