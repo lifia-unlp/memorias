@@ -95,6 +95,7 @@ PublicationsListComponent >> renderButtonsOn: html [
 
 { #category : #rendering }
 PublicationsListComponent >> renderItemsOn: html [
+
 	html heading
 		level: 4;
 		with: 'Artículos en revistas'.
@@ -116,7 +117,14 @@ PublicationsListComponent >> renderItemsOn: html [
 	html heading
 		level: 4;
 		with: 'Libros'.
-	^ self
+	self
 		renderItems: (groupingAndFilteringAdapter group: 'book')
+		on: html.
+
+	html heading
+		level: 4;
+		with: 'Otros (misc)'.
+	self
+		renderItems: (groupingAndFilteringAdapter group: 'misc')
 		on: html
 ]
