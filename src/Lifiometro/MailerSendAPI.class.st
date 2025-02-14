@@ -2,10 +2,11 @@ Class {
 	#name : #MailerSendAPI,
 	#superclass : #Object,
 	#instVars : [
-		'abuseWindow',
 		'emailsSender',
 		'sendErrorEmailsTo',
-		'apiKey'
+		'apiKey',
+		'minSecondsBetweenRequests',
+		'timestampOfLatestRequest'
 	],
 	#classInstVars : [
 		'singleton'
@@ -52,7 +53,8 @@ MailerSendAPI >> emailsSender: anObject [
 { #category : #initialization }
 MailerSendAPI >> initialize [ 	
 
-   abuseWindow := OrderedCollection new. 
+   minSecondsBetweenRequests := 30. 
+   timestampOfLatestRequest := DateAndTime epoch. 
 ]
 
 { #category : #accessing }
@@ -63,33 +65,26 @@ MailerSendAPI >> isProperlyConfigured [
 
 { #category : #api }
 MailerSendAPI >> mightBeUnderAbuse [
-	"Currently returns true only when emails in the abuse window have been sent within a 60 seconds timeframe, or the last two in less than 10"
+   
+  "I am under when a request occur in less than minSecondsBetweenRequests from the last one"
 
-	abuseWindow size <= 2 ifTrue: [ ^ false ].
-	abuseWindow last timestamp asSeconds
-	- abuseWindow nextToLast timestamp asSeconds > 10 ifTrue: [ ^ false ].
-	abuseWindow last timestamp asSeconds
-	- abuseWindow first timestamp asSeconds > 60 ifTrue: [ ^ false ].
+	^ DateAndTime now asSeconds - timestampOfLatestRequest asSeconds
+	  < minSecondsBetweenRequests
+]
 
-	^ true
+{ #category : #accessing }
+MailerSendAPI >> minSecondsBetweenRequests: seconds [
+
+	minSecondsBetweenRequests := seconds
 ]
 
 { #category : #api }
 MailerSendAPI >> send: aScolrEmail [
 
-	| client |
 	self apiKey ifNil: [ self error: 'API not properly configured' ].
-	self mightBeUnderAbuse ifTrue: [ ^ self ].
-	self updateAbuseWindowWith: aScolrEmail.
-	client := ZnClient new
-		          beOneShot;
-		          url: 'https://api.mailersend.com/v1/email';
-		          headerAt: 'Content-Type' put: 'application/json';
-		          headerAt: 'X-Requested-With' put: 'XMLHttpRequest';
-		          headerAt: 'Authorization' put: 'Bearer ' , self apiKey;
-		          entity: aScolrEmail asZnEntity.
-	client post.
-	^ client response
+	self mightBeUnderAbuse ifTrue: [ ^ self . ].
+	timestampOfLatestRequest := DateAndTime now.
+	^ self sendWithoutChecks: aScolrEmail
 ]
 
 { #category : #accessing }
@@ -105,8 +100,16 @@ MailerSendAPI >> sendErrorEmailsTo: anObject [
 ]
 
 { #category : #api }
-MailerSendAPI >> updateAbuseWindowWith: aScolrEmail [
+MailerSendAPI >> sendWithoutChecks: aScolrEmail [
 
-	abuseWindow addLast: aScolrEmail.
-	abuseWindow size > 10 ifTrue: [ abuseWindow removeFirst ]
+	| client |
+	client := ZnClient new
+		          beOneShot;
+		          url: 'https://api.mailersend.com/v1/email';
+		          headerAt: 'Content-Type' put: 'application/json';
+		          headerAt: 'X-Requested-With' put: 'XMLHttpRequest';
+		          headerAt: 'Authorization' put: 'Bearer ' , self apiKey;
+		          entity: aScolrEmail asZnEntity.
+	client post.
+	^ client response
 ]

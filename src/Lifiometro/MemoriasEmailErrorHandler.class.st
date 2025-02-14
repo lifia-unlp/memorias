@@ -5,6 +5,10 @@ I try to notify the admin-email if it has been configured in ReviewnatorDeployer
 Class {
 	#name : #MemoriasEmailErrorHandler,
 	#superclass : #WAErrorHandler,
+	#classVars : [
+		'DateAndTimeOfLatestException',
+		'LatestException'
+	],
 	#category : #'Lifiometro-Errors'
 }
 
@@ -29,8 +33,18 @@ MemoriasEmailErrorHandler >> handleDefault: anException [
 
 { #category : #private }
 MemoriasEmailErrorHandler >> handleError: anException [
-	self sendFailFor: anException.
+
+	(self isMuchNewerOrDifferent: anException) ifTrue: [
+		self sendFailFor: anException ].
 	^ super handleError: anException
+]
+
+{ #category : #private }
+MemoriasEmailErrorHandler >> isMuchNewerOrDifferent: anException [
+
+	^ LatestException isNil or: [
+		  (DateAndTime now - DateAndTimeOfLatestException) asDays > 1 or: [
+			  LatestException description ~= LatestException description ] ]
 ]
 
 { #category : #private }
@@ -57,11 +71,12 @@ MemoriasEmailErrorHandler >> rendererClass [
 MemoriasEmailErrorHandler >> sendFailFor: anException [
 
 	| email |
-	MailerSendAPI singleton isProperlyConfigured ifFalse: [ ^ self ].
-	MailerSendAPI singleton mightBeUnderAbuse ifTrue: [ ^ self ].
+	LatestException := anException.
+	DateAndTimeOfLatestException := DateAndTime now.
 
+	MailerSendAPI singleton isProperlyConfigured ifFalse: [ ^ self ].
 	email := MemoriasPlainTextEmail new
-		         from: MailerSendAPI singleton emailsSender ;
+		         from: MailerSendAPI singleton emailsSender;
 		         to: (Set with: MailerSendAPI singleton sendErrorEmailsTo);
 		         subject: (self titleForException: anException);
 		         text: (self emailTextForException: anException);

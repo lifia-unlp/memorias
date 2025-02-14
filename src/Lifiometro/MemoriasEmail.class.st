@@ -65,6 +65,12 @@ MemoriasEmail >> timestamp [
 ]
 
 { #category : #accessing }
+MemoriasEmail >> timestamp: anObject [
+
+	timestamp := anObject
+]
+
+{ #category : #accessing }
 MemoriasEmail >> to [
 
 	^ to
