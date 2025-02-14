@@ -8,7 +8,11 @@ Class {
 ToDoItemsListComponent >> initializeGroupingAndFilteringAdapter [
 
 	groupingAndFilteringAdapter := GroupingAndFilteringListAdapter
-		                               groupingBlock: [ :each | 'default' ]
+		                               groupingBlock: [ :each |
+			                               each assignee
+			                               = self session currentUser lifian
+				                               ifTrue: [ 'Para mí' ]
+				                               ifFalse: [ 'Para otros' ] ]
 		                               filteringBlock: [ :each :filter |
 			                               each isCompleted
 			                               & (filter = 'Completados')
@@ -74,8 +78,18 @@ ToDoItemsListComponent >> renderButtonsOn: html [
 
 { #category : #rendering }
 ToDoItemsListComponent >> renderItemsOn: html [
-		self
-		renderItems: (groupingAndFilteringAdapter group: 'default')
+
+	html heading
+		level: 4;
+		with: 'Para mí'.
+	self
+		renderItems: (groupingAndFilteringAdapter group: 'Para mí')
+		on: html.
+	html heading
+		level: 4;
+		with: 'Para otros'.
+	self
+		renderItems: (groupingAndFilteringAdapter group: 'Para otros')
 		on: html
 ]
 
