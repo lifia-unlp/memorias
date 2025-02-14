@@ -343,8 +343,6 @@ CenterReportComponent >> renderLinkToThesisProfile: aThesis on: html [
 
 { #category : #'rendering-researchers' }
 CenterReportComponent >> renderMembers: aCollection heading: aHeading on: html [
-	activeProjects checked
-		ifFalse: [ ^ self ].
 	html heading
 		level2;
 		with: aHeading .
