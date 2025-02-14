@@ -40,7 +40,7 @@ ToDoItemsListComponent >> newEditorFor: anEntry [
 ToDoItemsListComponent >> render: each on: html [
 
 	| renderer |
-	renderer := ReferenceRenderer new.
+	renderer := InternalNewsRenderer  new.
 	html paragraph: [
 		html paragraph: [
 			html text: 'Item: '.
@@ -48,7 +48,7 @@ ToDoItemsListComponent >> render: each on: html [
 				ifTrue: [
 					html text: '(eliminado) '.
 					html tag: 's' with: [ renderer render: each entry on: html ] ]
-				ifFalse: [ renderer render: each entry on: html ].
+				ifFalse: [ renderer renderAsNews: each entry on: html ].
 			html break.
 			html text: 'Solicitud: ' , each request.
 			html break.

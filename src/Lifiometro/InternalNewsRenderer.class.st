@@ -13,13 +13,13 @@ InternalNewsRenderer >> renderAsNews: anObject on: aCanvas [
 { #category : #rendering }
 InternalNewsRenderer >> renderBibtextReference: aBibtexReference on: html [
 
-	html text: 'Referencia: ', aBibtexReference asSummary
+	html text: '(Articulo) ', aBibtexReference asSummary
 ]
 
 { #category : #rendering }
 InternalNewsRenderer >> renderLifian: aLifian on: html [
 
-	html text: 'Investigador: ' , aLifian fullName 
+	html text: '(Investigador) ' , aLifian fullName 
 ]
 
 { #category : #rendering }
@@ -31,20 +31,20 @@ InternalNewsRenderer >> renderLogEntry: aLogEntry on: aCanvas [
 { #category : #rendering }
 InternalNewsRenderer >> renderProject: aProject on: html [
 
-	html text: 'Proyecto: ' , aProject title 
+	html text: '(Proyecto) ' , aProject title 
 ]
 
 { #category : #rendering }
 InternalNewsRenderer >> renderRawReference: aRawReference on: html [
 
-	html text: 'Referencia: ', aRawReference asSummary
+	html text: '(Articulo) ', aRawReference asSummary
 ]
 
 { #category : #rendering }
 InternalNewsRenderer >> renderScholarship: aScholarship on: html [
 
 	html text:
-		'Beca ' , aScholarship type , ' de ' , aScholarship student
+		'(Beca) ' , aScholarship type , ' de ' , aScholarship student
 		, ' dirigida por ' , aScholarship director
 ]
 
@@ -52,7 +52,7 @@ InternalNewsRenderer >> renderScholarship: aScholarship on: html [
 InternalNewsRenderer >> renderThesis: aThesis on: html [
 
 	html text:
-		'Tesis: ' , aThesis title , '" de ' , aThesis student
+		'(Tesis) ' , aThesis title , '" de ' , aThesis student
 ]
 
 { #category : #rendering }
