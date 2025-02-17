@@ -414,7 +414,7 @@ CenterReportComponent >> renderProject: each on: html [
 			self
 				render: #fundingAgency
 				of: each
-				labeled: 'Fianciador'
+				labeled: 'Financiador'
 				on: html.
 			self
 				render: #amount
