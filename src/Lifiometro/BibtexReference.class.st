@@ -219,7 +219,7 @@ BibtexReference >> renderAsReferenceWith: aRenderer on: aCanvas [
 	bibtexEntry type = 'book' ifTrue: [
 		aRenderer renderBookReference: self on: aCanvas ].
 	aCanvas space.
-	aCanvas tbsGlyphIcon iconCheck
+	aRenderer renderBibtexAvailableIconFor: self on: aCanvas.
 ]
 
 { #category : #accessing }

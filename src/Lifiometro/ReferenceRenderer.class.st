@@ -11,6 +11,12 @@ ReferenceRenderer >> render: aReference on: aCanvas [
 ]
 
 { #category : #rendering }
+ReferenceRenderer >> renderBibtexAvailableIconFor: aBibtextReference on: aCanvas [
+
+	aCanvas tbsGlyphIcon iconCheck
+]
+
+{ #category : #rendering }
 ReferenceRenderer >> renderBookReference: aReference on: aCanvas [
 
 	aReference authors ifNotNilNotEmpty: [ :authors |
