@@ -158,20 +158,21 @@ BibtexReference >> pages [
 
 { #category : #accessing }
 BibtexReference >> propertyNames [
+
+   "Convert all propertyNames to lowerCase to support all references that may have been stored with mixed case names. new version of PetitBibtex makes sure entry names are lowercased"
+
 	| fields |
-	fields := OrderedCollection
-		withAll: (self class standardFieldsFor: bibtexEntry type).
-	(bibtexEntry tags collect: #name)
-		do: [ :each | fields addIfNotPresent: each ].
+	fields := OrderedCollection withAll:
+		          (self class standardFieldsFor: bibtexEntry type).
+	(bibtexEntry tags collect: [ :each | each name asLowercase ]) do: [
+		:each | fields addIfNotPresent: each ].
 	"The following is just to make sure these properties are the last ones"
-	fields
-		removeAllFoundIn:
-			{'ranking'. 'selfArchivingUrl' . 'relatedProjects' . 'relatedLifians'.
-			'relatedThesis'. }.
-	fields
-		addAll:
-			{'ranking'. 'selfArchivingUrl' . 'relatedProjects' . 'relatedLifians'.
-			'relatedThesis'}.
+	fields removeAllFoundIn:
+		{ 'ranking'. 'selfArchivingUrl'. 'relatedProjects'. 'relatedLifians'.
+		'relatedThesis' }.
+	fields addAll:
+		{ 'ranking'. 'selfArchivingUrl'. 'relatedProjects'. 'relatedLifians'.
+		'relatedThesis' }.
 	^ fields
 ]
 

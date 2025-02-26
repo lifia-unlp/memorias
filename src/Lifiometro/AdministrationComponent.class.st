@@ -25,6 +25,17 @@ AdministrationComponent >> clearPasswordFor: each [
 		save
 ]
 
+{ #category : #callbacks }
+AdministrationComponent >> fixTagNamesCase [
+
+	| toFix |
+	toFix := BibtexReference selectAll select: [ :each |
+		         each bibtexEntry needsTagNameCaseFixig ].
+	toFix do: [ :each |
+		each bibtexEntry fixTagNameCase.
+		each save ]
+]
+
 { #category : #rendering }
 AdministrationComponent >> guessArticleAuthors [
 	self call: GuessInvolvedResearchersComponent new
@@ -76,7 +87,12 @@ AdministrationComponent >> renderBulkActionsOn: html [
 					html break.
 					html anchor
 						callback: [ 1 / 0 ];
-						with: 'Simulate error' ] ]
+						with: 'Simulate error'.
+
+					html break.
+					html anchor
+						callback: [ self fixTagNamesCase ];
+						with: 'Change names of all existing bibtex entries to lowercase' ] ]
 ]
 
 { #category : #rendering }
