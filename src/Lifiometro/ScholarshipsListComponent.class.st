@@ -65,8 +65,6 @@ ScholarshipsListComponent >> render: each on: html [
 			html
 				text: 'Tipo de beca: ' , each type;
 				break.
-			html
-				text: 'Resumen: ' , each summary.
  ]
 ]
 

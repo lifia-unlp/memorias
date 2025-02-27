@@ -71,10 +71,7 @@ ThesisListComponent >> render: each on: html [
 				break.
 			html
 				text: 'Carrera: ' , each career;
-				break.
-			html
-				text: 'Resumen: ' , each summary;
-				break ]
+				break. ]
 ]
 
 { #category : #rendering }

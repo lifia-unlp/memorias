@@ -66,9 +66,7 @@ ProjectsListComponent >> render: each on: html [
 				text: 'Financiador: ' , each fundingAgency;
 				break.
 			html
-				text: 'Monto: ' , each amount;
-				break.
-			html text: 'Resumen: ' , each summary ]
+				text: 'Monto: ' , each amount]
 ]
 
 { #category : #rendering }
