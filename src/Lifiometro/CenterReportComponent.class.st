@@ -31,7 +31,8 @@ Class {
 		'selectedYears',
 		'older',
 		'indexComponent',
-		'misc'
+		'misc',
+		'showSummaries'
 	],
 	#category : #'Lifiometro-Reports'
 }
@@ -56,6 +57,7 @@ CenterReportComponent >> initialize [
 	thesisPlot := YearlyEvolutionPlotSubcomponent new.
 	thesisPlot title: 'Evolución de las tesis y tesinas concluidas'.
 	indexComponent := IndexInjectorComponent new. 
+	showSummaries := false. 
 	self initializeCheckboxesComponent
 ]
 
@@ -228,6 +230,7 @@ CenterReportComponent >> renderContentOn: html [
 	html div
 		id: 'page';
 		with: [ self renderReportHeaderOn: html.
+			self renderShowSummariesSelectorOn: html.
 			html render: checkboxesComponent .
 			html horizontalRule .
 			self renderIndexOn: html.
@@ -421,11 +424,12 @@ CenterReportComponent >> renderProject: each on: html [
 				of: each
 				labeled: 'Monto'
 				on: html.
-			self
-				render: #summary
-				of: each
-				labeled: 'Resumen'
-				on: html.
+			showSummaries ifTrue: [
+				self
+					render: #summary
+					of: each
+					labeled: 'Resumen'
+					on: html ].
 			html anchor
 				target: '_blank';
 				url: '/' , (ProjectReportComponent relativeUrlFor: each);
@@ -600,11 +604,12 @@ CenterReportComponent >> renderScholarship: each on: html [
 				of: each
 				labeled: 'Tipo de beca'
 				on: html.
-			self
-				render: #summary
-				of: each
-				labeled: 'Resumen'
-				on: html ]
+			showSummaries ifTrue: [
+				self
+					render: #summary
+					of: each
+					labeled: 'Resumen'
+					on: html ] ]
 ]
 
 { #category : #'rendering-scholarhips' }
@@ -612,6 +617,22 @@ CenterReportComponent >> renderScholarshipReportOn: html [
 
 	self renderActiveScholarshipReportOn: html.
 	self renderFinishedScholarshipReportOn: html
+]
+
+{ #category : #rendering }
+CenterReportComponent >> renderShowSummariesSelectorOn: html [
+
+	html paragraph: [
+		html text: 'Resúmenes de proyectos, becas y tesis: '.
+		showSummaries
+			ifTrue: [
+				html anchor
+					callback: [ self toggleShowSummaries  ];
+					with: [ html tbsGlyphIcon iconEyeOpen   ] ]
+			ifFalse: [
+				html anchor
+					callback: [ self toggleShowSummaries ];
+					with: [html tbsGlyphIcon iconEyeClose]  ] ]
 ]
 
 { #category : #'rendering-thesis' }
@@ -663,11 +684,12 @@ CenterReportComponent >> renderThesis: each on: html [
 				of: each
 				labeled: 'Carrera'
 				on: html.
-			self
-				render: #summary
-				of: each
-				labeled: 'Resumen'
-				on: html.
+			showSummaries ifTrue: [
+					self
+						render: #summary
+						of: each
+						labeled: 'Resumen'
+						on: html ].
 			self renderLinkToThesisProfile: each on: html ]
 ]
 
@@ -839,4 +861,10 @@ h1 {
 }
 
 '
+]
+
+{ #category : #callbacks }
+CenterReportComponent >> toggleShowSummaries [ 
+
+  showSummaries := showSummaries not
 ]
