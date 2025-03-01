@@ -30,6 +30,11 @@ LifianEditorComponent >> renderPropertyEditorsOn: html [
 		instructions: nil
 		on: html.
 	self
+		renderTextInputEditorFor: 'avatarUrl'
+		label: 'URL de foto (o avatar)'
+		instructions: 'URL pública de una foto o avatar para incluir en el perfil. Idealmente de 120x120 px.'
+		on: html.
+	self
 		renderSelectionEditorFor: 'positionAtLIFIA'
 		label: 'Función actual'
 		values: {'Investigador' . 'Personal de apoyo'. 'Estudiante de grado' . 'Estudiante de posgrado'. 'Investigador externo'}

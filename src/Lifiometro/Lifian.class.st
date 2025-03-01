@@ -29,7 +29,8 @@ Class {
 		'researchGateProfile',
 		'phone',
 		'webPage',
-		'affiliations'
+		'affiliations',
+		'avatarUrl'
 	],
 	#category : #'Lifiometro-Model'
 }
@@ -67,6 +68,18 @@ Lifian >> affiliations [
 { #category : #accessing }
 Lifian >> affiliations: anObject [
 	affiliations := anObject
+]
+
+{ #category : #accessing }
+Lifian >> avatarUrl [
+
+	^ avatarUrl
+]
+
+{ #category : #accessing }
+Lifian >> avatarUrl: anObject [
+
+	avatarUrl := anObject
 ]
 
 { #category : #accessing }
@@ -280,7 +293,7 @@ Lifian >> projects: anObject [
 
 { #category : #accessing }
 Lifian >> propertyNames [
-	^ #(firstName lastName highestDegree coursesAtUNLP startDate endDate positionAtLIFIA positionAtUnlp category sicadiCategory positionAtCIC positionAtCONICET projects publications advicedThesis advicedScholarships personalEmail institutionalEmail shortCvInSpanish shortCvInEnglish relatedProjects interestsInEnglish interestsInSpanish  notes orcid dblpProfile googleResearchProfile researchGateProfile phone webPage affiliations)
+	^ #(firstName lastName highestDegree coursesAtUNLP startDate endDate positionAtLIFIA positionAtUnlp category sicadiCategory positionAtCIC positionAtCONICET projects publications advicedThesis advicedScholarships personalEmail institutionalEmail shortCvInSpanish relatedProjects notes orcid dblpProfile googleResearchProfile researchGateProfile phone webPage affiliations avatarUrl)
 		collect: #asString
 ]
 

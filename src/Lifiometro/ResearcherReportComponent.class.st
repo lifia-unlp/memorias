@@ -34,7 +34,7 @@ ResearcherReportComponent >> fetchReport [
 ResearcherReportComponent >> renderExternalLinksOn: html [
 	report researcher orcid 
 		ifNotNilNotEmpty: [ :it | 
-			html text: 'ORCID: '.
+			html strong: 'ORCID: '.
 			html anchor
 				url: it;
 				target: '_blank';
@@ -42,7 +42,7 @@ ResearcherReportComponent >> renderExternalLinksOn: html [
 			html break ].
 	report researcher webPage
 		ifNotNilNotEmpty: [ :it | 
-			html text: 'Página web: '.
+			html strong: 'Página web: '.
 			html anchor
 				url: it;
 				target: '_blank';
@@ -50,7 +50,7 @@ ResearcherReportComponent >> renderExternalLinksOn: html [
 			html break ].
 	report researcher researchGateProfile
 		ifNotNilNotEmpty: [ :it | 
-			html text: 'Perfil en Research Gate: '.
+			html strong: 'Perfil en Research Gate: '.
 			html anchor
 				url: it;
 				target: '_blank';
@@ -58,7 +58,7 @@ ResearcherReportComponent >> renderExternalLinksOn: html [
 			html break ].
 	report researcher googleResearchProfile
 		ifNotNilNotEmpty: [ :it | 
-			html text: 'Perfil en Google Scholar: '.
+			html strong: 'Perfil en Google Scholar: '.
 			html anchor
 				url: it;
 				target: '_blank';
@@ -66,7 +66,7 @@ ResearcherReportComponent >> renderExternalLinksOn: html [
 			html break ].
 	report researcher dblpProfile
 		ifNotNilNotEmpty: [ :it | 
-			html text: 'Perfil en DBLP: '.
+			html strong: 'Perfil en DBLP: '.
 			html space.
 			html anchor
 				url: it;
@@ -79,40 +79,52 @@ ResearcherReportComponent >> renderExternalLinksOn: html [
 { #category : #rendering }
 ResearcherReportComponent >> renderPropertiesOn: html [
 
+	report researcher avatarUrl ifNotNil: [ :it |
+		html image
+			style: 'margin: 20px;';
+			url: it;
+			width: 120 ].
+
 	html paragraph: [
 		html
-			text: 'Nombre: ' , report researcher firstName;
-			break.
-		html
-			text: 'Apellido: ' , report researcher lastName;
+			strong: 'Apellido, nombre: ';
+			text:
+				report researcher lastName , ', ' , report researcher firstName;
 			break.
 		report researcher startDate ifNotNil: [ :it |
 			html
-				text: 'Ingreso: ' , it mmddyyyy;
+				strong: 'Ingreso al LIFIA: ';
+				text: it mmddyyyy;
 				break ].
 		report researcher endDate ifNotNil: [ :it |
 			html
-				text: 'Egreso: ' , it mmddyyyy;
+				strong: 'Egreso: ';
+				text: it mmddyyyy;
 				break ].
 		report researcher highestDegree ifNotNilNotEmpty: [ :it |
 			html
-				text: 'Título máximo: ' , it;
+				strong: 'Título máximo: ';
+				text: it;
 				break ].
 		report researcher institutionalEmail ifNotNilNotEmpty: [ :it |
 			html
-				text: 'E-mail: ' , it;
+				strong: 'E-mail: ';
+				text: it;
 				break ].
 		report researcher affiliations ifNotNilNotEmpty: [ :it |
 			html
-				text: 'Afiliaciones: ' , it;
+				strong: 'Afiliaciones: ';
+				text: it;
 				break ].
 		report researcher category ifNotNilNotEmpty: [ :it |
 			html
-				text: 'Categoría en el programa de incentivos: ' , it;
+				strong: 'Categoría en el programa de incentivos: ';
+				text: it;
 				break ].
 		report researcher sicadiCategory ifNotNilNotEmpty: [ :it |
 			html
-				text: 'Categoría en SICADI-UNLP: ' , it;
+				strong: 'Categoría en SICADI-UNLP: ';
+				text: it;
 				break ].
 
 		self renderExternalLinksOn: html.
@@ -130,6 +142,16 @@ ResearcherReportComponent >> renderResearchersOn: html [
 { #category : #rendering }
 ResearcherReportComponent >> renderTitleOn: html [
 	html heading level1 with: report researcher fullName
+]
+
+{ #category : #rendering }
+ResearcherReportComponent >> style [
+
+	^ super style , '
+	
+strong {
+       color: #004061;
+}'
 ]
 
 { #category : #rendering }
