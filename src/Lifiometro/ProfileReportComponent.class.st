@@ -90,7 +90,7 @@ ProfileReportComponent >> renderPublicationsOn: html [
 		add: 'Publicaciones en conferencias' -> report inproceedingsPublications;
 		add: 'Libros' -> report bookPublications;
 		add: 'Partes de libros' -> report inbookPublications;
-		add: 'Otras publicaciones' -> report miscPublications;
+		add: 'Otras publicaciones' -> report otherPublications;
 		yourself.
 	publications
 		do: [ :ass | 

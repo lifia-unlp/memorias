@@ -102,6 +102,11 @@ BibtexReference >> doi [
 ]
 
 { #category : #accessing }
+BibtexReference >> edition [
+	^ bibtexEntry edition
+]
+
+{ #category : #accessing }
 BibtexReference >> editors [
 	^ self withSimplifiedAnds: bibtexEntry editor
 ]

@@ -14,7 +14,7 @@ Class {
 		'scholarships',
 		'specializationThesis',
 		'researchers',
-		'miscPublications'
+		'otherPublications'
 	],
 	#category : #'Lifiometro-Reports'
 }
@@ -142,8 +142,9 @@ GeneralReport >> mastersThesis [
 ]
 
 { #category : #accessing }
-GeneralReport >> miscPublications [ 
-	^ miscPublications
+GeneralReport >> otherPublications [
+
+	^ otherPublications
 ]
 
 { #category : #accessing }
@@ -225,24 +226,26 @@ GeneralReport >> years: anObject [
 
 { #category : #initialization }
 GeneralReport >> years: theYears projects: theProjects publications: thePublications researchers: theResearchers scholarships: theScholarships thesis: theThesis [
+
 	years := theYears.
 	projects := theProjects.
-	inbookPublications := thePublications
-		select: [ :each | each type = 'inbook' ].
-	articlePublications := thePublications
-		select: [ :each | each type = 'article' ].
-	bookPublications := thePublications
-		select: [ :each | each type = 'book' ].
-	inproceedingsPublications := thePublications
-		select: [ :each | each type = 'inproceedings' ].
-   miscPublications := thePublications
-		select: [ :each | each type = 'misc' ].
+	inbookPublications := thePublications select: [ :each |
+		                      each type = 'inbook' ].
+	articlePublications := thePublications select: [ :each |
+		                       each type = 'article' ].
+	bookPublications := thePublications select: [ :each |
+		                    each type = 'book' ].
+	inproceedingsPublications := thePublications select: [ :each |
+		                             each type = 'inproceedings' ].
+	otherPublications := thePublications reject: [ :each |
+		                     { 'article'. 'inproceedings'. 'inbook'. 'book' }
+			                     includes: each type ].
 	researchers := theResearchers.
 	scholarships := theScholarships.
-	undergraduateThesis := theThesis
-		select: [ :each | each level = 'Undergraduate' ].
+	undergraduateThesis := theThesis select: [ :each |
+		                       each level = 'Undergraduate' ].
 	phdThesis := theThesis select: [ :each | each level = 'PhD' ].
 	mastersThesis := theThesis select: [ :each | each level = 'Masters' ].
-	specializationThesis := theThesis
-		select: [ :each | each level = 'Specialization' ]
+	specializationThesis := theThesis select: [ :each |
+		                        each level = 'Specialization' ]
 ]

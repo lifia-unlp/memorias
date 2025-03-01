@@ -7,7 +7,7 @@ Class {
 		'scholarships',
 		'thesis'
 	],
-	#category : 'Lifiometro-Reports'
+	#category : #'Lifiometro-Reports'
 }
 
 { #category : #accessing }
@@ -31,8 +31,11 @@ IndividualReport >> inproceedingsPublications [
 ]
 
 { #category : #accessing }
-IndividualReport >> miscPublications [
-	^ publications select: [ :each | each type = 'misc' ]
+IndividualReport >> otherPublications [
+
+	^ publications reject: [ :each |
+		  { 'article'. 'inproceedings'. 'inbook'. 'book' } includes:
+			  each type ]
 ]
 
 { #category : #accessing }

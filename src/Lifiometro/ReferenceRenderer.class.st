@@ -11,6 +11,13 @@ ReferenceRenderer >> render: aReference on: aCanvas [
 ]
 
 { #category : #rendering }
+ReferenceRenderer >> renderAuthorsOf: aReference on: aCanvas [
+
+	aReference authors ifNotNilNotEmpty: [ :authors |
+		aCanvas text: authors , '. ' ].
+]
+
+{ #category : #rendering }
 ReferenceRenderer >> renderBibtexAvailableIconFor: aBibtexEntry on: aCanvas [
 
 	| iconTag escapedBibtexEntry |
@@ -28,63 +35,60 @@ ReferenceRenderer >> renderBibtexAvailableIconFor: aBibtexEntry on: aCanvas [
 			, '''); alert(''Copiado'');'
 ]
 
-{ #category : #rendering }
+{ #category : #'rendering-types' }
 ReferenceRenderer >> renderBookReference: aReference on: aCanvas [
 
-	aReference authors ifNotNilNotEmpty: [ :authors |
-		aCanvas text: authors , ', ' ].
-	aReference editors ifNotNilNotEmpty: [ :editors |
-		aCanvas text: editors , ', ed(s)., ' ].
-	
-	aCanvas text: aReference title.
-	aReference address ifNotNilNotEmpty: [
-		aCanvas text: ', ' , aReference address ].
-	aReference year ifNotNilNotEmpty: [
-		aCanvas text: ', ' , aReference year ].
+	self renderAuthorsOf: aReference on: aCanvas.
+	self renderYearOf: aReference on: aCanvas.
+	aCanvas emphasis: [ self renderTitleOf: aReference on: aCanvas ].
+
+
+	aReference edition ifNotNilNotEmpty: [ :it |
+		aCanvas text: it , ' ed. ' ].
+	aReference publisher ifNotNilNotEmpty: [ :it |
+		aCanvas text: it.
+		aReference address ifNotNilNotEmpty: [ :add |
+			aCanvas text: ', ' , add , '. ' ] ].
+	self renderDoiOf: aReference on: aCanvas.
 	self renderDownloadIconFor: aReference on: aCanvas
 ]
 
-{ #category : #rendering }
+{ #category : #'rendering-types' }
 ReferenceRenderer >> renderChapterReference: aReference on: aCanvas [
-
-	aCanvas text: aReference authors.
-	aCanvas emphasis: ', "' , aReference title , '"'.
-	aCanvas text: ', in ' , aReference booktitle.
-	aReference volume ifNotNilNotEmpty: [
-		aCanvas text: ', vol. ' , aReference volume ].
-	aReference editors ifNotNilNotEmpty: [
-		aCanvas text: ', ' , aReference editors , ', ed(s).' ].
-	aReference publisher ifNotNilNotEmpty: [
-		aCanvas text: ' ' , aReference publisher ].
-	aReference year ifNotNilNotEmpty: [
-		aCanvas text: ', ' , aReference year ].
-
-	aReference pages ifNotNilNotEmpty: [
-		aCanvas text: ', pp. ' , aReference pages ].
-	aCanvas text: '.'.
-	aReference doi ifNotNilNotEmpty: [ :doi |
-		self renderDoi: doi on: aCanvas ].
+	self renderAuthorsOf: aReference on: aCanvas.
+	self renderYearOf: aReference on: aCanvas.
+	self renderTitleOf: aReference on: aCanvas.
+	aReference booktitle ifNotNilNotEmpty: [ :it |
+		aCanvas text: ' In '.
+		aCanvas emphasis: [ aCanvas text: it ].
+		aCanvas text: '. ' ].
+	aReference editors ifNotNilNotEmpty: [ :it | aCanvas text: it, ' (Eds.). ' ].
+	aReference edition ifNotNilNotEmpty: [ :it | aCanvas text: it, ' ed. ' ].
+	aReference publisher ifNotNilNotEmpty: [ :it |
+		aCanvas text: it.
+		aReference address ifNotNilNotEmpty: [ :add |
+			aCanvas text: ', ' , add , ',' ].  ].
+	aReference pages ifNotNilNotEmpty: [ :it | aCanvas text: ' ' , it, '. ' ].
+	self renderDoiOf: aReference on: aCanvas.
 	self renderDownloadIconFor: aReference on: aCanvas
 ]
 
-{ #category : #rendering }
+{ #category : #'rendering-types' }
 ReferenceRenderer >> renderConferenceArticleReference: aReference on: aCanvas [
 
-	aCanvas text: aReference authors.
-	aCanvas emphasis: ', "' , aReference title , '"'.
-	aCanvas text: ', in ' , aReference booktitle.
-	aReference volume ifNotNilNotEmpty: [
-		aCanvas text: ', vol. ' , aReference volume ].
-	aReference address ifNotNilNotEmpty: [
-		aCanvas text: ', ' , aReference address ].
-	aReference year ifNotNilNotEmpty: [
-		aCanvas text: ', ' , aReference year ].
-
-	aReference pages ifNotNilNotEmpty: [
-		aCanvas text: ', pp. ' , aReference pages ].
-	aCanvas text: '.'.
-	aReference doi ifNotNilNotEmpty: [ :doi |
-		self renderDoi: doi on: aCanvas ].
+	self renderAuthorsOf: aReference on: aCanvas.
+	self renderYearOf: aReference on: aCanvas.
+	self renderTitleOf: aReference on: aCanvas.
+	aReference booktitle ifNotNilNotEmpty: [ :it |
+		aCanvas text: ' In '.
+		aCanvas emphasis: [ aCanvas text: it ].
+		aCanvas text: '. ' ].
+	aReference publisher ifNotNilNotEmpty: [ :it |
+		aCanvas text: it.
+		aReference address ifNotNilNotEmpty: [ :add |
+			aCanvas text: ', ' , add , ',' ].  ].
+	aReference pages ifNotNilNotEmpty: [ :it | aCanvas text: ' ' , it, '. ' ].
+	self renderDoiOf: aReference on: aCanvas.
 	self renderDownloadIconFor: aReference on: aCanvas
 ]
 
@@ -95,9 +99,17 @@ ReferenceRenderer >> renderDoi: doi on: aCanvas [
 	realDoi := doi startsWithDigit
 		           ifTrue: [ 'https://doi.org/' , doi ]
 		           ifFalse: [ doi ].
-	^ aCanvas anchor
-		  url: realDoi;
-		  with: ' ' , doi , ' .'
+	aCanvas text: ' DOI:'.
+	aCanvas anchor
+		url: realDoi;
+		with: realDoi
+]
+
+{ #category : #rendering }
+ReferenceRenderer >> renderDoiOf: aReference on: aCanvas [
+
+	aReference doi ifNotNilNotEmpty: [ :doi |
+		self renderDoi: doi on: aCanvas ]
 ]
 
 { #category : #rendering }
@@ -113,25 +125,57 @@ ReferenceRenderer >> renderDownloadIconFor: aReference on: aCanvas [
 ]
 
 { #category : #rendering }
+ReferenceRenderer >> renderEditorsOf: aReference on: aCanvas [
+
+	aReference editors ifNotNilNotEmpty: [ :it |
+		aCanvas text: 'In ' , it , ' (Ed.), ' ]
+]
+
+{ #category : #'rendering-types' }
 ReferenceRenderer >> renderJournalArticleReference: aReference on: aCanvas [
 
-	aCanvas text: aReference authors.
-	aCanvas emphasis: ', "' , aReference title , '"'.
-	aCanvas text: ', ' , aReference journal.
+	self renderAuthorsOf: aReference on: aCanvas.
+	self renderYearOf: aReference on: aCanvas.
+	self renderTitleOf: aReference on: aCanvas.
+	aReference journal ifNotNilNotEmpty: [ :it |
+		aCanvas emphasis: [ aCanvas text: it ] ].
 	aReference volume ifNotNilNotEmpty: [
-		aCanvas text: ', vol. ' , aReference volume ].
-	aReference number ifNotNilNotEmpty: [ ', ' , aReference number ].
-	aReference pages ifNotNilNotEmpty: [
-		aCanvas text: ', pp. ' , aReference pages ].
-	aCanvas text: ', ' , aReference year , '.'.
-	aReference doi ifNotNilNotEmpty: [ :doi |
-		self renderDoi: doi on: aCanvas ].
+		aReference number ifNotNilNotEmpty: [ :it |
+			aCanvas text:
+				' ' , aReference volume , ', ' , aReference number , ' ('
+				, aReference year , ')' ] ].
+	aReference pages ifNotNilNotEmpty: [ :it | aCanvas text: ', ' , it ].
+	aCanvas text: '. '.
+	self renderDoiOf: aReference on: aCanvas.
 	self renderDownloadIconFor: aReference on: aCanvas
 ]
 
 { #category : #rendering }
+ReferenceRenderer >> renderJournalOf: aReference on: aCanvas [
+
+	aReference journal ifNotNilNotEmpty: [ :it | aCanvas text: it].
+	aCanvas text: '42, 1'.
+	aReference year ifNotNilNotEmpty: [ :it |
+		aCanvas text: ' (' , it , ')' ].
+
+]
+
+{ #category : #'rendering-types' }
 ReferenceRenderer >> renderRawReference: aRawReference on: aCanvas [
 
 	aCanvas text: aRawReference asReference.
 	self renderDownloadIconFor: aRawReference on: aCanvas
+]
+
+{ #category : #rendering }
+ReferenceRenderer >> renderTitleOf: aReference on: aCanvas [
+
+	aReference title ifNotNilNotEmpty: [ :it | aCanvas text: it, '. ' ]
+]
+
+{ #category : #rendering }
+ReferenceRenderer >> renderYearOf: aReference on: aCanvas [
+
+	aReference year ifNotNilNotEmpty: [ :it |
+		aCanvas text: '', it, '. ' ].
 ]

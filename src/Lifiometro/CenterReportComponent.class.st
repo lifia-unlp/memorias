@@ -109,7 +109,7 @@ CenterReportComponent >> initializePublicationTypeCheckboxes [
 		                 labeled: 'Artículos de conferencias'.
 	inbook := list addCheckboxFor: 'inbook' labeled: 'Capítulos de libro'.
 	book := list addCheckboxFor: 'book' labeled: 'Libros'.
-	misc := list addCheckboxFor: 'misc' labeled: 'Otros (misc)'.
+	misc := list addCheckboxFor: 'other' labeled: 'Otros'.
 	list checkAll
 ]
 
@@ -363,10 +363,10 @@ CenterReportComponent >> renderMembers: aCollection heading: aHeading on: html [
 ]
 
 { #category : #'rendering-publications' }
-CenterReportComponent >> renderMiscPublicationsReportOn: html [
+CenterReportComponent >> renderOtherPublicationsReportOn: html [
 
 	| articles |
-	articles := self report miscPublications.
+	articles := self report otherPublications.
 	html heading
 		level2;
 		id: 'misc';
@@ -451,26 +451,6 @@ CenterReportComponent >> renderPublicationsIn: aCollection on: html [
 			with: [ renderer render: each on: html ] ]
 ]
 
-{ #category : #rendering }
-CenterReportComponent >> renderPublicationsIndexOn: html [
-	html
-		listItem: [ html anchor
-				url: '#article';
-				with: 'Publicaciones en revistas' ].
-	html
-		listItem: [ html anchor
-				url: '#inproceedings';
-				with: 'Publicaciones en conferencias' ].
-	html
-		listItem: [ html anchor
-				url: '#inbook';
-				with: 'Capítulos de libros' ].
-	html
-		listItem: [ html anchor
-				url: '#book';
-				with: 'Libros' ]
-]
-
 { #category : #'rendering-publications' }
 CenterReportComponent >> renderPublicationsPlotOn: html [
 
@@ -495,7 +475,7 @@ CenterReportComponent >> renderPublicationsReportOn: html [
 		self renderInProceedingsPublicationsReportOn: html ].
 	inbook checked ifTrue: [ self renderInBookPublicationsReportOn: html ].
 	book checked ifTrue: [ self renderBookPublicationsReportOn: html ].
-	misc checked ifTrue: [ self renderMiscPublicationsReportOn: html ]
+	misc checked ifTrue: [ self renderOtherPublicationsReportOn: html ]
 ]
 
 { #category : #rendering }
@@ -704,26 +684,6 @@ CenterReportComponent >> renderThesisCollection: aCollectionOfThesis withHeading
 		with: aHeading.
 	(self sortDescencingByEndDate: aCollectionOfThesis) do: [ :each |
 		self renderThesis: each on: html ]
-]
-
-{ #category : #rendering }
-CenterReportComponent >> renderThesisIndexOn: html [
-	html
-		listItem: [ html anchor
-				url: '#phd';
-				with: 'Doctorado' ].
-	html
-		listItem: [ html anchor
-				url: '#masters';
-				with: 'Maestría (tesis)' ].
-	html
-		listItem: [ html anchor
-				url: '#specialization';
-				with: 'Especialización (trabajo final)' ].
-	html
-		listItem: [ html anchor
-				url: '#undergraduate';
-				with: 'Grado (tesina)' ]
 ]
 
 { #category : #'rendering-thesis' }
