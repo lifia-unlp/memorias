@@ -442,12 +442,16 @@ CenterReportComponent >> renderPublication: each on: html [
 { #category : #'rendering-publications' }
 CenterReportComponent >> renderPublicationsIn: aCollection on: html [
 
-	| renderer |
+	| renderer currentYear |
+	currentYear := 0.
 	renderer := ReferenceRenderer new.
 	(aCollection asSortedCollection: [ :a :b | a year > b year ]) do: [
 		:each |
+		currentYear ~= each year ifTrue: [
+			currentYear := each year.
+			html paragraph: '-' , each year greaseString , '-' ].
 		html paragraph
-			style: 'padding-left:5px;';
+			style: 'margin-left:20px;';
 			with: [ renderer render: each on: html ] ]
 ]
 

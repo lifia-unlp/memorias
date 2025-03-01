@@ -38,7 +38,12 @@ ReferenceRenderer >> renderBibtexAvailableIconFor: aBibtexEntry on: aCanvas [
 { #category : #'rendering-types' }
 ReferenceRenderer >> renderBookReference: aReference on: aCanvas [
 
-	self renderAuthorsOf: aReference on: aCanvas.
+	aReference authors
+		ifEmpty: [
+			aReference editors ifNotNilNotEmpty: [ :it |
+				aCanvas text: it , ' (Eds.). ' ] ]
+		ifNotEmpty: [ self renderAuthorsOf: aReference on: aCanvas ].
+
 	self renderYearOf: aReference on: aCanvas.
 	aCanvas emphasis: [ self renderTitleOf: aReference on: aCanvas ].
 

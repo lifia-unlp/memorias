@@ -82,21 +82,39 @@ ProfileReportComponent >> renderPublication: each on: html [
 ]
 
 { #category : #rendering }
+ProfileReportComponent >> renderPublications: aCollectionOfPublications withYearlyStepsOn: html [
+
+	| currentYear |
+	aCollectionOfPublications ifEmpty: [ ^ self ].
+	currentYear := 0.
+	aCollectionOfPublications do: [ :each |
+		currentYear ~= each year ifTrue: [
+			currentYear := each year.
+			html paragraph: '-' , each year greaseString , '-' ].
+		self renderPublication: each on: html ]
+]
+
+{ #category : #rendering }
 ProfileReportComponent >> renderPublicationsOn: html [
+
 	| publications |
 	html heading level2 with: 'Publicaciones'.
 	publications := OrderedCollection new
-		add: 'Publicaciones en revistas' -> report articlePublications;
-		add: 'Publicaciones en conferencias' -> report inproceedingsPublications;
-		add: 'Libros' -> report bookPublications;
-		add: 'Partes de libros' -> report inbookPublications;
-		add: 'Otras publicaciones' -> report otherPublications;
-		yourself.
-	publications
-		do: [ :ass | 
-			ass value
-				ifNotEmpty: [ html label with: ass key.
-					ass value do: [ :each | self renderPublication: each on: html ] ] ]
+		                add:
+			                'Publicaciones en revistas'
+			                -> report articlePublications;
+		                add:
+			                'Publicaciones en conferencias'
+			                -> report inproceedingsPublications;
+		                add: 'Libros' -> report bookPublications;
+		                add: 'Partes de libros' -> report inbookPublications;
+		                add:
+			                'Otras publicaciones' -> report otherPublications;
+		                yourself.
+	publications do: [ :ass |
+		ass value ifNotEmpty: [
+			html label with: ass key.
+			self renderPublications: ass value withYearlyStepsOn: html ] ]
 ]
 
 { #category : #rendering }
