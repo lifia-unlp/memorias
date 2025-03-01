@@ -6,7 +6,7 @@ app
 "
 Class {
 	#name : #CenterReportComponent,
-	#superclass : #PublicReportComponent,
+	#superclass : #ReportComponent,
 	#instVars : [
 		'report',
 		'publicationsPlot',
@@ -260,16 +260,6 @@ CenterReportComponent >> renderDownloadIconFor: each on: html [
 						with: [ html tbsGlyphIcon iconDownloadAlt ] ] ]
 ]
 
-{ #category : #'rendering-researchers' }
-CenterReportComponent >> renderExternalResearchersOn: html [
-	self
-		renderMembers:
-			(report researchers
-				select: [ :each | each positionAtLIFIA = 'Investigador externo' ])
-		heading: 'Investigadores externos'
-		on: html
-]
-
 { #category : #'rendering-projects' }
 CenterReportComponent >> renderFinishedProjectsReportOn: html [
 
@@ -293,16 +283,6 @@ CenterReportComponent >> renderFinishedScholarshipReportOn: html [
 		with: 'Becas y estancias concluídas'.
 	report finishedScholarships do: [ :each |
 		self renderScholarship: each on: html ]
-]
-
-{ #category : #'rendering-researchers' }
-CenterReportComponent >> renderGraduateStudentsOn: html [
-	self
-		renderMembers:
-			(report researchers
-				select: [ :each | each positionAtLIFIA = 'Estudiante de posgrado' ])
-		heading: 'Estudiantes de posgrado'
-		on: html
 ]
 
 { #category : #'rendering-publications' }
@@ -342,24 +322,6 @@ CenterReportComponent >> renderLinkToThesisProfile: aThesis on: html [
 	html anchor
 		url: '/' , (ThesisReportComponent relativeUrlFor: aThesis);
 		with: 'Mas detalles'
-]
-
-{ #category : #'rendering-researchers' }
-CenterReportComponent >> renderMembers: aCollection heading: aHeading on: html [
-	html heading
-		level2;
-		with: aHeading .
-	html
-		tbsTable: [ html
-				tableHead: [ html
-						tableHeading: 'Nombre';
-						tableHeading: 'Ingreso';
-						tableHeading: 'Egreso';
-						tableHeading: 'Memoria técnica' ].
-			html
-				tableBody: [ (aCollection 
-						asSortedCollection: [ :a :b | a fullName < b fullName ])
-						do: [ :each | self renderResearcher: each on: html ] ] ]
 ]
 
 { #category : #'rendering-publications' }
@@ -504,41 +466,6 @@ CenterReportComponent >> renderReportOn: html [
 		renderThesisReportOn: html;
 		renderScholarshipReportOn: html;
 		renderProjectsReportOn: html.
-	html heading
-		level1;
-		id: 'researchers';
-		with: 'Participantes'.
-	self
-		renderResearchersOn: html;
-		renderSupportStaffOn: html;
-		renderGraduateStudentsOn: html;
-		renderUndergraduateStudentsOn: html;
-		renderExternalResearchersOn: html
-]
-
-{ #category : #'rendering-researchers' }
-CenterReportComponent >> renderResearcher: each on: html [
-	html
-		tableRow: [ html
-				tableData: each fullName;
-				tableData: [ each startDate ifNotNil: [ :it | html text: it ddmmyyyy ] ];
-				tableData: [ each endDate
-						ifNotNil: [ :it | html text: it ddmmyyyy ]
-						ifNil: [ html text: '-' ] ];
-				tableData: [ html anchor
-						target: '_blank';
-						url: '/' , (ResearcherReportComponent relativeUrlFor: each);
-						with: 'Mas detalles' ] ]
-]
-
-{ #category : #'rendering-researchers' }
-CenterReportComponent >> renderResearchersOn: html [
-	self
-		renderMembers:
-			(self report researchers
-				select: [ :each | each positionAtLIFIA = 'Investigador' ])
-		heading: 'Investigadores'
-		on: html
 ]
 
 { #category : #'rendering-scholarhips' }
@@ -608,17 +535,6 @@ CenterReportComponent >> renderShowSummariesSelectorOn: html [
 				html anchor
 					callback: [ self toggleShowSummaries ];
 					with: [html tbsGlyphIcon iconEyeClose]  ] ]
-]
-
-{ #category : #'rendering-researchers' }
-CenterReportComponent >> renderSupportStaffOn: html [
-
-	self
-		renderMembers: (report researchers select: [ :each |
-				 each positionAtLIFIA = 'Personal de apoyo'
-				 | each positionAtLIFIA isNil ])
-		heading: 'Personal de apoyo'
-		on: html
 ]
 
 { #category : #'rendering-thesis' }
@@ -756,16 +672,6 @@ CenterReportComponent >> renderThesisReportOn: html [
 			renderThesisCollection: report finishedUndergraduateThesis
 			withHeading: 'Tesinas de grado concluídas'
 			on: html ]
-]
-
-{ #category : #'rendering-researchers' }
-CenterReportComponent >> renderUndergraduateStudentsOn: html [
-	self
-		renderMembers:
-			(report researchers
-				select: [ :each | each positionAtLIFIA = 'Estudiante de grado' ])
-		heading: 'Estudiantes de grado'
-		on: html
 ]
 
 { #category : #report }

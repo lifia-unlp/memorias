@@ -1,6 +1,6 @@
 Class {
 	#name : #SimpleListReportComponent,
-	#superclass : #PublicReportComponent,
+	#superclass : #ReportComponent,
 	#instVars : [
 		'sections'
 	],
