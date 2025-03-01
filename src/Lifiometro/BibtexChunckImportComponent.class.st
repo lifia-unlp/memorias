@@ -13,9 +13,8 @@ Class {
 { #category : #callbacks }
 BibtexChunckImportComponent >> accept [
 	bibtexEntry type = 'incollection' & newType isNil
-		ifTrue: [ ^ error := 'Seleccione otro tipo en remplazo de incollection' ].
-	newType notNil
-		ifTrue: [ bibtexEntry type: newType ].
+		ifTrue: [ ^ error := 'Seleccione otro tipo en lugar de "incollection"' ].
+	newType ifNotNil: [ bibtexEntry type: newType ].
 	self
 		answer: (BibtexReference bibtexEntry: bibtexEntry) cleanupLatexAccentsAndBraces
 ]
@@ -183,11 +182,16 @@ BibtexChunckImportComponent >> renderIncollectionDesambiguationOn: html [
 
 { #category : #callbacks }
 BibtexChunckImportComponent >> types [
+
 	^ Dictionary new
-		at: 'inproceedings' put: 'Artículo de revista';
-		at: 'article' put: 'Artículo de revista';
-		at: 'book' put: 'Libro';
-		at: 'inbook' put: 'Parte de libro';
-		at: 'incollection' put: 'Parte de libro';
-		yourself
+		  at: 'inproceedings' put: 'Articulo de conferencia';
+		  at: 'article' put: 'Artículo de revista';
+		  at: 'book' put: 'Libro';
+		  at: 'inbook' put: 'Capítulo de libro';
+		  at: 'techreport' put: 'Reporte técnico';
+		  at: 'phdthesis' put: 'Tesis de doctorado';
+		  at: 'mastersthesis' put: 'Tesis de maestría';
+		  at: 'incollection' put: 'Parte de libro';
+		  at: 'misc' put: 'Otro';
+		  yourself
 ]
