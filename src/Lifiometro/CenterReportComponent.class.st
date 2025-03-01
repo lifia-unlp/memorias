@@ -374,16 +374,6 @@ CenterReportComponent >> renderMiscPublicationsReportOn: html [
 	self renderPublicationsIn: articles on: html
 ]
 
-{ #category : #'rendering-researchers' }
-CenterReportComponent >> renderOtherMembersOn: html [
-	self
-		renderMembers:
-			(report researchers
-				select: [ :each | each positionAtLIFIA isNil ])
-		heading: 'Asistentes de investigación'
-		on: html
-]
-
 { #category : #'rendering-projects' }
 CenterReportComponent >> renderProject: each on: html [
 
@@ -524,6 +514,7 @@ CenterReportComponent >> renderReportHeaderOn: html [
 
 { #category : #rendering }
 CenterReportComponent >> renderReportOn: html [
+
 	self
 		renderPublicationsReportOn: html;
 		renderThesisReportOn: html;
@@ -535,7 +526,7 @@ CenterReportComponent >> renderReportOn: html [
 		with: 'Participantes'.
 	self
 		renderResearchersOn: html;
-		renderOtherMembersOn: html;
+		renderSupportStaffOn: html;
 		renderGraduateStudentsOn: html;
 		renderUndergraduateStudentsOn: html;
 		renderExternalResearchersOn: html
@@ -633,6 +624,17 @@ CenterReportComponent >> renderShowSummariesSelectorOn: html [
 				html anchor
 					callback: [ self toggleShowSummaries ];
 					with: [html tbsGlyphIcon iconEyeClose]  ] ]
+]
+
+{ #category : #'rendering-researchers' }
+CenterReportComponent >> renderSupportStaffOn: html [
+
+	self
+		renderMembers: (report researchers select: [ :each |
+				 each positionAtLIFIA = 'Personal de apoyo'
+				 | each positionAtLIFIA isNil ])
+		heading: 'Personal de apoyo'
+		on: html
 ]
 
 { #category : #'rendering-thesis' }
