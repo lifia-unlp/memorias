@@ -202,6 +202,10 @@ BibtexReference >> renderAsReferenceWith: aRenderer on: aCanvas [
 		aRenderer renderMasterThesisReference: self on: aCanvas ].
 	bibtexEntry type = 'phdthesis' ifTrue: [
 		aRenderer renderPhdThesisReference: self on: aCanvas ].
+	bibtexEntry type = 'misc' ifTrue: [
+		aRenderer renderMiscReference: self on: aCanvas ].
+	bibtexEntry type = 'techreport' ifTrue: [
+		aRenderer renderTechnicalReportReference: self on: aCanvas ].
 	aCanvas space.
 	aRenderer renderBibtexAvailableIconFor: self on: aCanvas
 ]

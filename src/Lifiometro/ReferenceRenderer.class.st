@@ -167,6 +167,20 @@ ReferenceRenderer >> renderMasterThesisReference: aReference on: aCanvas [
 ]
 
 { #category : #'rendering-types' }
+ReferenceRenderer >> renderMiscReference: aReference on: aCanvas [
+
+	self renderAuthorsOf: aReference on: aCanvas.
+	self renderYearOf: aReference on: aCanvas.
+	self renderTitleOf: aReference on: aCanvas.
+	(aReference bibtexEntry at: 'howpublished') ifNotNilNotEmpty: [ :it |
+		aCanvas text: it , '. ' ].
+	(aReference bibtexEntry at: 'note') ifNotNilNotEmpty: [ :it |
+		aCanvas text: it , '. ' ].
+	self renderDoiOf: aReference on: aCanvas.
+	self renderDownloadIconFor: aReference on: aCanvas
+]
+
+{ #category : #'rendering-types' }
 ReferenceRenderer >> renderPhdThesisReference: aReference on: aCanvas [
 
 	self renderThesisReference: aReference type: 'PhD' on: aCanvas
@@ -177,6 +191,24 @@ ReferenceRenderer >> renderRawReference: aRawReference on: aCanvas [
 
 	aCanvas text: aRawReference asReference.
 	self renderDownloadIconFor: aRawReference on: aCanvas
+]
+
+{ #category : #'rendering-types' }
+ReferenceRenderer >> renderTechnicalReportReference: aReference on: aCanvas [
+
+	self renderAuthorsOf: aReference on: aCanvas.
+	self renderYearOf: aReference on: aCanvas.
+	self renderTitleOf: aReference on: aCanvas.
+	aCanvas text: 'Technical Report'.
+	(aReference bibtexEntry at: 'number') ifNotNilNotEmpty: [ :it |
+		aCanvas text: it ].
+	aCanvas text: '. '.
+	aReference publisher ifNotNilNotEmpty: [ :it |
+		aCanvas text: it.
+		aReference address ifNotNilNotEmpty: [ :add |
+			aCanvas text: ', ' , add , '. ' ] ].
+	self renderDoiOf: aReference on: aCanvas.
+	self renderDownloadIconFor: aReference on: aCanvas
 ]
 
 { #category : #'rendering-types' }
