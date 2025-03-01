@@ -113,9 +113,26 @@ ResearcherReportComponent >> renderPropertiesOn: html [
 				break ].
 		report researcher affiliations ifNotNilNotEmpty: [ :it |
 			html
-				strong: 'Afiliaciones: ';
+				strong: 'Otras afiliaciones: ';
 				text: it;
 				break ].
+		report researcher positionAtUnlp ifNotNilNotEmpty: [ :it |
+			html
+				strong: 'Cargo en UNLP: ';
+				text: it;
+				break ].
+		report researcher positionAtCONICET ifNotNilNotEmpty: [ :it |
+			html
+				strong: 'Cargo en CONICET: ';
+				text: it;
+				break ].
+
+		report researcher positionAtCIC ifNotNilNotEmpty: [ :it |
+			html
+				strong: 'Cargo en CICPBA: ';
+				text: it;
+				break ].
+
 		report researcher category ifNotNilNotEmpty: [ :it |
 			html
 				strong: 'Categoría en el programa de incentivos: ';
