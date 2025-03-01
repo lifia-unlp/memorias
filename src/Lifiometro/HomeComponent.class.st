@@ -26,7 +26,6 @@ HomeComponent >> children [
 	projectsListComponent.
 	studentsListComponent.
 	adminComponent.
-	scheduleComponent.
 	lifiansComponent }
 ]
 
@@ -51,9 +50,6 @@ HomeComponent >> initialize [
 		                         parent: self;
 		                         yourself.
 	adminComponent := AdministrationComponent new yourself.
-	scheduleComponent := TabbedScheduleComponent new
-		                     parent: self;
-		                     yourself.
 	lifiansComponent := LifianListComponent new
 		                    parent: self;
 		                    yourself.
