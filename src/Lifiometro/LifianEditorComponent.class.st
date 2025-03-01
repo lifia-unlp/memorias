@@ -121,30 +121,11 @@ LifianEditorComponent >> renderPropertyEditorsOn: html [
 		label: 'Página web'
 		instructions: nil
 		on: html.
-	self
-		renderTextInputEditorFor: 'coursesAtUNLP'
-		label: 'Asignaturas de la UNLP en las que participa'
-		instructions:
-			'Separe con comas e indique entre paréntesis el nivel al que cada asignatura pertenece.'
-		on: html.
+
 	self
 		renderTextInputEditorFor: 'shortCvInSpanish'
 		label: 'CV resumido en español'
 		instructions: 'CV resumido como para incluir en proyectos o en el sitio web'
 		on: html.
-	self
-		renderTextInputEditorFor: 'shortCvInEnglish'
-		label: 'CV resumido en inglés'
-		instructions: 'CV resumido como para incluir en proyectos o en el sitio web'
-		on: html.
-	self
-		renderTextInputEditorFor: 'interestsInSpanish'
-		label: 'Intereses/temas en español'
-		instructions: nil
-		on: html.
-	self
-		renderTextInputEditorFor: 'interestsInEnglish'
-		label: 'Intereses/temas en inglés'
-		instructions: nil
-		on: html
+
 ]
