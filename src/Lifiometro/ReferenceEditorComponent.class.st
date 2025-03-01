@@ -1,12 +1,15 @@
 Class {
 	#name : #ReferenceEditorComponent,
-	#superclass : #TypedItemEditorComponent,
+	#superclass : #PluggableEditorComponent,
+	#instVars : [
+		'newType'
+	],
 	#category : #'Lifiometro-Web-Editors'
 }
 
-{ #category : #utility }
+{ #category : #callbacks }
 ReferenceEditorComponent >> accept [
-	newType isEmptyOrNil
+	newType isEmptyOrNil 
 		ifTrue: [ errors add: 'Debe especificar el tipo' ].
 	(newValues at: 'year' ifAbsentPut: '')
 		ifEmpty: [ errors add: 'Debe especificar el año' ].
@@ -18,16 +21,17 @@ ReferenceEditorComponent >> accept [
 		ifTrue: [ (newValues at: 'reference' ifAbsentPut: '')
 				ifEmpty: [ errors add: 'Debe especificar una referencia en formato ACM' ] ].
 	errors ifNotEmpty: [ ^ self ].
+	item type: newType.
 	super accept
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #defaults }
 ReferenceEditorComponent >> allowedArticleRankings [
 
 	^ { 'Q1'. 'Q2'. 'Q3'. 'Q4'.  'A'. 'B'. 'C'. 'N/A'  }
 ]
 
-{ #category : #utility }
+{ #category : #defaults }
 ReferenceEditorComponent >> allowedTypes [
 	^ Dictionary new
 		at: 'inproceedings' put: 'Articulo de conferencia';
@@ -56,7 +60,19 @@ ReferenceEditorComponent >> renderInputEditorFor: each on: html [
 		ifTrue: [ self renderPublicationRankingDropdownEditorOn: html ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #rendering }
+ReferenceEditorComponent >> renderPropertyEditorsOn: html [
+	| props |
+	props := item propertyNames asOrderedCollection.
+	(props includes: 'title')
+		ifTrue: [ self renderInputEditorFor: 'title' on: html.
+			props remove: 'title' ].
+	self renderTypeEditorOn: html.
+	props remove: 'type' ifAbsent: [  ].
+	props do: [ :each | self renderInputEditorFor: each on: html ].
+]
+
+{ #category : #rendering }
 ReferenceEditorComponent >> renderPublicationRankingDropdownEditorOn: html [
 
 	| currentRanking |
@@ -82,7 +98,7 @@ ReferenceEditorComponent >> renderPublicationRankingDropdownEditorOn: html [
 			selected: currentRanking ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #rendering }
 ReferenceEditorComponent >> renderPublicationRankingEditorOn: html [
 
 	| currentRanking |
@@ -107,4 +123,30 @@ ReferenceEditorComponent >> renderPublicationRankingEditorOn: html [
 							space;
 							text: each;
 							break ] ] ]
+]
+
+{ #category : #rendering }
+ReferenceEditorComponent >> renderTypeEditorLabeled: label instructions: instructions on: html [
+	html
+		tbsFormGroup: [ html label
+				for: 'type';
+				with: (label ifNil: [ 'Type' ]).
+			html break.
+			html radioGroup
+				callback: [ :value | newType := value ];
+				selected: item type;
+				with: [ :group | 
+					(self allowedTypes associations
+						asSortedCollection: [ :a :b | a value < b value ])
+						do: [ :each | 
+							group radioButton value: each key.
+							html
+								space;
+								text: (self allowedTypes at: each key) , ' (' , each key , ')';
+								break ] ] ]
+]
+
+{ #category : #rendering }
+ReferenceEditorComponent >> renderTypeEditorOn: html [
+	self renderTypeEditorLabeled: 'Type' instructions: nil on: html
 ]
