@@ -222,7 +222,7 @@ table tbody th, table td {
 
 { #category : #rendering }
 ProfileReportComponent >> titleForScholarshipsSection [
-  ^ 'Becas y pasantías'
+  ^ 'Becas, pasantías y estancias'
 	
 ]
 

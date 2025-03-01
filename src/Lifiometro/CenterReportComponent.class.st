@@ -65,7 +65,7 @@ CenterReportComponent >> initialize [
 CenterReportComponent >> initializeActivityTypeCheckboxes [
 
 	| list |
-	list := checkboxesComponent addListWithHeading: 'Proyectos y becas'.
+	list := checkboxesComponent addListWithHeading: 'Proyectos, becas y estancias'.
 	activeProjects := list
 		                  addCheckboxFor: 'activeProjects'
 		                  labeled: 'Proyectos en curso'.
@@ -74,10 +74,10 @@ CenterReportComponent >> initializeActivityTypeCheckboxes [
 		                    labeled: 'Proyectos concluídos'.
 	activeScholarships := list
 		                      addCheckboxFor: 'activeScholarships'
-		                      labeled: 'Becas en curso'.
+		                      labeled: 'Becas y estancias en curso'.
 	finishedScholarships := list
 		                        addCheckboxFor: 'finishedScholarships'
-		                        labeled: 'Becas concluídas'.
+		                        labeled: 'Becas y estancias concluídas'.
 	list checkAll
 ]
 
@@ -196,7 +196,7 @@ CenterReportComponent >> renderActiveScholarshipReportOn: html [
 	html heading
 		level1;
 		id: 'scholarships';
-		with: 'Becas en curso'.
+		with: 'Becas y estancias en curso'.
 	report activeScholarships
 		do: [ :each | self renderScholarship: each on: html ]
 ]
@@ -290,7 +290,7 @@ CenterReportComponent >> renderFinishedScholarshipReportOn: html [
 	html heading
 		level1;
 		id: 'scholarships';
-		with: 'Becas Concluidas'.
+		with: 'Becas y estancias concluídas'.
 	report finishedScholarships do: [ :each |
 		self renderScholarship: each on: html ]
 ]
@@ -573,7 +573,7 @@ CenterReportComponent >> renderScholarship: each on: html [
 		style: 'padding: 10px;';
 		with: [
 			html
-				strong: 'Alumno: ' , each student;
+				strong: 'Beneficiario: ' , each student;
 				break.
 			self renderDatesOf: each labeled: 'Fechas' on: html.
 			self
@@ -602,7 +602,7 @@ CenterReportComponent >> renderScholarship: each on: html [
 			self
 				render: #type
 				of: each
-				labeled: 'Tipo de beca'
+				labeled: 'Tipo de beca o estancia'
 				on: html.
 			showSummaries ifTrue: [
 				self

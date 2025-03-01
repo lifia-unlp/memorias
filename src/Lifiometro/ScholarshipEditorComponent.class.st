@@ -84,7 +84,7 @@ ScholarshipEditorComponent >> renderPropertyEditorsOn: html [
 		label: 'Tipo'
 		values: self listOfValidScholarshipTypes
 		instructions:
-		'Indique de qué tipo de beca o estadía se trata'
+		'Indique de qué tipo de beca o estancia se trata'
 		on: html.
 
 	self

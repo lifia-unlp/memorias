@@ -137,11 +137,11 @@ ResearcherReportComponent >> renderTitleOn: html [
 { #category : #rendering }
 ResearcherReportComponent >> titleForScholarshipsSection [
 
-	^ 'Dirección de becas y pasantías'
+	^ 'Becas, pasantías y estancias'
 ]
 
 { #category : #rendering }
 ResearcherReportComponent >> titleForThesisSection [
 
-	^ 'Dirección de tesis y trabajos finales de carrera'
+	^ 'Tesis y trabajos finales de carrera'
 ]
