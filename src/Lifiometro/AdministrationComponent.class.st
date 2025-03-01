@@ -26,6 +26,57 @@ AdministrationComponent >> clearPasswordFor: each [
 ]
 
 { #category : #callbacks }
+AdministrationComponent >> editScholarshipFundingSources [
+
+	| defaultSources response otherSourcesInUse |
+	defaultSources := LifiometroRepository singleton
+		                  persistenConfiguration scholarshipFundingSources.
+	otherSourcesInUse := LifiometroRepository singleton scholarships
+		                     collect: #fundingAgency
+		                     as: Set.
+	otherSourcesInUse removeAllFoundIn: defaultSources.
+
+	response := self call: (StringCollectionEditorComponent
+			             strings: defaultSources
+			             title:
+			             'Fuentes de financiación de becas y estadias predefinidas'
+			             comment:
+				             'Actualmente estan en uso las siguientes fuentes de financiación no predefinidos: '
+				             ,
+				             (otherSourcesInUse collect: #printString) sorted
+					             asCommaString).
+	response ifNotNil: [ :updatedSources |
+		LifiometroRepository singleton persistenConfiguration
+			scholarshipFundingSources: updatedSources;
+			save ]
+]
+
+{ #category : #callbacks }
+AdministrationComponent >> editScholarshipTypes [
+
+	| defaultTypes response otherTypesInUse |
+	defaultTypes := LifiometroRepository singleton persistenConfiguration
+		                scholarshipTypes.
+	otherTypesInUse := LifiometroRepository singleton scholarships
+		                   collect: #type
+		                   as: Set.
+	otherTypesInUse removeAllFoundIn: defaultTypes.
+
+	response := self call: (StringCollectionEditorComponent
+			             strings: defaultTypes
+			             title: 'Tipos de becas predefinidos'
+			             comment:
+				             'Actualmente estan en uso los siguientes tipos no predefinidos: '
+				             ,
+				             (otherTypesInUse collect: #printString) sorted
+					             asCommaString).
+	response ifNotNil: [ :updatedTypes |
+		LifiometroRepository singleton persistenConfiguration
+			scholarshipTypes: updatedTypes;
+			save ]
+]
+
+{ #category : #callbacks }
 AdministrationComponent >> fixTagNamesCase [
 
 	| toFix |
@@ -97,12 +148,31 @@ AdministrationComponent >> renderBulkActionsOn: html [
 
 { #category : #rendering }
 AdministrationComponent >> renderContentOn: html [
-	html
-		tbsPanel: [ html tbsPanelBody:
-				[ self renderUsersListOn: html.
-				self renderBulkActionsOn: html. 
-				self renderStatsOn: html.
-				self renderEnvironmentVarsOn: html ] ]
+
+	html tbsPanel: [
+		html tbsPanelBody: [
+			self renderUsersListOn: html.
+			self renderBulkActionsOn: html.
+			self renderDefaultValuesOn: html.
+			self renderStatsOn: html.
+			self renderEnvironmentVarsOn: html ] ]
+]
+
+{ #category : #rendering }
+AdministrationComponent >> renderDefaultValuesOn: html [
+
+	html tbsPanel
+		beDefault;
+		with: [
+			html tbsPanelHeading: [ html label: 'Default values' ].
+			html tbsPanelBody: [
+					html anchor
+						callback: [ self editScholarshipTypes ];
+						with: 'Editar tipos de becas y estadias'.
+					html break.
+					html anchor
+						callback: [ self editScholarshipFundingSources ];
+						with: 'Editar fuentes de financiación de becas y estadias' ] ]
 ]
 
 { #category : #rendering }

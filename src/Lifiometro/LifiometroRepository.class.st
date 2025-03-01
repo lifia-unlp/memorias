@@ -137,6 +137,17 @@ LifiometroRepository >> lifians [
 	^ Lifian selectAll reject: [ :each | each trashed ]
 ]
 
+{ #category : #configuration }
+LifiometroRepository >> persistenConfiguration [
+
+	^ PersistentConfiguration selectAll
+		  ifEmpty: [
+			  PersistentConfiguration new
+				  save;
+				  yourself ]
+		  ifNotEmpty: [ :all | all first ]
+]
+
 { #category : #query }
 LifiometroRepository >> projectWithVoyageId: void [
 	^ Project selectAll
