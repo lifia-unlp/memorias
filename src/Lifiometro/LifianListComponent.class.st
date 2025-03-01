@@ -49,34 +49,33 @@ LifianListComponent >> newEditorFor: anEntry [
 
 { #category : #rendering }
 LifianListComponent >> render: each on: html [
-	html
-		paragraph: [ html
-				strong: each lastName , ', ' , each firstName;
-				break.
-			each category
-				ifNotNilNotEmpty: [ :it | 
-					html
-						text: 'Categoría de incentivos: ' , it;
-						break ].
-			each sicadiCategory
-				ifNotNilNotEmpty: [ :it | 
-					html
-						text: 'Categoría SICADI: ' , it;
-						break ].
-			each positionAtCIC
-				ifNotNilNotEmpty: [ :it | 
-					html
-						text: 'Cargo en CICPBA: ' , it;
-						break ].
-			each positionAtCONICET
-				ifNotNilNotEmpty: [ :it | 
-					html
-						text: 'Cargo en CONICET: ' , it;
-						break ].
+
+	html paragraph: [
+		html
+			strong: each lastName , ', ' , each firstName;
+			break.
+		each category ifNotNilNotEmpty: [ :it |
 			html
-				text: 'Cargo docente en UNLP: ' , each positionAtUnlp;
-				break.
-			html text: 'E-mails: ' , (self emailsStringFor: each) ]
+				text: 'Categoría de incentivos: ' , it;
+				break ].
+		each sicadiCategory ifNotNilNotEmpty: [ :it |
+			html
+				text: 'Categoría SICADI: ' , it;
+				break ].
+		each positionAtCIC ifNotNilNotEmpty: [ :it |
+			it ~= 'N/A' ifTrue: [
+				html
+					text: 'Cargo en CICPBA: ' , it;
+					break ] ].
+		each positionAtCONICET ifNotNilNotEmpty: [ :it |
+			it ~= 'N/A' ifTrue: [
+				html
+					text: 'Cargo en CONICET: ' , it;
+					break ] ].
+		html
+			text: 'Cargo docente en UNLP: ' , each positionAtUnlp;
+			break.
+		html text: 'E-mails: ' , (self emailsStringFor: each) ]
 ]
 
 { #category : #rendering }

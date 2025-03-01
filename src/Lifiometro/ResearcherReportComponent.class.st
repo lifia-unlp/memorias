@@ -117,21 +117,24 @@ ResearcherReportComponent >> renderPropertiesOn: html [
 				text: it;
 				break ].
 		report researcher positionAtUnlp ifNotNilNotEmpty: [ :it |
-			html
-				strong: 'Cargo en UNLP: ';
-				text: it;
-				break ].
+			it ~= 'N/A' ifTrue: [
+				html
+					strong: 'Cargo en UNLP: ';
+					text: it;
+					break ] ].
 		report researcher positionAtCONICET ifNotNilNotEmpty: [ :it |
-			html
-				strong: 'Cargo en CONICET: ';
-				text: it;
-				break ].
+			it ~= 'N/A' ifTrue: [
+				html
+					strong: 'Cargo en CONICET: ';
+					text: it;
+					break ] ].
 
 		report researcher positionAtCIC ifNotNilNotEmpty: [ :it |
-			html
-				strong: 'Cargo en CICPBA: ';
-				text: it;
-				break ].
+			it ~= 'N/A' ifTrue: [
+				html
+					strong: 'Cargo en CICPBA: ';
+					text: it;
+					break ] ].
 
 		report researcher category ifNotNilNotEmpty: [ :it |
 			html

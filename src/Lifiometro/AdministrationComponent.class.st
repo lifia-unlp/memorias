@@ -36,7 +36,7 @@ AdministrationComponent >> editPositionsAtCIC [
 			             strings: currentValues
 			             title: 'Cargos de CICPBA'
 			             comment: '').
-	response ifNotNil: [
+	response ifNotNilNotEmpty: [
 		LifiometroRepository singleton persistenConfiguration
 			positionsAtCIC: response;
 			save ]

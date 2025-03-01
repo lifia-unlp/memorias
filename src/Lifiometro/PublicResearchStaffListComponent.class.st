@@ -60,11 +60,11 @@ PublicResearchStaffListComponent >> renderItem: item on: html [
 			html text: '. '.
 			item highestDegree ifNotNilNotEmpty: [ :it | html text: it , '. ' ].
 			item positionAtUnlp ifNotNilNotEmpty: [ :it |
-					html text: it , ' de la UNLP. ' ].
+					it ~= 'N/A' ifTrue: [ html text: it , ' de la UNLP. ' ] ].
 			item positionAtCONICET ifNotNilNotEmpty: [ :it |
-					html text: it , ' del CONICET. ' ].
+					it ~= 'N/A' ifTrue: [ html text: it , ' del CONICET. ' ] ].
 			item positionAtCIC ifNotNilNotEmpty: [ :it |
-					html text: it , ' de la CICPBA. ' ].
+					it ~= 'N/A' ifTrue: [ html text: it , ' de la CICPBA. ' ] ].
 			item endDate
 				ifNil: [
 					html text:

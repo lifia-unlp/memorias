@@ -299,7 +299,7 @@ PluggableEditorComponent >> renderSelectionEditorFor: property label: label valu
 						group radioButton value: each.
 						html
 							space;
-							text: each;
+							text: each ;
 							break ] ] ]
 ]
 

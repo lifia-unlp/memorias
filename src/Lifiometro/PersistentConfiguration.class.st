@@ -29,7 +29,8 @@ PersistentConfiguration >> initialize [
 { #category : #accessing }
 PersistentConfiguration >> positionsAtCIC [
 
-	^ positionsAtCIC
+	^ (positionsAtCIC ifNil: [
+		  positionsAtCIC := OrderedCollection new ]) copy
 ]
 
 { #category : #accessing }
@@ -41,7 +42,8 @@ PersistentConfiguration >> positionsAtCIC: anObject [
 { #category : #accessing }
 PersistentConfiguration >> positionsAtCONICET [
 
-	^ positionsAtCONICET
+	^ (positionsAtCONICET ifNil:
+		  [ positionsAtCONICET := OrderedCollection new ]) copy
 ]
 
 { #category : #accessing }
@@ -53,7 +55,8 @@ PersistentConfiguration >> positionsAtCONICET: anObject [
 { #category : #accessing }
 PersistentConfiguration >> positionsAtUNLP [
 
-	^ positionsAtUNLP
+	^ (positionsAtUNLP ifNil:
+		  [ positionsAtUNLP := OrderedCollection new ]) copy
 ]
 
 { #category : #accessing }
@@ -65,7 +68,8 @@ PersistentConfiguration >> positionsAtUNLP: anObject [
 { #category : #accessing }
 PersistentConfiguration >> scholarshipFundingSources [
 
-	^ scholarshipFundingSources
+	^ (scholarshipFundingSources ifNil: [
+		   scholarshipFundingSources := OrderedCollection new ]) copy
 ]
 
 { #category : #accessing }
@@ -77,7 +81,8 @@ PersistentConfiguration >> scholarshipFundingSources: anObject [
 { #category : #accessing }
 PersistentConfiguration >> scholarshipTypes [
 
-	^ scholarshipTypes
+	^ (scholarshipTypes ifNil: [
+		   scholarshipTypes := OrderedCollection new ]) copy
 ]
 
 { #category : #accessing }

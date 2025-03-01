@@ -18,7 +18,47 @@ LifianEditorComponent >> accept [
 ]
 
 { #category : #rendering }
+LifianEditorComponent >> listOfPositionsAtCIC [
+
+	| predefinedValues |
+	predefinedValues := LifiometroRepository singleton
+		                    persistenConfiguration positionsAtCIC.
+	predefinedValues := predefinedValues copyWith: 'N/A'.
+	^ (predefinedValues includes: (newValues at: 'positionAtCIC'))
+		  ifTrue: [ predefinedValues ]
+		  ifFalse: [
+		  predefinedValues copyWith: (newValues at: 'positionAtCIC') ]
+]
+
+{ #category : #rendering }
+LifianEditorComponent >> listOfPositionsAtCONICET [
+
+	| predefinedValues |
+	predefinedValues := LifiometroRepository singleton
+		                    persistenConfiguration positionsAtCONICET.
+	predefinedValues := predefinedValues copyWith: 'N/A'.
+	^ (predefinedValues includes: (newValues at: 'positionAtCONICET'))
+		  ifTrue: [ predefinedValues ]
+		  ifFalse: [
+		  predefinedValues copyWith: (newValues at: 'positionAtCONICET') ]
+]
+
+{ #category : #rendering }
+LifianEditorComponent >> listOfPositionsAtUNLP [
+
+	| predefinedValues |
+	predefinedValues := LifiometroRepository singleton
+		                    persistenConfiguration positionsAtUNLP.
+	predefinedValues := predefinedValues copyWith: 'N/A'.
+	^ (predefinedValues includes: (newValues at: 'positionAtUnlp'))
+		  ifTrue: [ predefinedValues ]
+		  ifFalse: [
+		  predefinedValues copyWith: (newValues at: 'positionAtUnlp') ]
+]
+
+{ #category : #rendering }
 LifianEditorComponent >> renderPropertyEditorsOn: html [
+
 	self
 		renderTextInputEditorFor: 'firstName'
 		label: 'Nombre'
@@ -32,24 +72,28 @@ LifianEditorComponent >> renderPropertyEditorsOn: html [
 	self
 		renderTextInputEditorFor: 'avatarUrl'
 		label: 'URL de foto (o avatar)'
-		instructions: 'URL pública de una foto o avatar para incluir en el perfil. Idealmente de 120x120 px.'
+		instructions:
+		'URL pública de una foto o avatar para incluir en el perfil. Idealmente de 120x120 px.'
 		on: html.
 	self
 		renderSelectionEditorFor: 'positionAtLIFIA'
 		label: 'Función actual'
-		values: {'Investigador' . 'Personal de apoyo'. 'Estudiante de grado' . 'Estudiante de posgrado'. 'Investigador externo'}
+		values:
+			{ 'Investigador'. 'Personal de apoyo'. 'Estudiante de grado'.
+			'Estudiante de posgrado'. 'Investigador externo' }
 		instructions: nil
 		on: html.
 	self
 		renderTextInputEditorFor: 'highestDegree'
 		label: 'Grado máximo obtenido'
 		instructions:
-			'Indique título máximo (completo) obtenido, por ejemplo "Licenciado en Sistemas"'
+		'Indique título máximo (completo) obtenido, por ejemplo "Licenciado en Sistemas"'
 		on: html.
 	self
 		renderDateInputEditorFor: 'startDate'
 		label: 'Fecha de ingreso'
-		instructions: 'de no concerla con exactitud, indique una fecha estimada'
+		instructions:
+		'de no concerla con exactitud, indique una fecha estimada'
 		on: html.
 	self
 		renderDateInputEditorFor: 'endDate'
@@ -62,10 +106,13 @@ LifianEditorComponent >> renderPropertyEditorsOn: html [
 		instructions: nil
 		on: html.
 	self
-		renderTextInputEditorFor: 'positionAtUnlp'
+		renderSelectionEditorFor: 'positionAtUnlp'
 		label: 'Cargo en UNLP'
+		values: self listOfPositionsAtUNLP
 		instructions: nil
 		on: html.
+
+
 	self
 		renderTextInputEditorFor: 'category'
 		label: 'Categoria de incentivos'
@@ -76,16 +123,21 @@ LifianEditorComponent >> renderPropertyEditorsOn: html [
 		label: 'Categoria en SICADI'
 		instructions: 'indique la fecha de obtención entre paréntesis'
 		on: html.
+
 	self
-		renderTextInputEditorFor: 'positionAtCIC'
+		renderSelectionEditorFor: 'positionAtCIC'
 		label: 'Cargo en la CICPBA'
-		instructions: 'deje vacío si no corresponde'
+		values: self listOfPositionsAtCIC
+		instructions: nil
 		on: html.
+
 	self
-		renderTextInputEditorFor: 'positionAtCONICET'
-		label: 'Cargo en CONICET'
-		instructions: 'deje vacío si no corresponde'
+		renderSelectionEditorFor: 'positionAtCONICET'
+		label: 'Cargo en la CONICET'
+		values: self listOfPositionsAtCONICET
+		instructions: nil
 		on: html.
+
 	self
 		renderTextInputEditorFor: 'institutionalEmail'
 		label: 'e-mail institucional'
@@ -130,7 +182,7 @@ LifianEditorComponent >> renderPropertyEditorsOn: html [
 	self
 		renderTextInputEditorFor: 'shortCvInSpanish'
 		label: 'CV resumido en español'
-		instructions: 'CV resumido como para incluir en proyectos o en el sitio web'
-		on: html.
-
+		instructions:
+		'CV resumido como para incluir en proyectos o en el sitio web'
+		on: html
 ]
