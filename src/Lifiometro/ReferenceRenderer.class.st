@@ -11,29 +11,21 @@ ReferenceRenderer >> render: aReference on: aCanvas [
 ]
 
 { #category : #rendering }
-ReferenceRenderer >> renderBibtexAvailableIconFor: aBibtextReference on: aCanvas [
+ReferenceRenderer >> renderBibtexAvailableIconFor: aBibtexEntry on: aCanvas [
 
-	| iconElement scapedJsString |
-	iconElement := aCanvas tbsGlyphIcon.
-	iconElement title: 'Haga click para copiar la referencia en formato Bibtex al portapapeles.'.
-	iconElement iconCheck.
-	scapedJsString := aBibtextReference bibtexEntry printString
-		                  copyReplaceAll: '\'
-		                  with: '\\'.
-	scapedJsString := scapedJsString
-		                  copyReplaceAll: Character cr asString
-		                  with: '\n'.
-	scapedJsString := scapedJsString
-		                  copyReplaceAll: '"'
-		                  with: '\"'.
-	scapedJsString := scapedJsString
-		                  copyReplaceAll: ''''
-		                  with: '\'''.
-
-	iconElement id: 'bibtex-icon'.
-	iconElement onClick:
-		'navigator.clipboard.writeText(''' , scapedJsString
-		, '''); alert(''La referencia se copió en formato Bibtex al portapapeles.'');'
+	| iconTag escapedBibtexEntry |
+	iconTag := aCanvas tbsGlyphIcon.
+	iconTag iconCheck.
+	escapedBibtexEntry := aBibtexEntry bibtexEntry printString
+		        copyReplaceAll: Character cr asString
+		        with: '\n'.
+	escapedBibtexEntry := aBibtexEntry bibtexEntry printString copyReplaceAll: '"' with: '\"'.
+	escapedBibtexEntry := aBibtexEntry bibtexEntry printString copyReplaceAll: '\' with: '\\'.
+	iconTag
+		id: 'bibtex-icon';
+		onClick:
+			'navigator.clipboard.writeText(''' , escapedBibtexEntry
+			, '''); alert(''Copiado'');'
 ]
 
 { #category : #rendering }
