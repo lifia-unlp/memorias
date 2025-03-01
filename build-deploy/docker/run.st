@@ -47,6 +47,7 @@ apps add: (WAAdmin register: PublicProjectsListComponent asApplicationAt: Public
 apps add: (WAAdmin register: ProjectReportComponent asApplicationAt: ProjectReportComponent relativeUrl).
 apps add: (WAAdmin register: PublicThesisListComponent asApplicationAt: PublicThesisListComponent relativeUrl).
 apps add: (WAAdmin register: ThesisReportComponent asApplicationAt: ThesisReportComponent relativeUrl).
+apps add: (WAAdmin register: PublicResearchStaffListComponent  asApplicationAt: PublicResearchStaffListComponent relativeUrl).
 
 apps do: [:app | 
  MailerSendAPI singleton isProperlyConfigured & MailerSendAPI singleton sendErrorEmailsTo notNil 
