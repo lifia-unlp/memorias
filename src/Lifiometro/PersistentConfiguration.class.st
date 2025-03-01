@@ -3,7 +3,10 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'scholarshipTypes',
-		'scholarshipFundingSources'
+		'scholarshipFundingSources',
+		'positionsAtUNLP',
+		'positionsAtCIC',
+		'positionsAtCONICET'
 	],
 	#category : #'Lifiometro-Repository'
 }
@@ -14,9 +17,49 @@ PersistentConfiguration class >> isVoyageRoot [
 ]
 
 { #category : #initialization }
-PersistentConfiguration >> initialize [ 
+PersistentConfiguration >> initialize [
+
 	scholarshipTypes := OrderedCollection new.
 	scholarshipFundingSources := OrderedCollection new.
+	positionsAtUNLP := OrderedCollection new.
+	positionsAtCIC := OrderedCollection new.
+	positionsAtCONICET := OrderedCollection new
+]
+
+{ #category : #accessing }
+PersistentConfiguration >> positionsAtCIC [
+
+	^ positionsAtCIC
+]
+
+{ #category : #accessing }
+PersistentConfiguration >> positionsAtCIC: anObject [
+
+	positionsAtCIC := anObject
+]
+
+{ #category : #accessing }
+PersistentConfiguration >> positionsAtCONICET [
+
+	^ positionsAtCONICET
+]
+
+{ #category : #accessing }
+PersistentConfiguration >> positionsAtCONICET: anObject [
+
+	positionsAtCONICET := anObject
+]
+
+{ #category : #accessing }
+PersistentConfiguration >> positionsAtUNLP [
+
+	^ positionsAtUNLP
+]
+
+{ #category : #accessing }
+PersistentConfiguration >> positionsAtUNLP: anObject [
+
+	positionsAtUNLP := anObject
 ]
 
 { #category : #accessing }

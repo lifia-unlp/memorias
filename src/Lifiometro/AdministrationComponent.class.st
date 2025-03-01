@@ -26,6 +26,57 @@ AdministrationComponent >> clearPasswordFor: each [
 ]
 
 { #category : #callbacks }
+AdministrationComponent >> editPositionsAtCIC [
+
+	| currentValues response |
+	currentValues := LifiometroRepository singleton
+		                 persistenConfiguration positionsAtCIC  ifNil: [
+		                 OrderedCollection new ].
+	response := self call: (StringCollectionEditorComponent
+			             strings: currentValues
+			             title: 'Cargos de CICPBA'
+			             comment: '').
+	response ifNotNil: [
+		LifiometroRepository singleton persistenConfiguration
+			positionsAtCIC: response;
+			save ]
+]
+
+{ #category : #callbacks }
+AdministrationComponent >> editPositionsAtCONICET [
+
+	| currentValues response |
+	currentValues := LifiometroRepository singleton
+		                 persistenConfiguration positionsAtCONICET  ifNil: [
+		                 OrderedCollection new ].
+	response := self call: (StringCollectionEditorComponent
+			             strings: currentValues
+			             title: 'Cargos de CONICET'
+			             comment: '').
+	response ifNotNil: [
+		LifiometroRepository singleton persistenConfiguration
+			positionsAtCONICET: response;
+			save ]
+]
+
+{ #category : #callbacks }
+AdministrationComponent >> editPositionsAtUNLP [
+
+	| currentValues response |
+	currentValues := LifiometroRepository singleton
+		                 persistenConfiguration positionsAtUNLP ifNil: [
+		                 OrderedCollection new ].
+	response := self call: (StringCollectionEditorComponent
+			             strings: currentValues
+			             title: 'Cargos de investigadores y docentes en UNLP'
+			             comment: '').
+	response ifNotNil: [
+		LifiometroRepository singleton persistenConfiguration
+			positionsAtUNLP: response;
+			save ]
+]
+
+{ #category : #callbacks }
 AdministrationComponent >> editScholarshipFundingSources [
 
 	| defaultSources response otherSourcesInUse |
@@ -172,7 +223,19 @@ AdministrationComponent >> renderDefaultValuesOn: html [
 					html break.
 					html anchor
 						callback: [ self editScholarshipFundingSources ];
-						with: 'Editar fuentes de financiación de becas y estadias' ] ]
+						with: 'Editar fuentes de financiación de becas y estadias'.
+					html break.
+					html anchor
+						callback: [ self editPositionsAtUNLP ];
+						with: 'Editar tipos de cargos de UNLP'.
+					html break.
+					html anchor
+						callback: [ self editPositionsAtCIC];
+						with: 'Editar tipos de cargos de CIC'.
+					html break.
+					html anchor
+						callback: [ self editPositionsAtCONICET ];
+						with: 'Editar tipos de cargos en CONICET' ] ]
 ]
 
 { #category : #rendering }
