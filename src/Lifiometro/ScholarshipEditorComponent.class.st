@@ -23,6 +23,29 @@ ScholarshipEditorComponent >> accept [
 ]
 
 { #category : #rendering }
+ScholarshipEditorComponent >> listOfValidScholarshipFundingSources [
+
+	| predefinedValues |
+	predefinedValues := LifiometroRepository singleton
+		                    persistenConfiguration scholarshipFundingSources.
+	^ (predefinedValues includes: (newValues at: 'fundingAgency'))
+		  ifTrue: [ predefinedValues ]
+		  ifFalse: [
+		  predefinedValues copyWith: (newValues at: 'fundingAgency') ]
+]
+
+{ #category : #rendering }
+ScholarshipEditorComponent >> listOfValidScholarshipTypes [
+
+	| predefinedValues |
+	predefinedValues := LifiometroRepository singleton
+		                    persistenConfiguration scholarshipTypes.
+	^ (predefinedValues includes: (newValues at: 'type'))
+		  ifTrue: [ predefinedValues ]
+		  ifFalse: [ predefinedValues copyWith: (newValues at: 'type') ]
+]
+
+{ #category : #rendering }
 ScholarshipEditorComponent >> renderPropertyEditorsOn: html [
 	"startDate endDate title director coDirector student fundingAgency type summary"
 
@@ -57,15 +80,19 @@ ScholarshipEditorComponent >> renderPropertyEditorsOn: html [
 		instructions: nil
 		on: html.
 	self
-		renderTextInputEditorFor: 'type'
-		label: 'Tipo de beca'
+		renderSelectionEditorFor: 'type'
+		label: 'Tipo'
+		values: self listOfValidScholarshipTypes
 		instructions:
-			'doctoral, experiencia laboral, entrenamiento, iniciación, estímulo, post-doctoral, pasantía, etc.'
+		'Indique de qué tipo de beca o estadía se trata'
 		on: html.
+
 	self
-		renderTextInputEditorFor: 'fundingAgency'
+		renderSelectionEditorFor: 'fundingAgency'
 		label: 'Fuente de financiación'
-		instructions: nil
+		values: self listOfValidScholarshipFundingSources
+		instructions:
+		'Indique la fuende de financiación.'
 		on: html.
 	self
 		renderTextInputEditorFor: 'summary'
@@ -73,5 +100,5 @@ ScholarshipEditorComponent >> renderPropertyEditorsOn: html [
 		instructions: nil
 		on: html.
 	self renderRelatedLifiansEditorOn: html.
-	self renderRelatedProjectsEditorOn:  html
+	self renderRelatedProjectsEditorOn: html
 ]

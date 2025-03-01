@@ -283,23 +283,24 @@ PluggableEditorComponent >> renderRelatedThesisEditorOn: html [
 
 { #category : #'rendering input' }
 PluggableEditorComponent >> renderSelectionEditorFor: property label: label values: aCollectionOfValues instructions: instructions on: html [
-	html
-		tbsFormGroup: [ html label
-				for: property;
-				with: label.
-			html break.
-			html radioGroup
-				callback: [ :value | newValues at: property put: value ];
-				selected: (newValues at: property);
-				with: [ :group | 
-					aCollectionOfValues
-						do: [ :each | 
-							group radioButton value: each.
-							html
-								space;
-								text: each;
-								break ] ].
-			self renderEditorInstructions: instructions on: html ]
+
+	html tbsFormGroup: [
+		html label
+			for: property;
+			with: label.
+		html break.
+		self renderEditorInstructions: instructions on: html.
+		html break.
+		html radioGroup
+			callback: [ :value | newValues at: property put: value ];
+			selected: (newValues at: property);
+			with: [ :group |
+				aCollectionOfValues do: [ :each |
+						group radioButton value: each.
+						html
+							space;
+							text: each;
+							break ] ] ]
 ]
 
 { #category : #'rendering input' }

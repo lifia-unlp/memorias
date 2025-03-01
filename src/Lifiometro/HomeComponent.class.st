@@ -87,13 +87,13 @@ HomeComponent >> renderContentOn: html [
 					html render: publicationsListComponent ].
 				selectedTab = 'Proyectos' ifTrue: [
 					html render: projectsListComponent ].
-				selectedTab = 'Becas' ifTrue: [
+				selectedTab = 'Becas/Estadías' ifTrue: [
 					html render: scholarshipsListComponent ].
 				selectedTab = 'Tesis' ifTrue: [
 					html render: studentsListComponent ].
 				"			selectedTab = 'Agenda'
 						ifTrue: [ html render: scheduleComponent ]."
-				selectedTab = 'Investigadores' ifTrue: [
+				selectedTab = 'Participantes' ifTrue: [
 					html render: lifiansComponent ].
 				selectedTab = 'Administrar' ifTrue: [ html render: adminComponent ] ]
 			mediumSize: 10 ]
@@ -106,7 +106,7 @@ HomeComponent >> renderLeftMenuOn: html [
 	tabs := OrderedCollection new.
 	self session currentUser enabled ifTrue: [
 		tabs addAll:
-			{ 'Tareas pendientes'. 'Novedades'.  'Publicaciones'. 'Proyectos'. 'Becas'. 'Tesis'. 'Investigadores' }.
+			{ 'Tareas pendientes'. 'Novedades'.  'Publicaciones'. 'Proyectos'. 'Becas/Estadías'. 'Tesis'. 'Participantes' }.
 		self session currentUser isAdmin ifTrue: [ tabs add: 'Administrar' ].
 		self session currentUser lifian ifNotNil: [ :it |
 			tabs addFirst: 'Mi ficha técnica' ] ].

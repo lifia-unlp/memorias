@@ -63,7 +63,7 @@ ScholarshipsListComponent >> render: each on: html [
 				text: 'Financiador: ' , each fundingAgency;
 				break.
 			html
-				text: 'Tipo de beca: ' , each type;
+				text: 'Tipo: ' , each type;
 				break.
  ]
 ]
