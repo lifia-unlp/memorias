@@ -78,50 +78,48 @@ ResearcherReportComponent >> renderExternalLinksOn: html [
 
 { #category : #rendering }
 ResearcherReportComponent >> renderPropertiesOn: html [
-	html
-		paragraph: [ html
-				text: 'Nombre: ' , report researcher firstName;
-				break.
-			html
-				text: 'Apellido: ' , report researcher lastName;
-				break.
-			report researcher startDate
-				ifNotNil: [ :it | 
-					html
-						text: 'Ingreso: ' , it mmddyyyy;
-						break ].
-			report researcher endDate
-				ifNotNil: [ :it | 
-					html
-						text: 'Egreso: ' , it mmddyyyy;
-						break ].
-			report researcher highestDegree
-				ifNotNilNotEmpty: [ :it | 
-					html
-						text: 'Título máximo: ' , it;
-						break ].
-			report researcher institutionalEmail
-				ifNotNilNotEmpty: [ :it | 
-					html
-						text: 'E-mail: ' , it;
-						break ].
-			report researcher affiliations
-				ifNotNilNotEmpty: [ :it | 
-					html
-						text: 'Afiliaciones: ' , it;
-						break ].
-			report researcher category
-				ifNotNilNotEmpty: [ :it | 
-					html
-						text: 'Categoría en el programa de incentivos: ' , it;
-						break ].
-			report researcher sicadiCategory
-				ifNotNilNotEmpty: [ :it | 
-					html
-						text: 'Categoría en SICADI-UNLP: ' , it;
-						break ].
 
-			self renderExternalLinksOn: html ]
+	html paragraph: [
+		html
+			text: 'Nombre: ' , report researcher firstName;
+			break.
+		html
+			text: 'Apellido: ' , report researcher lastName;
+			break.
+		report researcher startDate ifNotNil: [ :it |
+			html
+				text: 'Ingreso: ' , it mmddyyyy;
+				break ].
+		report researcher endDate ifNotNil: [ :it |
+			html
+				text: 'Egreso: ' , it mmddyyyy;
+				break ].
+		report researcher highestDegree ifNotNilNotEmpty: [ :it |
+			html
+				text: 'Título máximo: ' , it;
+				break ].
+		report researcher institutionalEmail ifNotNilNotEmpty: [ :it |
+			html
+				text: 'E-mail: ' , it;
+				break ].
+		report researcher affiliations ifNotNilNotEmpty: [ :it |
+			html
+				text: 'Afiliaciones: ' , it;
+				break ].
+		report researcher category ifNotNilNotEmpty: [ :it |
+			html
+				text: 'Categoría en el programa de incentivos: ' , it;
+				break ].
+		report researcher sicadiCategory ifNotNilNotEmpty: [ :it |
+			html
+				text: 'Categoría en SICADI-UNLP: ' , it;
+				break ].
+
+		self renderExternalLinksOn: html.
+		report researcher shortCvInSpanish ifNotNilNotEmpty: [ :it |
+			html
+				text: it;
+				break ] ]
 ]
 
 { #category : #rendering }
