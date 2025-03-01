@@ -198,8 +198,17 @@ BibtexReference >> renderAsReferenceWith: aRenderer on: aCanvas [
 		aRenderer renderChapterReference: self on: aCanvas ].
 	bibtexEntry type = 'book' ifTrue: [
 		aRenderer renderBookReference: self on: aCanvas ].
+	bibtexEntry type = 'mastersthesis' ifTrue: [
+		aRenderer renderMasterThesisReference: self on: aCanvas ].
+	bibtexEntry type = 'phdthesis' ifTrue: [
+		aRenderer renderPhdThesisReference: self on: aCanvas ].
 	aCanvas space.
-	aRenderer renderBibtexAvailableIconFor: self on: aCanvas.
+	aRenderer renderBibtexAvailableIconFor: self on: aCanvas
+]
+
+{ #category : #accessing }
+BibtexReference >> school [
+	^ bibtexEntry school
 ]
 
 { #category : #accessing }

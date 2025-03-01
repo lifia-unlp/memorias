@@ -161,10 +161,37 @@ ReferenceRenderer >> renderJournalOf: aReference on: aCanvas [
 ]
 
 { #category : #'rendering-types' }
+ReferenceRenderer >> renderMasterThesisReference: aReference on: aCanvas [
+
+	self renderThesisReference: aReference type: 'Master''s' on: aCanvas
+]
+
+{ #category : #'rendering-types' }
+ReferenceRenderer >> renderPhdThesisReference: aReference on: aCanvas [
+
+	self renderThesisReference: aReference type: 'PhD' on: aCanvas
+]
+
+{ #category : #'rendering-types' }
 ReferenceRenderer >> renderRawReference: aRawReference on: aCanvas [
 
 	aCanvas text: aRawReference asReference.
 	self renderDownloadIconFor: aRawReference on: aCanvas
+]
+
+{ #category : #'rendering-types' }
+ReferenceRenderer >> renderThesisReference: aReference type: aThesisType on: aCanvas [
+
+	self renderAuthorsOf: aReference on: aCanvas.
+	self renderYearOf: aReference on: aCanvas.
+	aCanvas emphasis: [ self renderTitleOf: aReference on: aCanvas ].
+	aCanvas text: aThesisType, ' thesis. '.
+	aReference school ifNotNilNotEmpty: [ :it |
+		aCanvas text: it.
+		aReference address ifNotNilNotEmpty: [ :add |
+			aCanvas text: ', ' , add , '. ' ] ].
+	self renderDoiOf: aReference on: aCanvas.
+	self renderDownloadIconFor: aReference on: aCanvas
 ]
 
 { #category : #rendering }

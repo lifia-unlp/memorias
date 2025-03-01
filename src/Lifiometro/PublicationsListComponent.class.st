@@ -46,7 +46,12 @@ PublicationsListComponent >> initializeGroupingAndFilteringAdapter [
 
 	referenceRenderer := ReferenceRenderer new.
 	groupingAndFilteringAdapter := GroupingAndFilteringListAdapter
-		                               groupingBlock: [ :each | each type ]
+		                               groupingBlock: [ :each |
+			                               ({ 'article'. 'inproceedings'.
+			                                'inbook'. 'book' } includes:
+				                                each type)
+				                               ifTrue: [ each type ]
+				                               ifFalse: [ 'other' ] ]
 		                               filteringBlock: [ :each :filter |
 		                               each year = filter ]
 		                               filters:
@@ -181,8 +186,8 @@ PublicationsListComponent >> renderItemsOn: html [
 
 	html heading
 		level: 4;
-		with: 'Otros (misc)'.
+		with: 'Otros'.
 	self
-		renderItems: (groupingAndFilteringAdapter group: 'misc')
+		renderItems: (groupingAndFilteringAdapter group: 'other')
 		on: html
 ]
