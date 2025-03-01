@@ -8,6 +8,17 @@ Class {
 }
 
 { #category : #callbacks }
+PublicationsListComponent >> addEmpty: aType [
+
+	| reference editor bibtexEntry |
+	bibtexEntry := BibtexEntry empty: aType.
+	editor := ReferenceEditorComponent new.
+	editor item: (BibtexReference bibtexEntry: bibtexEntry).
+	reference := self call: editor.
+	reference ifNotNil: [ self session save: reference ]
+]
+
+{ #category : #callbacks }
 PublicationsListComponent >> addPublicationFromBibtex [
 	| cite |
 	cite := self call: BibtexChunckImportComponent new.
@@ -69,28 +80,75 @@ PublicationsListComponent >> render: each on: html [
 
 { #category : #rendering }
 PublicationsListComponent >> renderButtonsOn: html [
+
 	html div
 		style: 'padding-top:10px;padding-bottom:10px';
-		with: [ html anchor
-				callback: [ self addPublicationFromDoi ];
-				with: [ html tbsButton
-						beDefault;
-						beSmall;
-						with: 'Agregar con DOI' ].
+		with: [
+			| addWithFormMenu addAutomaticallyMenu |
+			addWithFormMenu := [
+			                   html tbsDropdownMenuItem: [
+					                   html anchor
+						                   callback: [ self addEmpty: 'article' ];
+						                   with: 'Artículo de revista' ].
+			                   html tbsDropdownMenuItem: [
+				                   html anchor
+					                   callback: [ self addEmpty: 'inproceedings' ];
+					                   with: 'Artículo de conferencia' ].
+			                   html tbsDropdownMenuItem: [
+				                   html anchor
+					                   callback: [ self addEmpty: 'inbook' ];
+					                   with: 'Capítulo de libro' ].
+			                   html tbsDropdownMenuItem: [
+				                   html anchor
+					                   callback: [ self addEmpty: 'book' ];
+					                   with: 'Libro' ].
+			                   html tbsDropdownMenuItem: [
+				                   html anchor
+					                   callback: [ self addEmpty: 'techreport' ];
+					                   with: 'Reporte técnico' ].
+			                   html tbsDropdownMenuItem: [
+				                   html anchor
+					                   callback: [ self addEmpty: 'phdthesis' ];
+					                   with: 'Tesis de doctorado' ].
+			                   html tbsDropdownMenuItem: [
+				                   html anchor
+					                   callback: [ self addEmpty: 'masterthesis' ];
+					                   with: 'Tesis de maestría' ].
+			                   html tbsDropdownMenuItem: [
+				                   html anchor
+					                   callback: [ self addEmpty: 'misc' ];
+					                   with: 'Otro (misc)' ] ].
+
+			addAutomaticallyMenu := [
+			                        html tbsDropdownMenuItem: [
+				                        html anchor
+					                        callback: [ self addPublicationFromDoi ];
+					                        with: 'Con DOI' ].
+			                        html tbsDropdownMenuItem: [
+				                        html anchor
+					                        callback: [
+						                        self addPublicationFromBibtex ];
+					                        with: 'Desde un registro Bibtex' ] ].
+
+			html tbsButtonGroup: [
+				html tbsDropdownButton
+					beDefault;
+					with: [
+						html
+							text: 'Agregar con formulario ';
+							tbsCaret ].
+				html tbsDropdownMenu: addWithFormMenu ].
 			html space.
-			html anchor
-				callback: [ self addPublicationFromBibtex ];
-				with: [ html tbsButton
-						beDefault;
-						beSmall;
-						with: 'Agregar de bibtex' ].
-			html space.
-			html anchor
-				callback: [ self addPublicationFromRawCite ];
-				with: [ html tbsButton
-						beDefault;
-						beSmall;
-						with: 'Agregar a mano' ] ]
+			html tbsButtonGroup: [
+				html tbsDropdownButton
+					beDefault;
+					with: [
+						html
+							text: 'Agregar automáticamente ';
+							tbsCaret ].
+				html
+					tbsDropdownMenu: addAutomaticallyMenu;
+					space ] ]
 ]
 
 { #category : #rendering }

@@ -30,11 +30,14 @@ ReferenceEditorComponent >> allowedArticleRankings [
 { #category : #utility }
 ReferenceEditorComponent >> allowedTypes [
 	^ Dictionary new
-		at: 'inproceedings' put: 'Conference article';
-		at: 'article' put: 'Journal article';
-		at: 'book' put: 'Book';
-		at: 'inbook' put: 'Book part';
-		at: 'misc' put: 'Other';
+		at: 'inproceedings' put: 'Articulo de conferencia';
+		at: 'article' put: 'Artículo de revista';
+		at: 'book' put: 'Libro';
+		at: 'inbook' put: 'Capítulo de libro';
+		at: 'techreport' put: 'Reporte técnico';
+		at: 'phdthesis' put: 'Tesis de doctorado';
+		at: 'mastersthesis' put: 'Tesis de maestría';
+		at: 'misc' put: 'Otro';
 		yourself
 ]
 
