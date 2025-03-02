@@ -30,13 +30,13 @@ AdministrationComponent >> editPositionsAtCIC [
 
 	| currentValues response |
 	currentValues := LifiometroRepository singleton
-		                 persistenConfiguration positionsAtCIC  ifNil: [
+		                 persistenConfiguration positionsAtCIC ifNil: [
 		                 OrderedCollection new ].
 	response := self call: (StringCollectionEditorComponent
 			             strings: currentValues
 			             title: 'Cargos de CICPBA'
 			             comment: '').
-	response ifNotNilNotEmpty: [
+	response ifNotNil: [
 		LifiometroRepository singleton persistenConfiguration
 			positionsAtCIC: response;
 			save ]
@@ -47,7 +47,7 @@ AdministrationComponent >> editPositionsAtCONICET [
 
 	| currentValues response |
 	currentValues := LifiometroRepository singleton
-		                 persistenConfiguration positionsAtCONICET  ifNil: [
+		                 persistenConfiguration positionsAtCONICET ifNil: [
 		                 OrderedCollection new ].
 	response := self call: (StringCollectionEditorComponent
 			             strings: currentValues
@@ -81,7 +81,8 @@ AdministrationComponent >> editScholarshipFundingSources [
 
 	| defaultSources response otherSourcesInUse |
 	defaultSources := LifiometroRepository singleton
-		                  persistenConfiguration scholarshipFundingSources.
+		                  persistenConfiguration scholarshipFundingSources
+		                  ifNil: [ OrderedCollection new ].
 	otherSourcesInUse := LifiometroRepository singleton scholarships
 		                     collect: #fundingAgency
 		                     as: Set.
@@ -107,7 +108,7 @@ AdministrationComponent >> editScholarshipTypes [
 
 	| defaultTypes response otherTypesInUse |
 	defaultTypes := LifiometroRepository singleton persistenConfiguration
-		                scholarshipTypes.
+		                scholarshipTypes ifNil: [ OrderedCollection new ].
 	otherTypesInUse := LifiometroRepository singleton scholarships
 		                   collect: #type
 		                   as: Set.
