@@ -72,7 +72,10 @@ PublicResearchStaffListComponent >> renderItem: item on: html [
 							, '. ' ]
 				ifNotNil: [ :endDate |
 					html text: '(' , item startDate year greaseString , ' - '
-							, item endDate year greaseString , ')' ].
+							, item endDate year greaseString , ') ' ].
+
+			item institutionalEmail ifNotEmpty: [ :email |
+					html text: ' <' , email , '> ' ].
 			html anchor
 				target: '_blank';
 				title: 'Ver ficha  detallada';
