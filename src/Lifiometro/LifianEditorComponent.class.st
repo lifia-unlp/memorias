@@ -102,8 +102,8 @@ LifianEditorComponent >> renderPropertyEditorsOn: html [
 		on: html.
 	self
 		renderTextInputEditorFor: 'affiliations'
-		label: 'Afiliaciones'
-		instructions: nil
+		label: 'Otras afiliaciones'
+		instructions: 'UNLP, CONICET y CICPBA tienen campos específicos - Aquí listar otras afiliaciones.'
 		on: html.
 	self
 		renderSelectionEditorFor: 'positionAtUnlp'
