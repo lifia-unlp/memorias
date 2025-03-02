@@ -174,6 +174,10 @@ HomeComponent >> showReports [
 
 { #category : #callback }
 HomeComponent >> updateRoot: aWARoot [
+
 	super updateRoot: aWARoot.
-	aWARoot title: 'Memorias - LIFIA'
+	aWARoot title: 'Memorias - LIFIA'.
+	aWARoot meta
+		name: 'viewport';
+		content: 'width=device-width, initial-scale=1'
 ]

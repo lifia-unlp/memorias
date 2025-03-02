@@ -119,6 +119,10 @@ a {
 
 { #category : #initialization }
 SimpleListReportComponent >> updateRoot: aWARoot [
+
 	super updateRoot: aWARoot.
+	aWARoot meta
+		name: 'viewport';
+		content: 'width=device-width, initial-scale=1'.
 	aWARoot title: 'LIFIA - ' , self reportTitle
 ]

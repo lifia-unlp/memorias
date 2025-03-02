@@ -252,6 +252,10 @@ ProfileReportComponent >> titleForThesisSection [
 
 { #category : #rendering }
 ProfileReportComponent >> updateRoot: aWARoot [
+
 	super updateRoot: aWARoot.
-	aWARoot title: 'Memorias - LIFIA'
+	aWARoot title: 'Memorias - LIFIA'.
+	aWARoot meta
+		name: 'viewport';
+		content: 'width=device-width, initial-scale=1'
 ]
