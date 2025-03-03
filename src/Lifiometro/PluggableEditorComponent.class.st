@@ -43,8 +43,9 @@ PluggableEditorComponent >> item: anItemWithProperties [
 
 { #category : #accessing }
 PluggableEditorComponent >> lifians [
-	^ LifiometroRepository singleton  lifians
-		asSortedCollection: [ :a :b | a lastName < b lastName ]
+
+	^ LifiometroRepository singleton lifians asSortedCollection: [ :a :b |
+		  a fullName < b fullName ]
 ]
 
 { #category : #'rendering input' }
@@ -228,7 +229,7 @@ PluggableEditorComponent >> renderRelatedLifiansEditorOn: html [
 				selected: currentValue;
 				size: 10;
 				class: 'form-control';
-				labels: [ :lifian | lifian lastName , ', ' , lifian firstName ];
+				labels: [ :lifian | lifian fullName ];
 				callback: [ :value | newValues at: 'relatedLifians' put: value ];
 				with: currentValue;
 				id: 'relatedLifians' ]
