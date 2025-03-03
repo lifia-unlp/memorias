@@ -5,6 +5,9 @@ Class {
 		'reportsCache',
 		'auditingEnabled'
 	],
+	#classVars : [
+		'PersistentConfigurationSingleton'
+	],
 	#classInstVars : [
 		'singleton'
 	],
@@ -140,12 +143,15 @@ LifiometroRepository >> lifians [
 { #category : #configuration }
 LifiometroRepository >> persistenConfiguration [
 
-	^ PersistentConfiguration selectAll
-		  ifEmpty: [
-			  PersistentConfiguration new
-				  save;
-				  yourself ]
-		  ifNotEmpty: [ :all | all first ]
+	^ PersistentConfigurationSingleton ifNil: [
+		  PersistentConfigurationSingleton := PersistentConfiguration
+			                                      selectAll
+			                                      ifEmpty: [
+				                                      PersistentConfiguration new
+					                                      save;
+					                                      yourself ]
+			                                      ifNotEmpty: [ :all |
+			                                      all first ] ]
 ]
 
 { #category : #query }
