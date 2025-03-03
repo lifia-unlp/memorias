@@ -290,8 +290,9 @@ PluggableEditorComponent >> renderSelectionEditorFor: property label: label valu
 			for: property;
 			with: label.
 		html break.
-		self renderEditorInstructions: instructions on: html.
-		html break.
+		instructions ifNotNilNotEmpty: [
+			self renderEditorInstructions: instructions on: html.
+			html break ].
 		html radioGroup
 			callback: [ :value | newValues at: property put: value ];
 			selected: (newValues at: property);
@@ -300,7 +301,7 @@ PluggableEditorComponent >> renderSelectionEditorFor: property label: label valu
 						group radioButton value: each.
 						html
 							space;
-							text: each ;
+							text: each;
 							break ] ] ]
 ]
 

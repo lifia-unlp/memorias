@@ -57,6 +57,44 @@ LifianEditorComponent >> listOfPositionsAtUNLP [
 ]
 
 { #category : #rendering }
+LifianEditorComponent >> renderAffiliationsOn: html [
+
+	self
+		renderSelectionEditorFor: 'positionAtLIFIA'
+		label: 'Función actual en el LIFIA'
+		values:
+			{ 'Investigador'. 'Personal de apoyo'. 'Estudiante de grado'.
+			'Estudiante de posgrado'. 'Investigador externo' }
+		instructions: nil
+		on: html.
+	self
+		renderSelectionEditorFor: 'positionAtUnlp'
+		label: 'Cargo en UNLP'
+		values: self listOfPositionsAtUNLP
+		instructions: nil
+		on: html.
+	self
+		renderSelectionEditorFor: 'positionAtCIC'
+		label: 'Cargo en la CICPBA'
+		values: self listOfPositionsAtCIC
+		instructions: nil
+		on: html.
+
+	self
+		renderSelectionEditorFor: 'positionAtCONICET'
+		label: 'Cargo en la CONICET'
+		values: self listOfPositionsAtCONICET
+		instructions: nil
+		on: html.
+	self
+		renderTextInputEditorFor: 'affiliations'
+		label: 'Otras afiliaciones'
+		instructions:
+		'Indicar otras afiliaciones (No UNLP, CIC, CONICET).'
+		on: html
+]
+
+{ #category : #rendering }
 LifianEditorComponent >> renderPropertyEditorsOn: html [
 
 	self
@@ -76,14 +114,6 @@ LifianEditorComponent >> renderPropertyEditorsOn: html [
 		'URL pública de una foto o avatar para incluir en el perfil. Idealmente de 120x120 px.'
 		on: html.
 	self
-		renderSelectionEditorFor: 'positionAtLIFIA'
-		label: 'Función actual'
-		values:
-			{ 'Investigador'. 'Personal de apoyo'. 'Estudiante de grado'.
-			'Estudiante de posgrado'. 'Investigador externo' }
-		instructions: nil
-		on: html.
-	self
 		renderTextInputEditorFor: 'highestDegree'
 		label: 'Grado máximo obtenido'
 		instructions:
@@ -100,19 +130,7 @@ LifianEditorComponent >> renderPropertyEditorsOn: html [
 		label: 'Fecha de egreso'
 		instructions: 'Deje vacío para miembros en funciones'
 		on: html.
-	self
-		renderTextInputEditorFor: 'affiliations'
-		label: 'Otras afiliaciones'
-		instructions: 'UNLP, CONICET y CICPBA tienen campos específicos - Aquí listar otras afiliaciones.'
-		on: html.
-	self
-		renderSelectionEditorFor: 'positionAtUnlp'
-		label: 'Cargo en UNLP'
-		values: self listOfPositionsAtUNLP
-		instructions: nil
-		on: html.
-
-
+	self renderAffiliationsOn: html.
 	self
 		renderTextInputEditorFor: 'category'
 		label: 'Categoria de incentivos'
@@ -123,21 +141,6 @@ LifianEditorComponent >> renderPropertyEditorsOn: html [
 		label: 'Categoria en SICADI'
 		instructions: 'indique la fecha de obtención entre paréntesis'
 		on: html.
-
-	self
-		renderSelectionEditorFor: 'positionAtCIC'
-		label: 'Cargo en la CICPBA'
-		values: self listOfPositionsAtCIC
-		instructions: nil
-		on: html.
-
-	self
-		renderSelectionEditorFor: 'positionAtCONICET'
-		label: 'Cargo en la CONICET'
-		values: self listOfPositionsAtCONICET
-		instructions: nil
-		on: html.
-
 	self
 		renderTextInputEditorFor: 'institutionalEmail'
 		label: 'e-mail institucional'
@@ -178,7 +181,6 @@ LifianEditorComponent >> renderPropertyEditorsOn: html [
 		label: 'Página web'
 		instructions: nil
 		on: html.
-
 	self
 		renderTextInputEditorFor: 'shortCvInSpanish'
 		label: 'CV resumido en español'
