@@ -53,34 +53,54 @@ Investigador
 { #category : #initialization }
 PublicResearchStaffListComponent >> renderItem: item on: html [
 
-	html paragraph
-		style: 'line-height: 1.25;';
-		with: [
-			html strong: item fullName.
-			html text: '. '.
-			item highestDegree ifNotNilNotEmpty: [ :it | html text: it , '. ' ].
-			item positionAtUnlp ifNotNilNotEmpty: [ :it |
-					it ~= 'N/A' ifTrue: [ html text: it , ' de la UNLP. ' ] ].
-			item positionAtCONICET ifNotNilNotEmpty: [ :it |
-					it ~= 'N/A' ifTrue: [ html text: it , ' del CONICET. ' ] ].
-			item positionAtCIC ifNotNilNotEmpty: [ :it |
-					it ~= 'N/A' ifTrue: [ html text: it , ' de la CICPBA. ' ] ].
-			item endDate
-				ifNil: [
-					html text:
-							'En el LIFIA desde el año ' , item startDate year greaseString
-							, '. ' ]
-				ifNotNil: [ :endDate |
-					html text: '(' , item startDate year greaseString , ' - '
-							, item endDate year greaseString , ') ' ].
+	html tableRow: [
+		html tableData: [
+			html image
+				url: (item avatarUrl isEmptyOrNil
+						 ifTrue: [ LifiaFileLibrary / #annonymousavatarPng ]
+						 ifFalse: [ item avatarUrl ]);
+				height: 40 ].
+		html tableData: item fullName.
+		html tableData: item institutionalEmail.
+		html tableData: [ self renderShortBioFor: item on: html ] ]
+]
 
-			item institutionalEmail ifNotEmpty: [ :email |
-					html text: ' <' , email , '> ' ].
-			html anchor
-				target: '_blank';
-				title: 'Ver ficha  detallada';
-				url: '/' , (ResearcherReportComponent relativeUrlFor: item);
-				with: [ html tbsGlyphIcon iconZoomIn ] ]
+{ #category : #initialization }
+PublicResearchStaffListComponent >> renderSectionsOn: html [
+
+	sections do: [ :section |
+		html heading level2 with: section key.
+		html tbsTable
+			beStriped;
+			with: [
+				html tableBody: [
+						section value do: [ :item | self renderItem: item on: html ] ] ] ]
+]
+
+{ #category : #initialization }
+PublicResearchStaffListComponent >> renderShortBioFor: item on: html [
+
+	item highestDegree ifNotNilNotEmpty: [ :it | html text: it , '. ' ].
+	item positionAtUnlp ifNotNilNotEmpty: [ :it |
+		it ~= 'N/A' ifTrue: [ html text: it , ' de la UNLP. ' ] ].
+	item positionAtCONICET ifNotNilNotEmpty: [ :it |
+		it ~= 'N/A' ifTrue: [ html text: it , ' del CONICET. ' ] ].
+	item positionAtCIC ifNotNilNotEmpty: [ :it |
+		it ~= 'N/A' ifTrue: [ html text: it , ' de la CICPBA. ' ] ].
+	item endDate
+		ifNil: [
+			html text:
+				'En el LIFIA desde el año ' , item startDate year greaseString
+				, '. ' ]
+		ifNotNil: [ :endDate |
+			html text: '(' , item startDate year greaseString , ' - '
+				, item endDate year greaseString , ') ' ].
+
+	html anchor
+		target: '_blank';
+		title: 'Ver ficha  detallada';
+		url: '/' , (ResearcherReportComponent relativeUrlFor: item);
+		with: [ html tbsGlyphIcon iconZoomIn ]
 ]
 
 { #category : #initialization }

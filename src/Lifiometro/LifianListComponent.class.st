@@ -50,32 +50,44 @@ LifianListComponent >> newEditorFor: anEntry [
 { #category : #rendering }
 LifianListComponent >> render: each on: html [
 
-	html paragraph: [
+	html tbsRow: [
 		html
-			strong: each lastName , ', ' , each firstName;
-			break.
-		each category ifNotNilNotEmpty: [ :it |
-			html
-				text: 'Categoría de incentivos: ' , it;
-				break ].
-		each sicadiCategory ifNotNilNotEmpty: [ :it |
-			html
-				text: 'Categoría SICADI: ' , it;
-				break ].
-		each positionAtCIC ifNotNilNotEmpty: [ :it |
-			it ~= 'N/A' ifTrue: [
-				html
-					text: 'Cargo en CICPBA: ' , it;
-					break ] ].
-		each positionAtCONICET ifNotNilNotEmpty: [ :it |
-			it ~= 'N/A' ifTrue: [
-				html
-					text: 'Cargo en CONICET: ' , it;
-					break ] ].
+			tbsColumn: [
+				html paragraph: [
+					html
+						strong: each lastName , ', ' , each firstName;
+						break.
+					each category ifNotNilNotEmpty: [ :it |
+						html
+							text: 'Categoría de incentivos: ' , it;
+							break ].
+					each sicadiCategory ifNotNilNotEmpty: [ :it |
+						html
+							text: 'Categoría SICADI: ' , it;
+							break ].
+					each positionAtCIC ifNotNilNotEmpty: [ :it |
+						it ~= 'N/A' ifTrue: [
+							html
+								text: 'Cargo en CICPBA: ' , it;
+								break ] ].
+					each positionAtCONICET ifNotNilNotEmpty: [ :it |
+						it ~= 'N/A' ifTrue: [
+							html
+								text: 'Cargo en CONICET: ' , it;
+								break ] ].
+					html
+						text: 'Cargo docente en UNLP: ' , each positionAtUnlp;
+						break.
+					html text: 'E-mails: ' , (self emailsStringFor: each) ] ]
+			mediumSize: 8.
 		html
-			text: 'Cargo docente en UNLP: ' , each positionAtUnlp;
-			break.
-		html text: 'E-mails: ' , (self emailsStringFor: each) ]
+			tbsColumn: [
+				html image
+					url: (each avatarUrl isEmptyOrNil
+							 ifTrue: [ LifiaFileLibrary / #annonymousavatarPng ]
+							 ifFalse: [ each avatarUrl ]);
+					height: 100 ]
+			mediumSize: 4 ]
 ]
 
 { #category : #rendering }

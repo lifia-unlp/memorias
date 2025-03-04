@@ -79,12 +79,12 @@ ResearcherReportComponent >> renderExternalLinksOn: html [
 { #category : #rendering }
 ResearcherReportComponent >> renderPropertiesOn: html [
 
-	report researcher avatarUrl ifNotNil: [ :it |
-		html image
-			style: 'margin: 20px;';
-			url: it;
-			width: 120 ].
-
+	html image
+		style: 'margin: 20px;';
+		url: (report researcher avatarUrl isEmptyOrNil
+				 ifTrue: [ LifiaFileLibrary / #annonymousavatarPng ]
+				 ifFalse: [ report researcher avatarUrl ]);
+		width: 120.
 	html paragraph: [
 		html
 			strong: 'Apellido, nombre: ';
