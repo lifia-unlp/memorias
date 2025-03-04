@@ -26,8 +26,8 @@ ReferenceRenderer >> renderBibtexAvailableIconFor: aBibtexEntry on: aCanvas [
 	escapedBibtexEntry := aBibtexEntry bibtexEntry printString
 		        copyReplaceAll: Character cr asString
 		        with: '\n'.
-	escapedBibtexEntry := aBibtexEntry bibtexEntry printString copyReplaceAll: '"' with: '\"'.
-	escapedBibtexEntry := aBibtexEntry bibtexEntry printString copyReplaceAll: '\' with: '\\'.
+	escapedBibtexEntry := escapedBibtexEntry copyReplaceAll: '"' with: '\"'.
+	escapedBibtexEntry := escapedBibtexEntry copyReplaceAll: '\' with: '\\'.
 	iconTag
 		id: 'bibtex-icon';
 		onClick:
