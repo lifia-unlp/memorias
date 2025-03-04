@@ -38,7 +38,7 @@ LifianListComponent >> initializeGroupingAndFilteringAdapter [
 { #category : #accessing }
 LifianListComponent >> items [
 	^ LifiometroRepository singleton lifians
-		asSortedCollection: [ :a :b | a lastName < b lastName ]
+		asSortedCollection: [ :a :b | a fullName < b fullName ]
 ]
 
 { #category : #'factory-methods' }
@@ -55,7 +55,7 @@ LifianListComponent >> render: each on: html [
 			tbsColumn: [
 				html paragraph: [
 					html
-						strong: each lastName , ', ' , each firstName;
+						strong: each fullName;
 						break.
 					each category ifNotNilNotEmpty: [ :it |
 						html
