@@ -30,7 +30,7 @@ ScholarshipsListComponent >> initializeGroupingAndFilteringAdapter [
 { #category : #accessing }
 ScholarshipsListComponent >> items [
 	^ LifiometroRepository singleton scholarships
-		asSortedCollection: [ :a :b | a endDate asDate > b endDate asDate ]
+		asSortedCollection: [ :a :b | a student < b student ]
 ]
 
 { #category : #'factory-methods' }
