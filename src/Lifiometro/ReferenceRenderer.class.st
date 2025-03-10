@@ -5,6 +5,35 @@ Class {
 }
 
 { #category : #rendering }
+ReferenceRenderer >> addBibOverlayTo: iconTag on: aCanvas [
+
+	iconTag with: [
+		aCanvas span
+			style:
+				'position: absolute; bottom: 1px; left: 1px; font-size: 8px; color: white; font-weight: bold; background: transparent; padding: 0 0; border-radius: 0;';
+			with: 'bib' ]
+]
+
+{ #category : #rendering }
+ReferenceRenderer >> addCopyBibtextJsTo: iconTag for: aBibtexEntry [
+
+	| escapedBibtexEntry |
+	escapedBibtexEntry := aBibtexEntry bibtexEntry printString
+		                      copyReplaceAll: Character cr asString
+		                      with: '\n'.
+	escapedBibtexEntry := escapedBibtexEntry
+		                      copyReplaceAll: '"'
+		                      with: '\"'.
+	escapedBibtexEntry := escapedBibtexEntry
+		                      copyReplaceAll: '\'
+		                      with: '\\'.
+	iconTag
+		  id: 'bibtex-icon';
+		  onClick: 'navigator.clipboard.writeText(''' , escapedBibtexEntry
+			  , '''); alert(''Bibtex copiado al portapapeles.'');'
+]
+
+{ #category : #rendering }
 ReferenceRenderer >> render: aReference on: aCanvas [
 
 	aReference renderAsReferenceWith: self on: aCanvas 
@@ -20,19 +49,12 @@ ReferenceRenderer >> renderAuthorsOf: aReference on: aCanvas [
 { #category : #rendering }
 ReferenceRenderer >> renderBibtexAvailableIconFor: aBibtexEntry on: aCanvas [
 
-	| iconTag escapedBibtexEntry |
-	iconTag := aCanvas tbsGlyphIcon.
-	iconTag iconCheck.
-	escapedBibtexEntry := aBibtexEntry bibtexEntry printString
-		        copyReplaceAll: Character cr asString
-		        with: '\n'.
-	escapedBibtexEntry := escapedBibtexEntry copyReplaceAll: '"' with: '\"'.
-	escapedBibtexEntry := escapedBibtexEntry copyReplaceAll: '\' with: '\\'.
-	iconTag
-		id: 'bibtex-icon';
-		onClick:
-			'navigator.clipboard.writeText(''' , escapedBibtexEntry
-			, '''); alert(''Copiado'');'
+	| iconTag |
+	aCanvas anchor: [
+		iconTag := aCanvas tbsGlyphIcon.
+		iconTag iconFile.
+		self addCopyBibtextJsTo: iconTag for: aBibtexEntry.
+		self addBibOverlayTo: iconTag on: aCanvas ]
 ]
 
 { #category : #'rendering-types' }
