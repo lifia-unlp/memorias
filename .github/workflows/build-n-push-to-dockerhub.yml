@@ -1,0 +1,36 @@
+name: Build and Push to Dockerhub 
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Build Docker image with both tags
+        run: |
+          
+          # Use only the first 7 characters of the commit SHA (common practice)
+          COMMIT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+
+          # Build the image and tag it twice
+          docker build \
+            -f build-deploy/docker/Dockerfile \
+            -t cientopolis/memorias:latest \
+            -t cientopolis/memorias:$COMMIT_SHA \
+            build-deploy/docker
+
+      - name: Push "latest" tag
+        run: docker push cientopolis/memorias:latest
+
+      - name: Push commit-specific tag
+        run: |
+          COMMIT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          docker push cientopolis/memorias:$COMMIT_SHA
