@@ -65,9 +65,11 @@ ProfileReportComponent >> renderProject: project on: html [
 { #category : #rendering }
 ProfileReportComponent >> renderProjectsOn: html [
 
-	html heading level2 with: 'Proyectos'.
-	(self sortDescencingByEndDate: report projects) do: [ :each |
-		self renderProject: each on: html ]
+	self
+		renderElementsSelectedBy: [ report projects ]
+		labeled: 'Proyectos'
+		with: [ :project :canvas | self renderProject: project on: canvas ]
+		on: html
 ]
 
 { #category : #rendering }
@@ -151,9 +153,12 @@ ProfileReportComponent >> renderScholarship: scholarship on: html [
 { #category : #rendering }
 ProfileReportComponent >> renderScholarshipsOn: html [
 
-	html heading level2 with: self titleForScholarshipsSection.
-	(self sortDescencingByEndDate: report scholarships) do: [ :each |
-		self renderScholarship: each on: html ]
+	self
+		renderElementsSelectedBy: [ report scholarships ]
+		labeled: self titleForScholarshipsSection
+		with: [ :project :canvas |
+		self renderScholarship: project on: canvas ]
+		on: html
 ]
 
 { #category : #rendering }
@@ -185,8 +190,12 @@ ProfileReportComponent >> renderThesis: thesis on: html [
 
 { #category : #rendering }
 ProfileReportComponent >> renderThesisOn: html [
-	html heading level2 with: self titleForThesisSection.
-	^ (self sortDescencingByEndDate: report thesis) do: [ :each | self renderThesis: each on: html ]
+
+	self
+		renderElementsSelectedBy: [ report thesis ]
+		labeled: self titleForThesisSection
+		with: [ :project :canvas | self renderThesis: project on: canvas ]
+		on: html
 ]
 
 { #category : #rendering }
