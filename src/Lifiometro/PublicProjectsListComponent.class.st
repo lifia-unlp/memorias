@@ -58,7 +58,7 @@ PublicProjectsListComponent >> renderItem: project on: html [
 						, project endDate ddmmyyyy , ' .'.
 			html space.
 			html anchor
-				url: '/' , (ProjectReportComponent relativeUrlFor: project);
+				url: self baseUrl , (ProjectReportComponent relativeUrlFor: project);
 				with: 'Ver Mas ...' ]
 ]
 

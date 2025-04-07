@@ -89,7 +89,7 @@ ProjectReportComponent >> renderPropertiesOn: html [
 								do: [ :each | 
 									html anchor
 										target: '_blank';
-										url: '/' , (ResearcherReportComponent relativeUrlFor: each);
+										url: self baseUrl , (ResearcherReportComponent relativeUrlFor: each);
 										with: each fullName ]
 								separatedBy: [ html text: ', ' ] ] ] ].
 	html heading level2 with: 'Resumen'.

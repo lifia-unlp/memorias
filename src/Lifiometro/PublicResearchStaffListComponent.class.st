@@ -99,7 +99,7 @@ PublicResearchStaffListComponent >> renderShortBioFor: item on: html [
 	html anchor
 		target: '_blank';
 		title: 'Ver ficha  detallada';
-		url: '/' , (ResearcherReportComponent relativeUrlFor: item);
+		url: self baseUrl , (ResearcherReportComponent relativeUrlFor: item);
 		with: [ html tbsGlyphIcon iconZoomIn ]
 ]
 

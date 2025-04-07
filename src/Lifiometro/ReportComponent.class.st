@@ -4,6 +4,15 @@ Class {
 	#category : #'Lifiometro-Reports'
 }
 
+{ #category : #'rendering-projects' }
+ReportComponent >> baseUrl [
+
+	Transcript show: self requestContext request url; cr.
+
+
+	^ '/'
+]
+
 { #category : #rendering }
 ReportComponent >> renderElementsSelectedBy: elementSelectionBlock labeled: label with: aRenderingBlock on: html [
 

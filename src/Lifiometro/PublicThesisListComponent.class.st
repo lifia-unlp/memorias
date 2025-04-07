@@ -73,7 +73,7 @@ PublicThesisListComponent >> renderItem: item on: html [
 					html text: 'Concluído el ' , it ddmmyyyy , '.' ].
 			html space.
 			html anchor
-				url: '/' , (ThesisReportComponent relativeUrlFor: item);
+				url: self baseUrl , (ThesisReportComponent relativeUrlFor: item);
 				with: 'Ver Mas ...' ]
 ]
 

@@ -47,7 +47,7 @@ ProfileReportComponent >> renderProject: project on: html [
 	html
 		paragraph: [ html anchor
 				target: '_blank';
-				url: '/' , (ProjectReportComponent relativeUrlFor: project);
+				url: self baseUrl , (ProjectReportComponent relativeUrlFor: project);
 				with: project title , '.'.
 			html space.
 			project fundingAgency
@@ -128,7 +128,7 @@ ProfileReportComponent >> renderResearchersOn: html [
 					html
 						listItem: [ html anchor
 								target: '_blank';
-								url: '/' , (ResearcherReportComponent relativeUrlFor: each);
+								url: self baseUrl , (ResearcherReportComponent relativeUrlFor: each);
 								with: 'each fullName' ] ] ]
 ]
 
@@ -175,7 +175,7 @@ ProfileReportComponent >> renderThesis: thesis on: html [
 		paragraph: [ html text: thesis student.
 			html text: ' (' , level , '). '.
 			html anchor
-				url: '/' , (ThesisReportComponent relativeUrlFor: thesis);
+				url: self baseUrl , (ThesisReportComponent relativeUrlFor: thesis);
 				with: thesis title , '. '.
 			thesis career ifNotEmpty: [ :it | html text: it , '. ' ].
 			thesis director

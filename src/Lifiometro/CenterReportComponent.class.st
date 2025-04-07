@@ -320,7 +320,7 @@ CenterReportComponent >> renderIndexOn: html [
 CenterReportComponent >> renderLinkToThesisProfile: aThesis on: html [
 
 	html anchor
-		url: '/' , (ThesisReportComponent relativeUrlFor: aThesis);
+		url: self baseUrl , (ThesisReportComponent relativeUrlFor: aThesis);
 		with: 'Mas detalles'
 ]
 
@@ -384,7 +384,7 @@ CenterReportComponent >> renderProject: each on: html [
 					on: html ].
 			html anchor
 				target: '_blank';
-				url: '/' , (ProjectReportComponent relativeUrlFor: each);
+				url: self baseUrl , (ProjectReportComponent relativeUrlFor: each);
 				with: 'Mas detalles' ]
 ]
 
