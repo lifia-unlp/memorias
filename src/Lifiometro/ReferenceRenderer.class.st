@@ -17,20 +17,24 @@ ReferenceRenderer >> addBibOverlayTo: iconTag on: aCanvas [
 { #category : #rendering }
 ReferenceRenderer >> addCopyBibtextJsTo: iconTag for: aBibtexEntry [
 
-	| escapedBibtexEntry |
-	escapedBibtexEntry := aBibtexEntry bibtexEntry printString
-		                      copyReplaceAll: Character cr asString
-		                      with: '\n'.
-	escapedBibtexEntry := escapedBibtexEntry
-		                      copyReplaceAll: '"'
-		                      with: '\"'.
-	escapedBibtexEntry := escapedBibtexEntry
-		                      copyReplaceAll: '\'
-		                      with: '\\'.
-	iconTag
-		  id: 'bibtex-icon';
-		  onClick: 'navigator.clipboard.writeText(''' , escapedBibtexEntry
-			  , '''); alert(''Bibtex copiado al portapapeles.'');'
+       | escapedBibtexEntry |
+       escapedBibtexEntry := aBibtexEntry bibtexEntry printString.
+       escapedBibtexEntry := escapedBibtexEntry
+                                     copyReplaceAll: '\'
+                                     with: '\\'.
+       escapedBibtexEntry := escapedBibtexEntry
+                                     copyReplaceAll: '"'
+                                     with: '\"'.
+       escapedBibtexEntry := escapedBibtexEntry
+                                     copyReplaceAll: Character cr asString
+                                     with: '\n'.
+       escapedBibtexEntry := escapedBibtexEntry
+                                     copyReplaceAll: Character lf asString
+                                     with: '\n'.
+       iconTag
+                 id: 'bibtex-icon';
+                 onClick: 'navigator.clipboard.writeText(''' , escapedBibtexEntry
+                         , '''); alert(''Bibtex copiado al portapapeles.'');'
 ]
 
 { #category : #rendering }
