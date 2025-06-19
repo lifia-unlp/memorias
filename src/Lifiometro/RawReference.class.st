@@ -27,6 +27,20 @@ RawReference >> asSummary [
 	^ self asReference
 ]
 
+{ #category : #accessing }
+RawReference >> bibtexPrintString [
+
+	| key entry |
+	key := self year
+		       ifNil: [ Time millisecondClockValue printString ]
+		       ifNotNil: [ self year asString ].
+	entry := BibtexEntry emptyMisc.
+	entry citationKey: 'raw' , key.
+	entry at: 'note' put: self reference.
+	entry at: 'year' put: self year.
+	^ entry printString
+]
+
 { #category : #utility }
 RawReference >> cleanupLatexAccentsAndBraces [
 	^ self
@@ -112,14 +126,4 @@ RawReference >> year: anObject [
 { #category : #accessing }
 RawReference >> yearsActive [
         ^ {self year asNumber}
-]
-
-{ #category : #accessing }
-RawReference >> bibtexPrintString [
-       ^ String streamContents: [ :stream |
-               stream
-                       nextPutAll: '@misc{raw', (self year ifNil: [''] ifNotNil: [ self year printString ]), ',\n';
-                       nextPutAll: '  note = {'; nextPutAll: self reference; nextPutAll: '},\n';
-                       nextPutAll: '  year = {'; nextPutAll: self year printString; nextPutAll: '}\n';
-                       nextPutAll: '}' ]
 ]

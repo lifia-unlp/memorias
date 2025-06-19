@@ -11,6 +11,11 @@ Class {
 }
 
 { #category : #accessing }
+IndividualReport >> allPublications [
+        ^ publications
+]
+
+{ #category : #accessing }
 IndividualReport >> articlePublications [
 	^ publications select: [ :each | each type = 'article' ]
 ]
@@ -51,9 +56,4 @@ IndividualReport >> scholarships [
 { #category : #accessing }
 IndividualReport >> thesis [
         ^ thesis
-]
-
-{ #category : #accessing }
-IndividualReport >> allPublications [
-        ^ publications
 ]

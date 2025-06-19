@@ -87,6 +87,11 @@ BibtexReference >> bibtexEntry: anObject [
 ]
 
 { #category : #accessing }
+BibtexReference >> bibtexPrintString [
+       ^ bibtexEntry printString
+]
+
+{ #category : #accessing }
 BibtexReference >> booktitle [
 	^(bibtexEntry at: 'booktitle') ifNil: [ '' ]
 ]
@@ -284,9 +289,4 @@ BibtexReference >> year [
 { #category : #accessing }
 BibtexReference >> yearsActive [
         ^ {self year asNumber}
-]
-
-{ #category : #accessing }
-BibtexReference >> bibtexPrintString [
-       ^ bibtexEntry printString
 ]

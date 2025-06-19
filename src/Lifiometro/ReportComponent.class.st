@@ -13,6 +13,21 @@ ReportComponent >> baseUrl [
 	^ '/'
 ]
 
+{ #category : #actions }
+ReportComponent >> exportBibtex [
+       | bibtexEntries |
+       bibtexEntries := report allPublications.
+       self requestContext respond: [ :response |
+               response contentType: 'application/x-bibtex'.
+               response headerAt: 'Content-Disposition'
+                               put: 'attachment; filename="publications.bib"'.
+               response nextPutAll:
+                       (String streamContents: [ :stream |
+                               bibtexEntries do: [ :each |
+                                       stream nextPutAll: each bibtexPrintString;
+                                               cr; cr ] ]) ]
+]
+
 { #category : #rendering }
 ReportComponent >> renderElementsSelectedBy: elementSelectionBlock labeled: label with: aRenderingBlock on: html [
 
@@ -65,19 +80,4 @@ ReportComponent >> sortDescencingByEndDate: periodBoundedEntities separateFinish
 					  ifTrue: [ 'inProgress' ]
 					  ifFalse: [ 'finished' ] ] ]
                   ifFalse: [ sorted ]
-]
-
-{ #category : #actions }
-ReportComponent >> exportBibtex [
-       | bibtexEntries |
-       bibtexEntries := report allPublications.
-       self requestContext respond: [ :response |
-               response contentType: 'application/x-bibtex'.
-               response headerAt: 'Content-Disposition'
-                               put: 'attachment; filename="publications.bib"'.
-               response nextPutAll:
-                       (String streamContents: [ :stream |
-                               bibtexEntries do: [ :each |
-                                       stream nextPutAll: each bibtexPrintString;
-                                               cr; cr ] ]) ]
 ]

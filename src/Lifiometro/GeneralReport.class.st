@@ -68,6 +68,11 @@ GeneralReport >> activeUndergraduateThesis [
 ]
 
 { #category : #accessing }
+GeneralReport >> allPublications [
+        ^ articlePublications , inproceedingsPublications , inbookPublications , bookPublications , otherPublications
+]
+
+{ #category : #accessing }
 GeneralReport >> articlePublications [
 	^ articlePublications
 ]
@@ -248,9 +253,4 @@ GeneralReport >> years: theYears projects: theProjects publications: thePublicat
 	mastersThesis := theThesis select: [ :each | each level = 'Masters' ].
         specializationThesis := theThesis select: [ :each |
                                         each level = 'Specialization' ]
-]
-
-{ #category : #accessing }
-GeneralReport >> allPublications [
-        ^ articlePublications , inproceedingsPublications , inbookPublications , bookPublications , otherPublications
 ]
