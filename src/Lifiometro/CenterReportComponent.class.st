@@ -48,22 +48,6 @@ CenterReportComponent >> children [
 	^ {publicationsPlot. checkboxesComponent . indexComponent }
 ]
 
-{ #category : #actions }
-CenterReportComponent >> exportBibtex [
-       | bibtexEntries |
-       bibtexEntries := report allPublications
-                               select: [ :each | each class = BibtexReference ].
-       self requestContext respond: [ :response |
-               response contentType: 'application/x-bibtex'.
-               response headerAt: 'Content-Disposition'
-                               put: 'attachment; filename="publications.bib"'.
-               response nextPutAll:
-                       (String streamContents: [ :stream |
-                               bibtexEntries do: [ :each |
-                                       stream nextPutAll: each bibtexEntry printString;
-                                               cr; cr ] ]) ]
-]
-
 { #category : #initialization }
 CenterReportComponent >> initialize [
 
@@ -213,7 +197,7 @@ CenterReportComponent >> renderActiveScholarshipReportOn: html [
 		level1;
 		id: 'scholarships';
 		with: 'Becas y estancias en curso'.
-	report activeScholarships
+	self report activeScholarships
 		do: [ :each | self renderScholarship: each on: html ]
 ]
 
@@ -297,7 +281,7 @@ CenterReportComponent >> renderFinishedScholarshipReportOn: html [
 		level1;
 		id: 'scholarships';
 		with: 'Becas y estancias concluídas'.
-	report finishedScholarships do: [ :each |
+	self report finishedScholarships do: [ :each |
 		self renderScholarship: each on: html ]
 ]
 
@@ -650,51 +634,51 @@ CenterReportComponent >> renderThesisReportOn: html [
 
 	activePhdThesis checked ifTrue: [
 		self
-			renderThesisCollection: report activePhdThesis
+			renderThesisCollection: self report activePhdThesis
 			withHeading: 'Tesis doctorales en curso'
 			on: html ].
 
 	finishedPhdThesis checked ifTrue: [
 		self
-			renderThesisCollection: report finishedPhdThesis
+			renderThesisCollection: self report finishedPhdThesis
 			withHeading: 'Tesis doctorales concluídas'
 			on: html ].
 
 
 	activeMastersThesis checked ifTrue: [
 		self
-			renderThesisCollection: report activeMastersThesis
+			renderThesisCollection: self report activeMastersThesis
 			withHeading: 'Tesis de maestría en curso'
 			on: html ].
 
 	finishedMastersThesis checked ifTrue: [
 		self
-			renderThesisCollection: report finishedMastersThesis
+			renderThesisCollection: self report finishedMastersThesis
 			withHeading: 'Tesis de maestría concluídas'
 			on: html ].
 
 
 	activeSpecializationThesis checked ifTrue: [
 		self
-			renderThesisCollection: report activeSpecializationThesis
+			renderThesisCollection: self report activeSpecializationThesis
 			withHeading: 'Trabajos de especialización en curso'
 			on: html ].
 
 	finishedSpecializationThesis checked ifTrue: [
 		self
-			renderThesisCollection: report finishedSpecializationThesis
+			renderThesisCollection: self report finishedSpecializationThesis
 			withHeading: 'Trabajos de especialización concluídos'
 			on: html ].
 
 	activeUndergraduateThesis checked ifTrue: [
 		self
-			renderThesisCollection: report activeUndergraduateThesis
+			renderThesisCollection: self report activeUndergraduateThesis
 			withHeading: 'Tesinas de grado en curso'
 			on: html ].
 
 	finishedUndergraduateThesis checked ifTrue: [
 		self
-			renderThesisCollection: report finishedUndergraduateThesis
+			renderThesisCollection: self report finishedUndergraduateThesis
 			withHeading: 'Tesinas de grado concluídas'
 			on: html ]
 ]
@@ -769,9 +753,9 @@ CenterReportComponent >> toggleShowSummaries [
 { #category : #hooks }
 CenterReportComponent >> updateRoot: aWARoot [
 
-        super updateRoot: aWARoot.
-        aWARoot meta
-                name: 'viewport';
-                content: 'width=device-width, initial-scale=1'.
-        aWARoot title: 'LIFIA - Memoria técnica'
+	super updateRoot: aWARoot.
+	aWARoot meta
+		name: 'viewport';
+		content: 'width=device-width, initial-scale=1'.
+	aWARoot title: 'LIFIA - Memoria técnica'
 ]

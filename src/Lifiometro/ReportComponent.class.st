@@ -15,17 +15,20 @@ ReportComponent >> baseUrl [
 
 { #category : #actions }
 ReportComponent >> exportBibtex [
-       | bibtexEntries |
-       bibtexEntries := report allPublications.
-       self requestContext respond: [ :response |
-               response contentType: 'application/x-bibtex'.
-               response headerAt: 'Content-Disposition'
-                               put: 'attachment; filename="publications.bib"'.
-               response nextPutAll:
-                       (String streamContents: [ :stream |
-                               bibtexEntries do: [ :each |
-                                       stream nextPutAll: each bibtexPrintString;
-                                               cr; cr ] ]) ]
+
+	| bibtexEntries |
+	bibtexEntries := self report allPublications.
+	self requestContext respond: [ :response |
+		response contentType: 'application/x-bibtex'.
+		response
+			headerAt: 'Content-Disposition'
+			put: 'attachment; filename="publications.bib"'.
+		response nextPutAll: (String streamContents: [ :stream |
+				 bibtexEntries do: [ :each |
+					 stream
+						 nextPutAll: each bibtexPrintString;
+						 cr;
+						 cr ] ]) ]
 ]
 
 { #category : #rendering }
@@ -47,6 +50,12 @@ ReportComponent >> renderElementsSelectedBy: elementSelectionBlock labeled: labe
 	(elements at: 'finished' ifAbsent: [ Set new ]) ifNotEmpty: [ :elems |
 		html paragraph: [ html strong: 'Concluídos' ].
 		elems do: [ :each | aRenderingBlock value: each value: html ] ]
+]
+
+{ #category : #reporting }
+ReportComponent >> report [
+
+	^ self subclassResponsibility
 ]
 
 { #category : #'rendering-projects' }

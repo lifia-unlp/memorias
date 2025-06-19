@@ -12,7 +12,8 @@ Class {
 
 { #category : #accessing }
 IndividualReport >> allPublications [
-        ^ publications
+
+	^ publications
 ]
 
 { #category : #accessing }
@@ -55,5 +56,6 @@ IndividualReport >> scholarships [
 
 { #category : #accessing }
 IndividualReport >> thesis [
-        ^ thesis
+
+	^ thesis
 ]

@@ -69,7 +69,9 @@ GeneralReport >> activeUndergraduateThesis [
 
 { #category : #accessing }
 GeneralReport >> allPublications [
-        ^ articlePublications , inproceedingsPublications , inbookPublications , bookPublications , otherPublications
+
+	^ articlePublications , inproceedingsPublications
+	  , inbookPublications , bookPublications , otherPublications
 ]
 
 { #category : #accessing }
