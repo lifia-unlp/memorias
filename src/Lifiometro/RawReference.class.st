@@ -30,7 +30,7 @@ RawReference >> asSummary [
 { #category : #accessing }
 RawReference >> bibtexPrintString [
 
-	| key entry |
+	| key entry tagsToRemove |
 	key := self year
 		       ifNil: [ Time millisecondClockValue printString ]
 		       ifNotNil: [ self year asString ].
@@ -38,6 +38,9 @@ RawReference >> bibtexPrintString [
 	entry citationKey: 'raw' , key.
 	entry at: 'note' put: self reference.
 	entry at: 'year' put: self year.
+	tagsToRemove := (entry tags collect: #name) asSet.
+	tagsToRemove removeAllFoundIn: #( 'note' #'.' 'year' ).
+	tagsToRemove do: [ :each | entry removeTag: each ].
 	^ entry printString
 ]
 
