@@ -775,3 +775,4 @@ CenterReportComponent >> exportBibtex [
                                        stream nextPutAll: each bibtexEntry printString;
                                                cr; cr ] ]) ]
 ]
+
