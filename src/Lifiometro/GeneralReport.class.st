@@ -246,6 +246,11 @@ GeneralReport >> years: theYears projects: theProjects publications: thePublicat
 		                       each level = 'Undergraduate' ].
 	phdThesis := theThesis select: [ :each | each level = 'PhD' ].
 	mastersThesis := theThesis select: [ :each | each level = 'Masters' ].
-	specializationThesis := theThesis select: [ :each |
-		                        each level = 'Specialization' ]
+        specializationThesis := theThesis select: [ :each |
+                                        each level = 'Specialization' ]
+]
+
+{ #category : #accessing }
+GeneralReport >> allPublications [
+        ^ articlePublications , inproceedingsPublications , inbookPublications , bookPublications , otherPublications
 ]

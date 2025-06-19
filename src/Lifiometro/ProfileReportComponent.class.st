@@ -99,12 +99,23 @@ ProfileReportComponent >> renderPublications: aCollectionOfPublications withYear
 { #category : #rendering }
 ProfileReportComponent >> renderPublicationsOn: html [
 
-	| publications |
-	html heading level2 with: 'Publicaciones'.
-	publications := OrderedCollection new
-		                add:
-			                'Publicaciones en revistas'
-			                -> report articlePublications;
+       | publications |
+       html heading
+               level2;
+               with: [
+                       html text: 'Publicaciones '.
+                       html anchor
+                               callback: [ self exportBibtex ];
+                               with: [ | iconTag |
+                                       iconTag := html tbsGlyphIcon.
+                                       iconTag iconFile.
+                                       iconTag with: [ html span
+                                                       style: 'position: absolute; bottom: 1px; left: 1px; font-size: 8px; color: white; font-weight: bold; background: transparent; padding: 0 0; border-radius: 0;';
+                                                       with: 'bib' ] ] ].
+       publications := OrderedCollection new
+                               add:
+                                       'Publicaciones en revistas'
+                                       -> report articlePublications;
 		                add:
 			                'Publicaciones en conferencias'
 			                -> report inproceedingsPublications;
@@ -262,9 +273,25 @@ ProfileReportComponent >> titleForThesisSection [
 { #category : #rendering }
 ProfileReportComponent >> updateRoot: aWARoot [
 
-	super updateRoot: aWARoot.
-	aWARoot title: 'Memorias - LIFIA'.
-	aWARoot meta
-		name: 'viewport';
-		content: 'width=device-width, initial-scale=1'
+        super updateRoot: aWARoot.
+        aWARoot title: 'Memorias - LIFIA'.
+        aWARoot meta
+                name: 'viewport';
+                content: 'width=device-width, initial-scale=1'
+]
+
+{ #category : #actions }
+ProfileReportComponent >> exportBibtex [
+       | bibtexEntries |
+       bibtexEntries := report allPublications
+                               select: [ :each | each class = BibtexReference ].
+       self requestContext respond: [ :response |
+               response contentType: 'application/x-bibtex'.
+               response headerAt: 'Content-Disposition'
+                               put: 'attachment; filename="publications.bib"'.
+               response nextPutAll:
+                       (String streamContents: [ :stream |
+                               bibtexEntries do: [ :each |
+                                       stream nextPutAll: each bibtexEntry printString;
+                                               cr; cr ] ]) ]
 ]
