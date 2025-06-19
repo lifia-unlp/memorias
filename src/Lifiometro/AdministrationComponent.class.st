@@ -354,14 +354,17 @@ AdministrationComponent >> selectLifianFor: aLifiaUser [
 
 { #category : #callbacks }
 AdministrationComponent >> sendTestEmail [
-	| message |
-	message := WAEmailMessage
-		from: 'casco@lifia.info.unlp.edu.ar'
-		to: 'casco@lifia.info.unlp.edu.ar'
-		subject: 'Este es un correo de pruebas'.
-	message
-		body: 'Si te llega este correo es porque funciona la configuración'.
-	message send
+
+	| email |
+	MailerSendAPI singleton isProperlyConfigured ifFalse: [ ^ self ].
+	email := MemoriasPlainTextEmail new
+		         from: MailerSendAPI singleton emailsSender;
+		         to: (Set with: MailerSendAPI singleton sendErrorEmailsTo);
+		         subject: 'Este es un correo de pruebas';
+		         text:
+			         'Si te llega este correo es porque funciona la configuración';
+		         yourself.
+	MailerSendAPI singleton send: email
 ]
 
 { #category : #callbacks }
