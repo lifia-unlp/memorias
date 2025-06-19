@@ -280,3 +280,19 @@ ProfileReportComponent >> updateRoot: aWARoot [
                 content: 'width=device-width, initial-scale=1'
 ]
 
+{ #category : #actions }
+ProfileReportComponent >> exportBibtex [
+       | bibtexEntries |
+       bibtexEntries := report allPublications
+                               select: [ :each | each class = BibtexReference ].
+       self requestContext respond: [ :response |
+               response contentType: 'application/x-bibtex'.
+               response headerAt: 'Content-Disposition'
+                               put: 'attachment; filename="publications.bib"'.
+               response nextPutAll:
+                       (String streamContents: [ :stream |
+                               bibtexEntries do: [ :each |
+                                       stream nextPutAll: each bibtexEntry printString;
+                                               cr; cr ] ]) ]
+]
+
