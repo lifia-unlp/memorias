@@ -283,5 +283,10 @@ BibtexReference >> year [
 
 { #category : #accessing }
 BibtexReference >> yearsActive [
-	^ {self year asNumber}
+        ^ {self year asNumber}
+]
+
+{ #category : #accessing }
+BibtexReference >> bibtexPrintString [
+       ^ bibtexEntry printString
 ]

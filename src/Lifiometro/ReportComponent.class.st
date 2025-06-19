@@ -45,7 +45,7 @@ ReportComponent >> sortDescencingByEndDate: periodBoundedEntities [
 
 { #category : #'rendering-projects' }
 ReportComponent >> sortDescencingByEndDate: periodBoundedEntities separateFinished: separateFinished [
-	"If endDate is nil, assume it is still running and therefore comes first, sorted by start date"
+        "If endDate is nil, assume it is still running and therefore comes first, sorted by start date"
 
 	| sorted |
 	sorted := periodBoundedEntities asSortedCollection: [ :a :b |
@@ -64,5 +64,20 @@ ReportComponent >> sortDescencingByEndDate: periodBoundedEntities separateFinish
 				  each isActive
 					  ifTrue: [ 'inProgress' ]
 					  ifFalse: [ 'finished' ] ] ]
-		  ifFalse: [ sorted ]
+                  ifFalse: [ sorted ]
+]
+
+{ #category : #actions }
+ReportComponent >> exportBibtex [
+       | bibtexEntries |
+       bibtexEntries := report allPublications.
+       self requestContext respond: [ :response |
+               response contentType: 'application/x-bibtex'.
+               response headerAt: 'Content-Disposition'
+                               put: 'attachment; filename="publications.bib"'.
+               response nextPutAll:
+                       (String streamContents: [ :stream |
+                               bibtexEntries do: [ :each |
+                                       stream nextPutAll: each bibtexPrintString;
+                                               cr; cr ] ]) ]
 ]
