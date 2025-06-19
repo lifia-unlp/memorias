@@ -430,24 +430,30 @@ CenterReportComponent >> renderPublicationsPlotOn: html [
 { #category : #'rendering-publications' }
 CenterReportComponent >> renderPublicationsReportOn: html [
 
-        article checked | inbook checked | inproceedings checked | book checked | misc checked ifFalse: [ ^ self ].
-        html heading
-                level1;
-                id: 'publications';
-                with: [
-                        html text: 'Publicaciones '.
-                        html anchor
-                                callback: [ self exportBibtex ];
-                                with: [ | iconTag |
-                                        iconTag := html tbsGlyphIcon.
-                                        iconTag iconFile.
-                                        iconTag with: [ html span
-                                                        style: 'position: absolute; bottom: 1px; left: 1px; font-size: 8px; color: white; font-weight: bold; background: transparent; padding: 0 0; border-radius: 0;';
-                                                        with: 'bib' ] ] ].
-        self renderPublicationsPlotOn: html.
-        article checked ifTrue: [ self renderArticlePublicationsReportOn: html ].
-        inproceedings checked ifTrue: [
-                self renderInProceedingsPublicationsReportOn: html ].
+	article checked | inbook checked | inproceedings checked
+	| book checked | misc checked ifFalse: [ ^ self ].
+	html heading
+		level1;
+		id: 'publications';
+		with: 'Publicaciones '.
+
+	html anchor
+		callback: [ self exportBibtex ];
+		with: [
+			| iconTag |
+			iconTag := html tbsGlyphIcon.
+			iconTag iconFile.
+			iconTag with: [
+					html span
+						style:
+							'position: absolute; bottom: 1px; left: 1px; font-size: 8px; color: white; font-weight: bold; background: transparent; padding: 0 0; border-radius: 0;';
+						with: 'bib' ] ].
+				
+	self renderPublicationsPlotOn: html.
+	article checked ifTrue: [
+		self renderArticlePublicationsReportOn: html ].
+	inproceedings checked ifTrue: [
+		self renderInProceedingsPublicationsReportOn: html ].
 	inbook checked ifTrue: [ self renderInBookPublicationsReportOn: html ].
 	book checked ifTrue: [ self renderBookPublicationsReportOn: html ].
 	misc checked ifTrue: [ self renderOtherPublicationsReportOn: html ]
