@@ -430,15 +430,24 @@ CenterReportComponent >> renderPublicationsPlotOn: html [
 { #category : #'rendering-publications' }
 CenterReportComponent >> renderPublicationsReportOn: html [
 
-	article checked | inbook checked | inproceedings checked | book checked | misc checked ifFalse: [ ^ self ].
-	html heading
-		level1;
-		id: 'publications';
-		with: 'Publicaciones'.
-	self renderPublicationsPlotOn: html.
-	article checked ifTrue: [ self renderArticlePublicationsReportOn: html ].
-	inproceedings checked ifTrue: [
-		self renderInProceedingsPublicationsReportOn: html ].
+        article checked | inbook checked | inproceedings checked | book checked | misc checked ifFalse: [ ^ self ].
+        html heading
+                level1;
+                id: 'publications';
+                with: [
+                        html text: 'Publicaciones '.
+                        html anchor
+                                callback: [ self exportBibtex ];
+                                with: [ | iconTag |
+                                        iconTag := html tbsGlyphIcon.
+                                        iconTag iconFile.
+                                        iconTag with: [ html span
+                                                        style: 'position: absolute; bottom: 1px; left: 1px; font-size: 8px; color: white; font-weight: bold; background: transparent; padding: 0 0; border-radius: 0;';
+                                                        with: 'bib' ] ] ].
+        self renderPublicationsPlotOn: html.
+        article checked ifTrue: [ self renderArticlePublicationsReportOn: html ].
+        inproceedings checked ifTrue: [
+                self renderInProceedingsPublicationsReportOn: html ].
 	inbook checked ifTrue: [ self renderInBookPublicationsReportOn: html ].
 	book checked ifTrue: [ self renderBookPublicationsReportOn: html ].
 	misc checked ifTrue: [ self renderOtherPublicationsReportOn: html ]
@@ -744,9 +753,25 @@ CenterReportComponent >> toggleShowSummaries [
 { #category : #hooks }
 CenterReportComponent >> updateRoot: aWARoot [
 
-	super updateRoot: aWARoot.
-	aWARoot meta
-		name: 'viewport';
-		content: 'width=device-width, initial-scale=1'.
-	aWARoot title: 'LIFIA - Memoria técnica'
+        super updateRoot: aWARoot.
+        aWARoot meta
+                name: 'viewport';
+                content: 'width=device-width, initial-scale=1'.
+        aWARoot title: 'LIFIA - Memoria técnica'
+]
+
+{ #category : #actions }
+CenterReportComponent >> exportBibtex [
+       | bibtexEntries |
+       bibtexEntries := report allPublications
+                               select: [ :each | each class = BibtexReference ].
+       self requestContext respond: [ :response |
+               response contentType: 'application/x-bibtex'.
+               response headerAt: 'Content-Disposition'
+                               put: 'attachment; filename="publications.bib"'.
+               response nextPutAll:
+                       (String streamContents: [ :stream |
+                               bibtexEntries do: [ :each |
+                                       stream nextPutAll: each bibtexEntry printString;
+                                               cr; cr ] ]) ]
 ]

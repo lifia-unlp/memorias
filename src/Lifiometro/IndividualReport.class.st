@@ -50,5 +50,10 @@ IndividualReport >> scholarships [
 
 { #category : #accessing }
 IndividualReport >> thesis [
-	^ thesis
+        ^ thesis
+]
+
+{ #category : #accessing }
+IndividualReport >> allPublications [
+        ^ publications
 ]
