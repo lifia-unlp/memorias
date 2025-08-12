@@ -22,11 +22,13 @@ ProjectReportComponent class >> relativeUrlFor: aProject [
 
 { #category : #hooks }
 ProjectReportComponent >> fetchReport [
+
 	| void project |
 	void := self requestContext request at: 'vid'.
 	void ifNil: [ ^ nil ].
 	project := LifiometroRepository singleton projectWithVoyageId: void.
 	project ifNil: [ ^ nil ].
+	project trashed ifTrue: [ ^ nil ].
 	^ LifiometroRepository singleton reportForProject: project
 ]
 

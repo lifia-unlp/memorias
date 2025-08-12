@@ -16,12 +16,14 @@ ThesisReportComponent class >> relativeUrlFor: item [
 
 { #category : #rendering }
 ThesisReportComponent >> fetchReport [
-	| void project |
+
+	| void thesis |
 	void := self requestContext request at: 'vid'.
 	void ifNil: [ ^ nil ].
-	project := LifiometroRepository singleton thesisWithVoyageId: void.
-	project ifNil: [ ^ nil ].
-	^ LifiometroRepository singleton reportForThesis: project
+	thesis := LifiometroRepository singleton thesisWithVoyageId: void.
+	thesis ifNil: [ ^ nil ].
+	thesis trashed ifTrue: [ ^ nil ].
+	^ LifiometroRepository singleton reportForThesis: thesis
 ]
 
 { #category : #rendering }

@@ -22,12 +22,15 @@ ResearcherReportComponent class >> relativeUrlFor: aResearcher [
 
 { #category : #rendering }
 ResearcherReportComponent >> fetchReport [
-	| void project |
+
+	| void researcher |
 	void := self requestContext request at: 'vid'.
 	void ifNil: [ ^ nil ].
-	project := LifiometroRepository singleton researcherWithVoyageId: void.
-	project ifNil: [ ^ nil ].
-	^ LifiometroRepository singleton reportForResearcher: project
+	researcher := LifiometroRepository singleton researcherWithVoyageId:
+		           void.
+	researcher ifNil: [ ^ nil ].
+	researcher trashed ifTrue: [ ^ nil ].
+	^ LifiometroRepository singleton reportForResearcher: researcher
 ]
 
 { #category : #rendering }
