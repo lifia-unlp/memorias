@@ -125,8 +125,8 @@ BibtexReference >> cleanupLatexAccentsAndBraces [
 { #category : #utility }
 BibtexReference >> cleanupTitleAndAuthors [
 
-	self title: self title withouthLfCrAndExtraSpaces.
-	self author: self author withouthLfCrAndExtraSpaces
+	self title: self title withoutLfCrAndExtraSpaces.
+	self author: self author withoutLfCrAndExtraSpaces
 ]
 
 { #category : #accessing }
