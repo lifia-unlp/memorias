@@ -260,7 +260,8 @@ BibtexReference >> selfArchivingUrl: anObject [
 
 { #category : #slugs }
 BibtexReference >> suggestSlugBase [
-	^(self doi ifNil: [ self title ])
+
+	^ self year printString , self title
 ]
 
 { #category : #accessing }

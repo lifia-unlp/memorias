@@ -26,18 +26,24 @@ AdministrationComponent >> clearPasswordFor: each [
 ]
 
 { #category : #callbacks }
+AdministrationComponent >> editLinkedDataConfiguration [
+
+	self call: LinkedDataConfigurationComponent new.
+]
+
+{ #category : #callbacks }
 AdministrationComponent >> editPositionsAtCIC [
 
 	| currentValues response |
 	currentValues := LifiometroRepository singleton
-		                 persistenConfiguration positionsAtCIC ifNil: [
+		                 persistentConfiguration positionsAtCIC ifNil: [
 		                 OrderedCollection new ].
 	response := self call: (StringCollectionEditorComponent
 			             strings: currentValues
 			             title: 'Cargos de CICPBA'
 			             comment: '').
 	response ifNotNil: [
-		LifiometroRepository singleton persistenConfiguration
+		LifiometroRepository singleton persistentConfiguration
 			positionsAtCIC: response;
 			save ]
 ]
@@ -47,14 +53,14 @@ AdministrationComponent >> editPositionsAtCONICET [
 
 	| currentValues response |
 	currentValues := LifiometroRepository singleton
-		                 persistenConfiguration positionsAtCONICET ifNil: [
+		                 persistentConfiguration positionsAtCONICET ifNil: [
 		                 OrderedCollection new ].
 	response := self call: (StringCollectionEditorComponent
 			             strings: currentValues
 			             title: 'Cargos de CONICET'
 			             comment: '').
 	response ifNotNil: [
-		LifiometroRepository singleton persistenConfiguration
+		LifiometroRepository singleton persistentConfiguration
 			positionsAtCONICET: response;
 			save ]
 ]
@@ -64,14 +70,14 @@ AdministrationComponent >> editPositionsAtUNLP [
 
 	| currentValues response |
 	currentValues := LifiometroRepository singleton
-		                 persistenConfiguration positionsAtUNLP ifNil: [
+		                 persistentConfiguration positionsAtUNLP ifNil: [
 		                 OrderedCollection new ].
 	response := self call: (StringCollectionEditorComponent
 			             strings: currentValues
 			             title: 'Cargos de investigadores y docentes en UNLP'
 			             comment: '').
 	response ifNotNil: [
-		LifiometroRepository singleton persistenConfiguration
+		LifiometroRepository singleton persistentConfiguration
 			positionsAtUNLP: response;
 			save ]
 ]
@@ -81,7 +87,7 @@ AdministrationComponent >> editScholarshipFundingSources [
 
 	| defaultSources response otherSourcesInUse |
 	defaultSources := LifiometroRepository singleton
-		                  persistenConfiguration scholarshipFundingSources
+		                  persistentConfiguration scholarshipFundingSources
 		                  ifNil: [ OrderedCollection new ].
 	otherSourcesInUse := LifiometroRepository singleton scholarships
 		                     collect: #fundingAgency
@@ -98,7 +104,7 @@ AdministrationComponent >> editScholarshipFundingSources [
 				             (otherSourcesInUse collect: #printString) sorted
 					             asCommaString).
 	response ifNotNil: [ :updatedSources |
-		LifiometroRepository singleton persistenConfiguration
+		LifiometroRepository singleton persistentConfiguration
 			scholarshipFundingSources: updatedSources;
 			save ]
 ]
@@ -107,7 +113,7 @@ AdministrationComponent >> editScholarshipFundingSources [
 AdministrationComponent >> editScholarshipTypes [
 
 	| defaultTypes response otherTypesInUse |
-	defaultTypes := LifiometroRepository singleton persistenConfiguration
+	defaultTypes := LifiometroRepository singleton persistentConfiguration
 		                scholarshipTypes ifNil: [ OrderedCollection new ].
 	otherTypesInUse := LifiometroRepository singleton scholarships
 		                   collect: #type
@@ -123,9 +129,21 @@ AdministrationComponent >> editScholarshipTypes [
 				             (otherTypesInUse collect: #printString) sorted
 					             asCommaString).
 	response ifNotNil: [ :updatedTypes |
-		LifiometroRepository singleton persistenConfiguration
+		LifiometroRepository singleton persistentConfiguration
 			scholarshipTypes: updatedTypes;
 			save ]
+]
+
+{ #category : #callbacks }
+AdministrationComponent >> exportAsJsonLd [
+
+	self requestContext respond: [ :response |
+		response contentType: 'application/json'.
+		response
+			headerAt: 'Content-Disposition'
+			put: 'attachment; filename="json-ld.json"'.
+		response nextPutAll: (String streamContents: [ :stream |
+				 stream nextPutAll: JsonLDWriter new json  ]) ]
 ]
 
 { #category : #callbacks }
@@ -204,7 +222,15 @@ AdministrationComponent >> renderBulkActionsOn: html [
 					html break.
 					html anchor
 						callback: [ self setMissingSlugs ];
-						with: 'Set missing slugs' ] ]
+						with: 'Set missing slugs'.
+					html break.
+					html anchor
+						callback: [ self unlinkTrashedConnections ];
+						with: 'Unlink trashed connections'.
+											html break.
+					html anchor
+						callback: [ self exportAsJsonLd  ];
+						with: 'Export JSON-LD'  ] ]
 ]
 
 { #category : #rendering }
@@ -240,12 +266,16 @@ AdministrationComponent >> renderDefaultValuesOn: html [
 						with: 'Editar tipos de cargos de UNLP'.
 					html break.
 					html anchor
-						callback: [ self editPositionsAtCIC];
+						callback: [ self editPositionsAtCIC ];
 						with: 'Editar tipos de cargos de CIC'.
 					html break.
 					html anchor
 						callback: [ self editPositionsAtCONICET ];
-						with: 'Editar tipos de cargos en CONICET' ] ]
+						with: 'Editar tipos de cargos en CONICET'.
+					html break.
+					html anchor
+						callback: [ self editLinkedDataConfiguration ];
+						with: 'Editar configuracion de Linked data' ] ]
 ]
 
 { #category : #rendering }
@@ -381,7 +411,8 @@ AdministrationComponent >> setMissingSlugs [
 
 	LifiometroRepository singleton researchers
 	, LifiometroRepository singleton projects
-	, LifiometroRepository singleton thesis do: [ :each |
+	, LifiometroRepository singleton thesis
+	, LifiometroRepository singleton references do: [ :each |
 		self session save: each ]
 ]
 
@@ -397,4 +428,15 @@ AdministrationComponent >> toggleAdminFor: aUser [
 AdministrationComponent >> toggleEnabledFor: aUser [
 	aUser toggleEnabled.
 	LifiometroRepository singleton saveUser: aUser
+]
+
+{ #category : #rendering }
+AdministrationComponent >> unlinkTrashedConnections [
+
+	LifiometroRepository singleton references
+	, LifiometroRepository singleton projects
+	, LifiometroRepository singleton thesis
+	, LifiometroRepository singleton scholarships do: [ :each |
+		each unlinkTrashedConnections.
+		each save ]
 ]

@@ -124,6 +124,13 @@ RawReference >> selfArchivingUrl: anObject [
 	selfArchivingUrl := anObject
 ]
 
+{ #category : #slugs }
+RawReference >> suggestSlugBase [
+
+	^ self year printString , '-'
+	  , (self reference copyFrom: 1 to: (self reference size min: 100))
+]
+
 { #category : #accessing }
 RawReference >> type [
 	^ type

@@ -51,6 +51,12 @@ LifiometroRepository >> auditingEnabled: anObject [
 	auditingEnabled := anObject
 ]
 
+{ #category : #'env-vars' }
+LifiometroRepository >> baseDataUrl [
+
+	^ OSEnvironment current at: 'BASE_DATA_URL' ifAbsent: 'http://localhost/'
+]
+
 { #category : #tools }
 LifiometroRepository >> checkConsistency [
 	LifiaUser selectAll collect: [ :each | each printString ].
@@ -157,7 +163,7 @@ LifiometroRepository >> lifians [
 ]
 
 { #category : #configuration }
-LifiometroRepository >> persistenConfiguration [
+LifiometroRepository >> persistentConfiguration [
 
 	^ PersistentConfigurationSingleton ifNil: [
 		  PersistentConfigurationSingleton := PersistentConfiguration

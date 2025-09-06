@@ -22,7 +22,7 @@ LifianEditorComponent >> listOfPositionsAtCIC [
 
 	| predefinedValues |
 	predefinedValues := LifiometroRepository singleton
-		                    persistenConfiguration positionsAtCIC.
+		                    persistentConfiguration positionsAtCIC.
 	predefinedValues := predefinedValues copyWith: 'N/A'.
 	^ (predefinedValues includes: (newValues at: 'positionAtCIC'))
 		  ifTrue: [ predefinedValues ]
@@ -35,7 +35,7 @@ LifianEditorComponent >> listOfPositionsAtCONICET [
 
 	| predefinedValues |
 	predefinedValues := LifiometroRepository singleton
-		                    persistenConfiguration positionsAtCONICET.
+		                    persistentConfiguration positionsAtCONICET.
 	predefinedValues := predefinedValues copyWith: 'N/A'.
 	^ (predefinedValues includes: (newValues at: 'positionAtCONICET'))
 		  ifTrue: [ predefinedValues ]
@@ -48,7 +48,7 @@ LifianEditorComponent >> listOfPositionsAtUNLP [
 
 	| predefinedValues |
 	predefinedValues := LifiometroRepository singleton
-		                    persistenConfiguration positionsAtUNLP.
+		                    persistentConfiguration positionsAtUNLP.
 	predefinedValues := predefinedValues copyWith: 'N/A'.
 	^ (predefinedValues includes: (newValues at: 'positionAtUnlp'))
 		  ifTrue: [ predefinedValues ]

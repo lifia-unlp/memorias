@@ -6,7 +6,8 @@ Class {
 		'scholarshipFundingSources',
 		'positionsAtUNLP',
 		'positionsAtCIC',
-		'positionsAtCONICET'
+		'positionsAtCONICET',
+		'linkedDataConfiguration'
 	],
 	#category : #'Lifiometro-Repository'
 }
@@ -24,6 +25,21 @@ PersistentConfiguration >> initialize [
 	positionsAtUNLP := OrderedCollection new.
 	positionsAtCIC := OrderedCollection new.
 	positionsAtCONICET := OrderedCollection new
+]
+
+{ #category : #accessing }
+PersistentConfiguration >> linkedDataConfiguration [
+
+	^ linkedDataConfiguration ifNil: [
+		  linkedDataConfiguration := LinkedDataConfiguration new.
+		  self save.
+		  linkedDataConfiguration ]
+]
+
+{ #category : #accessing }
+PersistentConfiguration >> linkedDataConfiguration: anObject [
+
+	linkedDataConfiguration := anObject
 ]
 
 { #category : #accessing }

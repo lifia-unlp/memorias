@@ -27,7 +27,7 @@ ScholarshipEditorComponent >> listOfValidScholarshipFundingSources [
 
 	| predefinedValues |
 	predefinedValues := LifiometroRepository singleton
-		                    persistenConfiguration scholarshipFundingSources.
+		                    persistentConfiguration scholarshipFundingSources.
 	^ (predefinedValues includes: (newValues at: 'fundingAgency'))
 		  ifTrue: [ predefinedValues ]
 		  ifFalse: [
@@ -39,7 +39,7 @@ ScholarshipEditorComponent >> listOfValidScholarshipTypes [
 
 	| predefinedValues |
 	predefinedValues := LifiometroRepository singleton
-		                    persistenConfiguration scholarshipTypes.
+		                    persistentConfiguration scholarshipTypes.
 	^ (predefinedValues includes: (newValues at: 'type'))
 		  ifTrue: [ predefinedValues ]
 		  ifFalse: [ predefinedValues copyWith: (newValues at: 'type') ]
