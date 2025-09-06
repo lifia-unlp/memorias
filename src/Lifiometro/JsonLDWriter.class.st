@@ -51,7 +51,9 @@ JsonLDWriter >> publicationAsDictionary: aPublication [
 	aPublication selfArchivingUrl ifNotNil: [ :it |
 		dict at: 'url' put: it ].
 	dict at: '@id' put: (self urlForArticle: aPublication).
-	dict at: 'description' put: aPublication asSummary.
+	dict at: 'citation' put: aPublication asSummary.
+	aPublication abstract ifNotNilNotEmpty: [ :abstract |
+		dict at: 'abstract' put: abstract ].
 	dict at: 'datePublished' put: aPublication year.
 	dict
 		at: 'author'
