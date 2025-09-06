@@ -195,7 +195,12 @@ AdministrationComponent >> renderBulkActionsOn: html [
 					html break.
 					html anchor
 						callback: [ self fixTagNamesCase ];
-						with: 'Change names of all existing bibtex entries to lowercase' ] ]
+						with: 'Change names of all existing bibtex entries to lowercase'.
+
+					html break.
+					html anchor
+						callback: [ self call: MisingAbstractsCollectorComponent new ];
+						with: 'Complete abstracts' ] ]
 ]
 
 { #category : #rendering }

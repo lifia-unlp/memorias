@@ -7,7 +7,8 @@ Class {
 		'reference',
 		'ranking',
 		'selfArchivingUrl',
-		'relatedThesis'
+		'relatedThesis',
+		'abstract'
 	],
 	#category : #'Lifiometro-Model'
 }
@@ -15,6 +16,18 @@ Class {
 { #category : #testing }
 RawReference class >> isVoyageRoot [
 	^ true 
+]
+
+{ #category : #accessing }
+RawReference >> abstract [
+
+	^ abstract
+]
+
+{ #category : #accessing }
+RawReference >> abstract: anObject [
+
+	abstract := anObject
 ]
 
 { #category : #printing }
@@ -49,9 +62,14 @@ RawReference >> cleanupLatexAccentsAndBraces [
 	^ self
 ]
 
+{ #category : #utility }
+RawReference >> cleanupTitleAndAuthors [
+	^ self
+]
+
 { #category : #accessing }
 RawReference >> propertyNames [
-	^ {'reference' . 'year' . 'ranking'. 'selfArchivingUrl' . 'relatedLifians'. 'relatedProjects'. 'relatedThesis' }
+	^ {'reference' . 'year' . 'ranking'. 'abstract'. 'selfArchivingUrl' . 'relatedLifians'. 'relatedProjects'. 'relatedThesis' }
 ]
 
 { #category : #accessing }

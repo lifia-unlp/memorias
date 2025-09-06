@@ -29,6 +29,16 @@ BibtexReference class >> isVoyageRoot [
 ]
 
 { #category : #accessing }
+BibtexReference >> abstract [
+	^ (bibtexEntry at: 'abstract') ifNil: [ '' ]
+]
+
+{ #category : #'utility-accessors' }
+BibtexReference >> abstract: aString [ 
+	self at: 'abstract' put: aString.
+]
+
+{ #category : #accessing }
 BibtexReference >> address [
 	^ (bibtexEntry at: 'address') ifNil: [ '' ]
 ]
@@ -36,18 +46,18 @@ BibtexReference >> address [
 { #category : #accessing }
 BibtexReference >> asReference [
 	bibtexEntry type = 'article'
-		ifTrue: [ ^ self authors , ', "' , self title , '," ' , self journal
+		ifTrue: [ ^ self authorsWithSimplifiedAnds , ', "' , self title , '," ' , self journal
 				, ', vol. ' , self volume , ', pp. ' , self pages , ', '
 				, self month , '. ' , self year , '.' ].
 	bibtexEntry type = 'inproceedings'
-		ifTrue: [ ^ self authors , ', "' , self title , '", in ' , self booktitle
+		ifTrue: [ ^ self authorsWithSimplifiedAnds , ', "' , self title , '", in ' , self booktitle
 				, ', ' , self month , ', ' , self year , ', ' , self editors
 				, ', Eds., ' , self publisher , '. pp. ' , self pages ].
 	bibtexEntry type = 'inbook'
-		ifTrue: [ ^ self authors , ': ' , self title , '. In: ' , self booktitle
+		ifTrue: [ ^ self authorsWithSimplifiedAnds , ': ' , self title , '. In: ' , self booktitle
 				, '. (' , self year , '), ' , self pages ].
 	bibtexEntry type = 'book'
-		ifTrue: [ ^ (self authors ifEmpty: [ self editors , ' (eds) ' ]) , ', '
+		ifTrue: [ ^ (self authorsWithSimplifiedAnds ifEmpty: [ self editors , ' (eds) ' ]) , ', '
 				, self title , ', ' , self publisher , ', ' , self year ].
 	^ self title ifEmpty: [ 'Something is not right' ]
 ]
@@ -72,7 +82,18 @@ BibtexReference >> at: aPropertyName put: aValue [
 ]
 
 { #category : #accessing }
-BibtexReference >> authors [
+BibtexReference >> author [
+
+	^ bibtexEntry author
+]
+
+{ #category : #accessing }
+BibtexReference >> author: aString [
+	bibtexEntry author: aString
+]
+
+{ #category : #accessing }
+BibtexReference >> authorsWithSimplifiedAnds [
 	^ self withSimplifiedAnds: bibtexEntry author
 ]
 
@@ -99,6 +120,13 @@ BibtexReference >> booktitle [
 { #category : #utility }
 BibtexReference >> cleanupLatexAccentsAndBraces [
 	bibtexEntry cleanupLatexAccentsAndBraces
+]
+
+{ #category : #utility }
+BibtexReference >> cleanupTitleAndAuthors [
+
+	self title: (self withouthLfCrAndExtraSpaces: self title).
+	self author: (self withouthLfCrAndExtraSpaces: self author)
 ]
 
 { #category : #accessing }
@@ -276,6 +304,13 @@ BibtexReference >> withSimplifiedAnds: aStringToClean [
 		nextPutAll: ' and ';
 		nextPutAll: parts last.
 	^ stream contents
+]
+
+{ #category : #utility }
+BibtexReference >> withouthLfCrAndExtraSpaces: aString [
+
+	^ aString withBlanksCondensed withInternalLineEndings copyWithout:
+		  Character cr
 ]
 
 { #category : #accessing }

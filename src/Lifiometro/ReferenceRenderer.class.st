@@ -46,7 +46,7 @@ ReferenceRenderer >> render: aReference on: aCanvas [
 { #category : #rendering }
 ReferenceRenderer >> renderAuthorsOf: aReference on: aCanvas [
 
-	aReference authors ifNotNilNotEmpty: [ :authors |
+	aReference authorsWithSimplifiedAnds ifNotNilNotEmpty: [ :authors |
 		aCanvas text: authors , '. ' ].
 ]
 
@@ -64,7 +64,7 @@ ReferenceRenderer >> renderBibtexAvailableIconFor: aBibtexEntry on: aCanvas [
 { #category : #'rendering-types' }
 ReferenceRenderer >> renderBookReference: aReference on: aCanvas [
 
-	aReference authors
+	aReference author
 		ifEmpty: [
 			aReference editors ifNotNilNotEmpty: [ :it |
 				aCanvas text: it , ' (Eds.). ' ] ]
