@@ -8,7 +8,7 @@ Class {
 InternalNewsComponent >> getRelevantNews [
 
 	^ RepositoryAuditRecord selectAll
-		  ifEmpty: [ :it | it ]
+		  ifEmpty: [ OrderedCollection new ]
 		  ifNotEmpty: [ :it |
 			  (it asSortedCollection: [ :a :b | a when > b when ])
 				  copyFrom: 1
