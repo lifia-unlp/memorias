@@ -4,6 +4,14 @@ Class {
 	#category : #'Lifiometro-Reports'
 }
 
+{ #category : #urls }
+ReportComponent class >> relativeUrlFor: item [
+
+	^ item slug
+		  ifNil: [ self relativeUrl , '?vid=' , item voyageId printString ]
+		  ifNotNil: [ :slug | self relativeUrl , '?slug=' , slug ]
+]
+
 { #category : #'rendering-projects' }
 ReportComponent >> baseUrl [
 
@@ -31,6 +39,35 @@ ReportComponent >> exportBibtex [
 						 cr ] ]) ]
 ]
 
+{ #category : #reporting }
+ReportComponent >> fetchItem [
+
+	^ (self requestContext request at: 'slug')
+		  ifNotNil: [ :slug |
+			  self items detect: [ :item | item slug = slug ] ifNone: [ nil ] ]
+		  ifNil: [
+			  (self requestContext request at: 'vid')
+				  ifNotNil: [ :vid |
+					  self items
+						  detect: [ :item | item voyageId printString = vid ]
+						  ifNone: [ nil ] ]
+				  ifNil: [ nil ] ]
+]
+
+{ #category : #reporting }
+ReportComponent >> fetchReport [
+
+	^ self fetchItem
+		  ifNotNil: [ :item | self reportForItem: item ]
+		  ifNil: [ nil ]
+]
+
+{ #category : #hooks }
+ReportComponent >> items [
+
+	^ self subclassResponsibility
+]
+
 { #category : #rendering }
 ReportComponent >> renderElementsSelectedBy: elementSelectionBlock labeled: label with: aRenderingBlock on: html [
 
@@ -56,6 +93,11 @@ ReportComponent >> renderElementsSelectedBy: elementSelectionBlock labeled: labe
 ReportComponent >> report [
 
 	^ self subclassResponsibility
+]
+
+{ #category : #reporting }
+ReportComponent >> reportForItem: anItem [
+	self subclassResponsibility 
 ]
 
 { #category : #'rendering-projects' }

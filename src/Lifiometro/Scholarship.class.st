@@ -71,6 +71,13 @@ Scholarship >> student: anObject [
 ]
 
 { #category : #accessing }
+Scholarship >> suggestSlugBase [
+
+	^ self student , '-' , self startDate year printString , '-'
+	  , self title
+]
+
+{ #category : #accessing }
 Scholarship >> summary [
 	^ summary
 ]

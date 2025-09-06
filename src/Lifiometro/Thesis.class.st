@@ -125,6 +125,13 @@ Thesis >> student: anObject [
 	student := anObject
 ]
 
+{ #category : #slugs }
+Thesis >> suggestSlugBase [
+
+	^ self student , '-' , self startDate year printString , '-'
+	  , self title
+]
+
 { #category : #accessing }
 Thesis >> summary [
 	^ summary

@@ -15,21 +15,10 @@ ProjectReportComponent class >> relativeUrl [
 	^ 'project-profile'
 ]
 
-{ #category : #urls }
-ProjectReportComponent class >> relativeUrlFor: aProject [
-	^ self relativeUrl, '?vid=' , aProject voyageId printString
-]
+{ #category : #reports }
+ProjectReportComponent >> items [
 
-{ #category : #hooks }
-ProjectReportComponent >> fetchReport [
-
-	| void project |
-	void := self requestContext request at: 'vid'.
-	void ifNil: [ ^ nil ].
-	project := LifiometroRepository singleton projectWithVoyageId: void.
-	project ifNil: [ ^ nil ].
-	project trashed ifTrue: [ ^ nil ].
-	^ LifiometroRepository singleton reportForProject: project
+	^ LifiometroRepository singleton projects
 ]
 
 { #category : #hooks }
@@ -105,4 +94,9 @@ ProjectReportComponent >> renderResearchersOn: html [
 { #category : #hooks }
 ProjectReportComponent >> renderTitleOn: html [
 	html heading level1 with: report project title
+]
+
+{ #category : #reports }
+ProjectReportComponent >> reportForItem: aProject [
+	^LifiometroRepository singleton reportForProject: aProject 
 ]

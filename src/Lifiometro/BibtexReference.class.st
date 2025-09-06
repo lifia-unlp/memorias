@@ -125,8 +125,8 @@ BibtexReference >> cleanupLatexAccentsAndBraces [
 { #category : #utility }
 BibtexReference >> cleanupTitleAndAuthors [
 
-	self title: (self withouthLfCrAndExtraSpaces: self title).
-	self author: (self withouthLfCrAndExtraSpaces: self author)
+	self title: self title withouthLfCrAndExtraSpaces.
+	self author: self author withouthLfCrAndExtraSpaces
 ]
 
 { #category : #accessing }
@@ -258,6 +258,11 @@ BibtexReference >> selfArchivingUrl: anObject [
 	selfArchivingUrl := anObject
 ]
 
+{ #category : #slugs }
+BibtexReference >> suggestSlugBase [
+	^(self doi ifNil: [ self title ])
+]
+
 { #category : #accessing }
 BibtexReference >> title [
 	^ bibtexEntry title
@@ -304,13 +309,6 @@ BibtexReference >> withSimplifiedAnds: aStringToClean [
 		nextPutAll: ' and ';
 		nextPutAll: parts last.
 	^ stream contents
-]
-
-{ #category : #utility }
-BibtexReference >> withouthLfCrAndExtraSpaces: aString [
-
-	^ aString withBlanksCondensed withInternalLineEndings copyWithout:
-		  Character cr
 ]
 
 { #category : #accessing }

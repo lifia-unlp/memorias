@@ -7,7 +7,8 @@ Class {
 		'trashed',
 		'excludeFromReports',
 		'relatedLifians',
-		'relatedProjects'
+		'relatedProjects',
+		'slug'
 	],
 	#category : #'Lifiometro-Model'
 }
@@ -86,6 +87,24 @@ LifiaLogEntry >> relatedProjects: anObject [
 LifiaLogEntry >> renderAsNewsSubjectWith: aRenderer on: aCanvas [
 	aRenderer renderLogEntry: self on: aCanvas 
 
+]
+
+{ #category : #private }
+LifiaLogEntry >> slug [
+
+	^ slug
+]
+
+{ #category : #private }
+LifiaLogEntry >> slug: anObject [
+
+	slug := anObject
+]
+
+{ #category : #slugs }
+LifiaLogEntry >> suggestSlugBase [
+
+	^ self class name
 ]
 
 { #category : #accessing }

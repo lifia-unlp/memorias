@@ -355,6 +355,12 @@ Lifian >> sicadiCategory: anObject [
 	sicadiCategory := anObject
 ]
 
+{ #category : #slugs }
+Lifian >> suggestSlugBase [
+
+	^ self firstName , '-' , self lastName
+]
+
 { #category : #accessing }
 Lifian >> webPage [
 	^ webPage

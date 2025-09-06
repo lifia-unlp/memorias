@@ -9,21 +9,10 @@ ThesisReportComponent class >> relativeUrl [
 	^ 'thesis-profile'
 ]
 
-{ #category : #urls }
-ThesisReportComponent class >> relativeUrlFor: item [
-	^ self relativeUrl, '?vid=' , item voyageId printString
-]
+{ #category : #reports }
+ThesisReportComponent >> items [
 
-{ #category : #rendering }
-ThesisReportComponent >> fetchReport [
-
-	| void thesis |
-	void := self requestContext request at: 'vid'.
-	void ifNil: [ ^ nil ].
-	thesis := LifiometroRepository singleton thesisWithVoyageId: void.
-	thesis ifNil: [ ^ nil ].
-	thesis trashed ifTrue: [ ^ nil ].
-	^ LifiometroRepository singleton reportForThesis: thesis
+	^ LifiometroRepository singleton thesis
 ]
 
 { #category : #rendering }
@@ -112,4 +101,10 @@ ThesisReportComponent >> renderThesisOn: html [
 { #category : #rendering }
 ThesisReportComponent >> renderTitleOn: html [
 	html heading level1 with: report thesis title
+]
+
+{ #category : #reports }
+ThesisReportComponent >> reportForItem: thesis [
+
+	^ LifiometroRepository singleton reportForThesis: thesis
 ]

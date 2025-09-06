@@ -15,22 +15,10 @@ ResearcherReportComponent class >> relativeUrl [
 	^ 'researcher-profile'
 ]
 
-{ #category : #urls }
-ResearcherReportComponent class >> relativeUrlFor: aResearcher [
-	^ self relativeUrl, '?vid=' , aResearcher voyageId printString
-]
+{ #category : #reports }
+ResearcherReportComponent >> items [
 
-{ #category : #rendering }
-ResearcherReportComponent >> fetchReport [
-
-	| void researcher |
-	void := self requestContext request at: 'vid'.
-	void ifNil: [ ^ nil ].
-	researcher := LifiometroRepository singleton researcherWithVoyageId:
-		           void.
-	researcher ifNil: [ ^ nil ].
-	researcher trashed ifTrue: [ ^ nil ].
-	^ LifiometroRepository singleton reportForResearcher: researcher
+	^ LifiometroRepository singleton researchers
 ]
 
 { #category : #rendering }
@@ -165,6 +153,12 @@ ResearcherReportComponent >> renderResearchersOn: html [
 { #category : #rendering }
 ResearcherReportComponent >> renderTitleOn: html [
 	html heading level1 with: report researcher fullName
+]
+
+{ #category : #reports }
+ResearcherReportComponent >> reportForItem: researcher [
+
+	^ LifiometroRepository singleton reportForResearcher: researcher
 ]
 
 { #category : #rendering }

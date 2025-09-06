@@ -43,3 +43,8 @@ PeriodBoundedEntry >> startDate [
 PeriodBoundedEntry >> startDate: anObject [
 	startDate := anObject
 ]
+
+{ #category : #accessing }
+PeriodBoundedEntry >> suggestSlugBase [
+	^super suggestSlugBase , '-', startDate year printString
+]

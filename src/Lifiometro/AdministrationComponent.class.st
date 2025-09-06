@@ -200,7 +200,11 @@ AdministrationComponent >> renderBulkActionsOn: html [
 					html break.
 					html anchor
 						callback: [ self call: MisingAbstractsCollectorComponent new ];
-						with: 'Complete abstracts' ] ]
+						with: 'Complete abstracts'.
+					html break.
+					html anchor
+						callback: [ self setMissingSlugs ];
+						with: 'Set missing slugs' ] ]
 ]
 
 { #category : #rendering }
@@ -370,6 +374,15 @@ AdministrationComponent >> sendTestEmail [
 			         'Si te llega este correo es porque funciona la configuración';
 		         yourself.
 	MailerSendAPI singleton send: email
+]
+
+{ #category : #callbacks }
+AdministrationComponent >> setMissingSlugs [
+
+	LifiometroRepository singleton researchers
+	, LifiometroRepository singleton projects
+	, LifiometroRepository singleton thesis do: [ :each |
+		self session save: each ]
 ]
 
 { #category : #callbacks }

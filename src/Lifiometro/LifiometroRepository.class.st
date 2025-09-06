@@ -3,7 +3,8 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'reportsCache',
-		'auditingEnabled'
+		'auditingEnabled',
+		'slugsInUse'
 	],
 	#classVars : [
 		'PersistentConfigurationSingleton'
@@ -23,6 +24,21 @@ LifiometroRepository class >> resetSingleton [
 { #category : #singleton }
 LifiometroRepository class >> singleton [
 	^ singleton ifNil: [ singleton := LifiometroRepository  new ]
+]
+
+{ #category : #slugs }
+LifiometroRepository >> asSlug: aString [
+
+	| initialSlug slug index |
+	initialSlug := (aString withoutLfCrAndExtraSpaces select: [ :each |
+		                each isLetter | each isDigit | each isSpaceSeparator
+		                | (each = $-) ]) copyReplaceAll: ' ' with: '-'.
+	slug := initialSlug.
+	index := 1.
+	[ self slugsInUse includes: slug ] whileTrue: [
+		slug := initialSlug , '-' , index printString.
+		index := index + 1 ].
+	^ slug
 ]
 
 { #category : #auditing }
@@ -155,13 +171,6 @@ LifiometroRepository >> persistenConfiguration [
 ]
 
 { #category : #query }
-LifiometroRepository >> projectWithVoyageId: void [
-	^ Project selectAll
-		detect: [ :each | each voyageId printString = void ]
-		ifNone: [ nil ]
-]
-
-{ #category : #query }
 LifiometroRepository >> projects [
 	^ Project selectAll reject: [ :each | each trashed ]
 ]
@@ -233,13 +242,6 @@ LifiometroRepository >> reportsCache [
 ]
 
 { #category : #query }
-LifiometroRepository >> researcherWithVoyageId: void [
-	^ Lifian selectAll
-		detect: [ :each | each voyageId printString = void ]
-		ifNone: [ nil ]
-]
-
-{ #category : #query }
 LifiometroRepository >> researchers [
 	^ self lifians
 ]
@@ -251,19 +253,23 @@ LifiometroRepository >> researchersActiveIn: years [
 
 { #category : #update }
 LifiometroRepository >> save: anObject onBehalfOf: aUser [
+
 	| when |
-	self clearReportsCache. 
+	self clearReportsCache.
 	when := DateAndTime now.
+	anObject slug ifNil: [
+		anObject slug: (self asSlug: anObject suggestSlugBase).
+		self slugsInUse add: anObject slug ].
 	anObject
 		lastEditedOn: when;
 		lastEditedBy: aUser;
 		save.
-	auditingEnabled
-		ifTrue: [ (RepositoryAuditRecord
-				what: anObject
-				who: aUser
-				when: when
-				action: 'save') save ]
+	auditingEnabled ifTrue: [
+		(RepositoryAuditRecord
+			 what: anObject
+			 who: aUser
+			 when: when
+			 action: 'save') save ]
 ]
 
 { #category : #update }
@@ -286,6 +292,15 @@ LifiometroRepository >> scholarshipsActiveIn: years [
 	^ self filter: self scholarships toYears: years
 ]
 
+{ #category : #slugs }
+LifiometroRepository >> slugsInUse [
+
+	^ slugsInUse ifNil: [
+		  slugsInUse := (LifiaLogEntry allSubclasses flatCollectAsSet: [
+			                 :each | each selectAll collect: #slug ]) copyWithout:
+			                nil ]
+]
+
 { #category : #query }
 LifiometroRepository >> thesis [
 	^ Thesis selectAll reject: [ :each | each trashed ]
@@ -294,13 +309,6 @@ LifiometroRepository >> thesis [
 { #category : #query }
 LifiometroRepository >> thesisActiveIn: years [
 	^ self filter: self thesis toYears: years
-]
-
-{ #category : #query }
-LifiometroRepository >> thesisWithVoyageId: void [
-	^ Thesis selectAll
-		detect: [ :each | each voyageId printString = void ]
-		ifNone: [ nil ]
 ]
 
 { #category : #query }

@@ -91,6 +91,11 @@ Project >> responsibleGroup: anObject [
 	responsibleGroup := anObject
 ]
 
+{ #category : #slugs }
+Project >> suggestSlugBase [
+	^self title, '-', self startDate year printString
+]
+
 { #category : #accessing }
 Project >> summary [
 	^ summary
