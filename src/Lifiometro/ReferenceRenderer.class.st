@@ -64,11 +64,12 @@ ReferenceRenderer >> renderBibtexAvailableIconFor: aBibtexEntry on: aCanvas [
 { #category : #'rendering-types' }
 ReferenceRenderer >> renderBookReference: aReference on: aCanvas [
 
-	aReference author
-		ifEmpty: [
-			aReference editors ifNotNilNotEmpty: [ :it |
-				aCanvas text: it , ' (Eds.). ' ] ]
-		ifNotEmpty: [ self renderAuthorsOf: aReference on: aCanvas ].
+	(aReference author notNil and: [ aReference author notEmpty ])
+		ifTrue: [ self renderAuthorsOf: aReference on: aCanvas ]
+		ifFalse: [
+			aReference editors
+				ifNotNil: [ :it | aCanvas text: it , ' (Eds.). ' ]
+				ifNil: [ aCanvas text: '(Unknown Authors). ' ] ].
 
 	self renderYearOf: aReference on: aCanvas.
 	aCanvas emphasis: [ self renderTitleOf: aReference on: aCanvas ].
