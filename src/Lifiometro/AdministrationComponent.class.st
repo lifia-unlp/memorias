@@ -221,10 +221,6 @@ AdministrationComponent >> renderBulkActionsOn: html [
 						with: 'Complete abstracts'.
 					html break.
 					html anchor
-						callback: [ self setMissingSlugs ];
-						with: 'Set missing slugs'.
-					html break.
-					html anchor
 						callback: [ self unlinkTrashedConnections ];
 						with: 'Unlink trashed connections'.
 											html break.
