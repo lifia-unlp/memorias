@@ -1,7 +1,7 @@
 Class {
 	#name : #AdministrationComponent,
 	#superclass : #WAComponent,
-	#category : #'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Admin'
 }
 
 { #category : #callbacks }
@@ -221,12 +221,17 @@ AdministrationComponent >> renderBulkActionsOn: html [
 						with: 'Complete abstracts'.
 					html break.
 					html anchor
+						callback: [ self restoreTrashedItems ];
+						with: 'Restore trashed items'.
+					html break.
+					html break.
+					html anchor
 						callback: [ self unlinkTrashedConnections ];
 						with: 'Unlink trashed connections'.
-											html break.
+					html break.
 					html anchor
-						callback: [ self exportAsJsonLd  ];
-						with: 'Export JSON-LD'  ] ]
+						callback: [ self exportAsJsonLd ];
+						with: 'Export JSON-LD' ] ]
 ]
 
 { #category : #rendering }
@@ -379,6 +384,12 @@ AdministrationComponent >> renderUsersListOn: html [
 	self renderDisabledUsersListOn: html.
 ]
 
+{ #category : #rendering }
+AdministrationComponent >> restoreTrashedItems [
+
+	self call: TrashedRestoringComponent new
+]
+
 { #category : #callbacks }
 AdministrationComponent >> selectLifianFor: aLifiaUser [
 
@@ -426,13 +437,16 @@ AdministrationComponent >> toggleEnabledFor: aUser [
 	LifiometroRepository singleton saveUser: aUser
 ]
 
-{ #category : #rendering }
+{ #category : #callbacks }
 AdministrationComponent >> unlinkTrashedConnections [
 
 	LifiometroRepository singleton references
 	, LifiometroRepository singleton projects
 	, LifiometroRepository singleton thesis
 	, LifiometroRepository singleton scholarships do: [ :each |
+		each voyageId ifNil: [
+			Exception new signal:
+				'Object had no VoyageID. This is bad. Aborting batch process' ].
 		each unlinkTrashedConnections.
 		each save ]
 ]

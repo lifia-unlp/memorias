@@ -78,7 +78,10 @@ LifianListComponent >> render: each on: html [
 					html
 						text: 'Cargo docente en UNLP: ' , each positionAtUnlp;
 						break.
-					html text: 'E-mails: ' , (self emailsStringFor: each) ] ]
+					html text: 'E-mails: ' , (self emailsStringFor: each).
+					each tags ifNotEmpty: [ :tags |
+						html break.
+						html text: 'Tags: ' , tags asCommaString ] ] ]
 			mediumSize: 8.
 		html
 			tbsColumn: [

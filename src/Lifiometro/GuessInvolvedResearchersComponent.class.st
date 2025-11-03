@@ -5,7 +5,7 @@ Class {
 		'guesser',
 		'updated'
 	],
-	#category : 'Lifiometro-Web'
+	#category : #'Lifiometro-Web-Admin'
 }
 
 { #category : #rendering }

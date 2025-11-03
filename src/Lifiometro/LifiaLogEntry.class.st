@@ -8,10 +8,18 @@ Class {
 		'excludeFromReports',
 		'relatedLifians',
 		'relatedProjects',
-		'slug'
+		'slug',
+		'tags'
 	],
 	#category : #'Lifiometro-Model'
 }
+
+{ #category : #tags }
+LifiaLogEntry >> addTag: aString [
+
+	tags ifNil: [ tags := Set new ].
+	tags add: aString
+]
 
 { #category : #utility }
 LifiaLogEntry >> at: aProperty [
@@ -83,6 +91,12 @@ LifiaLogEntry >> relatedProjects: anObject [
 	relatedProjects := anObject
 ]
 
+{ #category : #tags }
+LifiaLogEntry >> removeTag: aString [
+
+	tags remove: aString ifAbsent: [  ]
+]
+
 { #category : #'double dispatch' }
 LifiaLogEntry >> renderAsNewsSubjectWith: aRenderer on: aCanvas [
 	aRenderer renderLogEntry: self on: aCanvas 
@@ -105,6 +119,16 @@ LifiaLogEntry >> slug: anObject [
 LifiaLogEntry >> suggestSlugBase [
 
 	^ self class name
+]
+
+{ #category : #tags }
+LifiaLogEntry >> tags [ 
+  ^tags ifNil: [ Set new ].
+]
+
+{ #category : #tags }
+LifiaLogEntry >> tags: aSet [
+  tags := aSet 
 ]
 
 { #category : #accessing }
