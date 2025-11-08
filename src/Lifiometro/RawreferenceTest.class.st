@@ -1,7 +1,7 @@
 Class {
 	#name : #RawreferenceTest,
 	#superclass : #TestCase,
-	#category : #'Lifiometro-Model'
+	#category : #'Lifiometro-Tests'
 }
 
 { #category : #tests }
