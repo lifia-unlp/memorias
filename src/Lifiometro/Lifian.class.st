@@ -191,6 +191,12 @@ Lifian >> interestsInSpanish: anObject [
 	interestsInSpanish := anObject
 ]
 
+{ #category : #testing }
+Lifian >> isReferencedBy: anEntry [
+
+	^ anEntry relatedLifians includes: self
+]
+
 { #category : #accessing }
 Lifian >> lastName [
 	^ lastName

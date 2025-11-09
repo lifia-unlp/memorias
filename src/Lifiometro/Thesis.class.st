@@ -53,6 +53,12 @@ Thesis >> director: anObject [
 	director := anObject
 ]
 
+{ #category : #testing }
+Thesis >> isReferencedBy: anEntry [
+
+	^ anEntry relatedThesis includes: self
+]
+
 { #category : #accessing }
 Thesis >> keywords [
 	^ keywords

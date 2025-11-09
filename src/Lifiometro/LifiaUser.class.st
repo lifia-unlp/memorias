@@ -8,7 +8,8 @@ Class {
 		'isAdmin',
 		'enabled',
 		'hashedPassword',
-		'lifian'
+		'lifian',
+		'tags'
 	],
 	#category : #'Lifiometro-Model'
 }
@@ -123,6 +124,18 @@ LifiaUser >> lifian [
 LifiaUser >> lifian: anObject [
 
 	lifian := anObject
+]
+
+{ #category : #accessing }
+LifiaUser >> tags [
+
+	^ tags
+]
+
+{ #category : #accessing }
+LifiaUser >> tags: anObject [
+
+	tags := anObject
 ]
 
 { #category : #accessing }

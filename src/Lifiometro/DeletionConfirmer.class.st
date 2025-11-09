@@ -8,6 +8,16 @@ Class {
 }
 
 { #category : #accessing }
+DeletionConfirmer >> entriesReferencing: anEntry [
+
+	^LifiometroRepository singleton references
+	, LifiometroRepository singleton projects
+	, LifiometroRepository singleton thesis
+	, LifiometroRepository singleton scholarships select: [ :each |
+		entry isReferencedBy: each ]
+]
+
+{ #category : #accessing }
 DeletionConfirmer >> entry [
 
 	^ entry
@@ -37,5 +47,14 @@ DeletionConfirmer >> renderMessageOn: canvas [
 			canvas strong:
 				'¿Esta seguro de querer eliminar la siguiente entrada?' ].
 		canvas paragraph: [
-			entry renderAsNewsSubjectWith: renderer on: canvas ] ]
+			entry renderAsNewsSubjectWith: renderer on: canvas ] ].
+	(self entriesReferencing: entry) do: [ :each |
+		canvas tbsAlert
+			beDanger;
+			with: [
+				canvas paragraph: [
+						canvas strong:
+								'Es mala idea. Esta entrada tiene se referencia desde otra:' ].
+				canvas paragraph: [
+						each renderAsNewsSubjectWith: renderer on: canvas ] ] ]
 ]

@@ -46,6 +46,12 @@ LifiaLogEntry >> initialize [
 	trashed := false
 ]
 
+{ #category : #testing }
+LifiaLogEntry >> isReferencedBy: anEntry [
+
+	^ false
+]
+
 { #category : #accessing }
 LifiaLogEntry >> lastEditedBy [
 	^ lastEditedBy
@@ -94,24 +100,6 @@ LifiaLogEntry >> obsoleteRelatedThesis [
 	^ OrderedCollection new.
 ]
 
-{ #category : #'testing-consistency' }
-LifiaLogEntry >> pointsToObsoleteLifians [
-
-	^ self obsoleteRelatedLifians notEmpty
-]
-
-{ #category : #'testing-consistency' }
-LifiaLogEntry >> pointsToObsoleteProjects [
-
-	^ self obsoleteRelatedProjects notEmpty
-]
-
-{ #category : #'testing-consistency' }
-LifiaLogEntry >> pointsToObsoleteThesis [
-
-	^ self obsoleteRelatedThesis notEmpty
-]
-
 { #category : #accessing }
 LifiaLogEntry >> propertyNames [
 	self subclassResponsibility
@@ -141,6 +129,12 @@ LifiaLogEntry >> relatedProjects: anObject [
 LifiaLogEntry >> relatedThesis [
 
 	^ OrderedCollection new
+]
+
+{ #category : #accessing }
+LifiaLogEntry >> relatedThesis: aCollection [
+
+	"only referenecs care about thesis"
 ]
 
 { #category : #tags }

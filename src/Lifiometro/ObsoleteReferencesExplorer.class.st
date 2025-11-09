@@ -11,7 +11,7 @@ Class {
 	#category : #'Lifiometro-Web-Admin'
 }
 
-{ #category : #rendering }
+{ #category : #initialize }
 ObsoleteReferencesExplorer >> collectReportsFor: aClass [
 
 	| reports |
@@ -19,14 +19,14 @@ ObsoleteReferencesExplorer >> collectReportsFor: aClass [
 		           select: #requiresAttention.
 	reportsDictionary at: aClass put: reports.
 	obsoleteLifians addAll:
-		(reports collect: [ :each | each obsoleteLifians ]).
+		(reports flatCollectAsSet: [ :each | each obsoleteLifians ]).
 	obsoleteProjects addAll:
-		(reports collect: [ :each | each obsoleteProjects ]).
+		(reports flatCollectAsSet: [ :each | each obsoleteProjects ]).
 	obsoleteThesis addAll:
-		(reports collect: [ :each | each obsoleteThesis ])
+		(reports flatCollectAsSet: [ :each | each obsoleteThesis ])
 ]
 
-{ #category : #rendering }
+{ #category : #initialize }
 ObsoleteReferencesExplorer >> initialize [
 
 	| classesToCheck |
@@ -46,13 +46,26 @@ ObsoleteReferencesExplorer >> initialize [
 ]
 
 { #category : #rendering }
+ObsoleteReferencesExplorer >> render: each on: html [
+
+	each trashed ifTrue: [ html text: '(OBSOLETE) ' ].
+	^ each renderAsNewsSubjectWith: renderer on: html
+]
+
+{ #category : #rendering }
 ObsoleteReferencesExplorer >> renderContentOn: html [
 
 	html anchor
 		callback: [ self answer: nil ];
 		with: 'Back'.
 	html break.
+	self renderProblemsOn: html
+]
 
+{ #category : #rendering }
+ObsoleteReferencesExplorer >> renderProblemsOn: html [
+
+	html heading: 'Problems'.
 	reportsDictionary keysAndValuesDo: [ :aClass :reports |
 		html heading
 			level: 3;
@@ -87,8 +100,12 @@ ObsoleteReferencesExplorer >> renderSelector: selector of: report labeled: label
 	obsoleteElements ifEmpty: [ ^ self ].
 	html unorderedList: [
 		obsoleteElements
-			do: [ :each |
-				each trashed ifTrue: [ html text: '(OBSOLETE) ' ].
-				each renderAsNewsSubjectWith: renderer on: html ]
+			do: [ :each | self render: each on: html ]
 			separatedBy: [ html text: ', ' ] ]
+]
+
+{ #category : #callbacks }
+ObsoleteReferencesExplorer >> reports [
+
+	^ reportsDictionary values flattened
 ]

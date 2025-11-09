@@ -70,6 +70,12 @@ Project >> fundingAgency: anObject [
 	fundingAgency := anObject
 ]
 
+{ #category : #testing }
+Project >> isReferencedBy: anEntry [
+
+	^ anEntry relatedProjects includes: self
+]
+
 { #category : #utility }
 Project >> propertyNames [
 	^ {'title' . 'code' . 'startDate' . 'endDate' . 'director' . 'coDirector'.
