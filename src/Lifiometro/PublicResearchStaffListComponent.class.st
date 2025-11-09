@@ -6,7 +6,7 @@ Class {
 
 { #category : #urls }
 PublicResearchStaffListComponent class >> relativeUrl [
-	^ 'research-staff'
+	^ 'staff'
 ]
 
 { #category : #initialization }
