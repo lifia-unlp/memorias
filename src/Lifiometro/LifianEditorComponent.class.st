@@ -64,7 +64,7 @@ LifianEditorComponent >> renderAffiliationsOn: html [
 		label: 'Función actual en el LIFIA'
 		values:
 			{ 'Investigador'. 'Personal de apoyo'. 'Estudiante de grado'.
-			'Estudiante de posgrado'. 'Investigador externo' }
+			'Estudiante de posgrado'. 'Investigador externo'. 'Transferencista' }
 		instructions: nil
 		on: html.
 	self

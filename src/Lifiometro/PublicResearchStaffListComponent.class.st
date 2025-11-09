@@ -47,6 +47,10 @@ Investigador
 		addSectionTitled: 'Investigadores externos'
 		with: (activeMembers select: [ :each |
 				 each positionAtLIFIA = 'Investigador externo' ]).
+	self
+		addSectionTitled: 'Transferencistas'
+		with: (activeMembers select: [ :each |
+				 each positionAtLIFIA = 'Transferencista' ]).
 	self addSectionTitled: 'Antiguos miembros' with: pastMembers
 ]
 
