@@ -10,7 +10,7 @@ AdministrationComponent >> callEnglishCritic [
 	self call: GptEnglishCriticComponent new
 ]
 
-{ #category : #rendering }
+{ #category : #callbacks }
 AdministrationComponent >> cleanupTitlesAndAuthors [
 	LifiometroRepository singleton references
 		do: [ :each | 
@@ -135,6 +135,12 @@ AdministrationComponent >> editScholarshipTypes [
 ]
 
 { #category : #callbacks }
+AdministrationComponent >> exploreObsoleteReferences [
+
+	self call: ObsoleteReferencesExplorer  new
+]
+
+{ #category : #callbacks }
 AdministrationComponent >> exportAsJsonLd [
 
 	self requestContext respond: [ :response |
@@ -157,7 +163,7 @@ AdministrationComponent >> fixTagNamesCase [
 		each save ]
 ]
 
-{ #category : #rendering }
+{ #category : #callbacks }
 AdministrationComponent >> guessArticleAuthors [
 	self call: GuessInvolvedResearchersComponent new
 ]
@@ -224,10 +230,13 @@ AdministrationComponent >> renderBulkActionsOn: html [
 						callback: [ self restoreTrashedItems ];
 						with: 'Restore trashed items'.
 					html break.
-					html break.
 					html anchor
 						callback: [ self unlinkTrashedConnections ];
-						with: 'Unlink trashed connections'.
+						with: 'Unlink trashed connections (BUGS LIE AHEAD)'.
+					html break.
+					html anchor
+						callback: [ self exploreObsoleteReferences ];
+						with: 'Explore obsolete references'.
 					html break.
 					html anchor
 						callback: [ self exportAsJsonLd ];
@@ -384,7 +393,7 @@ AdministrationComponent >> renderUsersListOn: html [
 	self renderDisabledUsersListOn: html.
 ]
 
-{ #category : #rendering }
+{ #category : #callbacks }
 AdministrationComponent >> restoreTrashedItems [
 
 	self call: TrashedRestoringComponent new

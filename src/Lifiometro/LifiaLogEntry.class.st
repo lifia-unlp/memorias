@@ -66,6 +66,52 @@ LifiaLogEntry >> lastEditedOn: anObject [
 	lastEditedOn := anObject
 ]
 
+{ #category : #'testing-consistency' }
+LifiaLogEntry >> obsoleteReferencesReport [
+
+	^ ObsoleteReferencesReport
+		  entry: self
+		  obsoleteLifians: self obsoleteRelatedLifians
+		  obsoleteThesis: self obsoleteRelatedThesis
+		  obsoleteProjects: self obsoleteRelatedProjects
+]
+
+{ #category : #'testing-consistency' }
+LifiaLogEntry >> obsoleteRelatedLifians [
+
+	^ self relatedLifians select: #trashed
+]
+
+{ #category : #'testing-consistency' }
+LifiaLogEntry >> obsoleteRelatedProjects [
+
+	^ self relatedProjects select: #trashed
+]
+
+{ #category : #'testing-consistency' }
+LifiaLogEntry >> obsoleteRelatedThesis [
+
+	^ OrderedCollection new.
+]
+
+{ #category : #'testing-consistency' }
+LifiaLogEntry >> pointsToObsoleteLifians [
+
+	^ self obsoleteRelatedLifians notEmpty
+]
+
+{ #category : #'testing-consistency' }
+LifiaLogEntry >> pointsToObsoleteProjects [
+
+	^ self obsoleteRelatedProjects notEmpty
+]
+
+{ #category : #'testing-consistency' }
+LifiaLogEntry >> pointsToObsoleteThesis [
+
+	^ self obsoleteRelatedThesis notEmpty
+]
+
 { #category : #accessing }
 LifiaLogEntry >> propertyNames [
 	self subclassResponsibility
@@ -89,6 +135,12 @@ LifiaLogEntry >> relatedProjects [
 { #category : #accessing }
 LifiaLogEntry >> relatedProjects: anObject [
 	relatedProjects := anObject
+]
+
+{ #category : #accessing }
+LifiaLogEntry >> relatedThesis [
+
+	^ OrderedCollection new
 ]
 
 { #category : #tags }

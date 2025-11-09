@@ -164,6 +164,12 @@ BibtexReference >> number [
 	^ (bibtexEntry at: 'number') ifNil: [ '' ]
 ]
 
+{ #category : #'testing-consistency' }
+BibtexReference >> obsoleteRelatedThesis [
+
+	^ self relatedThesis select: #trashed
+]
+
 { #category : #accessing }
 BibtexReference >> pages [
 	^ (bibtexEntry at: 'pages') ifNil: [ '' ]
@@ -207,7 +213,8 @@ BibtexReference >> ranking: anObject [
 
 { #category : #accessing }
 BibtexReference >> relatedThesis [
-	^ relatedThesis
+
+	^ relatedThesis ifNil: [ OrderedCollection new ]
 ]
 
 { #category : #accessing }

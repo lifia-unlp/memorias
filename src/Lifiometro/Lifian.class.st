@@ -40,22 +40,22 @@ Lifian class >> isVoyageRoot [
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : #'obsolete-deprecated' }
 Lifian >> advicedScholarships [
 	^ advicedScholarships
 ]
 
-{ #category : #accessing }
+{ #category : #'obsolete-deprecated' }
 Lifian >> advicedScholarships: anObject [
 	advicedScholarships := anObject
 ]
 
-{ #category : #accessing }
+{ #category : #'obsolete-deprecated' }
 Lifian >> advicedThesis [
 	^ advicedThesis
 ]
 
-{ #category : #accessing }
+{ #category : #'obsolete-deprecated' }
 Lifian >> advicedThesis: anObject [
 	advicedThesis := anObject
 ]
@@ -281,12 +281,19 @@ Lifian >> positionAtUnlp: anObject [
 	positionAtUnlp := anObject
 ]
 
-{ #category : #accessing }
+{ #category : #printing }
+Lifian >> printOn: aStream [
+
+	self trashed ifTrue: [ aStream nextPutAll: '(TRASHED) ' ].
+	aStream nextPutAll: self fullName
+]
+
+{ #category : #'obsolete-deprecated' }
 Lifian >> projects [
 	^ projects
 ]
 
-{ #category : #accessing }
+{ #category : #'obsolete-deprecated' }
 Lifian >> projects: anObject [
 	projects := anObject
 ]
@@ -297,12 +304,12 @@ Lifian >> propertyNames [
 		collect: #asString
 ]
 
-{ #category : #accessing }
+{ #category : #'obsolete-deprecated' }
 Lifian >> publications [
 	^ publications
 ]
 
-{ #category : #accessing }
+{ #category : #'obsolete-deprecated' }
 Lifian >> publications: anObject [
 	publications := anObject
 ]

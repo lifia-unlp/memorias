@@ -1,11 +1,11 @@
 Class {
-	#name : #RawreferenceTest,
+	#name : #RawReferenceTest,
 	#superclass : #TestCase,
 	#category : #'Lifiometro-Tests'
 }
 
 { #category : #tests }
-RawreferenceTest >> testBibtexPrintString [
+RawReferenceTest >> testBibtexPrintString [
 
 	| ref apaReference parsedBibtexRef |
 	apaReference := 'Abumrad, J., & Krulwich, R. (Hosts). (2018, February 14). Smarty plants [Audio podcast episode]. In Radiolab. WNYC.'.

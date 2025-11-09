@@ -163,12 +163,12 @@ TabbedListComponent >> renderItemsOn: html [
 
 { #category : #rendering }
 TabbedListComponent >> renderRelatedLifiansFor: each on: html [
-	html
-		text:
-			'Investigadores: '
-				,
-					((each relatedLifians ifNil: [ Set new ])
-						collect: [ :lifian | lifian fullName ]) asCommaString.
+
+	html text: 'Investigadores: '
+		, ((each relatedLifians ifNil: [ Set new ]) collect: [ :lifian |
+				 (lifian trashed
+					  ifTrue: [ '(OBSOLETE) ' ]
+					  ifFalse: [ '' ]) , lifian fullName ]) asCommaString
 ]
 
 { #category : #'rendering-hooks' }

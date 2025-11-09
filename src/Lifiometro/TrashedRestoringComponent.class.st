@@ -8,6 +8,11 @@ Class {
 TrashedRestoringComponent >> renderContentOn: html [
 
 	| trashedItems renderer |
+	html break.
+	html anchor
+		callback: [ self answer: nil ];
+		with: 'Back'.
+
 	renderer := InternalNewsRenderer new.
 	trashedItems := {
 		                BibtexReference.
@@ -31,15 +36,10 @@ TrashedRestoringComponent >> renderContentOn: html [
 				html listItem: [
 					html text: item lastEditedOn printString , ' - '.
 					item renderAsNewsSubjectWith: renderer on: html.
-					html space. 
+					html space.
 					html anchor
 						callback: [ self restore: item ];
-						with: '[RESTORE]' ] ] ] ].
-
-	html break.
-	html anchor
-		callback: [ self answer: nil ];
-		with: 'Back'
+						with: '[RESTORE]' ] ] ] ]
 ]
 
 { #category : #rendering }

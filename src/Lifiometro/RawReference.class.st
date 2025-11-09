@@ -67,6 +67,12 @@ RawReference >> cleanupTitleAndAuthors [
 	^ self
 ]
 
+{ #category : #'testing-consistency' }
+RawReference >> obsoleteRelatedThesis [
+
+	^ self relatedThesis select: #trashed
+]
+
 { #category : #accessing }
 RawReference >> propertyNames [
 	^ {'reference' . 'year' . 'ranking'. 'abstract'. 'selfArchivingUrl' . 'relatedLifians'. 'relatedProjects'. 'relatedThesis' }
@@ -96,7 +102,8 @@ RawReference >> reference: anObject [
 
 { #category : #accessing }
 RawReference >> relatedThesis [
-	^ relatedThesis
+
+	^ relatedThesis ifNil: [ OrderedCollection new ]
 ]
 
 { #category : #accessing }
