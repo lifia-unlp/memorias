@@ -187,15 +187,6 @@ LifiaLogEntry >> trashed: anObject [
 	trashed := anObject
 ]
 
-{ #category : #utility }
-LifiaLogEntry >> unlinkTrashedConnections [
-
-	relatedLifians := relatedLifians ifNotNilNotEmpty: [ :them |
-		                  them reject: [ :each | each trashed ] ].
-	relatedProjects := relatedProjects ifNotNilNotEmpty: [ :them |
-		                   them reject: [ :each | each trashed ] ]
-]
-
 { #category : #accessing }
 LifiaLogEntry >> yearsActive [
 	| yearsActive |

@@ -231,10 +231,6 @@ AdministrationComponent >> renderBulkActionsOn: html [
 						with: 'Restore trashed items'.
 					html break.
 					html anchor
-						callback: [ self unlinkTrashedConnections ];
-						with: 'Unlink trashed connections (BUGS LIE AHEAD)'.
-					html break.
-					html anchor
 						callback: [ self exploreObsoleteReferences ];
 						with: 'Explore obsolete references'.
 					html break.
@@ -444,18 +440,4 @@ AdministrationComponent >> toggleAdminFor: aUser [
 AdministrationComponent >> toggleEnabledFor: aUser [
 	aUser toggleEnabled.
 	LifiometroRepository singleton saveUser: aUser
-]
-
-{ #category : #callbacks }
-AdministrationComponent >> unlinkTrashedConnections [
-
-	LifiometroRepository singleton references
-	, LifiometroRepository singleton projects
-	, LifiometroRepository singleton thesis
-	, LifiometroRepository singleton scholarships do: [ :each |
-		each voyageId ifNil: [
-			Exception new signal:
-				'Object had no VoyageID. This is bad. Aborting batch process' ].
-		each unlinkTrashedConnections.
-		each save ]
 ]
