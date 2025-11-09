@@ -141,6 +141,7 @@ ResearcherReportComponent >> renderPropertiesOn: html [
 		self renderExternalLinksOn: html.
 		report researcher shortCvInSpanish ifNotNilNotEmpty: [ :it |
 			html
+				strong: 'Breve biografía: ';
 				text: it;
 				break ] ]
 ]

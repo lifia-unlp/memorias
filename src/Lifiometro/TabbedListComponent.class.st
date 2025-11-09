@@ -95,6 +95,11 @@ TabbedListComponent >> plainView: anObject [
 TabbedListComponent >> remove: each [
 
 	(self confirmDeletionOf: each) ifFalse: [ ^ self ].
+	"Brake links to other objects so they can be safely removed afterwards, if neccesary"
+	each
+		relatedLifians: OrderedCollection new;
+		relatedThesis: OrderedCollection new;
+		relatedProjects: OrderedCollection new.
 	self session remove: each
 ]
 
