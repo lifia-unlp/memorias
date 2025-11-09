@@ -2,67 +2,81 @@ Class {
 	#name : #ObsoleteReferencesExplorer,
 	#superclass : #WAComponent,
 	#instVars : [
-		'renderer'
+		'renderer',
+		'obsoleteLifians',
+		'obsoleteProjects',
+		'obsoleteThesis',
+		'reportsDictionary'
 	],
 	#category : #'Lifiometro-Web-Admin'
 }
 
 { #category : #rendering }
-ObsoleteReferencesExplorer >> initialize [
+ObsoleteReferencesExplorer >> collectReportsFor: aClass [
 
-	super initialize.
-	renderer := InternalNewsRenderer new
+	| reports |
+	reports := (aClass selectAll collect: #obsoleteReferencesReport)
+		           select: #requiresAttention.
+	reportsDictionary at: aClass put: reports.
+	obsoleteLifians addAll:
+		(reports collect: [ :each | each obsoleteLifians ]).
+	obsoleteProjects addAll:
+		(reports collect: [ :each | each obsoleteProjects ]).
+	obsoleteThesis addAll:
+		(reports collect: [ :each | each obsoleteThesis ])
 ]
 
 { #category : #rendering }
-ObsoleteReferencesExplorer >> renderContentOn: html [
+ObsoleteReferencesExplorer >> initialize [
 
 	| classesToCheck |
-	html anchor
-		callback: [ self answer: nil ];
-		with: 'Back'.
-	html break.
-
+	super initialize.
+	renderer := InternalNewsRenderer new.
+	obsoleteLifians := Set new.
+	obsoleteProjects := Set new.
+	obsoleteThesis := Set new.
+	reportsDictionary := Dictionary new.
 	classesToCheck := {
 		                  BibtexReference.
 		                  RawReference.
 		                  Project.
 		                  Scholarship.
 		                  Thesis }.
-	classesToCheck do: [ :each |
-		self renderObsoleteReferencesForClass: each on: html ]
+	classesToCheck do: [ :aClass | self collectReportsFor: aClass ]
 ]
 
 { #category : #rendering }
-ObsoleteReferencesExplorer >> renderObsoleteReferencesForClass: someClass on: html [
+ObsoleteReferencesExplorer >> renderContentOn: html [
 
-	| obsoleteReferencesReports |
-	obsoleteReferencesReports := (someClass selectAll collect:
-		                              #obsoleteReferencesReport) select:
-		                             #requiresAttention.
-	html heading
-		level: 3;
-		with: someClass name.
-	html unorderedList: [
-		obsoleteReferencesReports do: [ :report |
-			html listItem: [
-				report entry renderAsNewsSubjectWith: renderer on: html.
-				self
-					renderSelector: #obsoleteThesis
-					of: report
-					labeled: 'Thesis'
-					on: html.
+	html anchor
+		callback: [ self answer: nil ];
+		with: 'Back'.
+	html break.
 
-				self
-					renderSelector: #obsoleteProjects
-					of: report
-					labeled: 'Projects'
-					on: html.
-				self
-					renderSelector: #obsoleteLifians
-					of: report
-					labeled: 'Lifians'
-					on: html ] ] ]
+	reportsDictionary keysAndValuesDo: [ :aClass :reports |
+		html heading
+			level: 3;
+			with: aClass name.
+		html unorderedList: [
+			reports do: [ :report |
+				html listItem: [
+					report entry renderAsNewsSubjectWith: renderer on: html.
+					self
+						renderSelector: #obsoleteThesis
+						of: report
+						labeled: 'Thesis'
+						on: html.
+
+					self
+						renderSelector: #obsoleteProjects
+						of: report
+						labeled: 'Projects'
+						on: html.
+					self
+						renderSelector: #obsoleteLifians
+						of: report
+						labeled: 'Lifians'
+						on: html ] ] ] ]
 ]
 
 { #category : #rendering }
@@ -71,9 +85,10 @@ ObsoleteReferencesExplorer >> renderSelector: selector of: report labeled: label
 	| obsoleteElements |
 	obsoleteElements := report perform: selector.
 	obsoleteElements ifEmpty: [ ^ self ].
-	html listItem: [
-		html text: label.
-		html unorderedList: [
-			obsoleteElements do: [ :each |
-				each renderAsNewsSubjectWith: renderer on: html ] ] ]
+	html unorderedList: [
+		obsoleteElements
+			do: [ :each |
+				each trashed ifTrue: [ html text: '(OBSOLETE) ' ].
+				each renderAsNewsSubjectWith: renderer on: html ]
+			separatedBy: [ html text: ', ' ] ]
 ]
