@@ -1,4 +1,6 @@
-| apps dbhost db dbuser dbpassword emailsSender sendErrorEmailsTo mailedSendApiKey debug |
+| apps dbhost db dbuser dbpassword emailsSender sendErrorEmailsTo mailedSendApiKey debug toUnregister |
+
+toUnregister := { 'bootstrap5'. 'browse'. 'examples'. 'seaside'. 'status'. 'tests'. 'tools'. 'welcome'. 'config' }.
 
 debug := (OSEnvironment current at: 'DEBUG' ifAbsent: 'false') = 'true'.
 dbhost := OSEnvironment current at: 'DB_HOST' ifAbsent: 'mongodb'.
@@ -24,7 +26,7 @@ dbuser
 			password: dbpassword) enableSingleton ].
 
 debug ifFalse: [
-	WAAdmin clearAll.
+	toUnregister do: [ :each | WAAdmin unregister: each ].
 	WAAdmin applicationDefaults
 		removeParent: WADevelopmentConfiguration instance.
 ].
@@ -64,4 +66,5 @@ apps do: [:app |
 WAAdmin defaultDispatcher defaultName: MemoriasLandingComponent relativeUrl.
 
 Transcript cr; show: 'Memorias starting  (dbhost: ', dbhost, ', db: ', db, ')'; cr; cr.
+
 
