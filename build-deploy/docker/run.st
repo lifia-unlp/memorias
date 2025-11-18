@@ -24,8 +24,7 @@ dbuser
 			password: dbpassword) enableSingleton ].
 
 debug ifFalse: [
-	WAAdmin defaultServerManager adaptors
-        do: [ :each | WAAdmin defaultServerManager unregister: each ].
+	WAAdmin clearAll.
 	WAAdmin applicationDefaults
 		removeParent: WADevelopmentConfiguration instance.
 ].
@@ -65,3 +64,4 @@ apps do: [:app |
 WAAdmin defaultDispatcher defaultName: MemoriasLandingComponent relativeUrl.
 
 Transcript cr; show: 'Memorias starting  (dbhost: ', dbhost, ', db: ', db, ')'; cr; cr.
+
