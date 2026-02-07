@@ -331,5 +331,5 @@ LifiometroRepository >> userWithEmail: anEmailAddress [
 
 { #category : #query }
 LifiometroRepository >> users [
-	^ LifiaUser selectAll
+	^ LifiaUser selectMany: [ :each | each email ~= '' ]
 ]

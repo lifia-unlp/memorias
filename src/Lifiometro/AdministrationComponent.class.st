@@ -173,6 +173,13 @@ AdministrationComponent >> importFromDblp [
 	self call: BibtexURLImporterComponent new
 ]
 
+{ #category : #callbacks }
+AdministrationComponent >> makeObsolete: aLifiaUser [
+
+	aLifiaUser becomeObsolete.
+	LifiometroRepository singleton saveUser: aLifiaUser
+]
+
 { #category : #rendering }
 AdministrationComponent >> renderActiveSessionsFor: app on: html [
 	html
@@ -370,8 +377,6 @@ AdministrationComponent >> renderUser: each on: html [
 			with:
 				(each lifian ifNil: [ 'not set' ] ifNotNil: [ :it | it fullName ]).
 
-
-
 		each isPasswordSet
 			ifTrue: [
 				html anchor
@@ -380,7 +385,12 @@ AdministrationComponent >> renderUser: each on: html [
 			ifFalse: [
 				html span
 					style: 'color: red;';
-					with: ' - Sin password' ] ]
+					with: ' - Sin password' ].
+
+		each enabled ifFalse: [
+			html anchor
+				callback: [ self makeObsolete: each ];
+				with: ' - Borrar' ] ]
 ]
 
 { #category : #rendering }

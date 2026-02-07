@@ -26,6 +26,15 @@ LifiaUser class >> isVoyageRoot [
 	^ true 
 ]
 
+{ #category : #utility }
+LifiaUser >> becomeObsolete [
+
+	self
+		email: '';
+		lifian: nil;
+		fullname: 'Obsolete User'
+]
+
 { #category : #password }
 LifiaUser >> clearPassword [
 	hashedPassword := nil
