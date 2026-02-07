@@ -293,22 +293,30 @@ AdministrationComponent >> renderDefaultValuesOn: html [
 
 { #category : #rendering }
 AdministrationComponent >> renderDisabledUsersListOn: html [
-	 html tbsPanel
+
+	html tbsPanel
 		beDefault;
-		with: [ html tbsPanelHeading: [ html label: 'Disabled users' ].
-			html
-				tbsPanelBody: [ (LifiometroRepository singleton users reject: [ :each | each enabled ])
-						do: [ :each | self renderUser: each on: html ] ] ]
+		with: [
+			html tbsPanelHeading: [ html label: 'Disabled users' ].
+			html tbsPanelBody: [
+					((LifiometroRepository singleton users reject: [ :each |
+							  each enabled ]) asSortedCollection: [ :a :b |
+							 a email <= b email ]) do: [ :each |
+							self renderUser: each on: html ] ] ]
 ]
 
 { #category : #rendering }
 AdministrationComponent >> renderEnabledUsersListOn: html [
-	 html tbsPanel
+
+	html tbsPanel
 		beDefault;
-		with: [ html tbsPanelHeading: [ html label: 'Enabled users' ].
-			html
-				tbsPanelBody: [ (LifiometroRepository singleton users select: [ :each | each enabled ])
-						do: [ :each | self renderUser: each on: html ] ] ]
+		with: [
+			html tbsPanelHeading: [ html label: 'Enabled users' ].
+			html tbsPanelBody: [
+					((LifiometroRepository singleton users select: [ :each |
+							  each enabled ]) asSortedCollection: [ :a :b |
+							 a email <= b email ]) do: [ :each |
+							self renderUser: each on: html ] ] ]
 ]
 
 { #category : #rendering }
