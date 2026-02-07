@@ -98,6 +98,7 @@ MemoriasLandingComponent >> login: anEmailAddress withHashedPassword: aHashedPas
 MemoriasLandingComponent >> proceedWith: aUser [
 
 	self session currentUser: aUser.
+	self updateIfSuperadmin: aUser.
 	aUser enabled
 		ifTrue: [
 			aUser lastConnected: DateAndTime now.
@@ -189,6 +190,17 @@ MemoriasLandingComponent >> renderPresentationColumnOn: html [
 				with:
 					'Lleve registro de publicaciones, proyectos, becas, y dirección de recursos humanos de investigación, simplificando la generación de reportes y su publicación en la web.' ]
 		mediumSize: 6
+]
+
+{ #category : #'login-register' }
+MemoriasLandingComponent >> updateIfSuperadmin: aUser [
+	"Environment setting overrides object setting"
+
+	(OSEnvironment current at: 'SUPERADMIN_EMAIL' ifAbsent: nil)
+	= aUser email ifTrue: [
+		aUser
+			isAdmin: true;
+			enabled: true ]
 ]
 
 { #category : #rendering }

@@ -90,9 +90,11 @@ LifiaUser >> initialize [
 
 { #category : #accessing }
 LifiaUser >> isAdmin [
-	email = 'alejandro.casco.fernandez@gmail.com'
-		ifTrue: [ ^ true ].
-	^ isAdmin ifNil: [ isAdmin := false ]
+
+	"Lazy initialize tor backwards compatibility"
+	isAdmin ifNil: [ isAdmin := false ].
+
+	^ isAdmin
 ]
 
 { #category : #accessing }
