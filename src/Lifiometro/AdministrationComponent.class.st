@@ -243,7 +243,11 @@ AdministrationComponent >> renderBulkActionsOn: html [
 					html break.
 					html anchor
 						callback: [ self exportAsJsonLd ];
-						with: 'Export JSON-LD' ] ]
+						with: 'Export JSON-LD'.
+											html break.
+					html anchor
+						callback: [ self spotDuplicates ];
+						with: 'Spot potential duplicates'  ] ]
 ]
 
 { #category : #rendering }
@@ -444,6 +448,12 @@ AdministrationComponent >> setMissingSlugs [
 	, LifiometroRepository singleton thesis
 	, LifiometroRepository singleton references do: [ :each |
 		self session save: each ]
+]
+
+{ #category : #callbacks }
+AdministrationComponent >> spotDuplicates [
+
+	self call: DuplicateSpotter new
 ]
 
 { #category : #callbacks }

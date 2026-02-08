@@ -71,3 +71,25 @@ DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfThesis forThesisTitle
 			   distanceBetween: (each title asLowercase select: #isLetter)
 			   and: (aTitle asLowercase select: #isLetter)) < 10 ]
 ]
+
+{ #category : #references }
+DuplicateFinder >> findPotentialReferenceDuplicatesIn: aCollectionOfReferences [
+
+	| referecesToConsider duplicates focus duplicatesOfFocus |
+	duplicates := Set new.
+	referecesToConsider := (aCollectionOfReferences select: [ :each |
+		                        each propertyNames includes: 'title' ])
+		                       asOrderedCollection.
+
+	[ referecesToConsider notEmpty ] whileTrue: [
+		focus := referecesToConsider removeFirst.
+		duplicatesOfFocus := self
+			                     findPotentialDuplicatesIn: referecesToConsider
+			                     forReferenceTitled: focus title.
+		referecesToConsider removeAll: duplicatesOfFocus.
+		duplicatesOfFocus ifNotEmpty: [
+			duplicates
+				add: focus;
+				addAll: duplicatesOfFocus ] ].
+	^ duplicates
+]
