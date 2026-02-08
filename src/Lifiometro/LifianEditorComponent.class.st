@@ -13,6 +13,7 @@ LifianEditorComponent >> accept [
 		ifEmpty: [ errors add: 'El nombre es obligatorio' ].
 	(newValues at: 'lastName')
 		ifEmpty: [ errors add: 'El apellido es obligatorio' ].
+	self reportPotentialDuplicates.
 	errors ifNotEmpty: [ ^ self ].
 	super accept
 ]
@@ -187,4 +188,30 @@ LifianEditorComponent >> renderPropertyEditorsOn: html [
 		instructions:
 		'CV resumido como para incluir en proyectos o en el sitio web'
 		on: html
+]
+
+{ #category : #rendering }
+LifianEditorComponent >> reportPotentialDuplicates [
+
+	| finder potentialDuplicates |
+	finder := DuplicateFinder new.
+	potentialDuplicates := finder
+		                       findPotentialDuplicatesIn:
+		                       (self lifians copyWithout: item)
+		                       forLifianWithFirstName:
+		                       (newValues at: 'firstName' ifAbsentPut: '')
+		                       andLastName:
+		                       (newValues at: 'lastName' ifAbsentPut: '').
+
+	potentialDuplicates ifEmpty: [ ^ self ].
+	errors add: (String streamContents: [ :strm |
+			 strm nextPutAll:
+				 'Ya existen participantes con ese nombre o casi idéntico (temo que esto sea un duplicado): '.
+			 potentialDuplicates
+				 do: [ :each |
+					 strm
+						 nextPutAll: '"';
+						 nextPutAll: each fullName;
+						 nextPutAll: '"' ]
+				 separatedBy: [ strm space ] ])
 ]

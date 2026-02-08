@@ -4,6 +4,20 @@ Class {
 	#category : #'Lifiometro-Tools'
 }
 
+{ #category : #lifians }
+DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfLifians forLifianWithFirstName: firstName andLastName: lastName [
+
+	| damerauLevenshtein |
+	damerauLevenshtein := AIDamerauLevenshteinDistance new.
+
+	^ aCollectionOfLifians select: [ :each |
+		  (damerauLevenshtein
+			   distanceBetween:
+			   ((each firstName , each lastName) asLowercase select: #isLetter)
+			   and: ((firstName , lastName) asLowercase select: #isLetter))
+		  < 2 ]
+]
+
 { #category : #references }
 DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfReferences forReferenceTitled: aTitle [
  
