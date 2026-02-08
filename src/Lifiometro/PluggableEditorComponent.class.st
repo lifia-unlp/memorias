@@ -351,6 +351,12 @@ PluggableEditorComponent >> renderTextInputEditorFor: property on: html [
 ]
 
 { #category : #accessing }
+PluggableEditorComponent >> scholarships [
+
+	^ LifiometroRepository singleton scholarships
+]
+
+{ #category : #accessing }
 PluggableEditorComponent >> thesis [
 	^ LifiometroRepository singleton  thesis
 		asSortedCollection: [ :a :b | a student < b student ]

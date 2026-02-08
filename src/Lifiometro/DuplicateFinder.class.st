@@ -44,3 +44,18 @@ DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfReferences forReferen
 			   distanceBetween: (each title asLowercase select: #isLetter)
 			   and: (aTitle asLowercase select: #isLetter)) < 10 ]
 ]
+
+{ #category : #projects }
+DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfScholarships forStudentNamed: aName from: startDate to: endDate [
+
+	| damerauLevenshtein scholarshipDuration |
+	damerauLevenshtein := AIDamerauLevenshteinDistance new.
+	scholarshipDuration := startDate to: endDate.
+
+	^ aCollectionOfScholarships select: [ :each |
+		  (scholarshipDuration intersection:
+			   (each startDate to: each endDate)) notNil and: [
+			  (damerauLevenshtein
+				   distanceBetween: (each student asLowercase select: #isLetter)
+				   and: (aName asLowercase select: #isLetter)) < 3 ] ]
+]
