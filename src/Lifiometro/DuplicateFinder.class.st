@@ -45,7 +45,7 @@ DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfReferences forReferen
 			   and: (aTitle asLowercase select: #isLetter)) < 10 ]
 ]
 
-{ #category : #projects }
+{ #category : #scholarships }
 DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfScholarships forStudentNamed: aName from: startDate to: endDate [
 
 	| damerauLevenshtein scholarshipDuration |
@@ -72,24 +72,51 @@ DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfThesis forThesisTitle
 			   and: (aTitle asLowercase select: #isLetter)) < 10 ]
 ]
 
-{ #category : #references }
-DuplicateFinder >> findPotentialReferenceDuplicatesIn: aCollectionOfReferences [
+{ #category : #general }
+DuplicateFinder >> findPotentialDuplicatesIn: aCollection with: duplicateSpottingBlock [
 
-	| referecesToConsider duplicates focus duplicatesOfFocus |
+	| collectionCopy duplicates focus duplicatesOfFocus |
 	duplicates := Set new.
-	referecesToConsider := (aCollectionOfReferences select: [ :each |
-		                        each propertyNames includes: 'title' ])
-		                       asOrderedCollection.
+	collectionCopy := aCollection copy.
 
-	[ referecesToConsider notEmpty ] whileTrue: [
-		focus := referecesToConsider removeFirst.
-		duplicatesOfFocus := self
-			                     findPotentialDuplicatesIn: referecesToConsider
-			                     forReferenceTitled: focus title.
-		referecesToConsider removeAll: duplicatesOfFocus.
+	[ collectionCopy notEmpty ] whileTrue: [
+		focus := collectionCopy removeFirst.
+		duplicatesOfFocus := duplicateSpottingBlock
+			                     value: collectionCopy
+			                     value: focus.
+		collectionCopy removeAll: duplicatesOfFocus.
 		duplicatesOfFocus ifNotEmpty: [
 			duplicates
 				add: focus;
 				addAll: duplicatesOfFocus ] ].
 	^ duplicates
+]
+
+{ #category : #references }
+DuplicateFinder >> findPotentialReferenceDuplicatesIn: aCollectionOfReferences [
+
+	| referecesToConsider |
+	referecesToConsider := (aCollectionOfReferences select: [ :each |
+		                        each propertyNames includes: 'title' ])
+		                       asOrderedCollection.
+
+	^ self
+		  findPotentialDuplicatesIn: referecesToConsider
+		  with: [ :collection :focus |
+			  self
+				  findPotentialDuplicatesIn: collection
+				  forReferenceTitled: focus title ]
+]
+
+{ #category : #scholarships }
+DuplicateFinder >> findPotentialScholarshipDuplicatesIn: aCollectionOfScholarships [
+
+	^ self
+		  findPotentialDuplicatesIn: aCollectionOfScholarships
+		  with: [ :collection :focus |
+			  self
+				  findPotentialDuplicatesIn: collection
+				  forStudentNamed: focus student
+				  from: focus startDate
+				  to: focus endDate ]
 ]
