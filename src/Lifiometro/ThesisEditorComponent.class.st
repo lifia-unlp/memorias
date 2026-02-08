@@ -6,19 +6,22 @@ Class {
 
 { #category : #'accept/cancel' }
 ThesisEditorComponent >> accept [
+
 	[ (newValues at: 'startDate') asDate ]
 		on: Error
-		do: [ errors add: 'La fecha de inicio deben válida en formato dd/mm/aa' ].
-	(newValues at: 'title')
-		ifEmpty: [ errors add: 'Debe espedíficar un título' ].
-	(newValues at: 'student')
-		ifEmpty: [ errors add: 'Debe especifica rel nombre del alumno' ].
-	(newValues at: 'director')
-		ifEmpty: [ errors add: 'Debe especificar el nombre del director' ].
-	(newValues at: 'career')
-		ifEmpty: [ errors add: 'Debe especificar la carrera' ].
-	(newValues at: 'level')
-		ifEmpty: [ errors add: 'Debe especificar el nivel' ].
+		do: [
+		errors add: 'La fecha de inicio deben válida en formato dd/mm/aa' ].
+	(newValues at: 'title') ifEmpty: [
+		errors add: 'Debe espedíficar un título' ].
+	(newValues at: 'student') ifEmpty: [
+		errors add: 'Debe especifica rel nombre del alumno' ].
+	(newValues at: 'director') ifEmpty: [
+		errors add: 'Debe especificar el nombre del director' ].
+	(newValues at: 'career') ifEmpty: [
+		errors add: 'Debe especificar la carrera' ].
+	(newValues at: 'level') ifEmpty: [
+		errors add: 'Debe especificar el nivel' ].
+	self reportPotentialDuplicates.
 	errors ifNotEmpty: [ ^ self ].
 	super accept
 ]
@@ -99,4 +102,27 @@ ThesisEditorComponent >> renderPropertyEditorsOn: html [
 		on: html.
 	self renderRelatedLifiansEditorOn: html.
 	self renderRelatedProjectsEditorOn: html
+]
+
+{ #category : #'accept/cancel' }
+ThesisEditorComponent >> reportPotentialDuplicates [
+
+	| finder potentialDuplicates |
+	finder := DuplicateFinder new.
+	potentialDuplicates := finder
+		                       findPotentialDuplicatesIn:
+		                       (self thesis copyWithout: item)
+		                       forThesisTitled:
+		                       (newValues at: 'title' ifAbsentPut: '').
+
+	potentialDuplicates ifEmpty: [ ^ self ].
+	errors add: (String streamContents: [ :strm |
+			 strm nextPutAll: 'Ya existen tesis con titulos casi igual a ese (temo que esto sea un duplicado): '.
+			 potentialDuplicates
+				 do: [ :each |
+					 strm
+						 nextPutAll: '"';
+						 nextPutAll: each title;
+						 nextPutAll: '"' ]
+				 separatedBy: [ strm space ] ])
 ]

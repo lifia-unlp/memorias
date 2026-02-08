@@ -59,3 +59,15 @@ DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfScholarships forStude
 				   distanceBetween: (each student asLowercase select: #isLetter)
 				   and: (aName asLowercase select: #isLetter)) < 3 ] ]
 ]
+
+{ #category : #projects }
+DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfThesis forThesisTitled: aTitle [
+
+	| damerauLevenshtein |
+	damerauLevenshtein := AIDamerauLevenshteinDistance new.
+
+	^ aCollectionOfThesis select: [ :each |
+		  (damerauLevenshtein
+			   distanceBetween: (each title asLowercase select: #isLetter)
+			   and: (aTitle asLowercase select: #isLetter)) < 10 ]
+]
