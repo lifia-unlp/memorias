@@ -6,23 +6,22 @@ Class {
 
 { #category : #baselines }
 BaselineOfLifiometro >> baseline: spec [
-	<baseline>
-	spec
-		for: #common
-		do: [ self
-				seaside: spec;
-				doi: spec;
-				bootstrap: spec;
-				voyage: spec;
-				openAiPapi: spec;
-				plotly: spec;
-				petitBibtex: spec.
-			spec
-				package: 'Lifiometro'
-				with: [ spec
-						requires:
-							#('Seaside3' 'Bootstrap-Core' 'Bootstrap-Widgets' 'Voyage' 'Seaside-Plotly-Core') ] ].
 
+	<baseline>
+	spec for: #common do: [
+		self
+			seaside: spec;
+			doi: spec;
+			bootstrap: spec;
+			voyage: spec;
+			openAiPapi: spec;
+			plotly: spec;
+			editDistances: spec;
+			petitBibtex: spec.
+		spec package: 'Lifiometro' with: [
+			spec requires:
+				#( 'Seaside3' 'Bootstrap-Core' 'Bootstrap-Widgets'
+				   'Voyage' 'Seaside-Plotly-Core' 'AIEditDistances' ) ] ]
 ]
 
 { #category : #baselines }
@@ -43,6 +42,14 @@ BaselineOfLifiometro >> doi: spec [
 	spec
 		package: 'DOI'
 		with: [ spec repository: 'github://cientopolis/petitbibtex' ]
+]
+
+{ #category : #baselines }
+BaselineOfLifiometro >> editDistances: spec [
+
+	spec
+		baseline: 'AIEditDistances'
+		with: [ spec repository: 'github://pharo-ai/edit-distances/src' ]
 ]
 
 { #category : #baselines }
