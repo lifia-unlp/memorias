@@ -18,6 +18,19 @@ DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfLifians forLifianWith
 		  < 2 ]
 ]
 
+{ #category : #projects }
+DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfProjects forProjectTitled: title startingOnYear: startYear [
+
+	| damerauLevenshtein |
+	damerauLevenshtein := AIDamerauLevenshteinDistance new.
+
+	^ aCollectionOfProjects select: [ :each |
+		  each startDate year = startYear and: [
+			  (damerauLevenshtein
+				   distanceBetween: (each title asLowercase select: #isLetter)
+				   and: (title asLowercase select: #isLetter)) < 10 ] ]
+]
+
 { #category : #references }
 DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfReferences forReferenceTitled: aTitle [
  
