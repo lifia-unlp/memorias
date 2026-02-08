@@ -9,17 +9,22 @@ Class {
 
 { #category : #callbacks }
 ReferenceEditorComponent >> accept [
-	newType isEmptyOrNil 
-		ifTrue: [ errors add: 'Debe especificar el tipo' ].
-	(newValues at: 'year' ifAbsentPut: '')
-		ifEmpty: [ errors add: 'Debe especificar el año' ].
-	[((newValues at: 'year') asNumber)] on: Error do: [ errors add: 'Año debe ser un numero válido en formato de 4 dígitos' ].
-	item class = BibtexReference
-		ifTrue: [ (newValues at: 'title' ifAbsentPut: '')
-				ifEmpty: [ errors add: 'Debe especificar un título' ] ].
-	item class = RawReference 
-		ifTrue: [ (newValues at: 'reference' ifAbsentPut: '')
-				ifEmpty: [ errors add: 'Debe especificar una referencia en formato ACM' ] ].
+
+	newType isEmptyOrNil ifTrue: [
+		errors add: 'Debe especificar el tipo' ].
+	(newValues at: 'year' ifAbsentPut: '') ifEmpty: [
+		errors add: 'Debe especificar el año' ].
+	[ (newValues at: 'year') asNumber ]
+		on: Error
+		do: [
+		errors add: 'Año debe ser un numero válido en formato de 4 dígitos' ].
+	item class = BibtexReference ifTrue: [
+		(newValues at: 'title' ifAbsentPut: '') ifEmpty: [
+			errors add: 'Debe especificar un título' ].
+		self reportPotentialDuplicates ].
+	item class = RawReference ifTrue: [
+		(newValues at: 'reference' ifAbsentPut: '') ifEmpty: [
+			errors add: 'Debe especificar una referencia en formato ACM' ] ].
 	errors ifNotEmpty: [ ^ self ].
 	item type: newType.
 	super accept
@@ -149,4 +154,27 @@ ReferenceEditorComponent >> renderTypeEditorLabeled: label instructions: instruc
 { #category : #rendering }
 ReferenceEditorComponent >> renderTypeEditorOn: html [
 	self renderTypeEditorLabeled: 'Type' instructions: nil on: html
+]
+
+{ #category : #utility }
+ReferenceEditorComponent >> reportPotentialDuplicates [
+
+	| finder potentialDuplicates |
+	finder := DuplicateFinder new.
+	potentialDuplicates := finder
+		                       findPotentialDuplicatesIn:
+		                       (self references copyWithout: item)
+		                       forReferenceTitled:
+		                       (newValues at: 'title' ifAbsentPut: '').
+
+	potentialDuplicates ifEmpty: [ ^ self ].
+	errors add: (String streamContents: [ :strm |
+			 strm nextPutAll: 'Ya existen artículos con titulo casi igual a ese (temo que sea un duplicado): '.
+			 potentialDuplicates
+				 do: [ :each |
+					 strm
+						 nextPutAll: '"';
+						 nextPutAll: each asReference;
+						 nextPutAll: '"' ]
+				 separatedBy: [ strm space ] ])
 ]

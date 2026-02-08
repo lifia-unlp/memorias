@@ -67,6 +67,12 @@ PluggableEditorComponent >> projects [
 		asSortedCollection: [ :a :b | a endDate > b endDate ]
 ]
 
+{ #category : #accessing }
+PluggableEditorComponent >> references [
+
+	^ LifiometroRepository singleton references
+]
+
 { #category : #rendering }
 PluggableEditorComponent >> renderButtonsOn: html [
 	html

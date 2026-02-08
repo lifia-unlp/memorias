@@ -41,17 +41,18 @@ BibtexChunckImportComponent >> cancel [
 
 { #category : #testing }
 BibtexChunckImportComponent >> checkForErrors [
+
 	| year |
 	bibtexEntry ifNil: [ ^ self ].
-	self canImport
-		ifFalse: [ error := 'No es posible importar referencias del tipo '
-				, bibtexEntry type ].
+	self canImport ifFalse: [
+		error := 'No es posible importar referencias del tipo '
+		         , bibtexEntry type ].
 	[ year := bibtexEntry year asNumber ]
 		on: Error
 		do: [ year := nil ].
-	year
-		ifNil:
-			[ error := 'El registro debe incluir la propiedad ''year'' con un valor válido en formato de 4 dígitos ' ]
+	year ifNil: [
+		error := 'El registro debe incluir la propiedad ''year'' con un valor válido en formato de 4 dígitos ' ].
+	self reportPotentialDuplicates
 ]
 
 { #category : #callbacks }
@@ -69,7 +70,7 @@ BibtexChunckImportComponent >> parse: aBibtexString [
 			^ self ].
 	bibtexEntry isEmpty
 		ifTrue: [ bibtexEntry := nil.
-			error := 'No puero obtener una entrada válida.'.
+			error := 'No puedo obtener una entrada válida.'.
 			^ self ].
 	bibtexEntry := bibtexEntry first cleanupLatexAccentsAndBraces
 ]
@@ -178,6 +179,29 @@ BibtexChunckImportComponent >> renderIncollectionDesambiguationOn: html [
 						space;
 						text: 'Capítulo de libro (inbook)';
 						break ] ]
+]
+
+{ #category : #testing }
+BibtexChunckImportComponent >> reportPotentialDuplicates [
+
+	| finder potentialDuplicates |
+	finder := DuplicateFinder new.
+	potentialDuplicates := finder
+		                       findPotentialDuplicatesIn:
+		                       LifiometroRepository singleton references
+		                       forReferenceTitled: bibtexEntry title.
+
+	potentialDuplicates ifEmpty: [ ^ self ].
+	error := String streamContents: [ :strm |
+		         strm nextPutAll:
+			         'Ya existen artículos con titulo casi igual a ese (temo que sea un duplicado): '.
+		         potentialDuplicates
+			         do: [ :each |
+				         strm
+					         nextPutAll: '"';
+					         nextPutAll: each asReference;
+					         nextPutAll: '"' ]
+			         separatedBy: [ strm space ] ]
 ]
 
 { #category : #callbacks }
