@@ -26,7 +26,11 @@ DuplicateSpotter >> initialize [
 DuplicateSpotter >> renderContentOn: html [
 
 	html tbsPanel: [
-		html tbsPanelBody: [ self renderReferenceDuplicatesOn: html.
+		html tbsPanelBody: [
+			html anchor
+				callback: [ self answer ];
+				with: 'Back'.
+			self renderReferenceDuplicatesOn: html.
 			self renderProjectDuplicatesOn: html.
 			self renderThesisDuplicatesOn: html.
 			self renderScholarshipDuplicatesOn: html.
