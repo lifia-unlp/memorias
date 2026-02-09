@@ -46,18 +46,19 @@ DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfReferences forReferen
 ]
 
 { #category : #scholarships }
-DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfScholarships forStudentNamed: aName from: startDate to: endDate [
+DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfScholarships forStudentNamed: aName from: startDate to: endDate fundedBy: fundingAgency [
 
 	| damerauLevenshtein scholarshipDuration |
 	damerauLevenshtein := AIDamerauLevenshteinDistance new.
 	scholarshipDuration := startDate to: endDate.
 
 	^ aCollectionOfScholarships select: [ :each |
-		  (scholarshipDuration intersection:
-			   (each startDate to: each endDate)) notNil and: [
-			  (damerauLevenshtein
-				   distanceBetween: (each student asLowercase select: #isLetter)
-				   and: (aName asLowercase select: #isLetter)) < 3 ] ]
+		  each fundingAgency = fundingAgency and: [
+			  (scholarshipDuration intersection:
+				   (each startDate to: each endDate)) notNil and: [
+				  (damerauLevenshtein
+					   distanceBetween: (each student asLowercase select: #isLetter)
+					   and: (aName asLowercase select: #isLetter)) < 3 ] ] ]
 ]
 
 { #category : #thesis }
@@ -130,7 +131,8 @@ DuplicateFinder >> findPotentialScholarshipDuplicatesIn: aCollectionOfScholarshi
 				  findPotentialDuplicatesIn: collection
 				  forStudentNamed: focus student
 				  from: focus startDate
-				  to: focus endDate ]
+				  to: focus endDate 
+				  fundedBy: focus fundingAgency ]
 ]
 
 { #category : #thesis }

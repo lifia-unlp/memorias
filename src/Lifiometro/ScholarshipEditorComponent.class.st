@@ -124,7 +124,11 @@ ScholarshipEditorComponent >> reportPotentialDuplicates [
 		                       forStudentNamed:
 		                       (newValues at: 'student' ifAbsentPut: '')
 		                       from: startDate
-		                       to: endDate.
+		                       to: endDate
+		                       fundedBy:
+		                       (newValues
+			                        at: 'fundingAgency'
+			                        ifAbsentPut: '').
 
 	potentialDuplicates ifEmpty: [ ^ self ].
 	errors add: (String streamContents: [ :strm |
