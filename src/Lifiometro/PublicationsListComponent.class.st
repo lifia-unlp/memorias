@@ -64,8 +64,10 @@ PublicationsListComponent >> initializeGroupingAndFilteringAdapter [
 
 { #category : #rendering }
 PublicationsListComponent >> items [
-	^ LifiometroRepository singleton references
-		asSortedCollection: [ :a :b | a asSummary < b asSummary ]
+
+	^ LifiometroRepository singleton references asSortedCollection: [ :a :b |
+		  a year > b year or: [
+			  a year = b year and: [ a asSummary < b asSummary ] ] ]
 ]
 
 { #category : #'factory-methods' }
