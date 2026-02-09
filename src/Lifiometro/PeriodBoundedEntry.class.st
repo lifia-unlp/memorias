@@ -9,6 +9,12 @@ Class {
 }
 
 { #category : #accessing }
+PeriodBoundedEntry >> ageInYears [
+
+	^ Date today year - startDate year
+]
+
+{ #category : #accessing }
 PeriodBoundedEntry >> endDate [
 	"Mongo converted this as DateAndTime"
 

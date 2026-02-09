@@ -41,6 +41,18 @@ PluggableEditorComponent >> item: anItemWithProperties [
 		do: [ :each | newValues at: each put: ((item at: each) ifNil: [ '' ]) ]
 ]
 
+{ #category : #'rendering input' }
+PluggableEditorComponent >> labelForThesis: thesis [
+
+	|  timeFrameLabel |
+	timeFrameLabel := thesis ageInYears < 5
+		                  ifTrue: [ 'últimos 5 años' ]
+		                  ifFalse: [ 'iniciada anteriormente' ].
+
+	^ ' (' , thesis level , ', ' , timeFrameLabel , ') ' , thesis student
+	  , '. ' , thesis title
+]
+
 { #category : #accessing }
 PluggableEditorComponent >> lifians [
 
@@ -268,24 +280,25 @@ PluggableEditorComponent >> renderRelatedProjectsEditorOn: html [
 
 { #category : #'rendering input' }
 PluggableEditorComponent >> renderRelatedThesisEditorOn: html [
+
 	| currentValue |
 	currentValue := newValues at: 'relatedThesis'.
-	html
-		tbsFormGroup: [ html label
-				for: 'relatedThesis';
-				with: 'Tesis/tesinas vinculadas'.
-			html
-				break;
-				small: 'Use control+click para seleccionar varios'.
-			html multiSelect
-				list: self thesis;
-				selected: currentValue;
-				size: 10;
-				class: 'form-control';
-				labels: [ :thesis | thesis student , '. ' , thesis title ];
-				callback: [ :value | newValues at: 'relatedThesis' put: value . ];
-				with: currentValue;
-				id: 'relatedThesis' ]
+	html tbsFormGroup: [
+		html label
+			for: 'relatedThesis';
+			with: 'Tesis/tesinas vinculadas'.
+		html
+			break;
+			small: 'Use control+click para seleccionar varios'.
+		html multiSelect
+			list: self thesis;
+			selected: currentValue;
+			size: 10;
+			class: 'form-control';
+			labels: [ :thesis | self labelForThesis: thesis ];
+			callback: [ :value | newValues at: 'relatedThesis' put: value ];
+			with: currentValue;
+			id: 'relatedThesis' ]
 ]
 
 { #category : #'rendering input' }
@@ -358,8 +371,13 @@ PluggableEditorComponent >> scholarships [
 
 { #category : #accessing }
 PluggableEditorComponent >> thesis [
-	^ LifiometroRepository singleton  thesis
-		asSortedCollection: [ :a :b | a student < b student ]
+
+	^ LifiometroRepository singleton thesis asSortedCollection: [ :a :b |
+		  a level < b level or: [
+			  a level = b level and: [
+				  a startDate year > b startDate year or: [
+					  a startDate year = b startDate year and: [
+						  a student < b student ] ] ] ] ]
 ]
 
 { #category : #rendering }
