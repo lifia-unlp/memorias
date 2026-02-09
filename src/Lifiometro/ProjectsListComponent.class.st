@@ -39,6 +39,18 @@ ProjectsListComponent >> newEditorFor: anEntry [
   ^ProjectEditorComponent item: anEntry 
 ]
 
+{ #category : #'rendering-hooks' }
+ProjectsListComponent >> offersPublicReport [
+
+	^ true
+]
+
+{ #category : #'as yet unclassified' }
+ProjectsListComponent >> publicReportUrlFor: each [
+
+	^ '/' , (ProjectReportComponent relativeUrlFor: each)
+]
+
 { #category : #rendering }
 ProjectsListComponent >> render: each on: html [
 	html

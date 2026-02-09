@@ -41,6 +41,18 @@ ThesisListComponent >> newEditorFor: anEntry [
   ^ ThesisEditorComponent item: anEntry 
 ]
 
+{ #category : #'rendering-hooks' }
+ThesisListComponent >> offersPublicReport [
+
+	^ true
+]
+
+{ #category : #'rendering-hooks' }
+ThesisListComponent >> publicReportUrlFor: each [
+
+	^ '/' , (ThesisReportComponent relativeUrlFor: each)
+]
+
 { #category : #adding }
 ThesisListComponent >> render: each on: html [
 	| endDate |

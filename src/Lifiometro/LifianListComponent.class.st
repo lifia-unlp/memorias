@@ -47,6 +47,18 @@ LifianListComponent >> newEditorFor: anEntry [
 	^ LifianEditorComponent item: anEntry
 ]
 
+{ #category : #'rendering-hooks' }
+LifianListComponent >> offersPublicReport [
+
+	^ true
+]
+
+{ #category : #'rendering-hooks' }
+LifianListComponent >> publicReportUrlFor: each [
+
+	^ '/' , (ResearcherReportComponent relativeUrlFor: each)
+]
+
 { #category : #rendering }
 LifianListComponent >> render: each on: html [
 

@@ -15,9 +15,6 @@ ReportComponent class >> relativeUrlFor: item [
 { #category : #'rendering-projects' }
 ReportComponent >> baseUrl [
 
-	Transcript show: self requestContext request url; cr.
-
-
 	^ '/'
 ]
 

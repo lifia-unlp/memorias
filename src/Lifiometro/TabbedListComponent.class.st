@@ -72,6 +72,12 @@ TabbedListComponent >> newEditorFor: anEntry [
   ^self subclassResponsibility 
 ]
 
+{ #category : #'rendering-hooks' }
+TabbedListComponent >> offersPublicReport [
+
+	^ false
+]
+
 { #category : #callbacks }
 TabbedListComponent >> openPlainView [
 	self
@@ -89,6 +95,12 @@ TabbedListComponent >> parent: anObject [
 { #category : #accessing }
 TabbedListComponent >> plainView: anObject [
 	plainView := anObject
+]
+
+{ #category : #'rendering-hooks' }
+TabbedListComponent >> publicReportUrlFor: each [
+
+	^ '/'
 ]
 
 { #category : #callbacks }
@@ -128,7 +140,15 @@ TabbedListComponent >> renderActionsFor: each on: html [
 		with: [
 			html tbsGlyphIcon
 				iconTrash;
-				style: 'color: red;' ]
+				style: 'color: red;' ].
+	self offersPublicReport ifFalse: [ ^ self ].
+	html space.
+	html space.
+	html anchor
+		url: (self publicReportUrlFor: each);
+		title: 'Compartir vista publica';
+		target: '_blank';
+		with: [ html tbsGlyphIcon iconSend ]
 ]
 
 { #category : #'rendering-hooks' }
