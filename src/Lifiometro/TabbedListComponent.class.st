@@ -169,11 +169,16 @@ TabbedListComponent >> renderItemsOn: html [
 { #category : #rendering }
 TabbedListComponent >> renderRelatedLifiansFor: each on: html [
 
-	html text: 'Investigadores: '
-		, ((each relatedLifians ifNil: [ Set new ]) collect: [ :lifian |
-				 (lifian trashed
-					  ifTrue: [ '(OBSOLETE) ' ]
-					  ifFalse: [ '' ]) , lifian fullName ]) asCommaString
+	| relatedLifians label |
+	relatedLifians := each relatedLifians.
+	label := html span.
+	relatedLifians isEmptyOrNil ifTrue: [ label style: 'color: red;' ].
+	label with: 'Investigadores '.
+
+	html text: ((relatedLifians ifNil: [ Set new ]) collect: [ :lifian |
+			 (lifian trashed
+				  ifTrue: [ '(OBSOLETE) ' ]
+				  ifFalse: [ '' ]) , lifian fullName ]) asCommaString
 ]
 
 { #category : #'rendering-hooks' }
@@ -181,18 +186,34 @@ TabbedListComponent >> renderRelatedObjectsFor: each on: html [
 
 	html paragraph: [
 		self renderRelatedLifiansFor: each on: html.
-		self renderRelatedProjectsFor: each on: html ]
+		self renderRelatedProjectsFor: each on: html.
+		self renderRelatedThesisFor: each on: html ]
 ]
 
 { #category : #rendering }
 TabbedListComponent >> renderRelatedProjectsFor: each on: html [
+
+	| label relatedProjects |
 	html break.
-	html
-		text:
-			'Proyectos: '
-				,
-					((each relatedProjects ifNil: [ Set new ])
-						collect: [ :project | project title ]) asCommaString
+	relatedProjects := each relatedProjects.
+	label := html span.
+	relatedProjects isEmptyOrNil ifTrue: [ label style: 'color: red;' ].
+	label with: 'Proyectos: '.
+
+	html text:
+		((relatedProjects ifNil: [ Set new ]) collect: [ :project |
+			 project title ]) asCommaString
+]
+
+{ #category : #rendering }
+TabbedListComponent >> renderRelatedThesisFor: each on: html [
+
+	| relatedThesis |
+	relatedThesis := each relatedThesis.
+	relatedThesis isEmptyOrNil ifTrue: [ ^ self ].
+	html break.
+	html text: 'Tesis: ' , (relatedThesis collect: [ :thesis |
+			 thesis student , ' (' , thesis level , ')' ]) asCommaString
 ]
 
 { #category : #rendering }
