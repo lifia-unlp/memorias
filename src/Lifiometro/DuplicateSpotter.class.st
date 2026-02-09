@@ -52,7 +52,16 @@ DuplicateSpotter >> renderProjectDuplicatesOn: html [
 		callback: [ self updateProjectDuplicates ];
 		with: '[Actualizar]'.
 	html unorderedList: [
-		projectDuplicates  do: [ :each | html listItem: each asSummary ] ]
+		projectDuplicates do: [ :each |
+			html listItem: [
+				html text: (String streamContents: [ :s |
+						 s
+							 nextPutAll: each title;
+							 nextPutAll: ' (';
+							 nextPutAll: each startDate ddmmyyyy;
+							 nextPutAll: '-';
+							 nextPutAll: each endDate ddmmyyyy;
+							 nextPutAll: ')' ]) ] ] ]
 ]
 
 { #category : #rendering }
@@ -94,7 +103,26 @@ DuplicateSpotter >> renderThesisDuplicatesOn: html [
 		callback: [ self updateThesisDuplicates ];
 		with: '[Actualizar]'.
 	html unorderedList: [
-		thesisDuplicated   do: [ :each | html listItem: each asSummary ] ]
+		thesisDuplicated do: [ :each |
+			html listItem: [
+				html text: (String streamContents: [ :s |
+						 s
+							 nextPutAll: each title;
+							 nextPutAll: ' (';
+							 nextPutAll: each student;
+							 nextPutAll: ')' ]) ] ] ]
+]
+
+{ #category : #update }
+DuplicateSpotter >> updateProjectDuplicates [
+
+	| finder |
+	finder := DuplicateFinder new.
+	projectDuplicates   := finder findPotentialProjectDuplicatesIn:
+		                       LifiometroRepository singleton projects.
+	projectDuplicates := projectDuplicates asSortedCollection: [ :a :b |
+		                       a startDate > b startDate
+		                       | (a startDate > b startDate & (a title <= b title)) ] 
 ]
 
 { #category : #update }
@@ -119,4 +147,15 @@ DuplicateSpotter >> updateScholarshipDuplicates [
 	scholarshipDuplicates := scholarshipDuplicates asSortedCollection: [ :a :b |
 		                       a startDate > b startDate
 		                       | (a startDate > b startDate & (a student <= b student)) ] 
+]
+
+{ #category : #update }
+DuplicateSpotter >> updateThesisDuplicates [
+
+	| finder |
+	finder := DuplicateFinder new.
+	thesisDuplicated := finder findPotentialThesisDuplicatesIn:
+		                    LifiometroRepository singleton thesis.
+	thesisDuplicated := thesisDuplicated asSortedCollection: [ :a :b |
+		                    a title <= b title ]
 ]

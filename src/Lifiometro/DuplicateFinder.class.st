@@ -60,7 +60,7 @@ DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfScholarships forStude
 				   and: (aName asLowercase select: #isLetter)) < 3 ] ]
 ]
 
-{ #category : #projects }
+{ #category : #thesis }
 DuplicateFinder >> findPotentialDuplicatesIn: aCollectionOfThesis forThesisTitled: aTitle [
 
 	| damerauLevenshtein |
@@ -92,6 +92,18 @@ DuplicateFinder >> findPotentialDuplicatesIn: aCollection with: duplicateSpottin
 	^ duplicates
 ]
 
+{ #category : #projects }
+DuplicateFinder >> findPotentialProjectDuplicatesIn: aCollectionOfProjects [
+
+	^ self
+		  findPotentialDuplicatesIn: aCollectionOfProjects
+		  with: [ :collection :focus |
+			  self
+				  findPotentialDuplicatesIn: collection
+				  forProjectTitled: focus title
+				  startingOnYear: focus startDate ]
+]
+
 { #category : #references }
 DuplicateFinder >> findPotentialReferenceDuplicatesIn: aCollectionOfReferences [
 
@@ -119,4 +131,15 @@ DuplicateFinder >> findPotentialScholarshipDuplicatesIn: aCollectionOfScholarshi
 				  forStudentNamed: focus student
 				  from: focus startDate
 				  to: focus endDate ]
+]
+
+{ #category : #thesis }
+DuplicateFinder >> findPotentialThesisDuplicatesIn: aCollectionOfThesis [
+
+	^ self
+		  findPotentialDuplicatesIn: aCollectionOfThesis
+		  with: [ :collection :focus |
+			  self
+				  findPotentialDuplicatesIn: collection
+				  forThesisTitled: focus title ]
 ]
