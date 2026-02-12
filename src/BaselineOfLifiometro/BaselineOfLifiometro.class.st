@@ -78,10 +78,10 @@ BaselineOfLifiometro >> plotly: spec [
 BaselineOfLifiometro >> seaside: spec [
 	spec
 		baseline: 'Seaside3'
-		with: [ spec repository: 'github://SeasideSt/Seaside:master/repository' ].
+		with: [ spec repository: 'github://SeasideSt/Seaside:v3.5.9/repository' ].
 	spec
 		package: 'Seaside-REST-Core'
-		with: [ spec repository: 'github://SeasideSt/Seaside:master/repository' ]
+		with: [ spec repository: 'github://SeasideSt/Seaside:v3.5.9/repository' ]
 ]
 
 { #category : #baselines }
