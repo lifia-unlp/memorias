@@ -102,7 +102,8 @@ HomeComponent >> renderLeftMenuOn: html [
 	tabs := OrderedCollection new.
 	self session currentUser enabled ifTrue: [
 		tabs addAll:
-			{ 'Tareas pendientes'. 'Novedades'.  'Publicaciones'. 'Proyectos'. 'Becas/Estancias'. 'Tesis'. 'Participantes' }.
+			{ 'Tareas pendientes'. 'Novedades'. 'Publicaciones'. 'Proyectos'.
+			'Becas/Estancias'. 'Tesis'. 'Participantes' }.
 		self session currentUser isAdmin ifTrue: [ tabs add: 'Administrar' ].
 		self session currentUser lifian ifNotNil: [ :it |
 			tabs addFirst: 'Mi ficha técnica' ] ].
@@ -120,12 +121,20 @@ HomeComponent >> renderLeftMenuOn: html [
 									html anchor
 										callback: [ selectedTab := each ];
 										with: each ] ].
-					self session currentUser enabled ifTrue: [
-						html tbsNavItem: [
-							html anchor
-								target: '_blank';
-								callback: [ self showReports ];
-								with: 'Reportes' ] ].
+
+					html tbsNavItem: [
+						html anchor
+							target: '_blank';
+							callback: [ self showReports ];
+							with: 'Reportes' ].
+
+					html horizontalRule.
+
+					html tbsNavItem: [
+						html anchor
+							target: '_blank';
+							url: 'https://github.com/lifia-unlp/memorias/issues';
+							with: 'Informar bug/mejora' ].
 					html tbsNavItem: [
 						html anchor
 							callback: [ self logout ];
