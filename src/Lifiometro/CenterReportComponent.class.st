@@ -421,11 +421,6 @@ CenterReportComponent >> renderPublicationsIn: aCollection on: html [
 CenterReportComponent >> renderPublicationsPlotOn: html [
 
 	self session currentUser ifNil: [ ^ self ].
-
-	html tbsAlert
-		beInfo;
-		with:
-			'Plots will return after we manage to get Plotly working again - see issue #117 on github'.
 	publicationsPlot arrayOfDictionariesWithCounts:
 		self report publicationCounts.
 	publicationsPlot renderContentOn: html
@@ -641,10 +636,6 @@ CenterReportComponent >> renderThesisReportOn: html [
 
 	thesisPlot arrayOfDictionariesWithCounts: self report thesisCounts.
 	thesisPlot renderContentOn: html.
-
-	html tbsAlert beInfo with:
-		'Thesis plots will return when we get Plotly to work again. See issue #117 on github'.
-
 	activePhdThesis checked ifTrue: [
 		self
 			renderThesisCollection: self report activePhdThesis
