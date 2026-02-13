@@ -33,19 +33,7 @@ DuplicateSpotter >> renderContentOn: html [
 			self renderReferenceDuplicatesOn: html.
 			self renderProjectDuplicatesOn: html.
 			self renderThesisDuplicatesOn: html.
-			self renderScholarshipDuplicatesOn: html.
-			self renderLifianDuplicatesOn: html ] ]
-]
-
-{ #category : #rendering }
-DuplicateSpotter >> renderLifianDuplicatesOn: html [
-
-	html heading: 'Participantes potencialmente duplicados'.
-	html anchor
-		callback: [ self updateLifianDuplicates ];
-		with: '[Actualizar]'.
-	html unorderedList: [
-		lifianDuplicates do: [ :each | html listItem: each asSummary ] ]
+			self renderScholarshipDuplicatesOn: html] ]
 ]
 
 { #category : #rendering }
@@ -55,6 +43,12 @@ DuplicateSpotter >> renderProjectDuplicatesOn: html [
 	html anchor
 		callback: [ self updateProjectDuplicates ];
 		with: '[Actualizar]'.
+	projectDuplicates ifEmpty: [
+		html
+			break;
+			break.
+		html paragraph: [ html strong: 'Nada que reportar' ].
+		^ self ].
 	html unorderedList: [
 		projectDuplicates do: [ :each |
 			html listItem: [
@@ -75,6 +69,12 @@ DuplicateSpotter >> renderReferenceDuplicatesOn: html [
 	html anchor
 		callback: [ self updateReferenceDuplicates ];
 		with: '[Actualizar]'.
+	referenceDuplicates ifEmpty: [
+		html
+			break;
+			break.
+		html paragraph: [ html strong: 'Nada que reportar' ].
+		^ self ].
 	html unorderedList: [
 		referenceDuplicates do: [ :each | html listItem: each asSummary ] ]
 ]
@@ -86,6 +86,12 @@ DuplicateSpotter >> renderScholarshipDuplicatesOn: html [
 	html anchor
 		callback: [ self updateScholarshipDuplicates ];
 		with: '[Actualizar]'.
+	scholarshipDuplicates ifEmpty: [
+		html
+			break;
+			break.
+		html paragraph: [ html strong: 'Nada que reportar' ].
+		^ self ].
 	html unorderedList: [
 		scholarshipDuplicates do: [ :each |
 			html listItem: [
@@ -106,6 +112,12 @@ DuplicateSpotter >> renderThesisDuplicatesOn: html [
 	html anchor
 		callback: [ self updateThesisDuplicates ];
 		with: '[Actualizar]'.
+	thesisDuplicated ifEmpty: [
+		html
+			break;
+			break.
+		html paragraph: [ html strong: 'Nada que reportar' ].
+		^ self ].
 	html unorderedList: [
 		thesisDuplicated do: [ :each |
 			html listItem: [
