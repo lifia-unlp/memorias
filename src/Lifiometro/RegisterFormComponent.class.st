@@ -5,18 +5,19 @@ Class {
 		'repeatPassword',
 		'fullname'
 	],
-	#category : 'Lifiometro-Web-Login'
+	#category : #'Lifiometro-Web-Login'
 }
 
 { #category : #callbacks }
 RegisterFormComponent >> accept [
+
 	problem := nil.
-	self passwordsMatch
-		ifFalse: [ problem := 'Las contraseñas no coinciden.'.
-			^ self ].
-	(LifiometroRepository singleton userWithEmail: email address) notNil
-		ifTrue: [ problem := 'Ya existe un usuario con ese email.'.
-			^ self ].
+	self passwordsMatch ifFalse: [
+		problem := 'Las contraseñas no coinciden.'.
+		^ self ].
+	(LifiometroRepository singleton userWithEmail: email address) ifNotNil: [
+		problem := 'Ya existe un usuario con ese email.'.
+		^ self ].
 	parent
 		register: email address
 		withHashedPassword: (self hash: password)

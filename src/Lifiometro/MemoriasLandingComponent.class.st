@@ -99,11 +99,10 @@ MemoriasLandingComponent >> proceedWith: aUser [
 
 	self session currentUser: aUser.
 	self updateIfSuperadmin: aUser.
+	aUser lastConnected: DateAndTime now.
+	LifiometroRepository singleton saveUser: aUser.
 	aUser enabled
-		ifTrue: [
-			aUser lastConnected: DateAndTime now.
-			LifiometroRepository singleton saveUser: aUser.
-			self call: HomeComponent new ]
+		ifTrue: [ self call: HomeComponent new ]
 		ifFalse: [ self call: UserDisabledNoticeComponent new ]
 ]
 
