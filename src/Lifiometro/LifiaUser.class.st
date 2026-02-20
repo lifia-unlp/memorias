@@ -137,6 +137,13 @@ LifiaUser >> lifian: anObject [
 	lifian := anObject
 ]
 
+{ #category : #printing }
+LifiaUser >> printOn: aStream [
+
+	aStream nextPutAll:
+		fullname greaseString , ' <' , email greaseString , '>'
+]
+
 { #category : #accessing }
 LifiaUser >> tags [
 
