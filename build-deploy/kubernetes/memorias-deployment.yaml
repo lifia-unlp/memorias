@@ -23,9 +23,17 @@ spec:
               protocol: TCP     
           env:
             - name: DB_HOST
-              value: "mongo-memorias"
+              value: "mongo-memorias-0.mongo-memorias"
             - name: DB
               value: "lifiometro"
             - name: DEBUG
               value: "false"
+            - name: MAILERSEND_APIKEY
+              value: "someapikey"
+            - name: EMAILS_SENDER
+              value: "someuser@somedomain.com"
+            - name: ERROR_EMAILS_TO
+              value: "someuser@somedomain.com"
+            - name: SUPERADMIN_EMAIL
+              value: "someuser@somedomain.com"
 
