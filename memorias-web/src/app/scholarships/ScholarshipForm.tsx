@@ -303,7 +303,7 @@ export function ScholarshipForm({
           
           <input
             type="text"
-            placeholder="🔍 Search members..."
+            placeholder="Search members..."
             value={memberSearch}
             onChange={(e) => setMemberSearch(e.target.value)}
             className="border border-border px-3 py-1.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs w-full md:w-64"
@@ -372,7 +372,7 @@ export function ScholarshipForm({
           
           <input
             type="text"
-            placeholder="🔍 Search projects..."
+            placeholder="Search projects..."
             value={projectSearch}
             onChange={(e) => setProjectSearch(e.target.value)}
             className="border border-border px-3 py-1.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs w-full md:w-64"

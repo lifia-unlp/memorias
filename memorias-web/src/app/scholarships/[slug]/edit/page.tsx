@@ -62,7 +62,7 @@ export default async function EditScholarshipPage({ params }: { params: Params }
       <main className="max-w-7xl w-full mx-auto px-6 py-10 flex-1">
         <div className="max-w-4xl mx-auto space-y-2 mb-8">
           <h1 className="text-3xl font-black text-foreground tracking-tight">
-            ✏️ Edit Scholarship: <span className="text-primary">{scholarship.title}</span>
+            Edit Scholarship: <span className="text-primary">{scholarship.title}</span>
           </h1>
           <p className="text-xs text-muted">
             Update scholarship type, supervisors, timelines, and associate connected research contexts.

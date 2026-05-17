@@ -746,7 +746,7 @@ export function PublicationForm({
           {/* Members checklist */}
           <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-3xl shadow-sm space-y-4">
             <h4 className="text-sm font-extrabold border-b border-border pb-2 text-slate-800 dark:text-slate-100">
-              👥 Associated Members
+              Associated Members
             </h4>
             <input
               type="text"
@@ -792,7 +792,7 @@ export function PublicationForm({
           {/* Projects checklist */}
           <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-3xl shadow-sm space-y-4">
             <h4 className="text-sm font-extrabold border-b border-border pb-2 text-slate-800 dark:text-slate-100">
-              📁 Connected Projects
+              Connected Projects
             </h4>
             <input
               type="text"
@@ -839,7 +839,7 @@ export function PublicationForm({
           {/* Theses checklist */}
           <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-3xl shadow-sm space-y-4">
             <h4 className="text-sm font-extrabold border-b border-border pb-2 text-slate-800 dark:text-slate-100">
-              🎓 Related Theses
+              Related Theses
             </h4>
             <input
               type="text"
