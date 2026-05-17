@@ -108,7 +108,6 @@ export default async function ProjectsPage(props: {
         {/* Projects Grid */}
         {projects.length === 0 ? (
           <div className="text-center py-16 bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm space-y-3">
-            <span className="text-4xl block">📁</span>
             <h3 className="font-extrabold text-slate-800 dark:text-slate-200">No Projects Found</h3>
             <p className="text-xs text-muted max-w-xs mx-auto">
               We couldn't find any projects matching your search query. Try broadening your keywords.
@@ -148,7 +147,7 @@ export default async function ProjectsPage(props: {
                   {/* Dates & Directors Block */}
                   <div className="space-y-1 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-border/80 text-xs">
                     <div className="flex items-center gap-1.5 text-slate-500 font-medium">
-                      <span>📅</span>
+                      <span>Timeline:</span>
                       <span>{startStr} – {endStr}</span>
                     </div>
                     {(project.director || project.coDirector) && (

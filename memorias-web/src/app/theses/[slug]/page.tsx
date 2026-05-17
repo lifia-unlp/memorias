@@ -75,14 +75,14 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
           <div className="space-y-3">
             {thesis.level && (
               <span className="text-[10px] font-extrabold uppercase tracking-widest bg-white/20 text-white px-3 py-1 rounded-full">
-                🎓 Level: {thesis.level}
+                Level: {thesis.level}
               </span>
             )}
             <h1 className="text-4xl font-extrabold tracking-tight max-w-4xl leading-tight">
               {thesis.title}
             </h1>
             <div className="flex items-center gap-1 text-blue-100 text-xs font-semibold">
-              <span>📅 Timeline:</span>
+              <span>Timeline:</span>
               <span>{startStr} – {endStr}</span>
               {thesis.progress !== null && (
                 <>
@@ -101,7 +101,7 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
                 href={`/theses/${thesis.slug}/edit`}
                 className="bg-white hover:bg-slate-100 text-primary font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all text-center"
               >
-                ✏️ Edit Thesis
+                Edit Thesis
               </Link>
               <DeleteThesisButton thesisId={thesis.id} thesisTitle={thesis.title} />
             </div>
@@ -118,7 +118,7 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
           {/* Abstract summary */}
           <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
             <h2 className="text-lg font-extrabold text-primary border-b border-border pb-3 flex items-center gap-2">
-              <span>📝</span> Thesis Abstract
+              Thesis Abstract
             </h2>
             {thesis.summary ? (
               <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
@@ -134,7 +134,7 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
           {/* Connected Projects */}
           <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
             <h2 className="text-lg font-extrabold text-primary border-b border-border pb-3 flex items-center gap-2">
-              <span>📁</span> Associated Research Projects ({thesis.projects.length})
+              Associated Research Projects ({thesis.projects.length})
             </h2>
             {thesis.projects.length === 0 ? (
               <div className="text-xs text-muted italic font-medium py-4 text-center">
@@ -149,7 +149,7 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
                     className="block p-4 rounded-xl border border-border hover:border-slate-350 dark:hover:border-slate-750 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all"
                   >
                     <span className="font-bold text-sm text-slate-800 dark:text-slate-100 block">
-                      📁 {proj.title}
+                      {proj.title}
                     </span>
                     <span className="text-[10px] text-muted block mt-1.5 leading-none">
                       Go to Project Space →
@@ -163,7 +163,7 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
           {/* Connected Publications in APA */}
           <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
             <h2 className="text-lg font-extrabold text-primary border-b border-border pb-3 flex items-center gap-2">
-              <span>📚</span> Associated Scientific Papers ({thesis.publications.length})
+              Associated Scientific Papers ({thesis.publications.length})
             </h2>
             {thesis.publications.length === 0 ? (
               <div className="text-xs text-muted italic font-medium py-4 text-center">
@@ -191,7 +191,7 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
                           href={`/publications/${pb.slug}`}
                           className="text-secondary hover:text-secondary-hover flex items-center gap-1 transition-all"
                         >
-                          🔍 Details
+                          Details
                         </Link>
                         {hasBibtex && bibDownloadUrl && (
                           <a
@@ -199,7 +199,7 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
                             download={`${pb.slug}.bib`}
                             className="text-primary hover:text-primary-hover flex items-center gap-1 cursor-pointer"
                           >
-                            📥 Download BibTeX
+                            Download BibTeX
                           </a>
                         )}
                         {pb.selfArchivingUrl && (
@@ -209,7 +209,7 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
                             rel="noreferrer"
                             className="text-secondary hover:text-secondary-hover flex items-center gap-1 cursor-pointer"
                           >
-                            📄 Self-Archived PDF
+                            Self-Archived PDF
                           </a>
                         )}
                       </div>
@@ -232,8 +232,8 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
               {thesis.student && (
                 <div>
                   <span className="text-slate-500 font-semibold block">Student</span>
-                  <span className="font-bold text-slate-850 dark:text-slate-200 text-sm block mt-0.5">
-                    🎓 {thesis.student}
+                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block mt-0.5">
+                    {thesis.student}
                   </span>
                 </div>
               )}
@@ -242,7 +242,7 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
                 <div>
                   <span className="text-slate-500 font-semibold block">Career / Program</span>
                   <span className="font-bold text-slate-800 dark:text-slate-200 block mt-0.5">
-                    📖 {thesis.career}
+                    {thesis.career}
                   </span>
                 </div>
               )}
@@ -251,7 +251,7 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
                 <div>
                   <span className="text-slate-500 font-semibold block">Director</span>
                   <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block mt-0.5">
-                    👤 {thesis.director}
+                    {thesis.director}
                   </span>
                 </div>
               )}
@@ -260,7 +260,7 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
                 <div>
                   <span className="text-slate-500 font-semibold block">Co-Director</span>
                   <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block mt-0.5">
-                    👥 {thesis.coDirector}
+                    {thesis.coDirector}
                   </span>
                 </div>
               )}
@@ -269,7 +269,7 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
                 <div>
                   <span className="text-slate-500 font-semibold block">Thesis Committee Advisors</span>
                   <span className="font-medium text-slate-700 dark:text-slate-300 block mt-0.5">
-                    🛡️ {thesis.otherAdvisors}
+                    {thesis.otherAdvisors}
                   </span>
                 </div>
               )}
@@ -296,7 +296,7 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
                     rel="noreferrer"
                     className="bg-primary hover:bg-primary-hover text-white text-center py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow block cursor-pointer"
                   >
-                    📥 Download Thesis Manuscript
+                    Download Thesis Manuscript
                   </a>
                 </div>
               )}
@@ -310,7 +310,7 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
                     rel="noreferrer"
                     className="font-bold text-primary hover:underline block mt-0.5 truncate"
                   >
-                    🌐 Visit Website
+                    Visit Website
                   </a>
                 </div>
               )}
@@ -320,7 +320,7 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
           {/* Associated Lab Researchers */}
           <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
             <h3 className="font-extrabold text-xs text-primary uppercase tracking-wider border-b border-border pb-3">
-              👥 Associated Members ({thesis.members.length})
+              Associated Members ({thesis.members.length})
             </h3>
             {thesis.members.length === 0 ? (
               <div className="text-xs text-muted italic font-medium py-2 text-center">

@@ -114,8 +114,8 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                   className="w-28 h-28 rounded-full border-2 border-primary/20 object-cover object-top mx-auto shadow-md"
                 />
               ) : (
-                <div className="w-28 h-28 flex items-center justify-center bg-primary/10 text-primary border border-primary/10 rounded-full text-5xl mx-auto shadow-sm">
-                  🎓
+                <div className="w-28 h-28 flex items-center justify-center bg-primary/10 text-primary border border-primary/10 rounded-full text-3xl font-black mx-auto shadow-sm">
+                  {member.firstName[0]}{member.lastName[0]}
                 </div>
               )}
 
@@ -138,7 +138,6 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
               </span>
               {member.highestDegree && (
                 <div className="flex items-start gap-2">
-                  <span className="text-slate-400">🎓</span>
                   <div>
                     <span className="font-semibold block text-foreground leading-none">Degree</span>
                     <span className="text-muted text-[10px] mt-0.5 block">{member.highestDegree}</span>
@@ -147,7 +146,6 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
               )}
               {member.positionAtCONICET && (
                 <div className="flex items-start gap-2">
-                  <span className="text-slate-400">🔬</span>
                   <div>
                     <span className="font-semibold block text-foreground leading-none">CONICET</span>
                     <span className="text-muted text-[10px] mt-0.5 block">{member.positionAtCONICET}</span>
@@ -156,7 +154,6 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
               )}
               {member.positionAtCIC && (
                 <div className="flex items-start gap-2">
-                  <span className="text-slate-400">🏛️</span>
                   <div>
                     <span className="font-semibold block text-foreground leading-none">CIC Position</span>
                     <span className="text-muted text-[10px] mt-0.5 block">{member.positionAtCIC}</span>
@@ -172,7 +169,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
               </span>
               {member.institutionalEmail && (
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-400">✉️</span>
+                  <span className="font-semibold text-slate-500">Email:</span>
                   <a href={`mailto:${member.institutionalEmail}`} className="text-primary hover:underline truncate">
                     {member.institutionalEmail}
                   </a>
@@ -180,7 +177,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
               )}
               {member.personalEmail && (
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-400">✉️</span>
+                  <span className="font-semibold text-slate-500">Personal:</span>
                   <a href={`mailto:${member.personalEmail}`} className="text-primary hover:underline truncate">
                     {member.personalEmail}
                   </a>
@@ -188,7 +185,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
               )}
               {member.webPage && (
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-400">🌐</span>
+                  <span className="font-semibold text-slate-500">Website:</span>
                   <a href={member.webPage} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate">
                     Personal Web Page
                   </a>
@@ -196,9 +193,9 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
               )}
               {member.orcid && (
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-400">🆔</span>
+                  <span className="font-semibold text-slate-500">ORCID:</span>
                   <a href={`https://orcid.org/${member.orcid}`} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate font-semibold">
-                    ORCID: {member.orcid}
+                    {member.orcid}
                   </a>
                 </div>
               )}
@@ -225,7 +222,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                   href={`/members/${member.slug}/edit`}
                   className="bg-primary hover:bg-primary-hover text-white text-center py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow"
                 >
-                  📝 Edit Profile
+                  Edit Profile
                 </Link>
                 <DeleteMemberButton memberId={member.id} memberName={`${member.firstName} ${member.lastName}`} />
               </div>
@@ -247,7 +244,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
           {projects.length > 0 && (
             <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
               <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3 flex items-center gap-2">
-                <span>📁</span> Associated Projects
+                Associated Projects
               </h3>
               <div className="divide-y divide-border/60">
                 {projects.map((p) => {
@@ -287,7 +284,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
           {theses.length > 0 && (
             <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
               <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3 flex items-center gap-2">
-                <span>🎓</span> Associated Theses
+                Associated Theses
               </h3>
               <div className="divide-y divide-border/60">
                 {theses.map((t) => {
@@ -346,7 +343,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
           {scholarships.length > 0 && (
             <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
               <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3 flex items-center gap-2">
-                <span>🎫</span> Associated Scholarships
+                Associated Scholarships
               </h3>
               <div className="divide-y divide-border/60">
                 {scholarships.map((s) => {
@@ -393,7 +390,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
           {publications.length > 0 && (
             <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
               <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3 flex items-center gap-2">
-                <span>📚</span> Bibliography / Publications
+                Bibliography / Publications
               </h3>
               <div className="divide-y divide-border/60">
                 {publications.map((pb) => {
@@ -416,7 +413,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                           href={`/publications/${pb.slug}`}
                           className="text-secondary hover:text-secondary-hover flex items-center gap-1 transition-all"
                         >
-                          🔍 Details
+                          Details
                         </Link>
                         {hasBibtex && bibDownloadUrl && (
                           <a
@@ -424,7 +421,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                             download={`${pb.slug}.bib`}
                             className="text-primary hover:text-primary-hover flex items-center gap-1 cursor-pointer"
                           >
-                            📥 Download BibTeX
+                            Download BibTeX
                           </a>
                         )}
                         {pb.selfArchivingUrl && (
@@ -434,7 +431,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                             rel="noreferrer"
                             className="text-secondary hover:text-secondary-hover flex items-center gap-1 cursor-pointer"
                           >
-                            📄 Self-Archived PDF
+                            Self-Archived PDF
                           </a>
                         )}
                       </div>

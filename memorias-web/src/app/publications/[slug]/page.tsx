@@ -146,7 +146,7 @@ export default async function PublicationDetailPage({
                 rel="noopener noreferrer"
                 className="bg-primary hover:bg-primary-hover text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md transition-all whitespace-nowrap inline-flex items-center gap-1 cursor-pointer"
               >
-                📄 Open Manuscript PDF
+                Open Manuscript PDF
               </a>
             </div>
           )}
@@ -198,7 +198,7 @@ export default async function PublicationDetailPage({
             {/* Associated Members */}
             {pb.members && pb.members.length > 0 && (
               <div className="space-y-2 border-t border-border pt-4 text-xs">
-                <span className="text-slate-400 font-bold block">👥 Co-Authors (Members)</span>
+                <span className="text-slate-400 font-bold block">Co-Authors (Members)</span>
                 <div className="space-y-1.5">
                   {pb.members.map((m) => (
                     <Link
@@ -216,7 +216,7 @@ export default async function PublicationDetailPage({
             {/* Connected Projects */}
             {pb.projects && pb.projects.length > 0 && (
               <div className="space-y-2 border-t border-border pt-4 text-xs">
-                <span className="text-slate-400 font-bold block">📁 Connected Projects</span>
+                <span className="text-slate-400 font-bold block">Connected Projects</span>
                 <div className="space-y-1.5">
                   {pb.projects.map((p) => (
                     <Link
@@ -235,7 +235,7 @@ export default async function PublicationDetailPage({
             {/* Related Theses */}
             {pb.theses && pb.theses.length > 0 && (
               <div className="space-y-2 border-t border-border pt-4 text-xs">
-                <span className="text-slate-400 font-bold block">🎓 Related Theses</span>
+                <span className="text-slate-400 font-bold block">Related Theses</span>
                 <div className="space-y-1.5">
                   {pb.theses.map((t) => (
                     <Link
@@ -257,7 +257,7 @@ export default async function PublicationDetailPage({
                   href={`/publications/${pb.slug}/edit`}
                   className="block w-full bg-primary hover:bg-primary-hover text-white font-bold py-2.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs uppercase tracking-wider text-center cursor-pointer"
                 >
-                  ✏️ Edit Publication
+                  Edit Publication
                 </Link>
                 <DeletePublicationButton id={pb.id} title={pb.title} />
               </div>

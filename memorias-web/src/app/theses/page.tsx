@@ -100,7 +100,7 @@ export default async function ThesesPage(props: {
               href="/theses/new"
               className="bg-white hover:bg-slate-100 text-primary font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all text-center flex items-center gap-2 whitespace-nowrap self-start sm:self-center"
             >
-              ✨ Add Thesis
+              Add Thesis
             </Link>
           )}
         </div>
@@ -113,8 +113,7 @@ export default async function ThesesPage(props: {
         <div className="bg-white dark:bg-slate-900 border border-border p-4 rounded-2xl shadow-sm">
           <form method="GET" className="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
             <div className="relative md:col-span-6">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
-              <input
+            <input
                 type="text"
                 name="q"
                 defaultValue={q}
@@ -172,7 +171,6 @@ export default async function ThesesPage(props: {
         {/* Theses Grid */}
         {theses.length === 0 ? (
           <div className="text-center py-16 bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm space-y-3">
-            <span className="text-4xl block">🎓</span>
             <h3 className="font-extrabold text-slate-800 dark:text-slate-200">No Theses Found</h3>
             <p className="text-xs text-muted max-w-xs mx-auto">
               We couldn't find any theses matching your search filters. Try broadening your keywords.
@@ -223,7 +221,7 @@ export default async function ThesesPage(props: {
                   {/* Details Block */}
                   <div className="space-y-1.5 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-border/80 text-xs">
                     <div className="flex items-center gap-1.5 text-slate-500 font-semibold mb-1">
-                      <span>📅 Timeline:</span>
+                      <span>Timeline:</span>
                       <span>{startStr} – {endStr}</span>
                     </div>
 

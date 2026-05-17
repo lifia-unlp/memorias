@@ -66,14 +66,14 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
           <div className="space-y-3">
             {scholarship.type && (
               <span className="text-[10px] font-extrabold uppercase tracking-widest bg-white/20 text-white px-3 py-1 rounded-full">
-                🎫 Type: {scholarship.type}
+                Type: {scholarship.type}
               </span>
             )}
             <h1 className="text-4xl font-extrabold tracking-tight max-w-4xl leading-tight">
               {scholarship.title}
             </h1>
             <div className="flex items-center gap-1 text-blue-100 text-xs font-semibold">
-              <span>📅 Timeline:</span>
+              <span>Timeline:</span>
               <span>{startStr} – {endStr}</span>
             </div>
           </div>
@@ -84,7 +84,7 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
                 href={`/scholarships/${scholarship.slug}/edit`}
                 className="bg-white hover:bg-slate-100 text-primary font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all text-center"
               >
-                ✏️ Edit Scholarship
+                Edit Scholarship
               </Link>
               <DeleteScholarshipButton scholarshipId={scholarship.id} scholarshipTitle={scholarship.title} />
             </div>
@@ -101,7 +101,7 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
           {/* Summary Card */}
           <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
             <h2 className="text-lg font-extrabold text-primary border-b border-border pb-3 flex items-center gap-2">
-              <span>📝</span> Scholarship Summary
+              Scholarship Summary
             </h2>
             {scholarship.summary ? (
               <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
@@ -117,7 +117,7 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
           {/* Connected Projects */}
           <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
             <h2 className="text-lg font-extrabold text-primary border-b border-border pb-3 flex items-center gap-2">
-              <span>📁</span> Associated Research Projects ({scholarship.projects.length})
+              Associated Research Projects ({scholarship.projects.length})
             </h2>
             {scholarship.projects.length === 0 ? (
               <div className="text-xs text-muted italic font-medium py-4 text-center">
@@ -132,7 +132,7 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
                     className="block p-4 rounded-xl border border-border hover:border-slate-350 dark:hover:border-slate-750 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all"
                   >
                     <span className="font-bold text-sm text-slate-800 dark:text-slate-100 block">
-                      📁 {proj.title}
+                      {proj.title}
                     </span>
                     <span className="text-[10px] text-muted block mt-1.5 leading-none">
                       Go to Project Space →
@@ -155,8 +155,8 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
               {scholarship.student && (
                 <div>
                   <span className="text-slate-500 font-semibold block">Scholarship Holder / Student</span>
-                  <span className="font-bold text-slate-850 dark:text-slate-200 text-sm block mt-0.5">
-                    🎓 {scholarship.student}
+                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block mt-0.5">
+                    {scholarship.student}
                   </span>
                 </div>
               )}
@@ -165,7 +165,7 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
                 <div>
                   <span className="text-slate-500 font-semibold block">Funding Institution</span>
                   <span className="font-bold text-slate-800 dark:text-slate-200 block mt-0.5">
-                    🏛️ {scholarship.fundingAgency}
+                    {scholarship.fundingAgency}
                   </span>
                 </div>
               )}
@@ -174,7 +174,7 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
                 <div>
                   <span className="text-slate-500 font-semibold block">Director</span>
                   <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block mt-0.5">
-                    👤 {scholarship.director}
+                    {scholarship.director}
                   </span>
                 </div>
               )}
@@ -183,7 +183,7 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
                 <div>
                   <span className="text-slate-500 font-semibold block">Co-Director</span>
                   <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block mt-0.5">
-                    👥 {scholarship.coDirector}
+                    {scholarship.coDirector}
                   </span>
                 </div>
               )}
@@ -193,7 +193,7 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
           {/* Associated Lab Researchers */}
           <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
             <h3 className="font-extrabold text-xs text-primary uppercase tracking-wider border-b border-border pb-3">
-              👥 Associated Members ({scholarship.members.length})
+              Associated Members ({scholarship.members.length})
             </h3>
             {scholarship.members.length === 0 ? (
               <div className="text-xs text-muted italic font-medium py-2 text-center">

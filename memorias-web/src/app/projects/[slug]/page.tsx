@@ -93,7 +93,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
               {project.title}
             </h1>
             <div className="flex items-center gap-1 text-blue-100 text-xs font-semibold">
-              <span>📅</span>
+              <span>Duration:</span>
               <span>{startStr} – {endStr}</span>
             </div>
           </div>
@@ -104,7 +104,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                 href={`/projects/${project.slug}/edit`}
                 className="bg-white hover:bg-slate-100 text-primary font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all text-center"
               >
-                ✏️ Edit Project
+                Edit Project
               </Link>
               <DeleteProjectButton projectId={project.id} projectTitle={project.title} />
             </div>
@@ -121,7 +121,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
           {/* Abstract summary */}
           <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
             <h2 className="text-lg font-extrabold text-primary border-b border-border pb-3 flex items-center gap-2">
-              <span>📝</span> Project Abstract
+              Project Abstract
             </h2>
             {project.summary ? (
               <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
@@ -141,7 +141,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
             {/* Theses */}
             <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
               <h2 className="text-base font-extrabold text-primary border-b border-border pb-3 flex items-center gap-2">
-                <span>🎓</span> Linked Theses ({project.theses.length})
+                Linked Theses ({project.theses.length})
               </h2>
               {project.theses.length === 0 ? (
                 <span className="text-xs text-muted block italic text-center py-4">No associated theses.</span>
@@ -168,7 +168,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
             {/* Scholarships */}
             <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
               <h2 className="text-base font-extrabold text-primary border-b border-border pb-3 flex items-center gap-2">
-                <span>🎫</span> Linked Scholarships ({project.scholarships.length})
+                Linked Scholarships ({project.scholarships.length})
               </h2>
               {project.scholarships.length === 0 ? (
                 <span className="text-xs text-muted block italic text-center py-4">No associated scholarships.</span>
@@ -195,7 +195,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
             {/* Publications */}
             <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4 md:col-span-2">
               <h2 className="text-base font-extrabold text-primary border-b border-border pb-3 flex items-center gap-2">
-                <span>📚</span> Associated Publications ({project.publications.length})
+                Associated Publications ({project.publications.length})
               </h2>
               {project.publications.length === 0 ? (
                 <span className="text-xs text-muted block italic text-center py-4">No associated papers or publications.</span>
@@ -221,7 +221,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                             href={`/publications/${pb.slug}`}
                             className="text-secondary hover:text-secondary-hover flex items-center gap-1 transition-all"
                           >
-                            🔍 Details
+                            Details
                           </Link>
                           {hasBibtex && bibDownloadUrl && (
                             <a
@@ -229,7 +229,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                               download={`${pb.slug}.bib`}
                               className="text-primary hover:text-primary-hover flex items-center gap-1 cursor-pointer"
                             >
-                              📥 Download BibTeX
+                              Download BibTeX
                             </a>
                           )}
                           {pb.selfArchivingUrl && (
@@ -239,7 +239,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                               rel="noreferrer"
                               className="text-secondary hover:text-secondary-hover flex items-center gap-1 cursor-pointer"
                             >
-                              📄 Self-Archived PDF
+                              Self-Archived PDF
                             </a>
                           )}
                         </div>
@@ -264,7 +264,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                 <div>
                   <span className="text-slate-500 font-semibold block">Director</span>
                   <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block mt-0.5">
-                    👤 {project.director}
+                    {project.director}
                   </span>
                 </div>
               )}
@@ -273,7 +273,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                 <div>
                   <span className="text-slate-500 font-semibold block">Co-Director</span>
                   <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block mt-0.5">
-                    👥 {project.coDirector}
+                    {project.coDirector}
                   </span>
                 </div>
               )}
@@ -282,7 +282,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                 <div>
                   <span className="text-slate-500 font-semibold block">Funding Agency</span>
                   <span className="font-bold text-slate-800 dark:text-slate-200 block mt-0.5">
-                    🏢 {project.fundingAgency}
+                    {project.fundingAgency}
                   </span>
                 </div>
               )}
@@ -291,7 +291,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                 <div>
                   <span className="text-slate-500 font-semibold block">Funding Amount</span>
                   <span className="font-bold text-slate-800 dark:text-slate-200 block mt-0.5">
-                    💰 {project.amount}
+                    {project.amount}
                   </span>
                 </div>
               )}
@@ -300,7 +300,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                 <div>
                   <span className="text-slate-500 font-semibold block">Responsible Group</span>
                   <span className="font-bold text-slate-800 dark:text-slate-200 block mt-0.5">
-                    🛡️ {project.responsibleGroup}
+                    {project.responsibleGroup}
                   </span>
                 </div>
               )}
@@ -314,7 +314,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                     rel="noreferrer"
                     className="font-bold text-primary hover:underline block mt-0.5 truncate"
                   >
-                    🌐 Visit Website
+                    Visit Website
                   </a>
                 </div>
               )}
@@ -324,7 +324,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
           {/* Associated Members Box */}
           <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
             <h3 className="font-extrabold text-xs text-primary uppercase tracking-wider border-b border-border pb-3">
-              👥 Associated Members ({project.members.length})
+              Associated Members ({project.members.length})
             </h3>
             {project.members.length === 0 ? (
               <div className="text-xs text-muted italic font-medium py-2 text-center">
