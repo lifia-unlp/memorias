@@ -4,6 +4,69 @@ import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { resolveDoiAction, parseBibtex, createPublication, updatePublication } from "./actions";
 
+export const BIBTEX_FIELDS_MAP: Record<string, { label: string; required: string[]; optional: string[] }> = {
+  article: {
+    label: "Article (Journal / Magazine)",
+    required: ["journal", "volume"],
+    optional: ["number", "pages", "month", "doi", "note", "key"],
+  },
+  book: {
+    label: "Book / Monograph",
+    required: ["publisher"],
+    optional: ["editor", "volume", "number", "series", "address", "edition", "month", "note", "key", "url"],
+  },
+  inbook: {
+    label: "Inbook (Part of a Book)",
+    required: ["chapter", "pages", "publisher"],
+    optional: ["editor", "volume", "number", "series", "type", "address", "edition", "month", "note", "key"],
+  },
+  incollection: {
+    label: "Incollection (Book Chapter with Title)",
+    required: ["booktitle", "publisher"],
+    optional: ["editor", "volume", "number", "series", "type", "chapter", "pages", "address", "edition", "month", "note", "key"],
+  },
+  inproceedings: {
+    label: "Inproceedings (Conference Article)",
+    required: ["booktitle"],
+    optional: ["editor", "volume", "number", "series", "pages", "address", "month", "organization", "publisher", "note", "key"],
+  },
+  manual: {
+    label: "Manual (Technical Documentation)",
+    required: [],
+    optional: ["author", "organization", "address", "edition", "month", "year", "note", "key"],
+  },
+  mastersthesis: {
+    label: "Master's Thesis",
+    required: ["school"],
+    optional: ["type", "address", "month", "note", "key"],
+  },
+  misc: {
+    label: "Miscellaneous (Other)",
+    required: [],
+    optional: ["author", "howpublished", "month", "note", "key"],
+  },
+  phdthesis: {
+    label: "PhD Thesis",
+    required: ["school"],
+    optional: ["type", "address", "month", "note", "key"],
+  },
+  proceedings: {
+    label: "Proceedings (Conference)",
+    required: [],
+    optional: ["editor", "volume", "number", "series", "address", "month", "publisher", "organization", "note", "key"],
+  },
+  techreport: {
+    label: "Technical Report",
+    required: ["institution"],
+    optional: ["type", "number", "address", "month", "note", "key"],
+  },
+  unpublished: {
+    label: "Unpublished Manuscript",
+    required: ["note"],
+    optional: ["month", "key"],
+  },
+};
+
 interface MemberOption {
   id: string;
   firstName: string;
@@ -149,10 +212,32 @@ export function PublicationForm({
       return;
     }
 
+    // Dynamic type-specific required fields validation
+    const config = BIBTEX_FIELDS_MAP[type];
+    if (config) {
+      for (const reqField of config.required) {
+        if (!customEntryTags[reqField]?.trim()) {
+          setFormError(`"${reqField}" is a required field for publication type "${BIBTEX_FIELDS_MAP[type].label}".`);
+          return;
+        }
+      }
+    }
+
     const tags = tagsInput
       .split(",")
       .map((t: string) => t.trim())
       .filter(Boolean);
+
+    // Filter customEntryTags to only save fields belonging to the active type
+    const filteredCustomTags: Record<string, string> = {};
+    if (config) {
+      const allowedFields = [...config.required, ...config.optional];
+      for (const [key, value] of Object.entries(customEntryTags)) {
+        if (allowedFields.includes(key) && value.trim()) {
+          filteredCustomTags[key] = value.trim();
+        }
+      }
+    }
 
     const payload = {
       title,
@@ -166,7 +251,7 @@ export function PublicationForm({
       projects: selectedProjects,
       theses: selectedTheses,
       citationKey: citationKey || undefined,
-      customEntryTags: Object.keys(customEntryTags).length > 0 ? customEntryTags : undefined,
+      customEntryTags: Object.keys(filteredCustomTags).length > 0 ? filteredCustomTags : undefined,
     };
 
     startTransition(async () => {
@@ -481,13 +566,11 @@ export function PublicationForm({
                   onChange={(e) => setType(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm"
                 >
-                  <option value="article">Article (Journal)</option>
-                  <option value="inproceedings">Inproceedings (Conference)</option>
-                  <option value="book">Book / Monograph</option>
-                  <option value="phdthesis">PhD Thesis</option>
-                  <option value="mastersthesis">Master's Thesis</option>
-                  <option value="techreport">Technical Report / Manual</option>
-                  <option value="misc">Miscellaneous</option>
+                  {Object.entries(BIBTEX_FIELDS_MAP).map(([key, config]) => (
+                    <option key={key} value={key}>
+                      {config.label}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -547,6 +630,68 @@ export function PublicationForm({
                 placeholder="e.g. silva2025semantic"
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm font-mono"
               />
+            </div>
+
+            {/* Dynamic Type-Specific Fields */}
+            <div className="border-t border-slate-100 dark:border-slate-800/50 pt-6 mt-6 space-y-4">
+              <div>
+                <h4 className="text-sm font-bold text-slate-850 dark:text-white flex items-center gap-1.5">
+                  <span>📋</span> Type-Specific Metadata ({BIBTEX_FIELDS_MAP[type]?.label || type})
+                </h4>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Provide additional metadata specific to the selected publication type. Required fields are marked with a red asterisk (<span className="text-red-500">*</span>).
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Render Required Fields */}
+                {BIBTEX_FIELDS_MAP[type]?.required.map((field) => (
+                  <div key={field}>
+                    <label className="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                      {field} <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={customEntryTags[field] || ""}
+                      onChange={(e) => {
+                        setCustomEntryTags({
+                          ...customEntryTags,
+                          [field]: e.target.value,
+                        });
+                      }}
+                      placeholder={`e.g. enter ${field}`}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm"
+                    />
+                  </div>
+                ))}
+
+                {/* Render Optional Fields */}
+                {BIBTEX_FIELDS_MAP[type]?.optional.map((field) => {
+                  // Skip standard core fields already in the top section
+                  if (["author", "title", "year", "doi"].includes(field)) return null;
+
+                  return (
+                    <div key={field}>
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                        {field} (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={customEntryTags[field] || ""}
+                        onChange={(e) => {
+                          setCustomEntryTags({
+                            ...customEntryTags,
+                            [field]: e.target.value,
+                          });
+                        }}
+                        placeholder={`e.g. enter ${field}`}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 

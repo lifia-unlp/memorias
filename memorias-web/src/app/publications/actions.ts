@@ -40,14 +40,11 @@ export async function parseBibtex(raw: string) {
     const citationKey = typeMatch[2].trim();
 
     // Map BibTeX type to the standard categories
-    let type = "misc";
-    if (["article", "journal"].includes(rawType)) type = "article";
-    else if (["inproceedings", "conference", "proceedings"].includes(rawType)) type = "inproceedings";
-    else if (["book", "booklet"].includes(rawType)) type = "book";
-    else if (rawType === "phdthesis") type = "phdthesis";
-    else if (rawType === "mastersthesis") type = "mastersthesis";
-    else if (["techreport", "manual"].includes(rawType)) type = "techreport";
-    else if (["misc", "unpublished", "patent"].includes(rawType)) type = "misc";
+    let type = rawType;
+    if (rawType === "journal") type = "article";
+    else if (rawType === "conference") type = "inproceedings";
+    else if (rawType === "booklet") type = "book";
+    else if (rawType === "patent") type = "misc";
 
     // Extract the body (everything inside the outer braces)
     const firstBraceIdx = clean.indexOf("{");
@@ -202,12 +199,14 @@ export async function createPublication(data: {
 
   // Build robust BibTeX JSON
   const citationKey = data.citationKey?.trim() || slug;
-  const entryTags = data.customEntryTags || {
+  const entryTags: Record<string, string> = {
+    ...(data.customEntryTags || {}),
     title,
     author: authors,
     year: String(year),
-    ranking: data.ranking || "",
   };
+  if (data.ranking) entryTags.ranking = data.ranking;
+  if (data.selfArchivingUrl) entryTags.url = data.selfArchivingUrl;
 
   const bibtexData = {
     citationKey,
@@ -279,11 +278,8 @@ export async function updatePublication(
   // Re-build/Update BibTeX JSON object
   const citationKey = data.citationKey?.trim() || slug;
   
-  // Merge any custom tags or construct standard ones
-  const existingBib = existingPub.bibtexData as any;
-  const existingTags = existingBib?.entryTags || {};
-  const entryTags = {
-    ...existingTags,
+  // Override custom tags from form to drop discarded fields
+  const entryTags: Record<string, string> = {
     ...(data.customEntryTags || {}),
     title,
     author: authors,
