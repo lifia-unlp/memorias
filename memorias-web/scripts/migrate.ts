@@ -263,11 +263,14 @@ async function main() {
     console.log(`Migrated ${mongoScholarships.length} Scholarships.`);
 
     // ==========================================
-    // 6. MIGRATE PUBLICATIONS (BibtexReference -> Publication)
+    // 6. MIGRATE PUBLICATIONS (BibtexReference & RawReference -> Publication)
     // ==========================================
     console.log("\nMigrating Publications...");
     const mongoPubs = await mongoDb.collection("BibtexReference").find({ trashed: { $ne: true } }).toArray();
+    const mongoRawRefs = await mongoDb.collection("RawReference").find({ trashed: { $ne: true } }).toArray();
     let migratedPubsCount = 0;
+    
+    // Ingest BibtexReference
     for (const mPub of mongoPubs) {
       const entry = mPub.bibtexEntry;
       if (!entry) continue;
@@ -276,7 +279,6 @@ async function main() {
       const type = entry.type || "article";
       const tagsObj = entry.tags || {};
 
-      // Helper to fetch value from nested BibtexTags
       const getTagValue = (tagName: string): string => {
         const tag = tagsObj[tagName];
         return tag && typeof tag === "object" ? tag.value || "" : "";
@@ -297,14 +299,44 @@ async function main() {
           authors,
           year: isNaN(year) ? 0 : year,
           selfArchivingUrl: mPub.selfArchivingUrl || null,
-          bibtexData: entry, // Store the raw JSON entry
+          bibtexData: entry as any,
           tags: Array.isArray(mPub.tags) ? mPub.tags : [],
         },
       });
       publicationMap.set(mPub._id.toString(), pgPub.id);
       migratedPubsCount++;
     }
-    console.log(`Migrated ${migratedPubsCount} Publications.`);
+
+    // Ingest RawReference
+    let migratedRawCount = 0;
+    for (const mRaw of mongoRawRefs) {
+      if (!mRaw.reference) continue;
+
+      const year = mRaw.year ? parseInt(mRaw.year) : 0;
+      const type = mRaw.type || "article";
+      const slugBase = `raw-${mRaw.year || "unknown"}-${(mRaw.reference || "").slice(0, 50)}`;
+      const slug = generateUniqueSlug(slugBase);
+
+      const pgPub = await prisma.publication.create({
+        data: {
+          slug,
+          type,
+          title: mRaw.reference,
+          authors: "Raw Reference", // Marker for raw references
+          year: isNaN(year) ? 0 : year,
+          selfArchivingUrl: mRaw.selfArchivingUrl || null,
+          bibtexData: {
+            raw: true,
+            reference: mRaw.reference,
+          } as any,
+          tags: Array.isArray(mRaw.tags) ? mRaw.tags : [],
+        },
+      });
+      publicationMap.set(mRaw._id.toString(), pgPub.id);
+      migratedRawCount++;
+      migratedPubsCount++;
+    }
+    console.log(`Migrated ${migratedPubsCount} Publications (${mongoPubs.length} BibTex, ${migratedRawCount} Raw).`);
 
     // ==========================================
     // 7. PASS 2: CONNECTING RELATIONSHIPS
@@ -391,7 +423,8 @@ async function main() {
 
     // Connect Publication relations (Publication -> Member, Publication -> Project)
     console.log("Connecting Publications relations...");
-    for (const mPub of mongoPubs) {
+    const allPubs = [...mongoPubs, ...mongoRawRefs];
+    for (const mPub of allPubs) {
       const pgPubId = publicationMap.get(mPub._id.toString());
       if (!pgPubId) continue;
 
