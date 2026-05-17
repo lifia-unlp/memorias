@@ -8,26 +8,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   callbacks: {
     ...authConfig.callbacks,
-    async session({ session, token }) {
-      // Map fields from the JWT token (populated in authConfig.callbacks.jwt)
-      if (session.user && token) {
-        session.user.role = token.role as "USER" | "ADMIN" | undefined;
-        session.user.active = token.active as boolean | undefined;
-        session.user.id = token.sub as string;
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+        token.active = user.active;
+        token.id = user.id;
       }
       
-      // Since this auth instance is only invoked in Node.js runtime environments (API routes, RSCs),
-      // we can query the database directly to guarantee the absolute latest active/role fields.
-      if (session.user && token.sub) {
+      // Always fetch the latest fields directly from the database to keep the JWT cookie up-to-date
+      if (token.sub) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
           select: { role: true, active: true },
         });
-        
         if (dbUser) {
-          session.user.role = dbUser.role;
-          session.user.active = dbUser.active;
+          token.role = dbUser.role;
+          token.active = dbUser.active;
         }
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      // Map fields from the JWT token (populated in the jwt callback above)
+      if (session.user && token) {
+        session.user.role = token.role as "USER" | "ADMIN" | undefined;
+        session.user.active = token.active as boolean | undefined;
+        session.user.id = token.sub as string;
       }
       return session;
     },
