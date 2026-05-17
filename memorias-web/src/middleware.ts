@@ -18,6 +18,13 @@ export default auth((req) => {
     return NextResponse.redirect(new URL("/pending-activation", req.url));
   }
 
+  // Admin protection policy: Only logged-in, activated, ADMIN users can access /admin routes
+  const isAdmin = session?.user?.role === "ADMIN";
+  const isAdminRoute = nextUrl.pathname.startsWith("/admin");
+  if (isAdminRoute && (!isLoggedIn || !isActive || !isAdmin)) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
   return NextResponse.next();
 });
 

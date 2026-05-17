@@ -64,6 +64,14 @@ export default async function Home() {
             
             {session ? (
               <div className="flex items-center gap-4 pl-4 border-l border-border">
+                {session.user?.role === "ADMIN" && (
+                  <Link
+                    href="/admin/users"
+                    className="text-xs font-bold text-secondary hover:text-secondary-hover transition-colors mr-2 flex items-center gap-1"
+                  >
+                    ⚙️ Users Admin
+                  </Link>
+                )}
                 <div className="flex items-center gap-2">
                   {session.user?.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
