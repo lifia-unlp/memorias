@@ -160,35 +160,21 @@ export async function deleteMember(memberId: string) {
   // 1. Gather all active references in the database
   const projects = await prisma.project.findMany({
     where: {
-      OR: [
-        { director: memberId },
-        { coDirector: memberId },
-        { members: { some: { id: memberId } } },
-      ],
+      members: { some: { id: memberId } },
     },
     select: { title: true, slug: true },
   });
 
   const theses = await prisma.thesis.findMany({
     where: {
-      OR: [
-        { student: memberId },
-        { director: memberId },
-        { coDirector: memberId },
-        { members: { some: { id: memberId } } },
-      ],
+      members: { some: { id: memberId } },
     },
     select: { title: true, slug: true },
   });
 
   const scholarships = await prisma.scholarship.findMany({
     where: {
-      OR: [
-        { student: memberId },
-        { director: memberId },
-        { coDirector: memberId },
-        { members: { some: { id: memberId } } },
-      ],
+      members: { some: { id: memberId } },
     },
     select: { title: true, slug: true },
   });

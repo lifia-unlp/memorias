@@ -28,6 +28,11 @@ export default async function EditMemberPage({ params }: { params: Params }) {
     redirect(`/members/${slug}`);
   }
 
+  // Fetch all database configurable lists options
+  const systemOptions = await prisma.systemOption.findMany({
+    orderBy: { value: "asc" },
+  });
+
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
       {/* Premium Header */}
@@ -135,7 +140,7 @@ export default async function EditMemberPage({ params }: { params: Params }) {
 
       {/* Form Area */}
       <main className="max-w-4xl w-full mx-auto px-6 py-10 flex-1">
-        <MemberForm initialData={member} />
+        <MemberForm initialData={member} systemOptions={systemOptions} />
       </main>
     </div>
   );

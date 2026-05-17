@@ -3,6 +3,7 @@ import { auth, signOut } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { MemberForm } from "../MemberForm";
+import { prisma } from "@/lib/prisma";
 
 export default async function NewMemberPage() {
   const session = await auth();
@@ -13,6 +14,11 @@ export default async function NewMemberPage() {
   if (!isEditorOrAdmin) {
     redirect("/members");
   }
+
+  // Fetch all database configurable lists options
+  const systemOptions = await prisma.systemOption.findMany({
+    orderBy: { value: "asc" },
+  });
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
@@ -119,7 +125,7 @@ export default async function NewMemberPage() {
 
       {/* Form Area */}
       <main className="max-w-4xl w-full mx-auto px-6 py-10 flex-1">
-        <MemberForm />
+        <MemberForm systemOptions={systemOptions} />
       </main>
     </div>
   );

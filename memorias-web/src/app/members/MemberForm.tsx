@@ -7,12 +7,27 @@ import Link from "next/link";
 
 interface MemberFormProps {
   initialData?: any;
+  systemOptions?: any[];
 }
 
-export function MemberForm({ initialData }: MemberFormProps) {
+export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Group database options
+  const positionAtLabOptions = systemOptions
+    .filter((o) => o.listName === "positionAtLab")
+    .map((o) => o.value);
+  const positionAtUnlpOptions = systemOptions
+    .filter((o) => o.listName === "positionAtUnlp")
+    .map((o) => o.value);
+  const positionAtCICOptions = systemOptions
+    .filter((o) => o.listName === "positionAtCIC")
+    .map((o) => o.value);
+  const positionAtCONICETOptions = systemOptions
+    .filter((o) => o.listName === "positionAtCONICET")
+    .map((o) => o.value);
 
   // Form States
   const [firstName, setFirstName] = useState(initialData?.firstName || "");
@@ -156,24 +171,44 @@ export function MemberForm({ initialData }: MemberFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">LIFIA Lab Position</label>
-            <input
-              type="text"
+            <select
               name="positionAtLab"
               defaultValue={initialData?.positionAtLab || ""}
-              placeholder="e.g. Director, Researcher, PhD Scholar"
               className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
+            >
+              <option value="">-- Select Position --</option>
+              {positionAtLabOptions.map((val) => (
+                <option key={val} value={val}>
+                  {val}
+                </option>
+              ))}
+              {initialData?.positionAtLab && !positionAtLabOptions.includes(initialData.positionAtLab) && (
+                <option value={initialData.positionAtLab}>
+                  {initialData.positionAtLab} (Legacy)
+                </option>
+              )}
+            </select>
           </div>
 
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">UNLP Academic position</label>
-            <input
-              type="text"
+            <select
               name="positionAtUnlp"
               defaultValue={initialData?.positionAtUnlp || ""}
-              placeholder="e.g. Profesor Titular"
               className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
+            >
+              <option value="">-- Select Position --</option>
+              {positionAtUnlpOptions.map((val) => (
+                <option key={val} value={val}>
+                  {val}
+                </option>
+              ))}
+              {initialData?.positionAtUnlp && !positionAtUnlpOptions.includes(initialData.positionAtUnlp) && (
+                <option value={initialData.positionAtUnlp}>
+                  {initialData.positionAtUnlp} (Legacy)
+                </option>
+              )}
+            </select>
           </div>
 
           <div className="space-y-1.5">
@@ -189,24 +224,44 @@ export function MemberForm({ initialData }: MemberFormProps) {
 
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">CONICET Category</label>
-            <input
-              type="text"
+            <select
               name="positionAtCONICET"
               defaultValue={initialData?.positionAtCONICET || ""}
-              placeholder="e.g. Investigador Principal"
               className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
+            >
+              <option value="">-- Select Category --</option>
+              {positionAtCONICETOptions.map((val) => (
+                <option key={val} value={val}>
+                  {val}
+                </option>
+              ))}
+              {initialData?.positionAtCONICET && !positionAtCONICETOptions.includes(initialData.positionAtCONICET) && (
+                <option value={initialData.positionAtCONICET}>
+                  {initialData.positionAtCONICET} (Legacy)
+                </option>
+              )}
+            </select>
           </div>
 
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">CIC Position</label>
-            <input
-              type="text"
+            <select
               name="positionAtCIC"
               defaultValue={initialData?.positionAtCIC || ""}
-              placeholder="e.g. Investigador"
               className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
+            >
+              <option value="">-- Select Position --</option>
+              {positionAtCICOptions.map((val) => (
+                <option key={val} value={val}>
+                  {val}
+                </option>
+              ))}
+              {initialData?.positionAtCIC && !positionAtCICOptions.includes(initialData.positionAtCIC) && (
+                <option value={initialData.positionAtCIC}>
+                  {initialData.positionAtCIC} (Legacy)
+                </option>
+              )}
+            </select>
           </div>
 
           <div className="space-y-1.5">
