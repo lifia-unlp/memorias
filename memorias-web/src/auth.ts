@@ -39,18 +39,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   events: {
     async createUser({ user }) {
       if (user.id) {
-        const count = await prisma.user.count();
-        if (count === 1) {
-          // The first user created in the database is automatically assigned ADMIN role & activated!
-          await prisma.user.update({
-            where: { id: user.id },
-            data: {
-              role: "ADMIN",
-              active: true,
-            },
-          });
-          console.log(`🎉 Bootstrapped first ADMIN user: ${user.email}`);
+        // Split full name into firstName and lastName if present
+        let firstName = "";
+        let lastName = "";
+        if (user.name) {
+          const parts = user.name.trim().split(/\s+/);
+          firstName = parts[0] || "";
+          lastName = parts.slice(1).join(" ") || "";
         }
+
+        const count = await prisma.user.count();
+        const role = count === 1 ? "ADMIN" : "USER";
+        const active = count === 1 ? true : false;
+
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            role,
+            active,
+            firstName: firstName || null,
+            lastName: lastName || null,
+          },
+        });
+        console.log(`🎉 Registered user: ${user.email} (Role: ${role}, Active: ${active}, First: ${firstName}, Last: ${lastName})`);
       }
     },
   },

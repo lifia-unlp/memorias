@@ -12,6 +12,7 @@ datasource db {
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
+  name          String?   // Required for standard NextAuth / Auth.js compatibility
   firstName     String?
   lastName      String?
   role          Role      @default(USER) // ADMIN or USER
