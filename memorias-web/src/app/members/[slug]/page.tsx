@@ -192,13 +192,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
     orderBy: { year: "desc" },
   });
 
-  // Fetch all members for fast id-to-name lookup
-  const allMembers = await prisma.member.findMany({
-    select: { id: true, firstName: true, lastName: true },
-  });
-  const memberMap = new Map(
-    allMembers.map((m) => [m.id, `${m.firstName} ${m.lastName}`])
-  );
+
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
@@ -439,8 +433,8 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
               <div className="divide-y divide-border/60">
                 {projects.map((p) => {
                   const role = getProjectRole(p);
-                  const dirName = p.director ? memberMap.get(p.director) : null;
-                  const coDirName = p.coDirector ? memberMap.get(p.coDirector) : null;
+                  const dirName = p.director;
+                  const coDirName = p.coDirector;
                   return (
                     <div key={p.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
                       <div>
@@ -479,8 +473,8 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
               <div className="divide-y divide-border/60">
                 {theses.map((t) => {
                   const tRole = getThesisRole(t);
-                  const tDirName = t.director ? memberMap.get(t.director) : null;
-                  const tCoDirName = t.coDirector ? memberMap.get(t.coDirector) : null;
+                  const tDirName = t.director;
+                  const tCoDirName = t.coDirector;
                   return (
                     <div key={t.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
                       <div>
@@ -488,7 +482,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                           {t.title}
                         </Link>
                         <span className="text-[10px] text-muted block mt-0.5 leading-relaxed">
-                          Student: {t.student ? (memberMap.get(t.student) || t.student) : "N/A"}
+                          Student: {t.student || "N/A"}
                           <span className="block mt-1">
                             {t.startDate ? new Date(t.startDate).getFullYear() : "N/A"} — {t.endDate ? new Date(t.endDate).getFullYear() : "Present"}
                             {t.level && (
@@ -537,8 +531,8 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
               </h3>
               <div className="divide-y divide-border/60">
                 {scholarships.map((s) => {
-                  const sDirName = s.director ? memberMap.get(s.director) : null;
-                  const sCoDirName = s.coDirector ? memberMap.get(s.coDirector) : null;
+                  const sDirName = s.director;
+                  const sCoDirName = s.coDirector;
                   return (
                     <div key={s.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
                       <div>
@@ -555,6 +549,11 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                               </span>
                             )}
                           </span>
+                          {s.student && (
+                            <span className="block mt-1 font-medium text-slate-500">
+                              Student: {s.student}
+                            </span>
+                          )}
                           {(sDirName || sCoDirName) && (
                             <span className="block mt-1 font-medium text-slate-500">
                               {sDirName && `Director: ${sDirName}`}
