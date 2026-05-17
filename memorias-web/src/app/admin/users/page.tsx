@@ -1,6 +1,6 @@
 import React from "react";
 import { prisma } from "@/lib/prisma";
-import { toggleUserActivation, updateUserRole } from "./actions";
+import { toggleUserActivationAction, updateUserRoleAction } from "./actions";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
@@ -117,13 +117,10 @@ export default async function AdminUsersPage() {
                     {/* Role Dropdown */}
                     <td className="p-4">
                       <form
-                        action={async (formData) => {
-                          "use server";
-                          const newRole = formData.get("role") as "USER" | "EDITOR" | "ADMIN";
-                          await updateUserRole(u.id, newRole);
-                        }}
+                        action={updateUserRoleAction}
                         className="flex items-center gap-2"
                       >
+                        <input type="hidden" name="userId" value={u.id} />
                         <select
                           name="role"
                           defaultValue={u.role}
@@ -144,12 +141,8 @@ export default async function AdminUsersPage() {
 
                     {/* Toggle Activation Button */}
                     <td className="p-4 text-right">
-                      <form
-                        action={async () => {
-                          "use server";
-                          await toggleUserActivation(u.id);
-                        }}
-                      >
+                      <form action={toggleUserActivationAction}>
+                        <input type="hidden" name="userId" value={u.id} />
                         <button
                           type="submit"
                           className={`text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition-all shadow-sm ${
