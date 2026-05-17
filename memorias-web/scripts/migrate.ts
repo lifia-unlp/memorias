@@ -132,7 +132,7 @@ async function main() {
     // 2. MIGRATE MEMBERS (Lifian -> Member)
     // ==========================================
     console.log("\nMigrating Members...");
-    const mongoMembers = await mongoDb.collection("Lifian").find({}).toArray();
+    const mongoMembers = await mongoDb.collection("Lifian").find({ trashed: { $ne: true } }).toArray();
     for (const mMember of mongoMembers) {
       const slugBase = `${mMember.firstName} ${mMember.lastName}`;
       const slug = generateUniqueSlug(slugBase);
@@ -178,7 +178,7 @@ async function main() {
     // 3. MIGRATE PROJECTS (Project -> Project)
     // ==========================================
     console.log("\nMigrating Projects...");
-    const mongoProjects = await mongoDb.collection("Project").find({}).toArray();
+    const mongoProjects = await mongoDb.collection("Project").find({ trashed: { $ne: true } }).toArray();
     for (const mProj of mongoProjects) {
       const slug = generateUniqueSlug(mProj.title);
 
@@ -207,7 +207,7 @@ async function main() {
     // 4. MIGRATE THESES (Thesis -> Thesis)
     // ==========================================
     console.log("\nMigrating Theses...");
-    const mongoTheses = await mongoDb.collection("Thesis").find({}).toArray();
+    const mongoTheses = await mongoDb.collection("Thesis").find({ trashed: { $ne: true } }).toArray();
     for (const mThesis of mongoTheses) {
       const slug = generateUniqueSlug(mThesis.title);
 
@@ -239,7 +239,7 @@ async function main() {
     // 5. MIGRATE SCHOLARSHIPS (Scholarship -> Scholarship)
     // ==========================================
     console.log("\nMigrating Scholarships...");
-    const mongoScholarships = await mongoDb.collection("Scholarship").find({}).toArray();
+    const mongoScholarships = await mongoDb.collection("Scholarship").find({ trashed: { $ne: true } }).toArray();
     for (const mSch of mongoScholarships) {
       const slug = generateUniqueSlug(mSch.title);
 
@@ -266,7 +266,7 @@ async function main() {
     // 6. MIGRATE PUBLICATIONS (BibtexReference -> Publication)
     // ==========================================
     console.log("\nMigrating Publications...");
-    const mongoPubs = await mongoDb.collection("BibtexReference").find({}).toArray();
+    const mongoPubs = await mongoDb.collection("BibtexReference").find({ trashed: { $ne: true } }).toArray();
     let migratedPubsCount = 0;
     for (const mPub of mongoPubs) {
       const entry = mPub.bibtexEntry;

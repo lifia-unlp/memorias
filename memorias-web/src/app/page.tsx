@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 // High-fidelity Mock Data for Demo
 const mockStats = [
@@ -53,13 +54,13 @@ export default function Home() {
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted">
-            <a href="#" className="hover:text-primary transition-colors">Members</a>
-            <a href="#" className="hover:text-primary transition-colors">Projects</a>
-            <a href="#" className="hover:text-primary transition-colors">Theses</a>
-            <a href="#" className="hover:text-primary transition-colors">Publications</a>
-            <a href="#" className="btn-primary flex items-center gap-2">
+            <Link href="/members" className="hover:text-primary transition-colors">Members</Link>
+            <Link href="/projects" className="hover:text-primary transition-colors">Projects</Link>
+            <Link href="/theses" className="hover:text-primary transition-colors">Theses</Link>
+            <Link href="/publications" className="hover:text-primary transition-colors">Publications</Link>
+            <Link href="/auth/signin" className="btn-primary flex items-center gap-2">
               Sign In
-            </a>
+            </Link>
           </nav>
         </div>
       </header>
@@ -98,7 +99,7 @@ export default function Home() {
           <div className="md:col-span-1 space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold tracking-tight">Featured Members</h2>
-              <a href="#" className="text-sm font-semibold text-secondary hover:text-secondary-hover">View All</a>
+              <Link href="/members" className="text-sm font-semibold text-secondary hover:text-secondary-hover">View All</Link>
             </div>
             <div className="space-y-4">
               {mockMembers.map((member, i) => (
@@ -118,7 +119,7 @@ export default function Home() {
           <div className="md:col-span-2 space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold tracking-tight">Recent Publications</h2>
-              <a href="#" className="text-sm font-semibold text-secondary hover:text-secondary-hover">Browse BibTex</a>
+              <Link href="/publications" className="text-sm font-semibold text-secondary hover:text-secondary-hover">Browse BibTex</Link>
             </div>
             <div className="space-y-4">
               {mockPublications.map((pub, i) => (
