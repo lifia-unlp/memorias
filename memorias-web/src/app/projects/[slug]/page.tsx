@@ -5,6 +5,8 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { DeleteProjectButton } from "./DeleteProjectButton";
 import { Header } from "@/components/Header";
+import { jsonToBibtex } from "@/lib/bibtex";
+import { formatCitation } from "@/lib/citations";
 
 type Params = Promise<{ slug: string }>;
 
@@ -50,11 +52,8 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
         },
       },
       publications: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          year: true,
+        orderBy: {
+          year: "desc",
         },
       },
     },
@@ -242,21 +241,52 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
               {project.publications.length === 0 ? (
                 <span className="text-xs text-muted block italic text-center py-4">No associated papers or publications.</span>
               ) : (
-                <div className="space-y-2.5">
-                  {project.publications.map((pub) => (
-                    <Link
-                      key={pub.id}
-                      href={`/publications/${pub.slug}`}
-                      className="block p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-border hover:border-slate-300 dark:hover:border-slate-700 transition-all"
-                    >
-                      <span className="font-bold text-xs text-slate-800 dark:text-slate-200 block">
-                        📄 {pub.title}
-                      </span>
-                      <span className="text-[10px] text-muted block mt-1">
-                        Published Year: {pub.year || "N/D"}
-                      </span>
-                    </Link>
-                  ))}
+                <div className="divide-y divide-border/60">
+                  {project.publications.map((pb) => {
+                    const hasBibtex = pb.bibtexData && typeof pb.bibtexData === "object" && Object.keys(pb.bibtexData).length > 0;
+                    const bibString = jsonToBibtex(pb);
+                    const bibDownloadUrl = bibString ? `data:text/plain;charset=utf-8,${encodeURIComponent(bibString)}` : "";
+                    const citation = formatCitation(pb, "apa");
+                    return (
+                      <div key={pb.id} className="py-3.5 first:pt-0 last:pb-0 space-y-2">
+                        <Link href={`/publications/${pb.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors block leading-tight">
+                          {pb.title}
+                        </Link>
+                        <div
+                          className="text-xs text-slate-650 dark:text-slate-350 leading-relaxed bg-slate-50/50 dark:bg-slate-800/20 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80"
+                          dangerouslySetInnerHTML={{ __html: citation.html }}
+                        />
+                        
+                        <div className="flex items-center gap-4 text-xs font-semibold">
+                          <Link
+                            href={`/publications/${pb.slug}`}
+                            className="text-secondary hover:text-secondary-hover flex items-center gap-1 transition-all"
+                          >
+                            🔍 Details
+                          </Link>
+                          {hasBibtex && bibDownloadUrl && (
+                            <a
+                              href={bibDownloadUrl}
+                              download={`${pb.slug}.bib`}
+                              className="text-primary hover:text-primary-hover flex items-center gap-1 cursor-pointer"
+                            >
+                              📥 Download BibTeX
+                            </a>
+                          )}
+                          {pb.selfArchivingUrl && (
+                            <a
+                              href={pb.selfArchivingUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-secondary hover:text-secondary-hover flex items-center gap-1 cursor-pointer"
+                            >
+                              📄 Self-Archived PDF
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

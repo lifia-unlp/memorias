@@ -6,7 +6,8 @@ import { auth } from "@/auth";
 import { CvTabs } from "./CvTabs";
 import { DeleteMemberButton } from "./DeleteMemberButton";
 import { Header } from "@/components/Header";
-import { formatAPA, jsonToBibtex } from "@/lib/bibtex";
+import { jsonToBibtex } from "@/lib/bibtex";
+import { formatCitation } from "@/lib/citations";
 
 type Params = Promise<{ slug: string }>;
 
@@ -399,33 +400,24 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                   const hasBibtex = pb.bibtexData && typeof pb.bibtexData === "object" && Object.keys(pb.bibtexData).length > 0;
                   const bibString = jsonToBibtex(pb);
                   const bibDownloadUrl = bibString ? `data:text/plain;charset=utf-8,${encodeURIComponent(bibString)}` : "";
+                  const citation = formatCitation(pb, "apa");
                   return (
                     <div key={pb.id} className="py-3.5 first:pt-0 last:pb-0 space-y-2">
                       <Link href={`/publications/${pb.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors block leading-tight">
                         {pb.title}
                       </Link>
-                      {hasBibtex ? (
-                        <div
-                          className="text-xs text-slate-650 dark:text-slate-300 leading-relaxed font-serif bg-slate-50/50 dark:bg-slate-800/20 p-2.5 rounded-xl border border-slate-100 dark:border-slate-805"
-                          dangerouslySetInnerHTML={{ __html: formatAPA(pb) }}
-                        />
-                      ) : (
-                        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-muted font-medium">
-                          <span>{pb.authors || "N/A"}</span>
-                          <span className="text-slate-300">•</span>
-                          <span className="font-bold text-secondary">{pb.year}</span>
-                          {pb.type && (
-                            <>
-                              <span className="text-slate-300">•</span>
-                              <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500 font-bold uppercase tracking-wider text-[8px]">
-                                {pb.type}
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      )}
+                      <div
+                        className="text-xs text-slate-650 dark:text-slate-350 leading-relaxed bg-slate-50/50 dark:bg-slate-800/20 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80"
+                        dangerouslySetInnerHTML={{ __html: citation.html }}
+                      />
                       
                       <div className="flex items-center gap-4 text-xs font-semibold">
+                        <Link
+                          href={`/publications/${pb.slug}`}
+                          className="text-secondary hover:text-secondary-hover flex items-center gap-1 transition-all"
+                        >
+                          🔍 Details
+                        </Link>
                         {hasBibtex && bibDownloadUrl && (
                           <a
                             href={bibDownloadUrl}
