@@ -46,22 +46,95 @@ export async function parseBibtex(raw: string) {
     else if (rawType === "booklet") type = "book";
     else if (rawType === "patent") type = "misc";
 
-    // Extract the body (everything inside the outer braces)
+    // Find body start (after the first comma following the citation key)
     const firstBraceIdx = clean.indexOf("{");
-    const lastBraceIdx = clean.lastIndexOf("}");
-    if (firstBraceIdx === -1 || lastBraceIdx === -1) {
-      return { success: false, error: "Malformed BibTeX: Missing brackets" };
+    if (firstBraceIdx === -1) {
+      return { success: false, error: "Malformed BibTeX: Missing opening bracket" };
     }
-    const body = clean.substring(firstBraceIdx + 1, lastBraceIdx);
+    
+    // Find the end of the citation key plus its comma
+    const headerEndIdx = clean.indexOf(",", firstBraceIdx);
+    if (headerEndIdx === -1) {
+      return { success: false, error: "Malformed BibTeX: Missing comma after citation key" };
+    }
+
+    const body = clean.substring(headerEndIdx + 1).trim();
 
     const tags: Record<string, string> = {};
-    // Match key = value pairs (handling braces {}, quotes "", numbers, etc.)
-    const tagRegex = /(\w+)\s*=\s*(?:\{([\s\S]*?)\}|"([\s\S]*?)"|(\d+)|([^{},\s]+))/g;
-    let match;
-    while ((match = tagRegex.exec(body)) !== null) {
-      const key = match[1].toLowerCase();
-      const val = match[2] || match[3] || match[4] || match[5] || "";
-      tags[key] = cleanBibtexValue(val);
+    
+    // Character-by-character parsing of the key-value body
+    let i = 0;
+    while (i < body.length) {
+      // Skip whitespace/commas
+      while (i < body.length && /[\s,]/ .test(body[i])) {
+        i++;
+      }
+      if (i >= body.length || body[i] === "}") {
+        break; // Reached end of body or closing brace
+      }
+
+      // Read key
+      let key = "";
+      while (i < body.length && body[i] !== "=" && !/[\s]/.test(body[i])) {
+        key += body[i];
+        i++;
+      }
+
+      // Skip to '='
+      while (i < body.length && body[i] !== "=") {
+        i++;
+      }
+      if (i >= body.length) break;
+      i++; // Skip '='
+
+      // Skip whitespace
+      while (i < body.length && /[\s]/.test(body[i])) {
+        i++;
+      }
+      if (i >= body.length) break;
+
+      // Read value based on its starting delimiter
+      let val = "";
+      if (body[i] === "{") {
+        // Parse brace-enclosed value (handling nesting!)
+        let braceCount = 1;
+        i++; // skip opening brace
+        while (i < body.length && braceCount > 0) {
+          if (body[i] === "{") {
+            braceCount++;
+          } else if (body[i] === "}") {
+            braceCount--;
+          }
+          if (braceCount > 0) {
+            val += body[i];
+          }
+          i++;
+        }
+      } else if (body[i] === '"') {
+        // Parse quote-enclosed value
+        i++; // skip opening quote
+        while (i < body.length && body[i] !== '"') {
+          if (body[i] === "\\" && body[i+1] === '"') {
+            val += '"';
+            i += 2;
+          } else {
+            val += body[i];
+            i++;
+          }
+        }
+        if (i < body.length) i++; // skip closing quote
+      } else {
+        // Parse unquoted value (word or number until next comma, whitespace, or closing brace)
+        while (i < body.length && body[i] !== "," && body[i] !== "}" && !/[\s]/.test(body[i])) {
+          val += body[i];
+          i++;
+        }
+      }
+
+      const cleanKey = key.trim().toLowerCase();
+      if (cleanKey) {
+        tags[cleanKey] = cleanBibtexValue(val);
+      }
     }
 
     const title = tags.title || "";
