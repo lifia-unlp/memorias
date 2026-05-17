@@ -134,48 +134,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
             )}
           </div>
 
-          {/* Associated Members */}
-          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-            <h2 className="text-lg font-extrabold text-primary border-b border-border pb-3 flex items-center gap-2">
-              <span>👥</span> Associated Members ({project.members.length})
-            </h2>
-            {project.members.length === 0 ? (
-              <div className="text-xs text-muted italic font-medium py-4 text-center">
-                No associated researchers linked to this project.
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {project.members.map((member) => (
-                  <Link
-                    key={member.id}
-                    href={`/members/${member.slug}`}
-                    className="flex items-center gap-3.5 p-3 rounded-xl border border-border hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all"
-                  >
-                    {member.avatarUrl ? (
-                      <img
-                        src={member.avatarUrl}
-                        alt={`${member.firstName} ${member.lastName}`}
-                        className="h-10 w-10 rounded-full object-cover border border-border bg-slate-100"
-                      />
-                    ) : (
-                      <div className="h-10 w-10 rounded-full bg-primary/10 text-primary border border-border flex items-center justify-center text-sm font-bold font-mono">
-                        {member.firstName[0]}
-                        {member.lastName[0]}
-                      </div>
-                    )}
-                    <div className="min-w-0">
-                      <span className="font-bold text-xs text-slate-800 dark:text-slate-200 block truncate">
-                        {member.firstName} {member.lastName}
-                      </span>
-                      <span className="text-[10px] text-muted block truncate">
-                        {member.positionAtLab || "Researcher"}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+
 
           {/* Deep Relations: Theses, Scholarships, Publications */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -360,6 +319,50 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Associated Members Box */}
+          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
+            <h3 className="font-extrabold text-xs text-primary uppercase tracking-wider border-b border-border pb-3">
+              👥 Associated Members ({project.members.length})
+            </h3>
+            {project.members.length === 0 ? (
+              <div className="text-xs text-muted italic font-medium py-2 text-center">
+                No associated researchers.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {project.members.map((member) => (
+                  <Link
+                    key={member.id}
+                    href={`/members/${member.slug}`}
+                    className="flex items-center gap-3 p-2.5 rounded-xl border border-border/80 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all block"
+                  >
+                    {member.avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={member.avatarUrl}
+                        alt={`${member.firstName} ${member.lastName}`}
+                        className="h-8 w-8 rounded-full object-cover border border-border bg-slate-100 shrink-0"
+                      />
+                    ) : (
+                      <div className="h-8 w-8 rounded-full bg-primary/10 text-primary border border-border flex items-center justify-center text-[10px] font-bold font-mono shrink-0">
+                        {member.firstName[0]}
+                        {member.lastName[0]}
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <span className="font-bold text-xs text-slate-800 dark:text-slate-200 block truncate leading-tight">
+                        {member.firstName} {member.lastName}
+                      </span>
+                      <span className="text-[10px] text-muted block truncate mt-0.5">
+                        {member.positionAtLab || "Researcher"}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Tags cloud */}
