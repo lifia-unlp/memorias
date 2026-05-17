@@ -8,6 +8,22 @@ import { DeleteMemberButton } from "./DeleteMemberButton";
 
 type Params = Promise<{ slug: string }>;
 
+function getBibtexString(val: any): string {
+  if (!val) return "";
+  if (typeof val === "string") return val;
+  if (typeof val === "number") return String(val);
+  if (Array.isArray(val)) {
+    return val.map(getBibtexString).join(" ");
+  }
+  if (typeof val === "object") {
+    if (val.value !== undefined) {
+      return getBibtexString(val.value);
+    }
+    return getBibtexString(val.text || val.name || val.label || JSON.stringify(val));
+  }
+  return String(val);
+}
+
 function formatAPA(pb: any): string {
   try {
     const bib = pb.bibtexData;
@@ -17,7 +33,7 @@ function formatAPA(pb: any): string {
 
     const tags = (bib as any).entryTags || (bib as any).tags || bib;
     
-    let authorsStr = pb.authors || tags.author || tags.authors || "";
+    let authorsStr = pb.authors || getBibtexString(tags.author) || getBibtexString(tags.authors) || "";
     if (authorsStr) {
       const authorList = authorsStr.split(/\s+and\s+/i);
       const formattedAuthors = authorList.map((auth: string) => {
@@ -46,43 +62,43 @@ function formatAPA(pb: any): string {
       }
     }
 
-    const title = tags.title || pb.title || "";
-    const year = tags.year || pb.year || "";
-    const entryType = ((bib as any).entryType || (bib as any).type || pb.type || "").toLowerCase();
+    const title = getBibtexString(tags.title) || pb.title || "";
+    const year = getBibtexString(tags.year) || pb.year || "";
+    const entryType = getBibtexString((bib as any).entryType || (bib as any).type || pb.type || "").toLowerCase();
 
     let citation = `${authorsStr} (${year}). ${title}. `;
 
     if (entryType === "article") {
-      const journal = tags.journal || tags.journaltitle || "";
-      const volume = tags.volume || "";
-      const number = tags.number || "";
-      const pages = tags.pages || "";
+      const journal = getBibtexString(tags.journal) || getBibtexString(tags.journaltitle) || "";
+      const volume = getBibtexString(tags.volume) || "";
+      const number = getBibtexString(tags.number) || "";
+      const pages = getBibtexString(tags.pages) || "";
       if (journal) citation += `<em>${journal}</em>`;
       if (volume) citation += `, <em>${volume}</em>`;
       if (number) citation += `(${number})`;
       if (pages) citation += `, ${pages}`;
       citation += ".";
-    } else if (entryType === "inproceedings" || entryType === "conference") {
-      const booktitle = tags.booktitle || "";
-      const pages = tags.pages || "";
-      const publisher = tags.publisher || "";
+    } else if (entryType === "inproceedings" || entryType === "conference" || entryType === "inbook") {
+      const booktitle = getBibtexString(tags.booktitle) || "";
+      const pages = getBibtexString(tags.pages) || "";
+      const publisher = getBibtexString(tags.publisher) || "";
       if (booktitle) citation += `In <em>${booktitle}</em>`;
       if (pages) citation += ` (pp. ${pages})`;
       if (publisher) citation += `. ${publisher}`;
       citation += ".";
     } else if (entryType === "book") {
-      const publisher = tags.publisher || "";
-      const address = tags.address || "";
+      const publisher = getBibtexString(tags.publisher) || "";
+      const address = getBibtexString(tags.address) || "";
       citation = `${authorsStr} (${year}). <em>${title}</em>. `;
       if (address) citation += `${address}: `;
       if (publisher) citation += `${publisher}.`;
     } else if (entryType === "phdthesis" || entryType === "mastersthesis") {
-      const school = tags.school || "";
+      const school = getBibtexString(tags.school) || "";
       const typeLabel = entryType === "phdthesis" ? "Doctoral dissertation" : "Master's thesis";
       citation += `(${typeLabel}, ${school}).`;
     } else {
-      const howpublished = tags.howpublished || "";
-      const note = tags.note || "";
+      const howpublished = getBibtexString(tags.howpublished) || "";
+      const note = getBibtexString(tags.note) || "";
       if (howpublished) citation += `${howpublished}. `;
       if (note) citation += `${note}.`;
     }
@@ -104,7 +120,8 @@ function jsonToBibtex(pb: any): string {
     let str = `@${entryType}{${citationKey},\n`;
     for (const [k, v] of Object.entries(tags)) {
       if (k !== "citationKey" && k !== "entryType" && k !== "tags" && k !== "entryTags") {
-        str += `  ${k} = {${v}},\n`;
+        const cleanVal = getBibtexString(v);
+        str += `  ${k} = {${cleanVal}},\n`;
       }
     }
     str += `}`;
@@ -607,7 +624,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                         </div>
                       )}
                       
-                      <div className="flex items-center gap-4 text-[10px] font-bold uppercase">
+                      <div className="flex items-center gap-4 text-xs font-semibold">
                         {hasBibtex && bibDownloadUrl && (
                           <a
                             href={bibDownloadUrl}
