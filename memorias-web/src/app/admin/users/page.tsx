@@ -1,6 +1,6 @@
 import React from "react";
 import { prisma } from "@/lib/prisma";
-import { toggleUserActivationAction, updateUserRoleAction } from "./actions";
+import { RoleSelector, ActivationButton } from "./UserControls";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
@@ -116,44 +116,12 @@ export default async function AdminUsersPage() {
 
                     {/* Role Dropdown */}
                     <td className="p-4">
-                      <form
-                        action={updateUserRoleAction}
-                        className="flex items-center gap-2"
-                      >
-                        <input type="hidden" name="userId" value={u.id} />
-                        <select
-                          name="role"
-                          defaultValue={u.role}
-                          className="bg-background text-foreground text-xs font-bold border border-border px-3 py-1.5 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
-                        >
-                          <option value="USER">USER</option>
-                          <option value="EDITOR">EDITOR</option>
-                          <option value="ADMIN">ADMIN</option>
-                        </select>
-                        <button
-                          type="submit"
-                          className="text-[10px] uppercase font-extrabold px-2.5 py-1.5 bg-primary/10 text-primary border border-primary/20 rounded-lg hover:bg-primary/20 transition-all cursor-pointer"
-                        >
-                          Save
-                        </button>
-                      </form>
+                      <RoleSelector userId={u.id} initialRole={u.role} />
                     </td>
 
                     {/* Toggle Activation Button */}
                     <td className="p-4 text-right">
-                      <form action={toggleUserActivationAction}>
-                        <input type="hidden" name="userId" value={u.id} />
-                        <button
-                          type="submit"
-                          className={`text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition-all shadow-sm ${
-                            u.active
-                              ? "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
-                              : "bg-green-50 text-green-600 hover:bg-green-100 border border-green-200"
-                          }`}
-                        >
-                          {u.active ? "Deactivate" : "Activate"}
-                        </button>
-                      </form>
+                      <ActivationButton userId={u.id} initialActive={u.active} />
                     </td>
                   </tr>
                 ))}
