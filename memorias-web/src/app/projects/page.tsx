@@ -67,7 +67,7 @@ export default async function ProjectsPage(props: {
               href="/projects/new"
               className="bg-white hover:bg-slate-100 text-primary font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all text-center flex items-center gap-2 whitespace-nowrap self-start sm:self-center"
             >
-              ✨ Add Project
+              Add Project
             </Link>
           )}
         </div>
@@ -79,13 +79,12 @@ export default async function ProjectsPage(props: {
         <div className="bg-white dark:bg-slate-900 border border-border p-4 rounded-2xl shadow-sm flex flex-col md:flex-row items-center gap-4">
           <form method="GET" className="w-full flex items-center gap-3">
             <div className="relative flex-1">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
               <input
                 type="text"
                 name="q"
                 defaultValue={q}
-                placeholder="Search projects by title, code, director, summary or keywords..."
-                className="w-full border border-border pl-10 pr-4 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs"
+                placeholder="Search projects by title, code, summary, funding agency..."
+                className="w-full border border-border px-4 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs"
               />
             </div>
             <button

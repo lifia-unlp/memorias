@@ -53,7 +53,7 @@ export default async function NewThesisPage() {
       <main className="max-w-7xl w-full mx-auto px-6 py-10 flex-1">
         <div className="max-w-4xl mx-auto space-y-2 mb-8">
           <h1 className="text-3xl font-black text-foreground tracking-tight">
-            🎓 Add New Thesis
+            Add New Thesis
           </h1>
           <p className="text-xs text-muted">
             Configure thesis details, students, academic levels, timeline progress, and connect research networks.

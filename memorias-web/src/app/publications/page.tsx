@@ -77,7 +77,7 @@ export default async function PublicationsPage(props: {
               href="/publications/new"
               className="bg-white hover:bg-slate-100 text-primary font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all text-center flex items-center gap-2 whitespace-nowrap self-start sm:self-center"
             >
-              ✨ Add Publication
+              Add Publication
             </Link>
           )}
         </div>
@@ -92,13 +92,12 @@ export default async function PublicationsPage(props: {
           className="bg-white dark:bg-slate-900 border border-border p-4 rounded-2xl shadow-sm flex flex-col md:flex-row items-center gap-4"
         >
           <div className="flex-1 w-full relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
             <input
               type="text"
               name="q"
               defaultValue={q}
               placeholder="Search by title, author, or tags..."
-              className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-border rounded-xl focus:outline-none focus:ring-1 focus:ring-primary/20 text-slate-800 dark:text-white"
+              className="w-full px-4 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-border rounded-xl focus:outline-none focus:ring-1 focus:ring-primary/20 text-slate-800 dark:text-white"
             />
           </div>
 
@@ -164,7 +163,6 @@ export default async function PublicationsPage(props: {
         {/* Publications Bibliography Grid */}
         {publications.length === 0 ? (
           <div className="text-center py-16 bg-white dark:bg-slate-900 border border-border rounded-2xl p-8 space-y-2">
-            <span className="text-4xl">📚</span>
             <h3 className="text-lg font-bold">No publications found</h3>
             <p className="text-sm text-muted">
               Try refining your query or clearing active dropdown filters.

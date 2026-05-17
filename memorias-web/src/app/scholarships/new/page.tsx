@@ -44,7 +44,7 @@ export default async function NewScholarshipPage() {
       <main className="max-w-7xl w-full mx-auto px-6 py-10 flex-1">
         <div className="max-w-4xl mx-auto space-y-2 mb-8">
           <h1 className="text-3xl font-black text-foreground tracking-tight">
-            🎫 Add New Scholarship
+            Add New Scholarship
           </h1>
           <p className="text-xs text-muted">
             Configure scholarship student profiles, directors, funding structures, and link co-authors or research projects.
