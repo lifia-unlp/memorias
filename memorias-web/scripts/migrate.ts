@@ -85,48 +85,9 @@ async function main() {
     const publicationMap = new Map<string, string>();
 
     // ==========================================
-    // 1. MIGRATE USERS (LifiaUser -> User)
+    // 1. SKIP USERS MIGRATION (OAuth-based auto-registration)
     // ==========================================
-    console.log("\nMigrating Users...");
-    const mongoUsers = await mongoDb.collection("LifiaUser").find({}).toArray();
-    const insertedEmails = new Set<string>();
-    let migratedUsersCount = 0;
-    
-    for (const mUser of mongoUsers) {
-      if (!mUser.email) {
-        console.log(`Skipping user with missing email: ${mUser._id}`);
-        continue;
-      }
-      
-      const email = mUser.email.trim().toLowerCase();
-      if (insertedEmails.has(email)) {
-        console.log(`Skipping duplicate user email: ${email}`);
-        continue;
-      }
-      insertedEmails.add(email);
-
-      // Split full name if present
-      let firstName = "";
-      let lastName = "";
-      if (mUser.fullname) {
-        const parts = mUser.fullname.trim().split(/\s+/);
-        firstName = parts[0] || "";
-        lastName = parts.slice(1).join(" ") || "";
-      }
-
-      await prisma.user.create({
-        data: {
-          id: mUser._id.toString(), // Keep ID consistent
-          email: email,
-          firstName: firstName || null,
-          lastName: lastName || null,
-          role: mUser.isAdmin ? "ADMIN" : "USER",
-          active: mUser.enabled === true,
-        },
-      });
-      migratedUsersCount++;
-    }
-    console.log(`Migrated ${migratedUsersCount} Users.`);
+    console.log("\nSkipping Users migration (to be registered automatically via OAuth)...");
 
     // ==========================================
     // 2. MIGRATE MEMBERS (Lifian -> Member)
