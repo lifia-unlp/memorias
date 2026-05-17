@@ -39,7 +39,7 @@ export default async function ProjectsPage(props: {
         },
       },
     },
-    orderBy: { startDate: "desc" },
+    orderBy: { endDate: "desc" },
   });
 
   return (

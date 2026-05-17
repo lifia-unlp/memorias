@@ -188,20 +188,22 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Start Date</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Start Date *</label>
             <input
               type="date"
               name="startDate"
+              required
               defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
               className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">End Date</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">End Date *</label>
             <input
               type="date"
               name="endDate"
+              required
               defaultValue={initialData?.endDate ? new Date(initialData.endDate).toISOString().split("T")[0] : ""}
               className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
             />

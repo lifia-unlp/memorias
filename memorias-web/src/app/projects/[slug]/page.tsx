@@ -320,7 +320,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
         <div className="space-y-6">
           <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-5">
             <h3 className="font-extrabold text-xs text-primary uppercase tracking-wider border-b border-border pb-3">
-              Project Parameters
+              Project Details
             </h3>
 
             <div className="space-y-4 text-xs">

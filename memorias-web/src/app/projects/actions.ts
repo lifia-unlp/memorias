@@ -43,6 +43,11 @@ export async function createProject(formData: FormData) {
 
   const startDateStr = formData.get("startDate") as string;
   const endDateStr = formData.get("endDate") as string;
+
+  if (!startDateStr || !endDateStr) {
+    throw new Error("Start Date and End Date are required fields.");
+  }
+
   const selectedMemberIds = formData.getAll("members") as string[];
 
   await prisma.project.create({
@@ -93,6 +98,11 @@ export async function updateProject(projectId: string, formData: FormData) {
 
   const startDateStr = formData.get("startDate") as string;
   const endDateStr = formData.get("endDate") as string;
+
+  if (!startDateStr || !endDateStr) {
+    throw new Error("Start Date and End Date are required fields.");
+  }
+
   const selectedMemberIds = formData.getAll("members") as string[];
 
   await prisma.project.update({
