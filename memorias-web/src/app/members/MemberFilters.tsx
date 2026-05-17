@@ -36,13 +36,12 @@ export function MemberFilters({ positions }: { positions: string[] }) {
   return (
     <div className="flex flex-col sm:flex-row gap-4 items-center w-full bg-white dark:bg-slate-900 border border-border p-4 rounded-2xl shadow-sm">
       <div className="relative flex-1 w-full">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
         <input
           type="text"
           defaultValue={searchParams.get("query") || ""}
           onChange={(e) => handleSearch(e.target.value)}
           placeholder="Search members by name, position, or tags..."
-          className="w-full pl-9 pr-4 py-2 border border-border rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
+          className="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
         />
       </div>
       
@@ -62,7 +61,7 @@ export function MemberFilters({ positions }: { positions: string[] }) {
         
         {isPending && (
           <span className="text-xs text-primary font-bold animate-pulse shrink-0">
-            ⏳
+            Loading...
           </span>
         )}
       </div>

@@ -77,7 +77,7 @@ export default async function MembersPage({
               href="/members/new"
               className="bg-white hover:bg-slate-100 text-primary font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all text-center flex items-center gap-2 whitespace-nowrap self-start sm:self-center"
             >
-              ✨ Add Researcher
+              Add Researcher
             </Link>
           )}
         </div>
@@ -89,7 +89,6 @@ export default async function MembersPage({
 
         {members.length === 0 ? (
           <div className="text-center py-16 bg-white dark:bg-slate-900 border border-border rounded-2xl p-8 space-y-2">
-            <span className="text-4xl">🔍</span>
             <h3 className="text-lg font-bold">No researchers found</h3>
             <p className="text-sm text-muted">
               Try adjusting your keywords or clearing the position filters.
@@ -117,8 +116,8 @@ export default async function MembersPage({
                         className="w-14 h-14 rounded-full border border-border object-cover object-top shrink-0"
                       />
                     ) : (
-                      <div className="w-14 h-14 flex items-center justify-center bg-primary/10 rounded-full text-2xl shrink-0">
-                        🎓
+                      <div className="w-14 h-14 flex items-center justify-center bg-primary/10 text-primary border border-border/10 rounded-full text-lg font-black shrink-0">
+                        {m.firstName[0]}{m.lastName[0]}
                       </div>
                     )}
                     <div>
@@ -137,19 +136,19 @@ export default async function MembersPage({
                   <div className="text-xs text-muted space-y-1.5 pt-2 border-t border-border/60">
                     {m.highestDegree && (
                       <div className="flex items-center gap-1">
-                        <span>🎓</span>
+                        <span className="font-semibold text-slate-500">Degree:</span>
                         <span className="truncate">{m.highestDegree}</span>
                       </div>
                     )}
                     {m.positionAtCONICET && (
                       <div className="flex items-center gap-1">
-                        <span>🔬</span>
-                        <span>CONICET: {m.positionAtCONICET}</span>
+                        <span className="font-semibold text-slate-500">CONICET:</span>
+                        <span>{m.positionAtCONICET}</span>
                       </div>
                     )}
                     {m.institutionalEmail && (
                       <div className="flex items-center gap-1">
-                        <span>✉️</span>
+                        <span className="font-semibold text-slate-500">Email:</span>
                         <span className="truncate">{m.institutionalEmail}</span>
                       </div>
                     )}
