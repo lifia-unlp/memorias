@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { auth, signOut } from '@/auth';
 
 // High-fidelity Mock Data for Demo
 const mockStats = [
@@ -32,7 +33,9 @@ const mockPublications = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+
   return (
     <div className="flex-1 flex flex-col min-h-screen">
       {/* Premium Header */}
@@ -58,9 +61,51 @@ export default function Home() {
             <Link href="/projects" className="hover:text-primary transition-colors">Projects</Link>
             <Link href="/theses" className="hover:text-primary transition-colors">Theses</Link>
             <Link href="/publications" className="hover:text-primary transition-colors">Publications</Link>
-            <Link href="/auth/signin" className="btn-primary flex items-center gap-2">
-              Sign In
-            </Link>
+            
+            {session ? (
+              <div className="flex items-center gap-4 pl-4 border-l border-border">
+                <div className="flex items-center gap-2">
+                  {session.user?.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={session.user.image}
+                      alt="Avatar"
+                      className="w-8 h-8 rounded-full border border-border"
+                    />
+                  ) : (
+                    <span className="w-8 h-8 flex items-center justify-center bg-primary/10 rounded-full text-sm">
+                      👤
+                    </span>
+                  )}
+                  <div className="text-left hidden lg:block">
+                    <span className="text-xs font-bold block text-foreground leading-tight truncate max-w-[120px]">
+                      {session.user?.name}
+                    </span>
+                    <span className="text-[10px] text-muted block leading-none uppercase tracking-wider font-semibold">
+                      {session.user?.role}
+                    </span>
+                  </div>
+                </div>
+                
+                <form
+                  action={async () => {
+                    "use server";
+                    await signOut();
+                  }}
+                >
+                  <button
+                    type="submit"
+                    className="text-xs font-bold text-red-500 hover:text-red-600 transition-colors cursor-pointer"
+                  >
+                    Sign Out
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <Link href="/auth/signin" className="btn-primary flex items-center gap-2">
+                Sign In
+              </Link>
+            )}
           </nav>
         </div>
       </header>
