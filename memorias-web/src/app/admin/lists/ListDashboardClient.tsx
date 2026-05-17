@@ -335,7 +335,7 @@ export default function ListDashboardClient({
               <button
                 onClick={handleConfirmDelete}
                 disabled={isDeleting}
-                className="flex-1 px-4 py-2.5 bg-red-650 hover:bg-red-700 text-white text-xs font-black rounded-xl transition-all shadow-md shadow-red-500/10 hover:shadow-red-500/20"
+                className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-xl transition-all shadow-md shadow-red-500/10 hover:shadow-red-500/20"
               >
                 {isDeleting ? "Updating..." : "⚠️ Apply & Delete"}
               </button>
