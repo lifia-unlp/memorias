@@ -7,8 +7,9 @@ import { Header } from "@/components/Header";
 import { jsonToBibtex } from "@/lib/bibtex";
 import { CopyBibtexButton } from "./CopyBibtexButton";
 import { DeletePublicationButton } from "./DeletePublicationButton";
-import { formatCitation, SUPPORTED_STYLES } from "@/lib/citations";
+import { formatCitation } from "@/lib/citations";
 import { CopyCitationButton } from "../CopyCitationButton";
+import { CitationStyleSelector } from "../CitationStyleSelector";
 
 type Params = Promise<{ slug: string }>;
 type SearchParams = Promise<{ style?: string }>;
@@ -103,23 +104,7 @@ export default async function PublicationDetailPage({
                 Bibliography Reference
               </h3>
               <div className="flex items-center gap-3">
-                <form method="GET" className="flex items-center gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                    Format:
-                  </label>
-                  <select
-                    name="style"
-                    defaultValue={styleFilter}
-                    onChange={(e) => e.target.form?.submit()}
-                    className="px-2 py-1 text-[11px] font-semibold bg-slate-50 dark:bg-slate-950 border border-border rounded-lg focus:outline-none text-slate-700 dark:text-slate-350 cursor-pointer"
-                  >
-                    {SUPPORTED_STYLES.map((st) => (
-                      <option key={st.value} value={st.value}>
-                        {st.label}
-                      </option>
-                    ))}
-                  </select>
-                </form>
+                <CitationStyleSelector initialStyle={styleFilter} />
                 <CopyCitationButton textToCopy={citation.text} />
               </div>
             </div>
