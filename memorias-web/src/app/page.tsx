@@ -1,65 +1,157 @@
-import Image from "next/image";
+import React from 'react';
+
+// High-fidelity Mock Data for Demo
+const mockStats = [
+  { label: 'Total Members', count: 42, icon: '👥' },
+  { label: 'Active Projects', count: 18, icon: '📁' },
+  { label: 'Theses Completed', count: 29, icon: '🎓' },
+  { label: 'Publications', count: 154, icon: '📄' },
+];
+
+const mockMembers = [
+  { name: 'Dr. Alejandro Silva', role: 'Lab Director / CONICET Researcher', slug: 'alejandro-silva', avatar: '👨‍🔬' },
+  { name: 'Mg. Brenda Rossi', role: 'PhD Student / Assistant Professor', slug: 'brenda-rossi', avatar: '👩‍💻' },
+  { name: 'Dr. Carlos Mendoza', role: 'Senior Researcher', slug: 'carlos-mendoza', avatar: '👨‍💻' },
+];
+
+const mockPublications = [
+  {
+    title: 'A Semantic Web Architecture for Open Research Repositories',
+    authors: 'Silva, A., Mendoza, C., & Rossi, B.',
+    journal: 'Journal of Web Semantics',
+    year: 2025,
+    type: 'article',
+  },
+  {
+    title: 'Decentralized Agent Coordination in Edge Computing Environments',
+    authors: 'Rossi, B., & Silva, A.',
+    journal: 'IEEE Transactions on Services Computing',
+    year: 2024,
+    type: 'article',
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="flex-1 flex flex-col min-h-screen">
+      {/* Premium Header */}
+      <header className="sticky top-0 z-50 backdrop-blur-md bg-surface/90 border-b border-border shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {/* Elegant SVG Logo inspired by LIFIA logo */}
+            <div className="relative w-10 h-10 flex items-center justify-center bg-primary/5 rounded-xl border border-primary/10">
+              <svg viewBox="0 0 100 100" className="w-8 h-8">
+                {/* Logo Wave Icon (Secondary Color) */}
+                <circle cx="50" cy="50" r="15" fill="none" stroke="var(--secondary)" strokeWidth="8" />
+                <circle cx="50" cy="50" r="30" fill="none" stroke="var(--secondary)" strokeWidth="6" strokeDasharray="10 8" />
+                <circle cx="50" cy="50" r="45" fill="none" stroke="var(--primary)" strokeWidth="4" />
+              </svg>
+            </div>
+            <div>
+              <span className="text-xl font-bold tracking-tight text-primary dark:text-white">MEMORIAS</span>
+              <span className="text-xs block text-muted font-medium tracking-widest uppercase">Research Portal</span>
+            </div>
+          </div>
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted">
+            <a href="#" className="hover:text-primary transition-colors">Members</a>
+            <a href="#" className="hover:text-primary transition-colors">Projects</a>
+            <a href="#" className="hover:text-primary transition-colors">Theses</a>
+            <a href="#" className="hover:text-primary transition-colors">Publications</a>
+            <a href="#" className="btn-primary flex items-center gap-2">
+              Sign In
+            </a>
+          </nav>
+        </div>
+      </header>
+
+      {/* Main Content Dashboard */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-10 space-y-12">
+        {/* Welcome Section */}
+        <section className="space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-xs font-semibold text-secondary">
+            🚀 Technology Migration complete (Next.js + Postgres)
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+            Welcome to <span className="text-gradient-primary">Memorias</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-lg text-muted max-w-2xl">
+            A state-of-the-art research repository and laboratory management portal. Manage projects, track publications, archive theses, and display member metrics.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+        </section>
+
+        {/* Statistics Grid */}
+        <section className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {mockStats.map((stat, i) => (
+            <div key={i} className="material-card flex items-center justify-between">
+              <div className="space-y-1">
+                <span className="text-xs font-medium text-muted uppercase tracking-wider">{stat.label}</span>
+                <h3 className="text-3xl font-extrabold text-primary dark:text-white">{stat.count}</h3>
+              </div>
+              <span className="text-3xl p-3 bg-primary/5 dark:bg-primary/20 rounded-xl">{stat.icon}</span>
+            </div>
+          ))}
+        </section>
+
+        {/* Members & Recent Work Grid */}
+        <section className="grid md:grid-cols-3 gap-8">
+          {/* Members Column */}
+          <div className="md:col-span-1 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold tracking-tight">Featured Members</h2>
+              <a href="#" className="text-sm font-semibold text-secondary hover:text-secondary-hover">View All</a>
+            </div>
+            <div className="space-y-4">
+              {mockMembers.map((member, i) => (
+                <div key={i} className="interactive-item gap-4">
+                  <span className="text-2xl p-2 bg-primary/5 rounded-lg">{member.avatar}</span>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-sm truncate text-primary dark:text-white">{member.name}</h4>
+                    <p className="text-xs text-muted truncate">{member.role}</p>
+                  </div>
+                  <span className="text-secondary font-bold">→</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Publications Column */}
+          <div className="md:col-span-2 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold tracking-tight">Recent Publications</h2>
+              <a href="#" className="text-sm font-semibold text-secondary hover:text-secondary-hover">Browse BibTex</a>
+            </div>
+            <div className="space-y-4">
+              {mockPublications.map((pub, i) => (
+                <div key={i} className="material-card space-y-3">
+                  <div className="flex justify-between items-start gap-4">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded bg-primary/10 text-primary uppercase">
+                      {pub.type}
+                    </span>
+                    <span className="text-xs font-semibold text-muted">{pub.year}</span>
+                  </div>
+                  <h3 className="text-base font-bold text-primary dark:text-white hover:underline cursor-pointer">
+                    {pub.title}
+                  </h3>
+                  <p className="text-sm text-muted">{pub.authors}</p>
+                  <p className="text-xs font-medium text-slate-400 italic">{pub.journal}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-border bg-surface/50 py-8 text-center text-xs text-muted">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p>© {new Date().getFullYear()} Memorias System. Open Source Migration Project.</p>
+          <div className="flex gap-4">
+            <a href="#" className="hover:underline">Semantic Web RDF</a>
+            <span>•</span>
+            <a href="#" className="hover:underline">MCP Server API</a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
