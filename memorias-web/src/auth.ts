@@ -3,9 +3,60 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import authConfig from "./auth.config";
 
+import Credentials from "next-auth/providers/credentials";
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   ...authConfig,
+  providers: [
+    ...authConfig.providers,
+    Credentials({
+      name: "Development Backdoor",
+      credentials: {
+        email: { label: "Email", type: "text", placeholder: "admin@example.com" },
+        role: { label: "Role (USER/EDITOR/ADMIN)", type: "text", placeholder: "ADMIN" },
+      },
+      async authorize(credentials) {
+        if (process.env.NODE_ENV !== "development") {
+          return null;
+        }
+        const email = (credentials?.email as string) || "admin@example.com";
+        const role = (credentials?.role as string) || "ADMIN";
+
+        let user = await prisma.user.findUnique({
+          where: { email },
+        });
+
+        if (!user) {
+          user = await prisma.user.create({
+            data: {
+              email,
+              name: "Dev Admin Backdoor",
+              role: role as any,
+              active: true,
+            },
+          });
+        } else {
+          user = await prisma.user.update({
+            where: { id: user.id },
+            data: {
+              role: role as any,
+              active: true,
+            },
+          });
+        }
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          active: user.active,
+          image: user.image,
+        };
+      },
+    }),
+  ],
   callbacks: {
     ...authConfig.callbacks,
     async jwt({ token, user }) {

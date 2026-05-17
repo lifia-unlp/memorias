@@ -241,12 +241,20 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
             {session ? (
               <div className="flex items-center gap-4 pl-4 border-l border-border">
                 {session.user?.role === "ADMIN" && (
-                  <Link
-                    href="/admin/users"
-                    className="text-xs font-bold text-secondary hover:text-secondary-hover transition-colors mr-2"
-                  >
-                    ⚙️ Users Admin
-                  </Link>
+                  <>
+                    <Link
+                      href="/admin/users"
+                      className="text-xs font-bold text-secondary hover:text-secondary-hover transition-colors flex items-center gap-1"
+                    >
+                      ⚙️ Users Admin
+                    </Link>
+                    <Link
+                      href="/admin/lists"
+                      className="text-xs font-bold text-primary hover:text-primary-hover transition-colors mr-2 flex items-center gap-1"
+                    >
+                      📋 Lists Admin
+                    </Link>
+                  </>
                 )}
                 <div className="flex items-center gap-2">
                   {session.user?.image ? (

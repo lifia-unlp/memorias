@@ -78,6 +78,58 @@ export default function SignInPage() {
               </button>
             </form>
           </div>
+
+          {process.env.NODE_ENV === "development" && (
+            <div className="mt-6 pt-6 border-t border-dashed border-border/85 space-y-4">
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-base animate-pulse">🚧</span>
+                <span className="text-[10px] uppercase font-bold text-amber-500 tracking-widest block text-center">
+                  Local Dev Backdoor
+                </span>
+              </div>
+              <form
+                action={async (formData: FormData) => {
+                  "use server";
+                  const email = (formData.get("email") as string) || "admin@example.com";
+                  const role = (formData.get("role") as string) || "ADMIN";
+                  await signIn("credentials", { email, role, redirectTo: "/" });
+                }}
+                className="space-y-3"
+              >
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-slate-400 block uppercase tracking-wider">
+                    Dev Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    defaultValue="admin@example.com"
+                    className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-border rounded-lg text-foreground focus:outline-none focus:ring-1 focus:ring-primary/20"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-slate-400 block uppercase tracking-wider">
+                    Dev Role
+                  </label>
+                  <select
+                    name="role"
+                    defaultValue="ADMIN"
+                    className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-border rounded-lg text-foreground focus:outline-none focus:ring-1 focus:ring-primary/20"
+                  >
+                    <option value="ADMIN">ADMIN</option>
+                    <option value="EDITOR">EDITOR</option>
+                    <option value="USER">USER (Pending)</option>
+                  </select>
+                </div>
+                <button
+                  type="submit"
+                  className="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors cursor-pointer shadow-sm hover:shadow"
+                >
+                  Dev Backdoor Login
+                </button>
+              </form>
+            </div>
+          )}
         </div>
 
         {/* Security / Approval Warning Notice */}
