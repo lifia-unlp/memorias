@@ -233,7 +233,7 @@ export function ThesisForm({
             />
             <div>
               <label htmlFor="featured" className="block text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer">
-                ⭐ Featured Thesis
+                Featured Thesis
               </label>
               <span className="block text-[10px] text-muted leading-tight mt-0.5">
                 Highlight this thesis on the home page as part of the selected scientific research feed.

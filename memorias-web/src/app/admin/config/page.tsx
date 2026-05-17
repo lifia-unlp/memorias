@@ -94,7 +94,7 @@ export default async function AdminConfigPage({ searchParams }: PageProps) {
             </p>
           </div>
           <div className="bg-primary/10 text-primary border border-primary/20 px-4 py-2 rounded-xl text-xs font-bold self-start">
-            🛡️ Authorized Session: {session.user?.name}
+            Authorized Session: {session.user?.name}
           </div>
         </div>
 
@@ -195,7 +195,6 @@ export default async function AdminConfigPage({ searchParams }: PageProps) {
         <div className="bg-white dark:bg-slate-900 border border-border p-0 rounded-2xl shadow-sm overflow-hidden">
           {logs.length === 0 ? (
             <div className="text-center py-16 text-slate-400 font-medium space-y-2">
-              <div className="text-3xl">🔍</div>
               <p className="text-sm font-semibold">No audit logs found matching selected parameters.</p>
               <p className="text-xs text-muted">Try modifying the search term or clear the filter forms.</p>
             </div>

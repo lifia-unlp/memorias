@@ -43,7 +43,7 @@ export async function Header({ activeTab }: HeaderProps) {
                   : "hover:bg-slate-100 dark:hover:bg-slate-800"
               }`}
             >
-              👥 Members
+              Members
             </Link>
             <Link
               href="/projects"
@@ -53,7 +53,7 @@ export async function Header({ activeTab }: HeaderProps) {
                   : "hover:bg-slate-100 dark:hover:bg-slate-800"
               }`}
             >
-              📁 Projects
+              Projects
             </Link>
             <Link
               href="/theses"
@@ -63,7 +63,7 @@ export async function Header({ activeTab }: HeaderProps) {
                   : "hover:bg-slate-100 dark:hover:bg-slate-800"
               }`}
             >
-              🎓 Theses
+              Theses
             </Link>
             <Link
               href="/scholarships"
@@ -73,7 +73,7 @@ export async function Header({ activeTab }: HeaderProps) {
                   : "hover:bg-slate-100 dark:hover:bg-slate-800"
               }`}
             >
-              🎫 Scholarships
+              Scholarships
             </Link>
             <Link
               href="/publications"
@@ -83,7 +83,7 @@ export async function Header({ activeTab }: HeaderProps) {
                   : "hover:bg-slate-100 dark:hover:bg-slate-800"
               }`}
             >
-              📚 Publications
+              Publications
             </Link>
             
             {/* Admin Links */}
@@ -94,19 +94,19 @@ export async function Header({ activeTab }: HeaderProps) {
                   href="/admin/users"
                   className="px-3 py-1.5 rounded-lg text-secondary hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center gap-1"
                 >
-                  ⚙️ Users
+                  Users
                 </Link>
                 <Link
                   href="/admin/lists"
                   className="px-3 py-1.5 rounded-lg text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center gap-1"
                 >
-                  📋 Lists
+                  Lists
                 </Link>
                 <Link
                   href="/admin/config"
                   className="px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-250 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center gap-1"
                 >
-                  🛡️ Audit
+                  Audit
                 </Link>
               </>
             )}

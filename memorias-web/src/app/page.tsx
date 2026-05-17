@@ -33,7 +33,7 @@ export default async function Home() {
         {/* Welcome Section */}
         <section className="space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-xs font-semibold text-secondary">
-            🚀 Scientific Research Platform Active
+            Scientific Research Platform Active
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
             Welcome to <span className="text-gradient-primary">Memorias</span>
@@ -47,7 +47,7 @@ export default async function Home() {
         <section className="space-y-6">
           <div className="flex items-center justify-between border-b border-border pb-3">
             <h2 className="text-2xl font-extrabold tracking-tight flex items-center gap-2.5">
-              <span>⭐</span> Featured Publications
+              Featured Publications
             </h2>
             <Link href="/publications" className="text-xs font-bold text-primary hover:underline">
               Browse All Publications →
@@ -56,7 +56,7 @@ export default async function Home() {
 
           {featuredPublications.length === 0 ? (
             <div className="text-center py-12 bg-white dark:bg-slate-900 border border-dashed border-border rounded-2xl text-xs text-muted font-medium">
-              💡 No publications have been featured yet. Editors can select featured records from the publication manager.
+              No publications have been featured yet. Editors can select featured records from the publication manager.
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4.5">
@@ -70,7 +70,7 @@ export default async function Home() {
                     <div className="space-y-3 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-[9px] uppercase tracking-wider font-extrabold text-amber-600 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 px-2 py-0.5 rounded">
-                          ★ Featured Publication
+                          Featured Publication
                         </span>
                         <span className="text-[9px] uppercase tracking-wider font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
                           Year {pub.year}
@@ -107,7 +107,7 @@ export default async function Home() {
           <div className="space-y-6">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <h2 className="text-xl font-extrabold tracking-tight flex items-center gap-2">
-                <span>🎓</span> Featured Theses
+                Featured Theses
               </h2>
               <Link href="/theses" className="text-xs font-bold text-secondary hover:underline">
                 All Theses →
@@ -164,7 +164,7 @@ export default async function Home() {
           <div className="space-y-6">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <h2 className="text-xl font-extrabold tracking-tight flex items-center gap-2">
-                <span>📁</span> Featured Projects
+                Featured Projects
               </h2>
               <Link href="/projects" className="text-xs font-bold text-secondary hover:underline">
                 All Projects →

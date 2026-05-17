@@ -645,7 +645,7 @@ export function PublicationForm({
               />
               <div>
                 <label htmlFor="featured" className="block text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer">
-                  ⭐ Featured Publication
+                  Featured Publication
                 </label>
                 <span className="block text-[10px] text-muted leading-tight mt-0.5">
                   Highlight this paper on the home page as part of the selected scientific bibliography feed.
@@ -657,7 +657,7 @@ export function PublicationForm({
             <div className="border-t border-slate-100 dark:border-slate-800/50 pt-6 mt-6 space-y-4">
               <div>
                 <h4 className="text-sm font-bold text-slate-850 dark:text-white flex items-center gap-1.5">
-                  <span>📋</span> Type-Specific Metadata ({BIBTEX_FIELDS_MAP[type]?.label || type})
+                  Type-Specific Metadata ({BIBTEX_FIELDS_MAP[type]?.label || type})
                 </h4>
                 <p className="text-[11px] text-slate-400 mt-1">
                   Provide additional metadata specific to the selected publication type. Required fields are marked with a red asterisk (<span className="text-red-500">*</span>).
