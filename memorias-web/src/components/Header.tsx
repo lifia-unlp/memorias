@@ -102,6 +102,12 @@ export async function Header({ activeTab }: HeaderProps) {
                 >
                   📋 Lists
                 </Link>
+                <Link
+                  href="/admin/config"
+                  className="px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-250 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center gap-1"
+                >
+                  🛡️ Audit
+                </Link>
               </>
             )}
           </nav>

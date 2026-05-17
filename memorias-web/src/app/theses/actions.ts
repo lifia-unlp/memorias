@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { logAction } from "@/lib/audit";
 
 export async function ensureEditorOrAdmin() {
   const session = await auth();
@@ -49,7 +50,9 @@ export async function createThesis(formData: FormData) {
   const selectedProjectIds = formData.getAll("projects") as string[];
   const selectedPublicationIds = formData.getAll("publications") as string[];
 
-  await prisma.thesis.create({
+  const featured = formData.get("featured") === "true";
+
+  const thesis = await prisma.thesis.create({
     data: {
       title,
       slug,
@@ -66,6 +69,7 @@ export async function createThesis(formData: FormData) {
       progress: progressStr ? parseInt(progressStr, 10) : null,
       keywords: (formData.get("keywords") as string) || null,
       website: (formData.get("website") as string) || null,
+      featured,
       tags: formData.get("tags")
         ? (formData.get("tags") as string)
             .split(",")
@@ -83,6 +87,8 @@ export async function createThesis(formData: FormData) {
       },
     },
   });
+
+  await logAction("CREATE", "Thesis", thesis.id, thesis.slug, `Created thesis: ${thesis.title}`);
 
   revalidatePath("/theses");
   return { success: true };
@@ -112,7 +118,9 @@ export async function updateThesis(thesisId: string, formData: FormData) {
   const selectedProjectIds = formData.getAll("projects") as string[];
   const selectedPublicationIds = formData.getAll("publications") as string[];
 
-  await prisma.thesis.update({
+  const featured = formData.get("featured") === "true";
+
+  const thesis = await prisma.thesis.update({
     where: { id: thesisId },
     data: {
       title,
@@ -130,6 +138,7 @@ export async function updateThesis(thesisId: string, formData: FormData) {
       progress: progressStr ? parseInt(progressStr, 10) : null,
       keywords: (formData.get("keywords") as string) || null,
       website: (formData.get("website") as string) || null,
+      featured,
       tags: formData.get("tags")
         ? (formData.get("tags") as string)
             .split(",")
@@ -148,6 +157,8 @@ export async function updateThesis(thesisId: string, formData: FormData) {
     },
   });
 
+  await logAction("UPDATE", "Thesis", thesis.id, thesis.slug, `Updated thesis: ${thesis.title}`);
+
   revalidatePath("/theses");
   revalidatePath(`/theses/${slug}`);
   return { success: true };
@@ -156,9 +167,11 @@ export async function updateThesis(thesisId: string, formData: FormData) {
 export async function deleteThesis(thesisId: string) {
   await ensureEditorOrAdmin();
 
-  await prisma.thesis.delete({
+  const thesis = await prisma.thesis.delete({
     where: { id: thesisId },
   });
+
+  await logAction("DELETE", "Thesis", thesis.id, thesis.slug, `Deleted thesis: ${thesis.title}`);
 
   revalidatePath("/theses");
   return { success: true };

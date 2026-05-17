@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { logAction } from "@/lib/audit";
 
 export async function ensureEditorOrAdmin() {
   const session = await auth();
@@ -47,7 +48,7 @@ export async function createScholarship(formData: FormData) {
   const selectedMemberIds = formData.getAll("members") as string[];
   const selectedProjectIds = formData.getAll("projects") as string[];
 
-  await prisma.scholarship.create({
+  const scholarship = await prisma.scholarship.create({
     data: {
       title,
       slug,
@@ -73,6 +74,8 @@ export async function createScholarship(formData: FormData) {
       },
     },
   });
+
+  await logAction("CREATE", "Scholarship", scholarship.id, scholarship.slug, `Created scholarship: ${scholarship.title}`);
 
   revalidatePath("/scholarships");
   return { success: true };
@@ -100,7 +103,7 @@ export async function updateScholarship(scholarshipId: string, formData: FormDat
   const selectedMemberIds = formData.getAll("members") as string[];
   const selectedProjectIds = formData.getAll("projects") as string[];
 
-  await prisma.scholarship.update({
+  const scholarship = await prisma.scholarship.update({
     where: { id: scholarshipId },
     data: {
       title,
@@ -128,6 +131,8 @@ export async function updateScholarship(scholarshipId: string, formData: FormDat
     },
   });
 
+  await logAction("UPDATE", "Scholarship", scholarship.id, scholarship.slug, `Updated scholarship: ${scholarship.title}`);
+
   revalidatePath("/scholarships");
   revalidatePath(`/scholarships/${slug}`);
   return { success: true };
@@ -136,9 +141,11 @@ export async function updateScholarship(scholarshipId: string, formData: FormDat
 export async function deleteScholarship(scholarshipId: string) {
   await ensureEditorOrAdmin();
 
-  await prisma.scholarship.delete({
+  const scholarship = await prisma.scholarship.delete({
     where: { id: scholarshipId },
   });
+
+  await logAction("DELETE", "Scholarship", scholarship.id, scholarship.slug, `Deleted scholarship: ${scholarship.title}`);
 
   revalidatePath("/scholarships");
   return { success: true };

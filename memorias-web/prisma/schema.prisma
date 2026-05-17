@@ -108,6 +108,8 @@ model Member {
   notes               String?
   avatarUrl           String?
   tags                String[]
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @default(now()) @updatedAt
   
   // Relations
   user                User?
@@ -133,6 +135,9 @@ model Project {
   website          String?
 
   tags             String[]
+  featured         Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @default(now()) @updatedAt
 
   members          Member[]  @relation("ProjectMembers")
   theses           Thesis[]  @relation("ProjectTheses")
@@ -159,6 +164,9 @@ model Thesis {
   website          String?
 
   tags             String[]
+  featured         Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @default(now()) @updatedAt
 
   members          Member[]  @relation("ThesisMembers")
   projects         Project[] @relation("ProjectTheses")
@@ -179,6 +187,8 @@ model Scholarship {
   summary          String?
 
   tags             String[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @default(now()) @updatedAt
 
   members          Member[]  @relation("ScholarshipMembers")
   projects         Project[] @relation("ProjectScholarships")
@@ -202,6 +212,9 @@ model Publication {
   bibtexData       Json      
   
   tags             String[]
+  featured         Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @default(now()) @updatedAt
 
   members          Member[]  @relation("PublicationMembers")
   projects         Project[] @relation("ProjectPublications")
@@ -215,5 +228,17 @@ model SystemOption {
   createdAt DateTime @default(now())
 
   @@unique([listName, value])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  action     String   // e.g. "CREATE", "UPDATE", "DELETE"
+  entityType String   // e.g. "Member", "Project", "Thesis", "Scholarship", "Publication"
+  entityId   String
+  entitySlug String?
+  userId     String?
+  userEmail  String?
+  details    String?  // Description of edits/fields modified
+  createdAt  DateTime @default(now())
 }
 

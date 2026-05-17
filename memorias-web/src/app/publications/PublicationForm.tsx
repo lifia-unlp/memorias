@@ -125,6 +125,7 @@ export function PublicationForm({
   const [customEntryTags, setCustomEntryTags] = useState<Record<string, string>>(
     publication?.bibtexData?.entryTags || {}
   );
+  const [featured, setFeatured] = useState<boolean>(publication?.featured || false);
 
   // Relation selections
   const [selectedMembers, setSelectedMembers] = useState<string[]>(
@@ -252,6 +253,7 @@ export function PublicationForm({
       theses: selectedTheses,
       citationKey: citationKey || undefined,
       customEntryTags: Object.keys(filteredCustomTags).length > 0 ? filteredCustomTags : undefined,
+      featured,
     };
 
     startTransition(async () => {
@@ -630,6 +632,25 @@ export function PublicationForm({
                 placeholder="e.g. silva2025semantic"
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm font-mono"
               />
+            </div>
+
+            {/* Featured Paper Switcher */}
+            <div className="flex items-center gap-3 bg-primary/5 dark:bg-primary/10 border border-primary/10 p-4 rounded-xl">
+              <input
+                type="checkbox"
+                id="featured"
+                checked={featured}
+                onChange={(e) => setFeatured(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+              />
+              <div>
+                <label htmlFor="featured" className="block text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer">
+                  ⭐ Featured Publication
+                </label>
+                <span className="block text-[10px] text-muted leading-tight mt-0.5">
+                  Highlight this paper on the home page as part of the selected scientific bibliography feed.
+                </span>
+              </div>
             </div>
 
             {/* Dynamic Type-Specific Fields */}

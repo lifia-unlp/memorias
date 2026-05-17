@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
+import { logAction } from "@/lib/audit";
 
 // ---------------------------------------------------------
 // Helper: Clean and format individual BibTeX tag value
@@ -246,6 +247,7 @@ export async function createPublication(data: {
   theses?: string[];
   citationKey?: string;
   customEntryTags?: Record<string, string>;
+  featured?: boolean;
 }) {
   await verifyEditorOrAdmin();
 
@@ -297,13 +299,15 @@ export async function createPublication(data: {
         type,
         ranking: data.ranking?.trim() || null,
         selfArchivingUrl: data.selfArchivingUrl?.trim() || null,
-        tags: data.tags || [],
         bibtexData: bibtexData as any,
+        featured: data.featured || false,
         members: data.members ? { connect: data.members.map((id) => ({ id })) } : undefined,
         projects: data.projects ? { connect: data.projects.map((id) => ({ id })) } : undefined,
         theses: data.theses ? { connect: data.theses.map((id) => ({ id })) } : undefined,
       },
     });
+
+    await logAction("CREATE", "Publication", pub.id, pub.slug, `Created publication: ${pub.title}`);
 
     revalidatePath("/publications");
     return { success: true, slug: pub.slug };
@@ -327,6 +331,7 @@ export async function updatePublication(
     theses?: string[];
     citationKey?: string;
     customEntryTags?: Record<string, string>;
+    featured?: boolean;
   }
 ) {
   await verifyEditorOrAdmin();
@@ -368,7 +373,7 @@ export async function updatePublication(
   };
 
   try {
-    await prisma.publication.update({
+    const pub = await prisma.publication.update({
       where: { slug },
       data: {
         title,
@@ -379,6 +384,7 @@ export async function updatePublication(
         selfArchivingUrl: data.selfArchivingUrl?.trim() || null,
         tags: data.tags || [],
         bibtexData: bibtexData as any,
+        featured: data.featured || false,
         members: {
           set: data.members ? data.members.map((id) => ({ id })) : [],
         },
@@ -390,6 +396,8 @@ export async function updatePublication(
         },
       },
     });
+
+    await logAction("UPDATE", "Publication", pub.id, pub.slug, `Updated publication: ${pub.title}`);
 
     revalidatePath("/publications");
     revalidatePath(`/publications/${slug}`);
@@ -403,9 +411,11 @@ export async function deletePublication(id: string) {
   await verifyEditorOrAdmin();
 
   try {
-    await prisma.publication.delete({
+    const pub = await prisma.publication.delete({
       where: { id },
     });
+
+    await logAction("DELETE", "Publication", pub.id, pub.slug, `Deleted publication: ${pub.title}`);
 
     revalidatePath("/publications");
     return { success: true };

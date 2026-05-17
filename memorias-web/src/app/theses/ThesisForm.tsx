@@ -50,6 +50,7 @@ export function ThesisForm({
   const [isSlugOverridden, setIsSlugOverridden] = useState(
     initialData ? true : false
   );
+  const [featured, setFeatured] = useState<boolean>(initialData?.featured || false);
 
   // Multi-selection states
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(
@@ -115,6 +116,7 @@ export function ThesisForm({
 
     formData.delete("publications");
     selectedPublicationIds.forEach((id) => formData.append("publications", id));
+    formData.set("featured", String(featured));
 
     try {
       if (initialData) {
@@ -218,6 +220,25 @@ export function ThesisForm({
             <p className="text-[10px] text-muted leading-relaxed">
               Generates the URL `/theses/[slug]` for this thesis. Custom slugs are maintained unless reset.
             </p>
+          </div>
+
+          {/* Featured Thesis Switcher */}
+          <div className="md:col-span-2 flex items-center gap-3 bg-primary/5 dark:bg-primary/10 border border-primary/10 p-4 rounded-xl">
+            <input
+              type="checkbox"
+              id="featured"
+              checked={featured}
+              onChange={(e) => setFeatured(e.target.checked)}
+              className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+            />
+            <div>
+              <label htmlFor="featured" className="block text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer">
+                ⭐ Featured Thesis
+              </label>
+              <span className="block text-[10px] text-muted leading-tight mt-0.5">
+                Highlight this thesis on the home page as part of the selected scientific research feed.
+              </span>
+            </div>
           </div>
 
           <div className="space-y-1.5">

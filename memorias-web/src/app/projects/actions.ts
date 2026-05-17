@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { logAction } from "@/lib/audit";
 
 export async function ensureEditorOrAdmin() {
   const session = await auth();
@@ -50,7 +51,9 @@ export async function createProject(formData: FormData) {
 
   const selectedMemberIds = formData.getAll("members") as string[];
 
-  await prisma.project.create({
+  const featured = formData.get("featured") === "true";
+
+  const project = await prisma.project.create({
     data: {
       title,
       slug,
@@ -64,6 +67,7 @@ export async function createProject(formData: FormData) {
       amount: (formData.get("amount") as string) || null,
       summary: (formData.get("summary") as string) || null,
       website: (formData.get("website") as string) || null,
+      featured,
       tags: formData.get("tags")
         ? (formData.get("tags") as string)
             .split(",")
@@ -75,6 +79,8 @@ export async function createProject(formData: FormData) {
       },
     },
   });
+
+  await logAction("CREATE", "Project", project.id, project.slug, `Created project: ${project.title}`);
 
   revalidatePath("/projects");
   return { success: true };
@@ -105,7 +111,9 @@ export async function updateProject(projectId: string, formData: FormData) {
 
   const selectedMemberIds = formData.getAll("members") as string[];
 
-  await prisma.project.update({
+  const featured = formData.get("featured") === "true";
+
+  const project = await prisma.project.update({
     where: { id: projectId },
     data: {
       title,
@@ -120,6 +128,7 @@ export async function updateProject(projectId: string, formData: FormData) {
       amount: (formData.get("amount") as string) || null,
       summary: (formData.get("summary") as string) || null,
       website: (formData.get("website") as string) || null,
+      featured,
       tags: formData.get("tags")
         ? (formData.get("tags") as string)
             .split(",")
@@ -131,6 +140,8 @@ export async function updateProject(projectId: string, formData: FormData) {
       },
     },
   });
+
+  await logAction("UPDATE", "Project", project.id, project.slug, `Updated project: ${project.title}`);
 
   revalidatePath("/projects");
   revalidatePath(`/projects/${slug}`);
@@ -176,8 +187,10 @@ export async function deleteProject(projectId: string) {
 
   const project = await prisma.project.delete({
     where: { id: projectId },
-    select: { slug: true },
+    select: { id: true, title: true, slug: true },
   });
+
+  await logAction("DELETE", "Project", project.id, project.slug, `Deleted project: ${project.title}`);
 
   revalidatePath("/projects");
   return { success: true };

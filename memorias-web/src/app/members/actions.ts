@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { logAction } from "@/lib/audit";
 
 export async function ensureEditorOrAdmin() {
   const session = await auth();
@@ -46,7 +47,7 @@ export async function createMember(formData: FormData) {
   const startDateStr = formData.get("startDate") as string;
   const endDateStr = formData.get("endDate") as string;
 
-  await prisma.member.create({
+  const member = await prisma.member.create({
     data: {
       firstName,
       lastName,
@@ -85,6 +86,8 @@ export async function createMember(formData: FormData) {
     },
   });
 
+  await logAction("CREATE", "Member", member.id, member.slug, `Created member profile: ${member.firstName} ${member.lastName}`);
+
   revalidatePath("/members");
   return { success: true };
 }
@@ -109,7 +112,7 @@ export async function updateMember(memberId: string, formData: FormData) {
   const startDateStr = formData.get("startDate") as string;
   const endDateStr = formData.get("endDate") as string;
 
-  await prisma.member.update({
+  const member = await prisma.member.update({
     where: { id: memberId },
     data: {
       firstName,
@@ -148,6 +151,8 @@ export async function updateMember(memberId: string, formData: FormData) {
         : [],
     },
   });
+
+  await logAction("UPDATE", "Member", member.id, member.slug, `Updated member profile: ${member.firstName} ${member.lastName}`);
 
   revalidatePath("/members");
   revalidatePath(`/members/${slug}`);
@@ -208,8 +213,10 @@ export async function deleteMember(memberId: string) {
   // 3. Otherwise, perform the clean delete
   const member = await prisma.member.delete({
     where: { id: memberId },
-    select: { slug: true },
+    select: { id: true, firstName: true, lastName: true, slug: true },
   });
+
+  await logAction("DELETE", "Member", member.id, member.slug, `Deleted member profile: ${member.firstName} ${member.lastName}`);
 
   revalidatePath("/members");
   return { success: true };
