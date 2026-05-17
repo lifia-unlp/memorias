@@ -207,3 +207,13 @@ model Publication {
   projects         Project[] @relation("ProjectPublications")
   theses           Thesis[]  @relation("ThesisPublications")
 }
+
+model SystemOption {
+  id        String   @id @default(uuid())
+  listName  String   // Identified by: "positionAtLab" | "positionAtUnlp" | "positionAtCIC" | "positionAtCONICET" | "thesisLevel" | "scholarshipType"
+  value     String
+  createdAt DateTime @default(now())
+
+  @@unique([listName, value])
+}
+
