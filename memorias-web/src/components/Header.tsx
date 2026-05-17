@@ -66,6 +66,16 @@ export async function Header({ activeTab }: HeaderProps) {
               🎓 Theses
             </Link>
             <Link
+              href="/scholarships"
+              className={`px-3 py-1.5 rounded-lg transition-all ${
+                activeTab === "scholarships"
+                  ? "bg-primary/10 text-primary font-extrabold"
+                  : "hover:bg-slate-100 dark:hover:bg-slate-800"
+              }`}
+            >
+              🎫 Scholarships
+            </Link>
+            <Link
               href="/publications"
               className={`px-3 py-1.5 rounded-lg transition-all ${
                 activeTab === "publications"
