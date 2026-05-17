@@ -8,6 +8,112 @@ import { DeleteMemberButton } from "./DeleteMemberButton";
 
 type Params = Promise<{ slug: string }>;
 
+function formatAPA(pb: any): string {
+  try {
+    const bib = pb.bibtexData;
+    if (!bib || typeof bib !== "object") {
+      return `${pb.authors}. (${pb.year}). ${pb.title}.`;
+    }
+
+    const tags = (bib as any).entryTags || (bib as any).tags || bib;
+    
+    let authorsStr = pb.authors || tags.author || tags.authors || "";
+    if (authorsStr) {
+      const authorList = authorsStr.split(/\s+and\s+/i);
+      const formattedAuthors = authorList.map((auth: string) => {
+        const parts = auth.trim().split(",");
+        if (parts.length === 2) {
+          const last = parts[0].trim();
+          const firstParts = parts[1].trim().split(/\s+/);
+          const initials = firstParts.map(f => `${f.charAt(0).toUpperCase()}.`).join(" ");
+          return `${last}, ${initials}`;
+        } else {
+          const names = auth.trim().split(/\s+/);
+          if (names.length > 1) {
+            const last = names[names.length - 1];
+            const firstInitials = names.slice(0, names.length - 1).map(n => `${n.charAt(0).toUpperCase()}.`).join(" ");
+            return `${last}, ${firstInitials}`;
+          }
+          return auth.trim();
+        }
+      });
+      
+      if (formattedAuthors.length > 1) {
+        const lastAuth = formattedAuthors.pop();
+        authorsStr = `${formattedAuthors.join(", ")} & ${lastAuth}`;
+      } else {
+        authorsStr = formattedAuthors[0] || "";
+      }
+    }
+
+    const title = tags.title || pb.title || "";
+    const year = tags.year || pb.year || "";
+    const entryType = ((bib as any).entryType || (bib as any).type || pb.type || "").toLowerCase();
+
+    let citation = `${authorsStr} (${year}). ${title}. `;
+
+    if (entryType === "article") {
+      const journal = tags.journal || tags.journaltitle || "";
+      const volume = tags.volume || "";
+      const number = tags.number || "";
+      const pages = tags.pages || "";
+      if (journal) citation += `<em>${journal}</em>`;
+      if (volume) citation += `, <em>${volume}</em>`;
+      if (number) citation += `(${number})`;
+      if (pages) citation += `, ${pages}`;
+      citation += ".";
+    } else if (entryType === "inproceedings" || entryType === "conference") {
+      const booktitle = tags.booktitle || "";
+      const pages = tags.pages || "";
+      const publisher = tags.publisher || "";
+      if (booktitle) citation += `In <em>${booktitle}</em>`;
+      if (pages) citation += ` (pp. ${pages})`;
+      if (publisher) citation += `. ${publisher}`;
+      citation += ".";
+    } else if (entryType === "book") {
+      const publisher = tags.publisher || "";
+      const address = tags.address || "";
+      citation = `${authorsStr} (${year}). <em>${title}</em>. `;
+      if (address) citation += `${address}: `;
+      if (publisher) citation += `${publisher}.`;
+    } else if (entryType === "phdthesis" || entryType === "mastersthesis") {
+      const school = tags.school || "";
+      const typeLabel = entryType === "phdthesis" ? "Doctoral dissertation" : "Master's thesis";
+      citation += `(${typeLabel}, ${school}).`;
+    } else {
+      const howpublished = tags.howpublished || "";
+      const note = tags.note || "";
+      if (howpublished) citation += `${howpublished}. `;
+      if (note) citation += `${note}.`;
+    }
+
+    return citation;
+  } catch (err) {
+    return `${pb.authors}. (${pb.year}). ${pb.title}.`;
+  }
+}
+
+function jsonToBibtex(pb: any): string {
+  try {
+    const bib = pb.bibtexData;
+    if (!bib || typeof bib !== "object") return "";
+    const citationKey = (bib as any).citationKey || (bib as any).key || pb.slug || "citation";
+    const entryType = (bib as any).entryType || (bib as any).type || pb.type || "article";
+    const tags = (bib as any).entryTags || (bib as any).tags || bib;
+    
+    let str = `@${entryType}{${citationKey},\n`;
+    for (const [k, v] of Object.entries(tags)) {
+      if (k !== "citationKey" && k !== "entryType" && k !== "tags" && k !== "entryTags") {
+        str += `  ${k} = {${v}},\n`;
+      }
+    }
+    str += `}`;
+    return str;
+  } catch (e) {
+    return "";
+  }
+}
+
 export default async function MemberDetailPage({ params }: { params: Params }) {
   const session = await auth();
   const isEditorOrAdmin =
@@ -331,21 +437,35 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                 <span>📁</span> Associated Projects
               </h3>
               <div className="divide-y divide-border/60">
-                {projects.map((p) => (
-                  <div key={p.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
-                    <div>
-                      <Link href={`/projects/${p.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors block">
-                        {p.title}
-                      </Link>
-                      <span className="text-[10px] text-muted block mt-0.5">
-                        {p.startDate ? new Date(p.startDate).getFullYear() : "N/A"} — {p.endDate ? new Date(p.endDate).getFullYear() : "Present"}
-                      </span>
+                {projects.map((p) => {
+                  const role = getProjectRole(p);
+                  const dirName = p.director ? memberMap.get(p.director) : null;
+                  const coDirName = p.coDirector ? memberMap.get(p.coDirector) : null;
+                  return (
+                    <div key={p.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
+                      <div>
+                        <Link href={`/projects/${p.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors block">
+                          {p.title}
+                        </Link>
+                        <span className="text-[10px] text-muted block mt-0.5 leading-relaxed">
+                          {p.startDate ? new Date(p.startDate).getFullYear() : "N/A"} — {p.endDate ? new Date(p.endDate).getFullYear() : "Present"}
+                          {(dirName || coDirName) && (
+                            <span className="block mt-1 font-medium text-slate-500">
+                              {dirName && `Director: ${dirName}`}
+                              {dirName && coDirName && " | "}
+                              {coDirName && `Co-Director: ${coDirName}`}
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      {(role === "Director" || role === "Co-Director") && (
+                        <span className="text-[10px] uppercase font-black px-2.5 py-1 bg-secondary/15 text-secondary border border-secondary/20 rounded-lg shrink-0">
+                          {role}
+                        </span>
+                      )}
                     </div>
-                    <span className="text-[10px] uppercase font-black px-2.5 py-1 bg-secondary/15 text-secondary border border-secondary/20 rounded-lg shrink-0">
-                      {getProjectRole(p)}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -357,32 +477,54 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                 <span>🎓</span> Associated Theses
               </h3>
               <div className="divide-y divide-border/60">
-                {theses.map((t) => (
-                  <div key={t.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
-                    <div>
-                      <Link href={`/theses/${t.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors block">
-                        {t.title}
-                      </Link>
-                      <span className="text-[10px] text-muted block mt-0.5">
-                        Student: {t.student ? (memberMap.get(t.student) || t.student) : "N/A"}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3 shrink-0">
-                      {/* Progress bar indication */}
-                      {t.progress !== undefined && (
-                        <div className="hidden sm:flex items-center gap-2">
-                          <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden border border-border">
-                            <div className="bg-secondary h-full" style={{ width: `${t.progress}%` }}></div>
+                {theses.map((t) => {
+                  const tRole = getThesisRole(t);
+                  const tDirName = t.director ? memberMap.get(t.director) : null;
+                  const tCoDirName = t.coDirector ? memberMap.get(t.coDirector) : null;
+                  return (
+                    <div key={t.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
+                      <div>
+                        <Link href={`/theses/${t.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors block">
+                          {t.title}
+                        </Link>
+                        <span className="text-[10px] text-muted block mt-0.5 leading-relaxed">
+                          Student: {t.student ? (memberMap.get(t.student) || t.student) : "N/A"}
+                          <span className="block mt-1">
+                            {t.startDate ? new Date(t.startDate).getFullYear() : "N/A"} — {t.endDate ? new Date(t.endDate).getFullYear() : "Present"}
+                            {t.level && (
+                              <span className="ml-2 bg-slate-100 dark:bg-slate-800 text-slate-650 dark:text-slate-300 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+                                {t.level}
+                              </span>
+                            )}
+                          </span>
+                          {(tDirName || tCoDirName) && (
+                            <span className="block mt-1 font-medium text-slate-500">
+                              {tDirName && `Director: ${tDirName}`}
+                              {tDirName && tCoDirName && " | "}
+                              {tCoDirName && `Co-Director: ${tCoDirName}`}
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        {/* Progress bar indication */}
+                        {t.progress !== undefined && (
+                          <div className="hidden sm:flex items-center gap-2">
+                            <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden border border-border">
+                              <div className="bg-secondary h-full" style={{ width: `${t.progress}%` }}></div>
+                            </div>
+                            <span className="text-[10px] font-bold">{t.progress}%</span>
                           </div>
-                          <span className="text-[10px] font-bold">{t.progress}%</span>
-                        </div>
-                      )}
-                      <span className="text-[10px] uppercase font-black px-2.5 py-1 bg-primary/10 text-primary border border-primary/20 rounded-lg">
-                        {getThesisRole(t)}
-                      </span>
+                        )}
+                        {(tRole === "Director" || tRole === "Co-Director") && (
+                          <span className="text-[10px] uppercase font-black px-2.5 py-1 bg-primary/10 text-primary border border-primary/20 rounded-lg">
+                            {tRole}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -394,21 +536,37 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                 <span>🎫</span> Associated Scholarships
               </h3>
               <div className="divide-y divide-border/60">
-                {scholarships.map((s) => (
-                  <div key={s.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
-                    <div>
-                      <Link href={`/scholarships/${s.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors block">
-                        {s.title}
-                      </Link>
-                      <span className="text-[10px] text-muted block mt-0.5">
-                        Funding Agency: {s.fundingAgency || "N/A"}
-                      </span>
+                {scholarships.map((s) => {
+                  const sDirName = s.director ? memberMap.get(s.director) : null;
+                  const sCoDirName = s.coDirector ? memberMap.get(s.coDirector) : null;
+                  return (
+                    <div key={s.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
+                      <div>
+                        <Link href={`/scholarships/${s.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors block">
+                          {s.title}
+                        </Link>
+                        <span className="text-[10px] text-muted block mt-0.5 leading-relaxed">
+                          Funding Agency: {s.fundingAgency || "N/A"}
+                          <span className="block mt-1">
+                            {s.startDate ? new Date(s.startDate).getFullYear() : "N/A"} — {s.endDate ? new Date(s.endDate).getFullYear() : "Present"}
+                            {s.type && (
+                              <span className="ml-2 bg-slate-100 dark:bg-slate-800 text-slate-650 dark:text-slate-300 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
+                                {s.type}
+                              </span>
+                            )}
+                          </span>
+                          {(sDirName || sCoDirName) && (
+                            <span className="block mt-1 font-medium text-slate-500">
+                              {sDirName && `Director: ${sDirName}`}
+                              {sDirName && sCoDirName && " | "}
+                              {sCoDirName && `Co-Director: ${sCoDirName}`}
+                            </span>
+                          )}
+                        </span>
+                      </div>
                     </div>
-                    <span className="text-[10px] uppercase font-black px-2.5 py-1 bg-slate-100 text-slate-600 border border-slate-200 rounded-lg shrink-0">
-                      Scholar
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -420,26 +578,60 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                 <span>📚</span> Bibliography / Publications
               </h3>
               <div className="divide-y divide-border/60">
-                {publications.map((pb) => (
-                  <div key={pb.id} className="py-3.5 first:pt-0 last:pb-0 space-y-1">
-                    <Link href={`/publications/${pb.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors block leading-tight">
-                      {pb.title}
-                    </Link>
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-muted font-medium">
-                      <span>{pb.authors || "N/A"}</span>
-                      <span className="text-slate-300">•</span>
-                      <span className="font-bold text-secondary">{pb.year}</span>
-                      {pb.type && (
-                        <>
+                {publications.map((pb) => {
+                  const hasBibtex = pb.bibtexData && typeof pb.bibtexData === "object" && Object.keys(pb.bibtexData).length > 0;
+                  const bibString = jsonToBibtex(pb);
+                  const bibDownloadUrl = bibString ? `data:text/plain;charset=utf-8,${encodeURIComponent(bibString)}` : "";
+                  return (
+                    <div key={pb.id} className="py-3.5 first:pt-0 last:pb-0 space-y-2">
+                      <Link href={`/publications/${pb.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors block leading-tight">
+                        {pb.title}
+                      </Link>
+                      {hasBibtex ? (
+                        <div
+                          className="text-xs text-slate-650 dark:text-slate-300 leading-relaxed font-serif bg-slate-50/50 dark:bg-slate-800/20 p-2.5 rounded-xl border border-slate-100 dark:border-slate-805"
+                          dangerouslySetInnerHTML={{ __html: formatAPA(pb) }}
+                        />
+                      ) : (
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-muted font-medium">
+                          <span>{pb.authors || "N/A"}</span>
                           <span className="text-slate-300">•</span>
-                          <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500 font-bold uppercase tracking-wider text-[8px]">
-                            {pb.type}
-                          </span>
-                        </>
+                          <span className="font-bold text-secondary">{pb.year}</span>
+                          {pb.type && (
+                            <>
+                              <span className="text-slate-300">•</span>
+                              <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500 font-bold uppercase tracking-wider text-[8px]">
+                                {pb.type}
+                              </span>
+                            </>
+                          )}
+                        </div>
                       )}
+                      
+                      <div className="flex items-center gap-4 text-[10px] font-bold uppercase">
+                        {hasBibtex && bibDownloadUrl && (
+                          <a
+                            href={bibDownloadUrl}
+                            download={`${pb.slug}.bib`}
+                            className="text-primary hover:text-primary-hover flex items-center gap-1 cursor-pointer"
+                          >
+                            📥 Download BibTeX
+                          </a>
+                        )}
+                        {pb.selfArchivingUrl && (
+                          <a
+                            href={pb.selfArchivingUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-secondary hover:text-secondary-hover flex items-center gap-1 cursor-pointer"
+                          >
+                            📄 Self-Archived PDF
+                          </a>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
