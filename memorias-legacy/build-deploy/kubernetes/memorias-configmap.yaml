@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: memorias-config
+  labels:
+    app: memorias
+data:
+  DB_HOST: "mongo-memorias-0.mongo-memorias"
+  DB: "lifiometro"
+  DEBUG: "false"
+  EMAILS_SENDER: "someuser@somedomain.com"
+  ERROR_EMAILS_TO: "someuser@somedomain.com"
+  SUPERADMIN_EMAIL: "someuser@somedomain.com"

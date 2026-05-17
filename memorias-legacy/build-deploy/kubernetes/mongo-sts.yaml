@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo-memorias  
+spec:
+  podManagementPolicy: Parallel
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: mongo-memorias
+  serviceName: mongo-memorias
+  template:
+    metadata:      
+      labels:
+        app: mongo-memorias
+    spec:
+      containers:
+        - image: 'mongo:4.4'
+          imagePullPolicy: IfNotPresent          
+          name: mongo-memorias
+          ports:
+            - containerPort: 27017
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /data/db
+              name: mongo-memorias
+  volumeClaimTemplates:
+    - metadata:        
+        name: mongo-memorias
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi

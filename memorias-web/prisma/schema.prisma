@@ -1,0 +1,166 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  firstName     String?
+  lastName      String?
+  role          Role      @default(USER) // ADMIN or USER
+  active        Boolean   @default(false) // Must be activated by admin
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Member {
+  id                  String    @id @default(uuid())
+  firstName           String
+  lastName            String
+  // Slugs provide stable, meaningful URLs and can be manually edited
+  slug                String    @unique
+  
+  // Date types map perfectly to UI Date Pickers
+  startDate           DateTime? @db.Date
+  endDate             DateTime? @db.Date
+  
+  // Professional Details
+  highestDegree       String?
+  coursesAtUNLP       String?
+  positionAtLab       String? // Configurable list
+  positionAtUnlp      String? // Configurable list
+  category            String?
+  sicadiCategory      String?
+  positionAtCIC       String? // Configurable list
+  positionAtCONICET   String? // Configurable list
+  
+  // Contact & Social
+  personalEmail       String?
+  institutionalEmail  String?
+  phone               String?
+  webPage             String?
+  orcid               String?
+  dblpProfile         String?
+  googleResearchProfile String?
+  researchGateProfile String?
+  
+  // Bios
+  shortCvInSpanish    String?
+  shortCvInEnglish    String?
+  interestsInEnglish  String?
+  interestsInSpanish  String?
+  affiliations        String?
+  notes               String?
+  avatarUrl           String?
+  tags                String[]
+  
+  // Relations
+  projects            Project[] @relation("ProjectMembers")
+  theses              Thesis[]  @relation("ThesisMembers")
+  scholarships        Scholarship[] @relation("ScholarshipMembers")
+  publications        Publication[] @relation("PublicationMembers")
+}
+
+model Project {
+  id               String    @id @default(uuid())
+  title            String
+  code             String?
+  slug             String    @unique
+  startDate        DateTime? @db.Date
+  endDate          DateTime? @db.Date
+  director         String?
+  coDirector       String?
+  responsibleGroup String?
+  fundingAgency    String?
+  amount           String?
+  summary          String?
+  website          String?
+
+  tags             String[]
+
+  members          Member[]  @relation("ProjectMembers")
+  theses           Thesis[]  @relation("ProjectTheses")
+  scholarships     Scholarship[] @relation("ProjectScholarships")
+  publications     Publication[] @relation("ProjectPublications")
+}
+
+model Thesis {
+  id               String    @id @default(uuid())
+  title            String
+  slug             String    @unique
+  career           String?
+  level            String?   // Configurable list (e.g. PhD, Masters, Grade)
+  student          String?
+  director         String?
+  coDirector       String?
+  otherAdvisors    String?
+  startDate        DateTime? @db.Date
+  endDate          DateTime? @db.Date
+  summary          String?
+  reportUrl        String?
+  progress         Int?      // 10, 20, ..., 100 (representing % in steps of 10)
+  keywords         String?
+  website          String?
+
+  tags             String[]
+
+  members          Member[]  @relation("ThesisMembers")
+  projects         Project[] @relation("ProjectTheses")
+  publications     Publication[] @relation("ThesisPublications")
+}
+
+model Scholarship {
+  id               String    @id @default(uuid())
+  title            String
+  slug             String    @unique
+  type             String?   // Configurable list
+  student          String?
+  director         String?
+  coDirector       String?
+  fundingAgency    String?
+  startDate        DateTime? @db.Date
+  endDate          DateTime? @db.Date
+  summary          String?
+
+  tags             String[]
+
+  members          Member[]  @relation("ScholarshipMembers")
+  projects         Project[] @relation("ProjectScholarships")
+}
+
+model Publication {
+  id               String    @id @default(uuid())
+  slug             String    @unique
+  
+  // We duplicate core BibTex fields here for fast indexing, sorting, and filtering
+  type             String    // article, inproceedings, etc.
+  title            String
+  authors          String
+  year             Int
+  
+  // Extra fields that aren't standard in BibTex
+  ranking          String?
+  selfArchivingUrl String?
+  
+  // The complete, original Bibtex data backing this publication
+  bibtexData       Json      
+  
+  tags             String[]
+
+  members          Member[]  @relation("PublicationMembers")
+  projects         Project[] @relation("ProjectPublications")
+  theses           Thesis[]  @relation("ThesisPublications")
+}

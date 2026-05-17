@@ -1,0 +1,35 @@
+# Dependencies
+/memorias-web/node_modules
+/memorias-web/.pnp
+/memorias-web/.pnp.js
+
+# Testing
+/memorias-web/coverage
+
+# Next.js build output
+/memorias-web/.next/
+/memorias-web/out/
+
+# Production / local environment variables
+/memorias-web/.env
+/memorias-web/.env.local
+/memorias-web/.env.development.local
+/memorias-web/.env.test.local
+/memorias-web/.env.production.local
+
+# Prisma
+/memorias-web/prisma/*.db
+/memorias-web/prisma/*.db-journal
+
+# OS files
+.DS_Store
+*.pem
+
+# IDEs and editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

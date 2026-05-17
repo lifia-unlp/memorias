@@ -1,0 +1,15 @@
+# run with docker-compose up -d
+
+version: "3.9"  
+services:
+  web:
+    image: memorias:latest
+    restart: unless-stopped
+    read_only: true
+    environment: 
+      DB_HOST: your-mongodb-server-ip
+      DB: lifiometro
+      DEBUG: true   
+    ports:
+        - "8080:8080"
+

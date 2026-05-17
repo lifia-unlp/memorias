@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: memorias
+  name: memorias
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     app: memorias        
+  template:
+    metadata:            
+      labels:
+        app: memorias        
+    spec:
+      initContainers:
+        - name: wait-for-mongo
+          image: busybox:1.36
+          envFrom:
+            - configMapRef:
+                name: memorias-config
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for MongoDB at ${DB_HOST}:27017..."
+              until nc -z -w 2 ${DB_HOST} 27017; do
+                echo "Mongo not ready yet; sleeping..."
+                sleep 10
+              done
+              echo "Mongo is reachable."
+      containers:
+        - name: memorias
+          image: cientopolis/memorias:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP     
+          envFrom:
+            - configMapRef:
+                name: memorias-config
+            - secretRef:
+                name: memorias-secret
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+            successThreshold: 1
+
