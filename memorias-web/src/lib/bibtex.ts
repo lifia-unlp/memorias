@@ -93,6 +93,15 @@ export function formatAPA(pb: any): string {
       if (note) citation += `${note}.`;
     }
 
+    const doi = getBibtexString(tags.doi) || getBibtexString(tags.DOI) || "";
+    if (doi) {
+      let doiUrl = doi.trim();
+      if (!doiUrl.startsWith("http")) {
+        doiUrl = `https://doi.org/${doiUrl}`;
+      }
+      citation += ` DOI: <a href="${doiUrl}" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline font-mono text-xs">${doiUrl}</a>`;
+    }
+
     return citation;
   } catch (err) {
     return `${pb.authors}. (${pb.year}). ${pb.title}.`;
