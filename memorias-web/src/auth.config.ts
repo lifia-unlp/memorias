@@ -21,8 +21,6 @@ export default {
       if (user) {
         token.role = user.role;
         token.active = user.active;
-        token.firstName = user.firstName;
-        token.lastName = user.lastName;
         token.id = user.id;
       }
       return token;
@@ -31,8 +29,6 @@ export default {
       if (session.user && token) {
         session.user.role = token.role as "USER" | "ADMIN" | undefined;
         session.user.active = token.active as boolean | undefined;
-        session.user.firstName = token.firstName as string | null | undefined;
-        session.user.lastName = token.lastName as string | null | undefined;
         session.user.id = token.id as string;
       }
       return session;

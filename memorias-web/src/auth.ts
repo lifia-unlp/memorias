@@ -13,8 +13,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (session.user && token) {
         session.user.role = token.role as "USER" | "ADMIN" | undefined;
         session.user.active = token.active as boolean | undefined;
-        session.user.firstName = token.firstName as string | null | undefined;
-        session.user.lastName = token.lastName as string | null | undefined;
         session.user.id = token.sub as string;
       }
       
@@ -23,14 +21,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (session.user && token.sub) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
-          select: { role: true, active: true, firstName: true, lastName: true },
+          select: { role: true, active: true },
         });
         
         if (dbUser) {
           session.user.role = dbUser.role;
           session.user.active = dbUser.active;
-          session.user.firstName = dbUser.firstName;
-          session.user.lastName = dbUser.lastName;
         }
       }
       return session;
@@ -39,15 +35,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   events: {
     async createUser({ user }) {
       if (user.id) {
-        // Split full name into firstName and lastName if present
-        let firstName = "";
-        let lastName = "";
-        if (user.name) {
-          const parts = user.name.trim().split(/\s+/);
-          firstName = parts[0] || "";
-          lastName = parts.slice(1).join(" ") || "";
-        }
-
         const count = await prisma.user.count();
         const role = count === 1 ? "ADMIN" : "USER";
         const active = count === 1 ? true : false;
@@ -57,11 +44,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           data: {
             role,
             active,
-            firstName: firstName || null,
-            lastName: lastName || null,
           },
         });
-        console.log(`🎉 Registered user: ${user.email} (Role: ${role}, Active: ${active}, First: ${firstName}, Last: ${lastName})`);
+        console.log(`🎉 Registered user: ${user.email} (Role: ${role}, Active: ${active})`);
       }
     },
   },
