@@ -1,9 +1,10 @@
 import React from "react";
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { DeleteProjectButton } from "./DeleteProjectButton";
+import { Header } from "@/components/Header";
 
 type Params = Promise<{ slug: string }>;
 
@@ -72,65 +73,11 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
-      {/* Premium Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-surface/90 border-b border-border shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link
-              href="/"
-              className="text-base font-extrabold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent hover:opacity-80 transition-all"
-            >
-              🚀 LIFIA Portal
-            </Link>
-            <nav className="hidden md:flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300">
-              <Link href="/members" className="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
-                👥 Members
-              </Link>
-              <Link href="/projects" className="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
-                📁 Projects
-              </Link>
-            </nav>
-          </div>
+      {/* Unified Navigation Header */}
+      <Header activeTab="projects" />
 
-          <div className="flex items-center gap-4">
-            {session ? (
-              <div className="flex items-center gap-3">
-                <div className="text-right hidden sm:block">
-                  <span className="block text-xs font-bold text-slate-800 dark:text-slate-200">
-                    {session.user?.name}
-                  </span>
-                  <span className="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
-                    ⚡ {session.user?.role}
-                  </span>
-                </div>
-                <form
-                  action={async () => {
-                    "use server";
-                    await signOut({ redirectTo: "/" });
-                  }}
-                >
-                  <button
-                    type="submit"
-                    className="text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3.5 py-1.5 rounded-xl border border-border transition-all cursor-pointer"
-                  >
-                    Sign Out
-                  </button>
-                </form>
-              </div>
-            ) : (
-              <Link
-                href="/auth/signin"
-                className="text-xs font-bold bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-xl shadow-md transition-all cursor-pointer"
-              >
-                Sign In
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* Decorative Title Banner */}
-      <section className="relative overflow-hidden bg-primary text-white py-12 px-6 shadow-inner border-b border-blue-700">
+      {/* Title Banner (Gradient aligned with Members page) */}
+      <section className="bg-gradient-to-br from-primary to-primary-hover text-white py-12 px-6 shadow-inner relative overflow-hidden border-b border-blue-700/20">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
