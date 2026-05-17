@@ -31,7 +31,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       // Map fields from the JWT token (populated in the jwt callback above)
       if (session.user && token) {
-        session.user.role = token.role as "USER" | "ADMIN" | undefined;
+        session.user.role = token.role as "USER" | "EDITOR" | "ADMIN" | undefined;
         session.user.active = token.active as boolean | undefined;
         session.user.id = token.sub as string;
       }

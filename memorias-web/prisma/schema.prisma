@@ -13,7 +13,7 @@ model User {
   id            String    @id @default(uuid())
   email         String    @unique
   name          String?
-  role          Role      @default(USER) // ADMIN or USER
+  role          Role      @default(USER)
   active        Boolean   @default(false) // Must be activated by admin
   emailVerified DateTime?
   image         String?
@@ -29,6 +29,7 @@ model User {
 
 enum Role {
   USER
+  EDITOR
   ADMIN
 }
 

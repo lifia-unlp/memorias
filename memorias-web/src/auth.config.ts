@@ -27,7 +27,7 @@ export default {
     },
     session({ session, token }) {
       if (session.user && token) {
-        session.user.role = token.role as "USER" | "ADMIN" | undefined;
+        session.user.role = token.role as "USER" | "EDITOR" | "ADMIN" | undefined;
         session.user.active = token.active as boolean | undefined;
         session.user.id = token.id as string;
       }
