@@ -122,17 +122,23 @@ export default async function AdminUsersPage() {
                           const newRole = formData.get("role") as "USER" | "EDITOR" | "ADMIN";
                           await updateUserRole(u.id, newRole);
                         }}
+                        className="flex items-center gap-2"
                       >
                         <select
                           name="role"
                           defaultValue={u.role}
-                          onChange={(e) => e.target.form?.requestSubmit()}
                           className="bg-background text-foreground text-xs font-bold border border-border px-3 py-1.5 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                         >
                           <option value="USER">USER</option>
                           <option value="EDITOR">EDITOR</option>
                           <option value="ADMIN">ADMIN</option>
                         </select>
+                        <button
+                          type="submit"
+                          className="text-[10px] uppercase font-extrabold px-2.5 py-1.5 bg-primary/10 text-primary border border-primary/20 rounded-lg hover:bg-primary/20 transition-all cursor-pointer"
+                        >
+                          Save
+                        </button>
                       </form>
                     </td>
 
