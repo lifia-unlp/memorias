@@ -4,13 +4,22 @@ import { auth } from "@/auth";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/Header";
-import { formatAPA, jsonToBibtex } from "@/lib/bibtex";
+import { jsonToBibtex } from "@/lib/bibtex";
 import { CopyBibtexButton } from "./CopyBibtexButton";
 import { DeletePublicationButton } from "./DeletePublicationButton";
+import { formatCitation, SUPPORTED_STYLES } from "@/lib/citations";
+import { CopyCitationButton } from "../CopyCitationButton";
 
 type Params = Promise<{ slug: string }>;
+type SearchParams = Promise<{ style?: string }>;
 
-export default async function PublicationDetailPage({ params }: { params: Params }) {
+export default async function PublicationDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams: SearchParams;
+}) {
   const session = await auth();
   const isEditorOrAdmin =
     session?.user?.active &&
@@ -18,6 +27,8 @@ export default async function PublicationDetailPage({ params }: { params: Params
 
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
+  const resolvedSearchParams = await searchParams;
+  const styleFilter = resolvedSearchParams.style || "apa";
 
   // Query publication and related entities
   const pb = await prisma.publication.findUnique({
@@ -54,7 +65,7 @@ export default async function PublicationDetailPage({ params }: { params: Params
     notFound();
   }
 
-  const apaHtml = formatAPA(pb);
+  const citation = formatCitation(pb, styleFilter);
   const bibString = jsonToBibtex(pb);
 
   return (
@@ -85,14 +96,36 @@ export default async function PublicationDetailPage({ params }: { params: Params
         {/* Left Column: APA formatting & BibTeX container */}
         <div className="flex-1 space-y-6">
           
-          {/* APA Box */}
-          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-3xl shadow-sm space-y-3">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-              APA Style Bibliography
-            </h3>
+          {/* Citation Style Box */}
+          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-3xl shadow-sm space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                Bibliography Reference
+              </h3>
+              <div className="flex items-center gap-3">
+                <form method="GET" className="flex items-center gap-1.5">
+                  <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                    Format:
+                  </label>
+                  <select
+                    name="style"
+                    defaultValue={styleFilter}
+                    onChange={(e) => e.target.form?.submit()}
+                    className="px-2 py-1 text-[11px] font-semibold bg-slate-50 dark:bg-slate-950 border border-border rounded-lg focus:outline-none text-slate-700 dark:text-slate-350 cursor-pointer"
+                  >
+                    {SUPPORTED_STYLES.map((st) => (
+                      <option key={st.value} value={st.value}>
+                        {st.label}
+                      </option>
+                    ))}
+                  </select>
+                </form>
+                <CopyCitationButton textToCopy={citation.text} />
+              </div>
+            </div>
             <div
               className="text-base text-slate-800 dark:text-slate-100 leading-relaxed font-medium"
-              dangerouslySetInnerHTML={{ __html: apaHtml }}
+              dangerouslySetInnerHTML={{ __html: citation.html }}
             />
           </div>
 

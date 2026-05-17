@@ -3,10 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import Link from "next/link";
 import { Header } from "@/components/Header";
-import { formatAPA, jsonToBibtex } from "@/lib/bibtex";
+import { jsonToBibtex } from "@/lib/bibtex";
+import { formatCitation, SUPPORTED_STYLES } from "@/lib/citations";
+import { CopyCitationButton } from "./CopyCitationButton";
 
 type Params = Promise<{}>;
-type SearchParams = Promise<{ q?: string; type?: string; year?: string }>;
+type SearchParams = Promise<{ q?: string; type?: string; year?: string; style?: string }>;
 
 export default async function PublicationsPage(props: {
   params: Params;
@@ -21,6 +23,7 @@ export default async function PublicationsPage(props: {
   const q = resolvedSearchParams.q || "";
   const typeFilter = resolvedSearchParams.type || "all";
   const yearFilter = resolvedSearchParams.year || "all";
+  const styleFilter = resolvedSearchParams.style || "apa";
 
   // Fetch unique years for filters
   const distinctYears = await prisma.publication.findMany({
@@ -128,6 +131,18 @@ export default async function PublicationsPage(props: {
               ))}
             </select>
 
+            <select
+              name="style"
+              defaultValue={styleFilter}
+              className="w-full sm:w-44 px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-border rounded-xl focus:outline-none text-slate-700 dark:text-slate-200 font-medium"
+            >
+              {SUPPORTED_STYLES.map((st) => (
+                <option key={st.value} value={st.value}>
+                  {st.label}
+                </option>
+              ))}
+            </select>
+
             <button
               type="submit"
               className="w-full sm:w-auto bg-primary hover:bg-primary-hover text-white font-bold text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm text-center"
@@ -135,7 +150,7 @@ export default async function PublicationsPage(props: {
               Filter
             </button>
             
-            {(q || typeFilter !== "all" || yearFilter !== "all") && (
+            {(q || typeFilter !== "all" || yearFilter !== "all" || styleFilter !== "apa") && (
               <Link
                 href="/publications"
                 className="w-full sm:w-auto text-center px-4 py-2.5 text-xs text-muted hover:text-slate-700 dark:hover:text-white font-bold transition-all"
@@ -158,7 +173,7 @@ export default async function PublicationsPage(props: {
         ) : (
           <div className="space-y-4">
             {publications.map((pb) => {
-              const apaHtml = formatAPA(pb);
+              const citation = formatCitation(pb, styleFilter);
               const bibString = jsonToBibtex(pb);
               const bibDownloadUrl = bibString
                 ? `data:text/plain;charset=utf-8,${encodeURIComponent(bibString)}`
@@ -170,10 +185,10 @@ export default async function PublicationsPage(props: {
                   className="bg-white dark:bg-slate-900 border border-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row md:items-start justify-between gap-4"
                 >
                   <div className="space-y-3 flex-1">
-                    {/* APA Citation Line */}
+                    {/* Dynamic Citation Line */}
                     <div
                       className="text-sm leading-relaxed text-slate-800 dark:text-slate-100"
-                      dangerouslySetInnerHTML={{ __html: apaHtml }}
+                      dangerouslySetInnerHTML={{ __html: citation.html }}
                     />
 
                     {/* Meta Indicators (Type, Ranking, Tags) */}
@@ -197,7 +212,7 @@ export default async function PublicationsPage(props: {
                     </div>
 
                     {/* Low-case action links */}
-                    <div className="flex items-center gap-4 text-xs font-bold pt-1.5">
+                    <div className="flex flex-wrap items-center gap-4 text-xs font-bold pt-1.5">
                       {pb.selfArchivingUrl && (
                         <a
                           href={pb.selfArchivingUrl}
@@ -223,6 +238,9 @@ export default async function PublicationsPage(props: {
                       >
                         🔍 Details
                       </Link>
+
+                      {/* Interactive Clipboard Copy */}
+                      <CopyCitationButton textToCopy={citation.text} />
                     </div>
                   </div>
 
