@@ -463,7 +463,7 @@ app.get("/sse", async (req, res) => {
   console.log(`[LIFIA MCP] SSE transport connected. Session ID: ${transport.sessionId}`);
 });
 
-app.post("/messages", async (req, res) => {
+app.post("/messages", express.json(), async (req, res) => {
   const sessionId = req.query.sessionId as string;
   console.log(`[LIFIA MCP] POST message received for session: ${sessionId}`);
   const transport = transports[sessionId];
