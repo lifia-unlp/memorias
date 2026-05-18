@@ -21,6 +21,9 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
-# Expose CMD (MCP uses stdio by default)
+# Expose web server port
+EXPOSE 3001
+ENV PORT=3001
+
+# Run the SSE web server
 CMD ["node", "dist/index.js"]
-```

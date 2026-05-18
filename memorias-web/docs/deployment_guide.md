@@ -242,63 +242,73 @@ After running either option, log into the dashboard at `http://your-server-ip:30
 
 ---
 
-## 🤖 Step 6: Deploying and Sharing the MCP Server (AI Interface)
+## 🤖 Step 6: Exposing and Sharing the MCP Server over the Web (SSE Mode)
 
-Your Model Context Protocol (MCP) server connects AI agents directly to the PostgreSQL database. There are two recommended ways to deploy and share this server with your colleagues at **LIFIA**:
+Your Model Context Protocol (MCP) server natively runs as a **Server-Sent Events (SSE)** web service. This means it listens on port `3001` as an HTTP server, allowing any authorized or public AI client (like a colleague's local Claude Desktop, a remote ChatGPT agent, or an open-data research bot) to converse with the **LIFIA** database securely over standard web protocols!
 
-### Option A: Local Run with Remote DB Connection (Simplest & Recommended)
-Each colleague runs the MCP server locally on their own laptop, but configures it to talk to the **production database** on your Proxmox server.
+### 1. Build and Run the Docker Image on Proxmox
+On your Ubuntu/Proxmox server, you can easily build and run the MCP web service as a Docker container:
 
-1. **Ensure Proxmox Postgres is accessible**:
-   Ensure that the PostgreSQL container exposes port `5432` to the network, and that your firewall allows connections from your colleagues' IPs.
-2. **Colleague Local Configuration**:
-   Each colleague clones the repository, runs `npm install && npm run build` inside `memorias-mcp`, and edits their local `claude_desktop_config.json` pointing to their local folder but using the **production Postgres connection string**:
-   ```json
-   {
-     "mcpServers": {
-       "memorias-mcp-prod": {
-         "command": "node",
-         "args": [
-           "/absolute/path/to/memorias-mcp/dist/index.js"
-         ],
-         "env": {
-           "DATABASE_URL": "postgresql://postgres:postgres_secure_pwd@<your-proxmox-ip>:5432/memorias?schema=public",
-           "LAB_NAME": "LIFIA"
-         }
-       }
-     }
-   }
-   ```
+```bash
+# 1. Navigate to your MCP directory
+cd /opt/memorias/memorias-mcp
+
+# 2. Build the lightweight production Docker image
+sudo docker build -t memorias-mcp .
+
+# 3. Spin up the container, binding port 3001 and connecting to your Postgres container
+sudo docker run -d \
+  --name memorias-mcp-server \
+  --network opt_memorias_default \
+  -p 3001:3001 \
+  -e DATABASE_URL=postgresql://postgres:postgres_secure_pwd@db:5432/memorias?schema=public \
+  -e LAB_NAME=LIFIA \
+  --restart always \
+  memorias-mcp
+```
+*(Note: Replace `opt_memorias_default` with the name of the Docker Compose network created by your main `docker-compose.yml` so the MCP container can resolve the database hostname `@db` directly).*
 
 ---
 
-### Option B: Highly Secure Deployment via Docker & SSH Tunneling (Advanced)
-If you want to host the server centrally on Proxmox, you can compile it into a Docker image, and let your colleagues connect to it **over secure SSH**. This avoids exposing port 5432 or opening any ports to the public internet!
+### 2. Configure Nginx Reverse Proxy (Exposing to the Web)
+To make the database securely queryable over the public web under SSL, add a reverse proxy block to your Nginx configuration on Proxmox:
 
-1. **Build the Docker Image on Proxmox**:
-   Inside `/opt/memorias/memorias-mcp/`, build the production docker image:
-   ```bash
-   sudo docker build -t memorias-mcp .
-   ```
+```nginx
+server {
+    server_name mcp.lifia.info.unlp.edu.ar;
 
-2. **Colleague Local Configuration over SSH**:
-   Since MCP communicates over standard input/output (stdio), your colleagues can run the container remotely on the server using **SSH interactive piping**!
-   They simply configure their local `claude_desktop_config.json` like this:
-   ```json
-   {
-     "mcpServers": {
-       "memorias-mcp-ssh": {
-         "command": "ssh",
-         "args": [
-           "-t",
-           "user@<your-proxmox-ip>",
-           "docker run -i --rm -e DATABASE_URL=postgresql://postgres:postgres_secure_pwd@db:5432/memorias?schema=public -e LAB_NAME=LIFIA memorias-mcp"
-         ]
-       }
-     }
-   }
-   ```
-   *Note: Ensure your colleagues have SSH keys configured on the Proxmox server for seamless passwordless authentication.*
+    location / {
+        proxy_pass http://localhost:3001;
+        proxy_set_header Connection '';
+        proxy_http_version 1.1;
+        chunked_transfer_encoding off;
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+*(Crucial Note: Server-Sent Events require keeping the connection open, so `proxy_set_header Connection '';` and turning off proxy buffering/caching are essential settings!)*
 
-This delivers a state-of-the-art, secure, and incredibly powerful conversational AI interface for your entire research group!
+---
+
+### 3. How Colleagues Connect to the Web MCP Server
+Once exposed on the web under your URL, anyone can register your public LIFIA database inside their Claude Desktop client in a single second by pointing directly to the HTTP SSE endpoint!
+
+They simply add this to their `claude_desktop_config.json`:
+```json
+{
+  "mcpServers": {
+    "lifia-public-mcp": {
+      "url": "https://mcp.lifia.info.unlp.edu.ar/sse"
+    }
+  }
+}
+```
+
+That's it! When they open Claude, it automatically connects to your public web server, streams your dynamic **LIFIA** tool schemas, and lets them converse with the live academic database in real-time with zero local setup!
+
 
