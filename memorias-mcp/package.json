@@ -1,0 +1,25 @@
+{
+  "name": "memorias-mcp",
+  "version": "1.0.0",
+  "description": "MCP Server for the Memorias Research Portal database",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.6.0",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "dotenv": "^16.4.5",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "@types/pg": "^8.11.2",
+    "prisma": "^7.8.0",
+    "tsx": "^4.22.1",
+    "typescript": "^5.3.3"
+  }
+}
