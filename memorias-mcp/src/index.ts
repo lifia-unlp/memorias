@@ -7,6 +7,8 @@ import {
   ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { PrismaClient } from "@prisma/client";
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -24,7 +26,9 @@ if (!connectionString) {
 
 const labName = process.env.LAB_NAME || "LIFIA";
 
-const prisma = new PrismaClient();
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 // Instantiate MCP Server
 const server = new Server(
