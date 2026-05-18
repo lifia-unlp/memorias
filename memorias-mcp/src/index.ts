@@ -7,8 +7,6 @@ import {
   ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { PrismaClient } from "@prisma/client";
-import { Pool } from "pg";
-import { PrismaPg } from "@prisma/adapter-pg";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -26,9 +24,7 @@ if (!connectionString) {
 
 const labName = process.env.LAB_NAME || "LIFIA";
 
-const pool = new Pool({ connectionString });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 // Instantiate MCP Server
 const server = new Server(
@@ -463,7 +459,7 @@ app.get("/sse", async (req, res) => {
   console.log(`[LIFIA MCP] SSE transport connected. Session ID: ${transport.sessionId}`);
 });
 
-app.post("/messages", express.json(), async (req, res) => {
+app.post("/messages", async (req, res) => {
   const sessionId = req.query.sessionId as string;
   console.log(`[LIFIA MCP] POST message received for session: ${sessionId}`);
   const transport = transports[sessionId];
