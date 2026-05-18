@@ -290,22 +290,66 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
     
     console.log("[LIFIA MCP] get_member_profile: Member keys:", Object.keys(member));
-    const profileResponse = {
-      ...member,
-      totalPublicationsCount: totalPublications,
-      publicationsNote: totalPublications > 20 
-        ? `Showing the 20 most recent publications out of ${totalPublications} total. Use search_publications if you need to find older or specific publications.`
-        : undefined
-    };
-    const serialized = JSON.stringify(profileResponse);
-    console.log("[LIFIA MCP] get_member_profile: Serialized string length:", serialized.length);
+    
+    // Format the profile as beautiful, clean, token-optimized Markdown
+    let md = `# Researcher Profile: ${member.firstName} ${member.lastName}\n`;
+    if (member.positionAtLab) md += `- **Position at Lab:** ${member.positionAtLab}\n`;
+    if (member.positionAtUnlp) md += `- **Position at UNLP:** ${member.positionAtUnlp}\n`;
+    if (member.personalEmail || member.institutionalEmail) {
+      md += `- **Email:** ${member.institutionalEmail || member.personalEmail}\n`;
+    }
+    if (member.webPage) md += `- **Webpage:** ${member.webPage}\n`;
+    if (member.orcid) md += `- **ORCID:** ${member.orcid}\n`;
+    md += `\n`;
+
+    if (member.shortCvInSpanish) {
+      md += `## Short CV\n${member.shortCvInSpanish}\n\n`;
+    }
+
+    if (member.projects && member.projects.length > 0) {
+      md += `## Projects\n`;
+      member.projects.forEach((p: any) => {
+        md += `- ${p.title} (slug: "${p.slug}")\n`;
+      });
+      md += `\n`;
+    }
+
+    if (member.theses && member.theses.length > 0) {
+      md += `## Supervised Theses\n`;
+      member.theses.forEach((t: any) => {
+        md += `- ${t.title} (slug: "${t.slug}")\n`;
+      });
+      md += `\n`;
+    }
+
+    if (member.scholarships && member.scholarships.length > 0) {
+      md += `## Scholarships\n`;
+      member.scholarships.forEach((s: any) => {
+        md += `- ${s.title} (slug: "${s.slug}")\n`;
+      });
+      md += `\n`;
+    }
+
+    if (member.publications && member.publications.length > 0) {
+      md += `## Recent Publications (Top 20 of ${totalPublications})\n`;
+      member.publications.forEach((pub: any) => {
+        md += `- [${pub.year}] ${pub.title} (slug: "${pub.slug}")\n`;
+      });
+      if (totalPublications > 20) {
+        md += `\n*Note: Showing the 20 most recent publications out of ${totalPublications} total. Use search_publications if you need to search for older or specific publications.*\n`;
+      }
+      md += `\n`;
+    }
+
+    const markdownResult = md.trim();
+    console.log("[LIFIA MCP] get_member_profile: Formatted Markdown length:", markdownResult.length);
     
     console.log("[LIFIA MCP] get_member_profile: Returning response payload...");
     return {
       content: [
         {
           type: "text",
-          text: JSON.stringify(profileResponse, null, 2)
+          text: markdownResult
         }
       ]
     };
