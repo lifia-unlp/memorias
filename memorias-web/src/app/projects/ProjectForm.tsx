@@ -203,7 +203,7 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
               type="text"
               name="responsibleGroup"
               defaultValue={initialData?.responsibleGroup || ""}
-              placeholder="e.g. LIFIA, Grupo I+D"
+              placeholder="e.g. Lab, Research Group"
               className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
             />
           </div>
@@ -289,7 +289,7 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
               type="url"
               name="website"
               defaultValue={initialData?.website || ""}
-              placeholder="e.g. https://lifia.info.unlp.edu.ar/projects/..."
+              placeholder="e.g. https://domain.com/projects/..."
               className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
             />
           </div>

@@ -38,7 +38,7 @@ export default async function NewPublicationPage() {
         <div className="max-w-7xl mx-auto z-10 relative">
           <h1 className="text-4xl font-extrabold tracking-tight">Add Publication</h1>
           <p className="text-blue-100 text-sm mt-2 max-w-xl">
-            Ingest and register a new scientific publication into the LIFIA bibliography system.
+            Ingest and register a new scientific publication into the lab's bibliography system.
           </p>
         </div>
       </section>

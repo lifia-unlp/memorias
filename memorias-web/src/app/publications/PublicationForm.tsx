@@ -599,7 +599,7 @@ export function PublicationForm({
                   type="url"
                   value={selfArchivingUrl}
                   onChange={(e) => setSelfArchivingUrl(e.target.value)}
-                  placeholder="e.g. https://lifia.unlp.edu.ar/...pdf"
+                  placeholder="e.g. https://docs.domain.com/...pdf"
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm"
                 />
               </div>

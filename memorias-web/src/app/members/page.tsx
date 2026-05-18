@@ -69,7 +69,7 @@ export default async function MembersPage({
           <div className="space-y-2">
             <h1 className="text-4xl font-extrabold tracking-tight">Our Researchers</h1>
             <p className="text-blue-100 max-w-xl text-sm md:text-base">
-              Meet the academics, PhD scholars, and scientific collaborators conducting pioneering research at LIFIA.
+              Meet the academics, PhD scholars, and scientific collaborators conducting pioneering research at our Lab.
             </p>
           </div>
           {isEditorOrAdmin && (

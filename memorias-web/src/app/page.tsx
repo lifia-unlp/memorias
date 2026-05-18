@@ -3,8 +3,12 @@ import Link from 'next/link';
 import { Header } from "@/components/Header";
 import { prisma } from "@/lib/prisma";
 import { formatCitation } from "@/lib/citations";
+import { getLabName, getLabUrl } from "@/lib/config";
 
 export default async function Home() {
+  const labName = await getLabName();
+  const labUrl = await getLabUrl();
+
   // Query featured publications (no limit, all marked featured, newest edits first)
   const featuredPublications = await prisma.publication.findMany({
     where: { featured: true },
@@ -216,7 +220,7 @@ export default async function Home() {
       {/* Footer */}
       <footer className="border-t border-border bg-surface/50 py-8 text-center text-xs text-muted mt-12">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p>© {new Date().getFullYear()} Memorias System. Open Source Migration Project.</p>
+          <p>© {new Date().getFullYear()} <a href={labUrl} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors font-semibold">{labName}</a>. All rights reserved. Powered by Memorias.</p>
           <div className="flex gap-4">
             <a href="#" className="hover:underline">Semantic Web RDF</a>
             <span>•</span>

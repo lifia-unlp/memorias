@@ -15,12 +15,16 @@ export default async function AdminConfigPage() {
   const titleOption = await (prisma as any).systemSetting?.findUnique({ where: { key: "welcome_title" } }).catch(() => null);
   const subtitleOption = await (prisma as any).systemSetting?.findUnique({ where: { key: "welcome_subtitle" } }).catch(() => null);
   const logoOption = await (prisma as any).systemSetting?.findUnique({ where: { key: "logo_url" } }).catch(() => null);
+  const labNameOption = await (prisma as any).systemSetting?.findUnique({ where: { key: "lab_name" } }).catch(() => null);
+  const labUrlOption = await (prisma as any).systemSetting?.findUnique({ where: { key: "lab_url" } }).catch(() => null);
 
   const initialTitle = titleOption?.value || "Welcome to Memorias";
   const initialSubtitle =
     subtitleOption?.value ||
     "A state-of-the-art research repository and laboratory management portal. Discover publications, explore active research projects, and access defended theses.";
   const initialLogoUrl = logoOption?.value || "";
+  const initialLabName = labNameOption?.value || process.env.LAB_NAME || "LIFIA";
+  const initialLabUrl = labUrlOption?.value || process.env.LAB_URL || "https://lifia.info.unlp.edu.ar";
 
   return (
     <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-900/50 min-h-screen">
@@ -84,8 +88,11 @@ export default async function AdminConfigPage() {
           initialTitle={initialTitle}
           initialSubtitle={initialSubtitle}
           initialLogoUrl={initialLogoUrl}
+          initialLabName={initialLabName}
+          initialLabUrl={initialLabUrl}
         />
       </main>
+
     </div>
   );
 }

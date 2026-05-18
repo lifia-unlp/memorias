@@ -170,7 +170,7 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">LIFIA Lab Position</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Position at Lab</label>
             <select
               name="positionAtLab"
               defaultValue={initialData?.positionAtLab || ""}
@@ -323,7 +323,7 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
             <textarea
               name="affiliations"
               defaultValue={initialData?.affiliations || ""}
-              placeholder="e.g. LIFIA - Facultad de Informática - UNLP"
+              placeholder="e.g. Lab - Department - University"
               className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm h-20 resize-none"
             />
           </div>
@@ -343,7 +343,7 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
               type="email"
               name="institutionalEmail"
               defaultValue={initialData?.institutionalEmail || ""}
-              placeholder="e.g. name@lifia.info.unlp.edu.ar"
+              placeholder="e.g. name@domain.com"
               className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
             />
           </div>

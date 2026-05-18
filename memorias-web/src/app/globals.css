@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  /* LIFIA Official Color Palette */
+  /* Lab Official Color Palette */
   --primary: #093A54;        /* R: 9, G: 58, B: 84 (Navy/Teal) */
   --primary-hover: #072e43;
   --secondary: #E56226;      /* R: 229, G: 98, B: 38 (Orange/Red) */

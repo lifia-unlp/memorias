@@ -13,6 +13,8 @@ export async function saveSystemSettings(formData: FormData) {
   const welcomeTitle = (formData.get("welcomeTitle") as string) || "";
   const welcomeSubtitle = (formData.get("welcomeSubtitle") as string) || "";
   const logoUrl = (formData.get("logoUrl") as string) || "";
+  const labName = (formData.get("labName") as string) || "";
+  const labUrl = (formData.get("labUrl") as string) || "";
 
   const systemSetting = (prisma as any).systemSetting;
   if (!systemSetting) {
@@ -36,6 +38,16 @@ export async function saveSystemSettings(formData: FormData) {
       update: { value: logoUrl },
       create: { key: "logo_url", value: logoUrl },
     }),
+    prisma.systemSetting.upsert({
+      where: { key: "lab_name" },
+      update: { value: labName },
+      create: { key: "lab_name", value: labName },
+    }),
+    prisma.systemSetting.upsert({
+      where: { key: "lab_url" },
+      update: { value: labUrl },
+      create: { key: "lab_url", value: labUrl },
+    }),
   ]);
 
   // Log to Audit Log
@@ -47,11 +59,12 @@ export async function saveSystemSettings(formData: FormData) {
       entitySlug: "system-config",
       userId: session.user.id || null,
       userEmail: session.user.email || "Unknown Admin",
-      details: `Updated home welcome title: "${welcomeTitle.slice(0, 40)}...", subtitle: "${welcomeSubtitle.slice(0, 40)}...", and logo URL.`,
+      details: `Updated home welcome title: "${welcomeTitle.slice(0, 40)}...", subtitle: "${welcomeSubtitle.slice(0, 40)}...", lab name: "${labName}", and lab URL: "${labUrl}".`,
     },
   });
 
   // Revalidate caching
   revalidatePath("/");
   revalidatePath("/admin/config");
+
 }

@@ -7,17 +7,24 @@ interface ConfigFormProps {
   initialTitle: string;
   initialSubtitle: string;
   initialLogoUrl: string;
+  initialLabName: string;
+  initialLabUrl: string;
 }
 
 export function ConfigForm({
   initialTitle,
   initialSubtitle,
   initialLogoUrl,
+  initialLabName,
+  initialLabUrl,
 }: ConfigFormProps) {
   const [isPending, startTransition] = useTransition();
   const [welcomeTitle, setWelcomeTitle] = useState(initialTitle);
   const [welcomeSubtitle, setWelcomeSubtitle] = useState(initialSubtitle);
   const [logoUrl, setLogoUrl] = useState(initialLogoUrl);
+  const [labName, setLabName] = useState(initialLabName);
+  const [labUrl, setLabUrl] = useState(initialLabUrl);
+
 
   const [notification, setNotification] = useState<{
     type: "success" | "error";
@@ -111,6 +118,45 @@ export function ConfigForm({
             />
             <p className="text-[10px] text-muted leading-relaxed">
               Provide an absolute path relative to the public folder (e.g. `/images/logo.svg`) or an external URL. Leave blank to restore the default premium vector wave logo.
+            </p>
+          </div>
+        </div>
+
+        {/* Lab Settings Fields */}
+        <div className="border-t border-border pt-6 grid grid-cols-1 md:grid-cols-2 gap-6 w-full animate-fadeIn">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+              Laboratory Name *
+            </label>
+            <input
+              type="text"
+              name="labName"
+              required
+              value={labName}
+              onChange={(e) => setLabName(e.target.value)}
+              placeholder="e.g. LIFIA"
+              className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm font-semibold"
+            />
+            <p className="text-[10px] text-muted leading-relaxed">
+              The display name of the laboratory, used in dynamic footers across the site.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+              Laboratory Official URL *
+            </label>
+            <input
+              type="url"
+              name="labUrl"
+              required
+              value={labUrl}
+              onChange={(e) => setLabUrl(e.target.value)}
+              placeholder="e.g. https://lifia.info.unlp.edu.ar"
+              className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm font-semibold"
+            />
+            <p className="text-[10px] text-muted leading-relaxed">
+              The official homepage link for the laboratory, referenced in the portal copyright footer.
             </p>
           </div>
         </div>
