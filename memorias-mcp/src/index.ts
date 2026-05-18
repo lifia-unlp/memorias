@@ -1,5 +1,6 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
@@ -266,13 +267,22 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       prisma.member.findUnique({
         where: { slug },
         include: {
-          projects: { select: { title: true, slug: true } },
-          theses: { select: { title: true, slug: true } },
-          scholarships: { select: { title: true, slug: true } },
+          projects: { 
+            select: { title: true, slug: true, director: true, coDirector: true },
+            take: 5
+          },
+          theses: { 
+            select: { title: true, slug: true, student: true, director: true, coDirector: true },
+            take: 5
+          },
+          scholarships: { 
+            select: { title: true, slug: true },
+            take: 5
+          },
           publications: { 
-            select: { title: true, slug: true, year: true },
+            select: { title: true, slug: true, year: true, authors: true },
             orderBy: { year: "desc" },
-            take: 20
+            take: 8
           }
         }
       }),
@@ -302,12 +312,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     if (member.orcid) md += `- **ORCID:** ${member.orcid}\n`;
     md += `\n`;
 
-
-
     if (member.projects && member.projects.length > 0) {
       md += `## Projects\n`;
       member.projects.forEach((p: any) => {
         md += `- ${p.title} (slug: "${p.slug}")\n`;
+        if (p.director) md += `  - **Director:** ${p.director}\n`;
+        if (p.coDirector) md += `  - **Co-Director:** ${p.coDirector}\n`;
       });
       md += `\n`;
     }
@@ -316,6 +326,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       md += `## Supervised Theses\n`;
       member.theses.forEach((t: any) => {
         md += `- ${t.title} (slug: "${t.slug}")\n`;
+        if (t.student) md += `  - **Student:** ${t.student}\n`;
+        if (t.director) md += `  - **Director:** ${t.director}\n`;
+        if (t.coDirector) md += `  - **Co-Director:** ${t.coDirector}\n`;
       });
       md += `\n`;
     }
@@ -329,13 +342,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
 
     if (member.publications && member.publications.length > 0) {
-      md += `## Recent Publications (Top 20 of ${totalPublications})\n`;
+      md += `## Recent Publications\n`;
       member.publications.forEach((pub: any) => {
         md += `- [${pub.year}] ${pub.title} (slug: "${pub.slug}")\n`;
+        if (pub.authors) md += `  - **Authors:** ${pub.authors}\n`;
       });
-      if (totalPublications > 20) {
-        md += `\n*Note: Showing the 20 most recent publications out of ${totalPublications} total. Use search_publications if you need to search for older or specific publications.*\n`;
-      }
       md += `\n`;
     }
 
@@ -519,39 +530,47 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 });
 
-// 4. Bind Server-Sent Events (SSE) web transport
-const app = express();
+// 4. Bind Server-Sent Events (SSE) or Stdio web transport based on launch flags
+const useStdio = process.argv.includes("--stdio");
 
-const transports: { [sessionId: string]: SSEServerTransport } = {};
-
-app.get("/sse", async (req, res) => {
-  console.log(`[LIFIA MCP] New SSE connection request from ${req.ip}`);
-  const transport = new SSEServerTransport("/messages", res);
-  transports[transport.sessionId] = transport;
-  
-  res.on("close", () => {
-    console.log(`[LIFIA MCP] SSE transport session closed: ${transport.sessionId}`);
-    delete transports[transport.sessionId];
-  });
-  
+if (useStdio) {
+  console.error("[LIFIA MCP] Starting server in direct stdio mode...");
+  const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.log(`[LIFIA MCP] SSE transport connected. Session ID: ${transport.sessionId}`);
-});
+  console.error("[LIFIA MCP] Server connected to stdio.");
+} else {
+  const app = express();
+  const transports: { [sessionId: string]: SSEServerTransport } = {};
 
-app.post("/messages", async (req, res) => {
-  const sessionId = req.query.sessionId as string;
-  console.log(`[LIFIA MCP] POST message received for session: ${sessionId}`);
-  const transport = transports[sessionId];
-  
-  if (transport) {
-    await transport.handlePostMessage(req, res);
-  } else {
-    console.error(`[LIFIA MCP] No transport found for session: ${sessionId}`);
-    res.status(400).send("No active SSE connection has been established for this session ID.");
-  }
-});
+  app.get("/sse", async (req, res) => {
+    console.log(`[LIFIA MCP] New SSE connection request from ${req.ip}`);
+    const transport = new SSEServerTransport("/messages", res);
+    transports[transport.sessionId] = transport;
+    
+    res.on("close", () => {
+      console.log(`[LIFIA MCP] SSE transport session closed: ${transport.sessionId}`);
+      delete transports[transport.sessionId];
+    });
+    
+    await server.connect(transport);
+    console.log(`[LIFIA MCP] SSE transport connected. Session ID: ${transport.sessionId}`);
+  });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`LIFIA MCP Server running over SSE at http://localhost:${PORT}/sse`);
-});
+  app.post("/messages", async (req, res) => {
+    const sessionId = req.query.sessionId as string;
+    console.log(`[LIFIA MCP] POST message received for session: ${sessionId}`);
+    const transport = transports[sessionId];
+    
+    if (transport) {
+      await transport.handlePostMessage(req, res);
+    } else {
+      console.error(`[LIFIA MCP] No transport found for session: ${sessionId}`);
+      res.status(400).send("No active SSE connection has been established for this session ID.");
+    }
+  });
+
+  const PORT = process.env.PORT || 3001;
+  app.listen(PORT, () => {
+    console.log(`LIFIA MCP Server running over SSE at http://localhost:${PORT}/sse`);
+  });
+}
