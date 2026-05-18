@@ -302,9 +302,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     if (member.orcid) md += `- **ORCID:** ${member.orcid}\n`;
     md += `\n`;
 
-    if (member.shortCvInSpanish) {
-      md += `## Short CV\n${member.shortCvInSpanish}\n\n`;
-    }
+
 
     if (member.projects && member.projects.length > 0) {
       md += `## Projects\n`;
