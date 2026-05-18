@@ -213,6 +213,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 // 3. Handle Tool Calls from AI Client
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
+  console.log(`[LIFIA MCP] CallToolRequest received: "${name}" with args:`, JSON.stringify(args));
+  try {
   
   if (name === "get_members") {
     const filters: any = {};
@@ -442,6 +444,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
   
   throw new Error(`Tool not found: ${name}`);
+  } catch (error: any) {
+    console.error(`[LIFIA MCP] Error executing tool "${name}":`, error);
+    throw error;
+  }
 });
 
 // 4. Bind Server-Sent Events (SSE) web transport
