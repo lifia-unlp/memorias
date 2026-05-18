@@ -105,12 +105,22 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: "get_members",
-        description: "List all researchers/members with optional filters.",
+        description: "List all researchers/members with optional filters and token optimization.",
         inputSchema: {
           type: "object",
           properties: {
             positionAtLab: { type: "string", description: "Filter by lab position (e.g. Director, Researcher, PhD Student)" },
-            active: { type: "boolean", description: "Filter by active user account status" }
+            active: { type: "boolean", description: "Filter by active user account status" },
+            summaryOnly: { 
+              type: "boolean", 
+              default: true,
+              description: "RECOMMENDED. If true, returns only basic fields (id, firstName, lastName, slug, positionAtLab). Set to false only if you explicitly need to read full CV/biography details." 
+            },
+            limit: { 
+              type: "integer", 
+              default: 20, 
+              description: "Maximum number of members to return. Use smaller values to optimize token usage." 
+            }
           }
         }
       },
@@ -127,35 +137,65 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "search_publications",
-        description: "Search publication records using query filters.",
+        description: "Search publication records using query filters and token optimization.",
         inputSchema: {
           type: "object",
           properties: {
             query: { type: "string", description: "Search term matching title, authors, or tags" },
-            year: { type: "integer", description: "Filter by publication year" }
+            year: { type: "integer", description: "Filter by publication year" },
+            summaryOnly: { 
+              type: "boolean", 
+              default: true, 
+              description: "RECOMMENDED. If true, returns only basic metadata (title, authors, year, slug). Set to false ONLY if you explicitly need to read the heavy raw BibTeX JSON citation data." 
+            },
+            limit: { 
+              type: "integer", 
+              default: 10, 
+              description: "Maximum number of publications to return (max 50). Use smaller values to optimize token usage." 
+            }
           }
         }
       },
       {
         name: "get_projects",
-        description: "List all research projects with optional status and text filters.",
+        description: "List all research projects with optional status, text, and token filters.",
         inputSchema: {
           type: "object",
           properties: {
             status: { type: "string", enum: ["active", "completed", "all"], description: "Filter by project status (active has no endDate or endDate in future)" },
-            query: { type: "string", description: "Search query matching title, code, or summary" }
+            query: { type: "string", description: "Search query matching title, code, or summary" },
+            summaryOnly: { 
+              type: "boolean", 
+              default: true, 
+              description: "RECOMMENDED. If true, returns only basic fields (title, slug, code, director, startDate, endDate). Set to false only if you explicitly need to read summaries, website links, and tags." 
+            },
+            limit: { 
+              type: "integer", 
+              default: 10, 
+              description: "Maximum number of projects to return. Use smaller values to optimize token usage." 
+            }
           }
         }
       },
       {
         name: "get_theses",
-        description: "List all academic theses (PhD, Masters, Grade) with optional filters.",
+        description: "List all academic theses (PhD, Masters, Grade) with optional filters and token optimization.",
         inputSchema: {
           type: "object",
           properties: {
             status: { type: "string", enum: ["in_progress", "completed", "all"], description: "Filter by status: completed (endDate exists or progress=100), in_progress (no endDate and progress < 100)" },
             level: { type: "string", description: "Filter by level (e.g. PhD, Masters, Grade)" },
-            student: { type: "string", description: "Search by student name" }
+            student: { type: "string", description: "Search by student name" },
+            summaryOnly: { 
+              type: "boolean", 
+              default: true, 
+              description: "RECOMMENDED. If true, returns only basic fields (title, slug, student, level, progress, endDate). Set to false only if you explicitly need to read summaries, advisors, and tag lists." 
+            },
+            limit: { 
+              type: "integer", 
+              default: 10, 
+              description: "Maximum number of theses to return. Use smaller values to optimize token usage." 
+            }
           }
         }
       }
@@ -175,8 +215,24 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       filters.user = { active: args.active as boolean };
     }
     
+    const summaryOnly = args?.summaryOnly !== false; // defaults to true
+    const limit = Math.min(Number(args?.limit) || 20, 100);
+    
+    const selectFields = summaryOnly
+      ? {
+          id: true,
+          firstName: true,
+          lastName: true,
+          slug: true,
+          positionAtLab: true,
+          positionAtUnlp: true
+        }
+      : undefined;
+    
     const members = await prisma.member.findMany({
       where: filters,
+      select: selectFields as any,
+      take: limit,
       orderBy: [{ lastName: "asc" }, { firstName: "asc" }]
     });
     
@@ -222,6 +278,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (name === "search_publications") {
     const query = args?.query as string || "";
     const year = args?.year as number;
+    const summaryOnly = args?.summaryOnly !== false; // defaults to true
+    const limit = Math.min(Number(args?.limit) || 10, 50);
     
     const filters: any = {};
     if (year) filters.year = year;
@@ -234,10 +292,23 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       ];
     }
     
+    const selectFields = summaryOnly
+      ? {
+          id: true,
+          slug: true,
+          type: true,
+          title: true,
+          authors: true,
+          year: true,
+          featured: true
+        }
+      : undefined;
+    
     const pubs = await prisma.publication.findMany({
       where: filters,
-      orderBy: { year: "desc" },
-      take: 50
+      select: selectFields as any,
+      take: limit,
+      orderBy: { year: "desc" }
     });
     
     return {
@@ -253,6 +324,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (name === "get_projects") {
     const status = args?.status as string || "all";
     const query = args?.query as string || "";
+    const summaryOnly = args?.summaryOnly !== false; // defaults to true
+    const limit = Math.min(Number(args?.limit) || 10, 50);
     
     const filters: any = {};
     
@@ -276,8 +349,23 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       });
     }
     
+    const selectFields = summaryOnly
+      ? {
+          id: true,
+          title: true,
+          slug: true,
+          code: true,
+          director: true,
+          startDate: true,
+          endDate: true,
+          featured: true
+        }
+      : undefined;
+    
     const projects = await prisma.project.findMany({
       where: filters,
+      select: selectFields as any,
+      take: limit,
       orderBy: { startDate: "desc" }
     });
     
@@ -295,6 +383,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const status = args?.status as string || "all";
     const level = args?.level as string;
     const student = args?.student as string;
+    const summaryOnly = args?.summaryOnly !== false; // defaults to true
+    const limit = Math.min(Number(args?.limit) || 10, 50);
     
     const filters: any = {};
     
@@ -314,8 +404,23 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       ];
     }
     
+    const selectFields = summaryOnly
+      ? {
+          id: true,
+          title: true,
+          slug: true,
+          student: true,
+          level: true,
+          progress: true,
+          endDate: true,
+          featured: true
+        }
+      : undefined;
+    
     const theses = await prisma.thesis.findMany({
       where: filters,
+      select: selectFields as any,
+      take: limit,
       orderBy: { startDate: "desc" }
     });
     
