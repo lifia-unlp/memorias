@@ -261,6 +261,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (name === "get_member_profile") {
     const slug = args?.slug as string;
     
+    console.log("[LIFIA MCP] get_member_profile: Executing Promise.all [findUnique, count]...");
     const [member, totalPublications] = await Promise.all([
       prisma.member.findUnique({
         where: { slug },
@@ -279,6 +280,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         where: { members: { some: { slug } } }
       })
     ]);
+    console.log("[LIFIA MCP] get_member_profile: Promise.all complete. totalPublications count:", totalPublications);
     
     if (!member) {
       return {
