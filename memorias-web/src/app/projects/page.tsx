@@ -57,7 +57,7 @@ export default async function ProjectsPage(props: {
         </div>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div className="space-y-2">
-            <h1 className="text-4xl font-extrabold tracking-tight">LIFIA Research Projects</h1>
+            <h1 className="text-4xl font-extrabold tracking-tight">Research Projects</h1>
             <p className="text-blue-100 max-w-xl text-sm leading-relaxed">
               Explore scientific investigations, research initiatives, and technology transfers engineered by our lab.
             </p>
