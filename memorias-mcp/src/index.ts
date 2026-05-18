@@ -1,5 +1,5 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
@@ -12,6 +12,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import express from "express";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -443,14 +444,27 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   throw new Error(`Tool not found: ${name}`);
 });
 
-// 4. Bind stdio transport
-async function run() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error("Memorias MCP Server running on stdio transport!");
-}
+// 4. Bind Server-Sent Events (SSE) web transport
+const app = express();
 
-run().catch((error) => {
-  console.error("Fatal error running MCP server:", error);
-  process.exit(1);
+let sseTransport: SSEServerTransport | null = null;
+
+app.get("/sse", async (req, res) => {
+  console.log(`[LIFIA MCP] New SSE connection request from ${req.ip}`);
+  sseTransport = new SSEServerTransport("/messages", res);
+  await server.connect(sseTransport);
+  console.log("[LIFIA MCP] SSE transport connected successfully.");
+});
+
+app.post("/messages", async (req, res) => {
+  if (sseTransport) {
+    await sseTransport.handlePostMessage(req, res);
+  } else {
+    res.status(400).send("No active SSE connection has been established.");
+  }
+});
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`LIFIA MCP Server running over SSE at http://localhost:${PORT}/sse`);
 });
