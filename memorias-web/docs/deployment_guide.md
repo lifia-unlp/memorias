@@ -239,3 +239,66 @@ If your old MongoDB server is active and reachable over the network:
 ## 🔒 Step 5: Post-Migration Revalidation
 
 After running either option, log into the dashboard at `http://your-server-ip:3000` as an administrator. Your migrated data, connected authors, theses, projects, and the 9 clean featured records will load instantly!
+
+---
+
+## 🤖 Step 6: Deploying and Sharing the MCP Server (AI Interface)
+
+Your Model Context Protocol (MCP) server connects AI agents directly to the PostgreSQL database. There are two recommended ways to deploy and share this server with your colleagues at **LIFIA**:
+
+### Option A: Local Run with Remote DB Connection (Simplest & Recommended)
+Each colleague runs the MCP server locally on their own laptop, but configures it to talk to the **production database** on your Proxmox server.
+
+1. **Ensure Proxmox Postgres is accessible**:
+   Ensure that the PostgreSQL container exposes port `5432` to the network, and that your firewall allows connections from your colleagues' IPs.
+2. **Colleague Local Configuration**:
+   Each colleague clones the repository, runs `npm install && npm run build` inside `memorias-mcp`, and edits their local `claude_desktop_config.json` pointing to their local folder but using the **production Postgres connection string**:
+   ```json
+   {
+     "mcpServers": {
+       "memorias-mcp-prod": {
+         "command": "node",
+         "args": [
+           "/absolute/path/to/memorias-mcp/dist/index.js"
+         ],
+         "env": {
+           "DATABASE_URL": "postgresql://postgres:postgres_secure_pwd@<your-proxmox-ip>:5432/memorias?schema=public",
+           "LAB_NAME": "LIFIA"
+         }
+       }
+     }
+   }
+   ```
+
+---
+
+### Option B: Highly Secure Deployment via Docker & SSH Tunneling (Advanced)
+If you want to host the server centrally on Proxmox, you can compile it into a Docker image, and let your colleagues connect to it **over secure SSH**. This avoids exposing port 5432 or opening any ports to the public internet!
+
+1. **Build the Docker Image on Proxmox**:
+   Inside `/opt/memorias/memorias-mcp/`, build the production docker image:
+   ```bash
+   sudo docker build -t memorias-mcp .
+   ```
+
+2. **Colleague Local Configuration over SSH**:
+   Since MCP communicates over standard input/output (stdio), your colleagues can run the container remotely on the server using **SSH interactive piping**!
+   They simply configure their local `claude_desktop_config.json` like this:
+   ```json
+   {
+     "mcpServers": {
+       "memorias-mcp-ssh": {
+         "command": "ssh",
+         "args": [
+           "-t",
+           "user@<your-proxmox-ip>",
+           "docker run -i --rm -e DATABASE_URL=postgresql://postgres:postgres_secure_pwd@db:5432/memorias?schema=public -e LAB_NAME=LIFIA memorias-mcp"
+         ]
+       }
+     }
+   }
+   ```
+   *Note: Ensure your colleagues have SSH keys configured on the Proxmox server for seamless passwordless authentication.*
+
+This delivers a state-of-the-art, secure, and incredibly powerful conversational AI interface for your entire research group!
+
