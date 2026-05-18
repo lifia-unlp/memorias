@@ -289,6 +289,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       };
     }
     
+    console.log("[LIFIA MCP] get_member_profile: Member keys:", Object.keys(member));
     const profileResponse = {
       ...member,
       totalPublicationsCount: totalPublications,
@@ -296,7 +297,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         ? `Showing the 20 most recent publications out of ${totalPublications} total. Use search_publications if you need to find older or specific publications.`
         : undefined
     };
+    const serialized = JSON.stringify(profileResponse);
+    console.log("[LIFIA MCP] get_member_profile: Serialized string length:", serialized.length);
     
+    console.log("[LIFIA MCP] get_member_profile: Returning response payload...");
     return {
       content: [
         {
