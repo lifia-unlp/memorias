@@ -257,15 +257,25 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   
   if (name === "get_member_profile") {
     const slug = args?.slug as string;
-    const member = await prisma.member.findUnique({
-      where: { slug },
-      include: {
-        projects: { select: { title: true, slug: true } },
-        theses: { select: { title: true, slug: true } },
-        scholarships: { select: { title: true, slug: true } },
-        publications: { select: { title: true, slug: true, year: true } }
-      }
-    });
+    
+    const [member, totalPublications] = await Promise.all([
+      prisma.member.findUnique({
+        where: { slug },
+        include: {
+          projects: { select: { title: true, slug: true } },
+          theses: { select: { title: true, slug: true } },
+          scholarships: { select: { title: true, slug: true } },
+          publications: { 
+            select: { title: true, slug: true, year: true },
+            orderBy: { year: "desc" },
+            take: 20
+          }
+        }
+      }),
+      prisma.publication.count({
+        where: { members: { some: { slug } } }
+      })
+    ]);
     
     if (!member) {
       return {
@@ -274,11 +284,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       };
     }
     
+    const profileResponse = {
+      ...member,
+      totalPublicationsCount: totalPublications,
+      publicationsNote: totalPublications > 20 
+        ? `Showing the 20 most recent publications out of ${totalPublications} total. Use search_publications if you need to find older or specific publications.`
+        : undefined
+    };
+    
     return {
       content: [
         {
           type: "text",
-          text: JSON.stringify(member, null, 2)
+          text: JSON.stringify(profileResponse, null, 2)
         }
       ]
     };
