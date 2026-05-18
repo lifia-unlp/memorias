@@ -238,13 +238,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
       : undefined;
     
+    console.log("[LIFIA MCP] get_members: Executing Prisma findMany...");
     const members = await prisma.member.findMany({
       where: filters,
       select: selectFields as any,
       take: limit,
       orderBy: [{ lastName: "asc" }, { firstName: "asc" }]
     });
+    console.log("[LIFIA MCP] get_members: Prisma findMany complete, found count:", members.length);
     
+    console.log("[LIFIA MCP] get_members: Returning response payload.");
     return {
       content: [
         {
