@@ -20,6 +20,10 @@ export default async function AdminListsPage() {
     orderBy: { value: "asc" },
   });
 
+  // Load dynamic logo URL defensively
+  const logoSetting = await (prisma as any).systemSetting?.findUnique({ where: { key: "logo_url" } }).catch(() => null);
+  const logoUrl = logoSetting?.value || "";
+
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
       {/* Premium Header */}
@@ -27,12 +31,21 @@ export default async function AdminListsPage() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-              <div className="relative w-10 h-10 flex items-center justify-center bg-primary/5 rounded-xl border border-primary/10">
-                <svg viewBox="0 0 100 100" className="w-8 h-8">
-                  <circle cx="50" cy="50" r="15" fill="none" stroke="var(--secondary)" strokeWidth="8" />
-                  <circle cx="50" cy="50" r="30" fill="none" stroke="var(--secondary)" strokeWidth="6" strokeDasharray="10 8" />
-                  <circle cx="50" cy="50" r="45" fill="none" stroke="var(--primary)" strokeWidth="4" />
-                </svg>
+              <div className="relative w-10 h-10 flex items-center justify-center bg-primary/5 rounded-xl border border-primary/10 overflow-hidden">
+                {logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={logoUrl}
+                    alt="Logo"
+                    className="w-full h-full object-cover p-1"
+                  />
+                ) : (
+                  <svg viewBox="0 0 100 100" className="w-8 h-8">
+                    <circle cx="50" cy="50" r="15" fill="none" stroke="var(--secondary)" strokeWidth="8" />
+                    <circle cx="50" cy="50" r="30" fill="none" stroke="var(--secondary)" strokeWidth="6" strokeDasharray="10 8" />
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="var(--primary)" strokeWidth="4" />
+                  </svg>
+                )}
               </div>
               <div>
                 <span className="text-xl font-bold tracking-tight text-primary dark:text-white">MEMORIAS</span>
@@ -46,7 +59,7 @@ export default async function AdminListsPage() {
               href="/admin/users"
               className="text-xs font-semibold px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all border border-border/80 shadow-sm"
             >
-              👤 Manage Users
+              Manage Users
             </Link>
             <Link
               href="/"

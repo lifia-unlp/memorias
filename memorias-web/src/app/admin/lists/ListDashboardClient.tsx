@@ -10,12 +10,12 @@ interface SystemOption {
 }
 
 const LISTS = [
-  { id: "positionAtLab", title: "Lab Positions", desc: "Allowed role tags inside the laboratory.", icon: "🔬" },
-  { id: "positionAtUnlp", title: "UNLP Positions", desc: "Ranks at the Universidad Nacional de La Plata.", icon: "🏫" },
-  { id: "positionAtCIC", title: "CIC Positions", desc: "Rank categories within the CIC body.", icon: "💼" },
-  { id: "positionAtCONICET", title: "CONICET Positions", desc: "Official researcher ranks in CONICET.", icon: "🧬" },
-  { id: "thesisLevel", title: "Thesis Levels", desc: "Academic degrees (e.g. PhD, Masters, Grade).", icon: "🎓" },
-  { id: "scholarshipType", title: "Scholarship Types", desc: "Categories of fellowships and funding grants.", icon: "🎫" },
+  { id: "positionAtLab", title: "Lab Positions", desc: "Allowed role tags inside the laboratory." },
+  { id: "positionAtUnlp", title: "UNLP Positions", desc: "Ranks at the Universidad Nacional de La Plata." },
+  { id: "positionAtCIC", title: "CIC Positions", desc: "Rank categories within the CIC body." },
+  { id: "positionAtCONICET", title: "CONICET Positions", desc: "Official researcher ranks in CONICET." },
+  { id: "thesisLevel", title: "Thesis Levels", desc: "Academic degrees (e.g. PhD, Masters, Grade)." },
+  { id: "scholarshipType", title: "Scholarship Types", desc: "Categories of fellowships and funding grants." },
 ];
 
 export default function ListDashboardClient({
@@ -143,7 +143,6 @@ export default function ListDashboardClient({
                     : "bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/40 dark:hover:bg-slate-800 border-border text-foreground"
                 }`}
               >
-                <span className="text-lg shrink-0">{list.icon}</span>
                 <div className="min-w-0">
                   <span className="text-xs font-bold block truncate leading-tight">{list.title}</span>
                   <span className={`text-[9px] block truncate mt-0.5 ${isActive ? "text-white/80" : "text-muted"}`}>
@@ -162,7 +161,7 @@ export default function ListDashboardClient({
         <div className="bg-slate-50/50 dark:bg-slate-800/20 px-6 py-5 border-b border-border/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
             <h2 className="font-extrabold text-lg text-primary flex items-center gap-2">
-              <span>{activeMetadata.icon}</span> {activeMetadata.title}
+              {activeMetadata.title}
             </h2>
             <p className="text-xs text-muted leading-relaxed">
               {activeMetadata.desc}
@@ -178,7 +177,11 @@ export default function ListDashboardClient({
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-8 pr-4 py-2 text-xs bg-white dark:bg-slate-800 border border-border rounded-xl w-full md:w-56 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground"
             />
-            <span className="absolute left-3 top-2.5 text-slate-400 text-xs">🔍</span>
+            <span className="absolute left-3 top-3 text-slate-400">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </span>
           </div>
         </div>
 
@@ -200,12 +203,12 @@ export default function ListDashboardClient({
               disabled={isSubmitting || !newValue.trim()}
               className="px-5 py-2.5 bg-secondary text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-secondary-hover shadow-sm transition-all disabled:opacity-50 shrink-0"
             >
-              {isSubmitting ? "Adding..." : "➕ Add Option"}
+              {isSubmitting ? "Adding..." : "Add Option"}
             </button>
           </div>
           {formError && (
             <p className="text-xs text-red-500 font-medium flex items-center gap-1.5 animate-pulse">
-              <span>⚠️</span> {formError}
+              <span>Error:</span> {formError}
             </p>
           )}
         </form>
@@ -214,7 +217,7 @@ export default function ListDashboardClient({
         <div className="p-6">
           {activeOptions.length === 0 ? (
             <div className="text-center py-10 space-y-2">
-              <span className="text-3xl">📭</span>
+              <span className="text-3xl font-bold text-slate-300"></span>
               <p className="text-xs text-muted font-medium">
                 {searchQuery ? "No matching options found." : "No options defined yet in this category."}
               </p>
@@ -235,7 +238,9 @@ export default function ListDashboardClient({
                     className="text-xs text-slate-400 hover:text-red-500 p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors"
                     title="Delete Option"
                   >
-                    🗑️
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
                   </button>
                 </div>
               ))}
@@ -251,7 +256,9 @@ export default function ListDashboardClient({
             {/* Warning Header */}
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 flex items-center justify-center bg-amber-500/10 text-amber-500 rounded-2xl shrink-0">
-                <span className="text-2xl">⚠️</span>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
               </div>
               <div className="space-y-1">
                 <h3 className="text-lg font-black text-slate-800 dark:text-white leading-tight">
@@ -337,7 +344,7 @@ export default function ListDashboardClient({
                 disabled={isDeleting}
                 className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-xl transition-all shadow-md shadow-red-500/10 hover:shadow-red-500/20"
               >
-                {isDeleting ? "Updating..." : "⚠️ Apply & Delete"}
+                {isDeleting ? "Updating..." : "Apply & Delete"}
               </button>
             </div>
           </div>
