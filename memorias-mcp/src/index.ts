@@ -447,20 +447,32 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 // 4. Bind Server-Sent Events (SSE) web transport
 const app = express();
 
-let sseTransport: SSEServerTransport | null = null;
+const transports: { [sessionId: string]: SSEServerTransport } = {};
 
 app.get("/sse", async (req, res) => {
   console.log(`[LIFIA MCP] New SSE connection request from ${req.ip}`);
-  sseTransport = new SSEServerTransport("/messages", res);
-  await server.connect(sseTransport);
-  console.log("[LIFIA MCP] SSE transport connected successfully.");
+  const transport = new SSEServerTransport("/messages", res);
+  transports[transport.sessionId] = transport;
+  
+  res.on("close", () => {
+    console.log(`[LIFIA MCP] SSE transport session closed: ${transport.sessionId}`);
+    delete transports[transport.sessionId];
+  });
+  
+  await server.connect(transport);
+  console.log(`[LIFIA MCP] SSE transport connected. Session ID: ${transport.sessionId}`);
 });
 
 app.post("/messages", async (req, res) => {
-  if (sseTransport) {
-    await sseTransport.handlePostMessage(req, res);
+  const sessionId = req.query.sessionId as string;
+  console.log(`[LIFIA MCP] POST message received for session: ${sessionId}`);
+  const transport = transports[sessionId];
+  
+  if (transport) {
+    await transport.handlePostMessage(req, res);
   } else {
-    res.status(400).send("No active SSE connection has been established.");
+    console.error(`[LIFIA MCP] No transport found for session: ${sessionId}`);
+    res.status(400).send("No active SSE connection has been established for this session ID.");
   }
 });
 
