@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "MCP Server for the Memorias Research Portal database",
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",

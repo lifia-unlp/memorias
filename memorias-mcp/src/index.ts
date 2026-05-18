@@ -10,14 +10,20 @@ import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
   console.error("DATABASE_URL is not set inside the environment.");
   process.exit(1);
 }
+
+const labName = process.env.LAB_NAME || "LIFIA";
 
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
@@ -105,11 +111,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: "get_members",
-        description: "List all researchers/members with optional filters and token optimization.",
+        description: `List all researchers/members of the ${labName} research lab with optional filters and token optimization.`,
         inputSchema: {
           type: "object",
           properties: {
-            positionAtLab: { type: "string", description: "Filter by lab position (e.g. Director, Researcher, PhD Student)" },
+            positionAtLab: { type: "string", description: `Filter by lab position inside ${labName} (e.g. Director, Researcher, PhD Student)` },
             active: { type: "boolean", description: "Filter by active user account status" },
             summaryOnly: { 
               type: "boolean", 
@@ -126,18 +132,18 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "get_member_profile",
-        description: "Get comprehensive profile details of a researcher using their slug.",
+        description: `Get comprehensive profile details of a ${labName} researcher using their slug.`,
         inputSchema: {
           type: "object",
           properties: {
-            slug: { type: "string", description: "The unique slug identifier of the member" }
+            slug: { type: "string", description: `The unique slug identifier of the ${labName} member` }
           },
           required: ["slug"]
         }
       },
       {
         name: "search_publications",
-        description: "Search publication records using query filters and token optimization.",
+        description: `Search publication and academic paper records authored or co-authored by members of the ${labName} research lab.`,
         inputSchema: {
           type: "object",
           properties: {
@@ -158,7 +164,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "get_projects",
-        description: "List all research projects with optional status, text, and token filters.",
+        description: `List all research and development projects associated with the ${labName} lab, with status and text filters.`,
         inputSchema: {
           type: "object",
           properties: {
@@ -179,7 +185,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "get_theses",
-        description: "List all academic theses (PhD, Masters, Grade) with optional filters and token optimization.",
+        description: `List all academic theses (PhD, Masters, Grade) advised or authored at the ${labName} research lab.`,
         inputSchema: {
           type: "object",
           properties: {

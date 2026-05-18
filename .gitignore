@@ -1,14 +1,16 @@
 # Dependencies
 /memorias-web/node_modules
+/memorias-mcp/node_modules
 /memorias-web/.pnp
 /memorias-web/.pnp.js
 
 # Testing
 /memorias-web/coverage
 
-# Next.js build output
+# Next.js / Build output
 /memorias-web/.next/
 /memorias-web/out/
+/memorias-mcp/dist/
 
 # Production / local environment variables
 /memorias-web/.env
@@ -16,6 +18,7 @@
 /memorias-web/.env.development.local
 /memorias-web/.env.test.local
 /memorias-web/.env.production.local
+/memorias-mcp/.env
 
 # Prisma
 /memorias-web/prisma/*.db
