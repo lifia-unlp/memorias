@@ -23,6 +23,14 @@ export default async function Home() {
     orderBy: { updatedAt: 'desc' },
   });
 
+  // Load welcome configuration with defensive optional chaining for cached Prisma clients
+  const titleOption = await (prisma as any).systemSetting?.findUnique({ where: { key: "welcome_title" } }).catch(() => null);
+  const subtitleOption = await (prisma as any).systemSetting?.findUnique({ where: { key: "welcome_subtitle" } }).catch(() => null);
+  const welcomeTitle = titleOption?.value || "Welcome to Memorias";
+  const welcomeSubtitle =
+    subtitleOption?.value ||
+    "A state-of-the-art research repository and laboratory management portal. Discover publications, explore active research projects, and access defended theses.";
+
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
       {/* Unified Header */}
@@ -32,14 +40,11 @@ export default async function Home() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-10 space-y-12 animate-fadeIn">
         {/* Welcome Section */}
         <section className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 border border-secondary/20 text-xs font-semibold text-secondary">
-            Scientific Research Platform Active
-          </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-            Welcome to <span className="text-gradient-primary">Memorias</span>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-850 dark:text-white">
+            {welcomeTitle}
           </h1>
-          <p className="text-lg text-muted max-w-2xl">
-            A state-of-the-art research repository and laboratory management portal. Discover publications, explore active research projects, and access defended theses.
+          <p className="text-lg text-muted max-w-2xl leading-relaxed">
+            {welcomeSubtitle}
           </p>
         </section>
 

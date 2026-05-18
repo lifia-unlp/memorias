@@ -242,3 +242,10 @@ model AuditLog {
   createdAt  DateTime @default(now())
 }
 
+model SystemSetting {
+  key       String   @id
+  value     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
