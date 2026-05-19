@@ -30,27 +30,28 @@ export default async function MembersPage({
     .map((p) => p.positionAtLab)
     .filter(Boolean) as string[];
 
-  // Fetch members with query filters
+  // Fetch members with position filter
   const members = await prisma.member.findMany({
-    where: {
-      AND: [
-        query
-          ? {
-              OR: [
-                { firstName: { contains: query, mode: "insensitive" } },
-                { lastName: { contains: query, mode: "insensitive" } },
-                { positionAtLab: { contains: query, mode: "insensitive" } },
-                { positionAtUnlp: { contains: query, mode: "insensitive" } },
-              ],
-            }
-          : {},
-        position
-          ? { positionAtLab: { equals: position } }
-          : {},
-      ],
-    },
+    where: position ? { positionAtLab: { equals: position } } : {},
     orderBy: { lastName: "asc" },
   });
+
+  // Filter in memory for maximum search flexibility (including case-insensitive, partial array tag matching)
+  const lowerQuery = query.trim().toLowerCase();
+  const filteredMembers = lowerQuery
+    ? members.filter((m) => {
+        const matchName =
+          m.firstName.toLowerCase().includes(lowerQuery) ||
+          m.lastName.toLowerCase().includes(lowerQuery);
+        const matchPosition =
+          (m.positionAtLab && m.positionAtLab.toLowerCase().includes(lowerQuery)) ||
+          (m.positionAtUnlp && m.positionAtUnlp.toLowerCase().includes(lowerQuery));
+        const matchTags = m.tags.some((tag) =>
+          tag.toLowerCase().includes(lowerQuery)
+        );
+        return matchName || matchPosition || matchTags;
+      })
+    : members;
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
@@ -87,7 +88,7 @@ export default async function MembersPage({
       <main className="max-w-7xl w-full mx-auto px-6 py-10 space-y-8 flex-1">
         <MemberFilters positions={positions} />
 
-        {members.length === 0 ? (
+        {filteredMembers.length === 0 ? (
           <div className="text-center py-16 bg-white dark:bg-slate-900 border border-border rounded-2xl p-8 space-y-2">
             <h3 className="text-lg font-bold">No researchers found</h3>
             <p className="text-sm text-muted">
@@ -96,7 +97,7 @@ export default async function MembersPage({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {members.map((m) => (
+            {filteredMembers.map((m) => (
               <Link
                 key={m.id}
                 href={`/members/${m.slug}`}

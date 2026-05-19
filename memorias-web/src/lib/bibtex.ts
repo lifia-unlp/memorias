@@ -17,8 +17,15 @@ export function getBibtexString(val: any): string {
 export function formatAPA(pb: any): string {
   try {
     const bib = pb.bibtexData;
-    if (!bib || typeof bib !== "object") {
-      return `${pb.authors}. (${pb.year}). ${pb.title}.`;
+    // Detect raw references or missing/empty bibtex data
+    if (
+      !bib ||
+      typeof bib !== "object" ||
+      bib.raw === true ||
+      pb.authors === "Raw Reference" ||
+      Object.keys(bib).length === 0
+    ) {
+      return (pb.title || "").trim();
     }
 
     const tags = (bib as any).entryTags || (bib as any).tags || bib;
@@ -111,7 +118,18 @@ export function formatAPA(pb: any): string {
 export function jsonToBibtex(pb: any): string {
   try {
     const bib = pb.bibtexData;
-    if (!bib || typeof bib !== "object") return "";
+    const isRaw = !bib || 
+                  typeof bib !== "object" || 
+                  Object.keys(bib).length === 0 || 
+                  bib.raw === true || 
+                  pb.authors === "Raw Reference";
+
+    if (isRaw) {
+      const citationKey = pb.slug || "citation";
+      const title = (pb.title || "").trim();
+      const year = pb.year || 0;
+      return `@misc{${citationKey},\n  title = {${title}},\n  author = {Raw Reference},\n  year = {${year}}\n}`;
+    }
     const citationKey = (bib as any).citationKey || (bib as any).key || pb.slug || "citation";
     const entryType = (bib as any).entryType || (bib as any).type || pb.type || "article";
     const tags = (bib as any).entryTags || (bib as any).tags || bib;

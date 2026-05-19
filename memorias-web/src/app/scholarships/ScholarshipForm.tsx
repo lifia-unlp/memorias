@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { createScholarship, updateScholarship } from "./actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { TagWidget } from "@/components/TagWidget";
 
 interface Member {
   id: string;
@@ -96,12 +97,37 @@ export function ScholarshipForm({
     selectedProjectIds.forEach((id) => formData.append("projects", id));
 
     try {
+      let res;
       if (initialData) {
-        await updateScholarship(initialData.id, formData);
-        router.push(`/scholarships/${formData.get("slug")}`);
+        res = await updateScholarship(initialData.id, formData);
       } else {
-        await createScholarship(formData);
-        router.push("/scholarships");
+        res = await createScholarship(formData);
+      }
+
+      if (res && res.success === false) {
+        if (res.duplicate) {
+          const choice = confirm(
+            `${res.error}\n\nDo you want to save this scholarship entry anyway?`
+          );
+          if (choice) {
+            formData.append("ignoreDuplicateCheck", "true");
+            let bypassRes;
+            if (initialData) {
+              bypassRes = await updateScholarship(initialData.id, formData);
+            } else {
+              bypassRes = await createScholarship(formData);
+            }
+            if (bypassRes && bypassRes.success === false) {
+              setErrorMsg(bypassRes.error || "Failed to save scholarship.");
+            } else {
+              router.push(initialData ? `/scholarships/${formData.get("slug")}` : "/scholarships");
+            }
+          }
+        } else {
+          setErrorMsg(res.error || "Failed to save scholarship.");
+        }
+      } else {
+        router.push(initialData ? `/scholarships/${formData.get("slug")}` : "/scholarships");
       }
     } catch (err: any) {
       setErrorMsg(err.message || "Failed to save scholarship record.");
@@ -418,33 +444,32 @@ export function ScholarshipForm({
         )}
       </div>
 
-      {/* 6. Summary & Tagging */}
+      {/* 6. Summary */}
       <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
         <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Scholarship Abstract & Classification
+          Scholarship Summary
         </h3>
+        <div className="space-y-1.5">
+          <textarea
+            name="summary"
+            defaultValue={initialData?.summary || ""}
+            placeholder="Provide a detailed overview of the scholarship objectives, scope, research topic, and milestones..."
+            className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm h-48"
+          />
+        </div>
+      </div>
 
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Scholarship Summary</label>
-            <textarea
-              name="summary"
-              defaultValue={initialData?.summary || ""}
-              placeholder="Provide a detailed overview of the scholarship objectives, scope, research topic, and milestones..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm h-48"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Classification Tags (comma separated)</label>
-            <input
-              type="text"
-              name="tags"
-              defaultValue={initialData?.tags ? initialData.tags.join(", ") : ""}
-              placeholder="e.g. HCI, Knowledge Management, Collaborative Learning"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+      {/* Dynamic Classification Tags */}
+      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
+        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
+          Research Classification Tags
+        </h3>
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Classification Tags</label>
+          <TagWidget
+            initialTags={initialData?.tags || []}
+            placeholder="Add scholarship fields and keywords..."
+          />
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { logAction } from "@/lib/audit";
+import { sanitizeTag } from "@/lib/tags";
 
 // ---------------------------------------------------------
 // Helper: Clean and format individual BibTeX tag value
@@ -248,6 +249,7 @@ export async function createPublication(data: {
   citationKey?: string;
   customEntryTags?: Record<string, string>;
   featured?: boolean;
+  ignoreDuplicateCheck?: boolean;
 }) {
   await verifyEditorOrAdmin();
 
@@ -258,6 +260,22 @@ export async function createPublication(data: {
 
   if (!title || !authors || !year || !type) {
     return { success: false, error: "Title, Authors, Year, and Type are mandatory fields" };
+  }
+
+  // Duplicate Check
+  if (!data.ignoreDuplicateCheck) {
+    const duplicate = await prisma.publication.findFirst({
+      where: {
+        title: { equals: title, mode: "insensitive" },
+      },
+    });
+    if (duplicate) {
+      return {
+        success: false,
+        duplicate: true,
+        error: `A publication titled "${title}" already exists.`,
+      };
+    }
   }
 
   // Construct auto-slug
@@ -301,6 +319,7 @@ export async function createPublication(data: {
         selfArchivingUrl: data.selfArchivingUrl?.trim() || null,
         bibtexData: bibtexData as any,
         featured: data.featured || false,
+        tags: data.tags ? data.tags.map(sanitizeTag).filter(Boolean) : [],
         members: data.members ? { connect: data.members.map((id) => ({ id })) } : undefined,
         projects: data.projects ? { connect: data.projects.map((id) => ({ id })) } : undefined,
         theses: data.theses ? { connect: data.theses.map((id) => ({ id })) } : undefined,
@@ -332,6 +351,7 @@ export async function updatePublication(
     citationKey?: string;
     customEntryTags?: Record<string, string>;
     featured?: boolean;
+    ignoreDuplicateCheck?: boolean;
   }
 ) {
   await verifyEditorOrAdmin();
@@ -343,6 +363,23 @@ export async function updatePublication(
 
   if (!title || !authors || !year || !type) {
     return { success: false, error: "Title, Authors, Year, and Type are mandatory fields" };
+  }
+
+  // Duplicate Check
+  if (!data.ignoreDuplicateCheck) {
+    const duplicate = await prisma.publication.findFirst({
+      where: {
+        title: { equals: title, mode: "insensitive" },
+        slug: { not: slug },
+      },
+    });
+    if (duplicate) {
+      return {
+        success: false,
+        duplicate: true,
+        error: `Another publication titled "${title}" already exists.`,
+      };
+    }
   }
 
   const existingPub = await prisma.publication.findUnique({
@@ -382,7 +419,7 @@ export async function updatePublication(
         type,
         ranking: data.ranking?.trim() || null,
         selfArchivingUrl: data.selfArchivingUrl?.trim() || null,
-        tags: data.tags || [],
+        tags: data.tags ? data.tags.map(sanitizeTag).filter(Boolean) : [],
         bibtexData: bibtexData as any,
         featured: data.featured || false,
         members: {

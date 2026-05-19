@@ -26,19 +26,6 @@ export default async function ScholarshipsPage(props: {
     AND: [],
   };
 
-  if (q) {
-    whereConditions.AND.push({
-      OR: [
-        { title: { contains: q, mode: "insensitive" } },
-        { student: { contains: q, mode: "insensitive" } },
-        { director: { contains: q, mode: "insensitive" } },
-        { coDirector: { contains: q, mode: "insensitive" } },
-        { fundingAgency: { contains: q, mode: "insensitive" } },
-        { summary: { contains: q, mode: "insensitive" } },
-      ],
-    });
-  }
-
   if (type) {
     whereConditions.AND.push({ type });
   }
@@ -69,6 +56,24 @@ export default async function ScholarshipsPage(props: {
       { startDate: "desc" },
     ],
   });
+
+  // Filter in memory for keyword search
+  const lowerQ = q.trim().toLowerCase();
+  const filteredScholarships = lowerQ
+    ? scholarships.filter((s) => {
+        const matchTitle = s.title.toLowerCase().includes(lowerQ);
+        const matchStudent = !!(s.student && s.student.toLowerCase().includes(lowerQ));
+        const matchAdvisors =
+          !!((s.director && s.director.toLowerCase().includes(lowerQ)) ||
+          (s.coDirector && s.coDirector.toLowerCase().includes(lowerQ)));
+        const matchAgency = !!(s.fundingAgency && s.fundingAgency.toLowerCase().includes(lowerQ));
+        const matchSummary = !!(s.summary && s.summary.toLowerCase().includes(lowerQ));
+        const matchTags = s.tags.some((tag) =>
+          tag.toLowerCase().includes(lowerQ)
+        );
+        return matchTitle || matchStudent || matchAdvisors || matchAgency || matchSummary || matchTags;
+      })
+    : scholarships;
 
   // Query types choices
   const typeOptions = await prisma.systemOption.findMany({
@@ -172,7 +177,7 @@ export default async function ScholarshipsPage(props: {
         </div>
 
         {/* Scholarships Grid */}
-        {scholarships.length === 0 ? (
+        {filteredScholarships.length === 0 ? (
           <div className="text-center py-16 bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm space-y-3">
             <h3 className="font-extrabold text-slate-800 dark:text-slate-200">No Scholarships Found</h3>
             <p className="text-xs text-muted max-w-xs mx-auto">
@@ -181,7 +186,7 @@ export default async function ScholarshipsPage(props: {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {scholarships.map((s) => {
+            {filteredScholarships.map((s) => {
               const startStr = s.startDate
                 ? new Date(s.startDate).getFullYear()
                 : "N/D";

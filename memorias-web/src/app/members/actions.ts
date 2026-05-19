@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { logAction } from "@/lib/audit";
+import { sanitizeTag } from "@/lib/tags";
 
 export async function ensureEditorOrAdmin() {
   const session = await auth();
@@ -80,7 +81,7 @@ export async function createMember(formData: FormData) {
       tags: formData.get("tags")
         ? (formData.get("tags") as string)
             .split(",")
-            .map((t) => t.trim())
+            .map((t) => sanitizeTag(t))
             .filter(Boolean)
         : [],
     },
@@ -146,7 +147,7 @@ export async function updateMember(memberId: string, formData: FormData) {
       tags: formData.get("tags")
         ? (formData.get("tags") as string)
             .split(",")
-            .map((t) => t.trim())
+            .map((t) => sanitizeTag(t))
             .filter(Boolean)
         : [],
     },

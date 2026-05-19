@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { logAction } from "@/lib/audit";
+import { sanitizeTag } from "@/lib/tags";
 
 export async function ensureEditorOrAdmin() {
   const session = await auth();
@@ -17,135 +18,178 @@ export async function ensureEditorOrAdmin() {
 }
 
 export async function createProject(formData: FormData) {
-  await ensureEditorOrAdmin();
+  try {
+    await ensureEditorOrAdmin();
 
-  const title = formData.get("title") as string;
-  let slug = formData.get("slug") as string;
+    const title = formData.get("title") as string;
+    let slug = formData.get("slug") as string;
 
-  if (!title) {
-    throw new Error("Project Title is required.");
-  }
+    if (!title) {
+      return { success: false, error: "Project Title is required." };
+    }
 
-  if (!slug) {
-    slug = title
-      .toLowerCase()
-      .trim()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // remove accents
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-  }
+    // Duplicate Check
+    const ignoreCheck = formData.get("ignoreDuplicateCheck") === "true";
+    if (!ignoreCheck) {
+      const duplicate = await prisma.project.findFirst({
+        where: {
+          title: { equals: title, mode: "insensitive" },
+        },
+      });
+      if (duplicate) {
+        return {
+          success: false,
+          duplicate: true,
+          error: `A project titled "${title}" already exists.`,
+        };
+      }
+    }
 
-  // Ensure unique slug
-  const existing = await prisma.project.findUnique({ where: { slug } });
-  if (existing) {
-    throw new Error(`The slug '${slug}' is already taken. Please customize it.`);
-  }
+    if (!slug) {
+      slug = title
+        .toLowerCase()
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // remove accents
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+    }
 
-  const startDateStr = formData.get("startDate") as string;
-  const endDateStr = formData.get("endDate") as string;
+    // Ensure unique slug
+    const existing = await prisma.project.findUnique({ where: { slug } });
+    if (existing) {
+      return { success: false, error: `The slug '${slug}' is already taken. Please customize it.` };
+    }
 
-  if (!startDateStr || !endDateStr) {
-    throw new Error("Start Date and End Date are required fields.");
-  }
+    const startDateStr = formData.get("startDate") as string;
+    const endDateStr = formData.get("endDate") as string;
 
-  const selectedMemberIds = formData.getAll("members") as string[];
+    if (!startDateStr || !endDateStr) {
+      return { success: false, error: "Start Date and End Date are required fields." };
+    }
 
-  const featured = formData.get("featured") === "true";
+    const selectedMemberIds = formData.getAll("members") as string[];
 
-  const project = await prisma.project.create({
-    data: {
-      title,
-      slug,
-      code: (formData.get("code") as string) || null,
-      startDate: startDateStr ? new Date(startDateStr) : null,
-      endDate: endDateStr ? new Date(endDateStr) : null,
-      director: (formData.get("director") as string) || null,
-      coDirector: (formData.get("coDirector") as string) || null,
-      responsibleGroup: (formData.get("responsibleGroup") as string) || null,
-      fundingAgency: (formData.get("fundingAgency") as string) || null,
-      amount: (formData.get("amount") as string) || null,
-      summary: (formData.get("summary") as string) || null,
-      website: (formData.get("website") as string) || null,
-      featured,
-      tags: formData.get("tags")
-        ? (formData.get("tags") as string)
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean)
-        : [],
-      members: {
-        connect: selectedMemberIds.map((id) => ({ id })),
+    const featured = formData.get("featured") === "true";
+
+    const project = await prisma.project.create({
+      data: {
+        title,
+        slug,
+        code: (formData.get("code") as string) || null,
+        startDate: startDateStr ? new Date(startDateStr) : null,
+        endDate: endDateStr ? new Date(endDateStr) : null,
+        director: (formData.get("director") as string) || null,
+        coDirector: (formData.get("coDirector") as string) || null,
+        responsibleGroup: (formData.get("responsibleGroup") as string) || null,
+        fundingAgency: (formData.get("fundingAgency") as string) || null,
+        amount: (formData.get("amount") as string) || null,
+        summary: (formData.get("summary") as string) || null,
+        website: (formData.get("website") as string) || null,
+        featured,
+        tags: formData.get("tags")
+          ? (formData.get("tags") as string)
+              .split(",")
+              .map((t) => sanitizeTag(t))
+              .filter(Boolean)
+          : [],
+        members: {
+          connect: selectedMemberIds.map((id) => ({ id })),
+        },
       },
-    },
-  });
+    });
 
-  await logAction("CREATE", "Project", project.id, project.slug, `Created project: ${project.title}`);
+    await logAction("CREATE", "Project", project.id, project.slug, `Created project: ${project.title}`);
 
-  revalidatePath("/projects");
-  return { success: true };
+    revalidatePath("/projects");
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message || "Failed to create project." };
+  }
 }
 
 export async function updateProject(projectId: string, formData: FormData) {
-  await ensureEditorOrAdmin();
+  try {
+    await ensureEditorOrAdmin();
 
-  const title = formData.get("title") as string;
-  let slug = formData.get("slug") as string;
+    const title = formData.get("title") as string;
+    let slug = formData.get("slug") as string;
 
-  if (!title || !slug) {
-    throw new Error("Project Title and Slug are required.");
-  }
+    if (!title || !slug) {
+      return { success: false, error: "Project Title and Slug are required." };
+    }
 
-  // Ensure unique slug
-  const existing = await prisma.project.findUnique({ where: { slug } });
-  if (existing && existing.id !== projectId) {
-    throw new Error(`The slug '${slug}' is already taken by another project.`);
-  }
+    // Duplicate Check
+    const ignoreCheck = formData.get("ignoreDuplicateCheck") === "true";
+    if (!ignoreCheck) {
+      const duplicate = await prisma.project.findFirst({
+        where: {
+          title: { equals: title, mode: "insensitive" },
+          id: { not: projectId },
+        },
+      });
+      if (duplicate) {
+        return {
+          success: false,
+          duplicate: true,
+          error: `Another project titled "${title}" already exists.`,
+        };
+      }
+    }
 
-  const startDateStr = formData.get("startDate") as string;
-  const endDateStr = formData.get("endDate") as string;
+    // Ensure unique slug
+    const existing = await prisma.project.findUnique({ where: { slug } });
+    if (existing && existing.id !== projectId) {
+      return { success: false, error: `The slug '${slug}' is already taken by another project.` };
+    }
 
-  if (!startDateStr || !endDateStr) {
-    throw new Error("Start Date and End Date are required fields.");
-  }
+    const startDateStr = formData.get("startDate") as string;
+    const endDateStr = formData.get("endDate") as string;
 
-  const selectedMemberIds = formData.getAll("members") as string[];
+    if (!startDateStr || !endDateStr) {
+      return { success: false, error: "Start Date and End Date are required fields." };
+    }
 
-  const featured = formData.get("featured") === "true";
+    const selectedMemberIds = formData.getAll("members") as string[];
 
-  const project = await prisma.project.update({
-    where: { id: projectId },
-    data: {
-      title,
-      slug,
-      code: (formData.get("code") as string) || null,
-      startDate: startDateStr ? new Date(startDateStr) : null,
-      endDate: endDateStr ? new Date(endDateStr) : null,
-      director: (formData.get("director") as string) || null,
-      coDirector: (formData.get("coDirector") as string) || null,
-      responsibleGroup: (formData.get("responsibleGroup") as string) || null,
-      fundingAgency: (formData.get("fundingAgency") as string) || null,
-      amount: (formData.get("amount") as string) || null,
-      summary: (formData.get("summary") as string) || null,
-      website: (formData.get("website") as string) || null,
-      featured,
-      tags: formData.get("tags")
-        ? (formData.get("tags") as string)
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean)
-        : [],
-      members: {
-        set: selectedMemberIds.map((id) => ({ id })),
+    const featured = formData.get("featured") === "true";
+
+    const project = await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        title,
+        slug,
+        code: (formData.get("code") as string) || null,
+        startDate: startDateStr ? new Date(startDateStr) : null,
+        endDate: endDateStr ? new Date(endDateStr) : null,
+        director: (formData.get("director") as string) || null,
+        coDirector: (formData.get("coDirector") as string) || null,
+        responsibleGroup: (formData.get("responsibleGroup") as string) || null,
+        fundingAgency: (formData.get("fundingAgency") as string) || null,
+        amount: (formData.get("amount") as string) || null,
+        summary: (formData.get("summary") as string) || null,
+        website: (formData.get("website") as string) || null,
+        featured,
+        tags: formData.get("tags")
+          ? (formData.get("tags") as string)
+              .split(",")
+              .map((t) => sanitizeTag(t))
+              .filter(Boolean)
+          : [],
+        members: {
+          set: selectedMemberIds.map((id) => ({ id })),
+        },
       },
-    },
-  });
+    });
 
-  await logAction("UPDATE", "Project", project.id, project.slug, `Updated project: ${project.title}`);
+    await logAction("UPDATE", "Project", project.id, project.slug, `Updated project: ${project.title}`);
 
-  revalidatePath("/projects");
-  revalidatePath(`/projects/${slug}`);
-  return { success: true };
+    revalidatePath("/projects");
+    revalidatePath(`/projects/${slug}`);
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message || "Failed to update project." };
+  }
 }
 
 export async function deleteProject(projectId: string) {

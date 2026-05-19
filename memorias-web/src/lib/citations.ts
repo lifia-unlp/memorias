@@ -16,6 +16,35 @@ export const SUPPORTED_STYLES = [
 ];
 
 export function formatCitation(pb: any, style: string = "apa"): FormattedCitation {
+  const isRaw = !pb.bibtexData || 
+                typeof pb.bibtexData !== "object" || 
+                Object.keys(pb.bibtexData).length === 0 || 
+                pb.bibtexData.raw === true || 
+                pb.authors === "Raw Reference";
+
+  if (isRaw) {
+    const cleanTitle = (pb.title || "").trim();
+    if (style === "bibtex") {
+      const rawText = jsonToBibtex(pb);
+      return {
+        html: `<pre class="font-mono text-[11px] leading-relaxed p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto text-slate-700 dark:text-slate-350 select-all">${rawText}</pre>`,
+        text: rawText,
+      };
+    }
+    if (style === "ris") {
+      const citationKey = pb.slug || "citation";
+      const rawText = `TY  - GEN\nID  - ${citationKey}\nTI  - ${cleanTitle}\nAU  - Raw Reference\nPY  - ${pb.year || ""}\nER  -`;
+      return {
+        html: `<pre class="font-mono text-[11px] leading-relaxed p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto text-slate-700 dark:text-slate-350 select-all">${rawText}</pre>`,
+        text: rawText,
+      };
+    }
+    return {
+      html: cleanTitle,
+      text: cleanTitle,
+    };
+  }
+
   const bibtexString = jsonToBibtex(pb);
   
   // Clean plain-text citation backup using our own APA algorithm

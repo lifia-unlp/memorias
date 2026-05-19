@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { createThesis, updateThesis } from "./actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { TagWidget } from "@/components/TagWidget";
 
 interface Member {
   id: string;
@@ -119,12 +120,37 @@ export function ThesisForm({
     formData.set("featured", String(featured));
 
     try {
+      let res;
       if (initialData) {
-        await updateThesis(initialData.id, formData);
-        router.push(`/theses/${formData.get("slug")}`);
+        res = await updateThesis(initialData.id, formData);
       } else {
-        await createThesis(formData);
-        router.push("/theses");
+        res = await createThesis(formData);
+      }
+
+      if (res && res.success === false) {
+        if (res.duplicate) {
+          const choice = confirm(
+            `${res.error}\n\nDo you want to save this thesis entry anyway?`
+          );
+          if (choice) {
+            formData.append("ignoreDuplicateCheck", "true");
+            let bypassRes;
+            if (initialData) {
+              bypassRes = await updateThesis(initialData.id, formData);
+            } else {
+              bypassRes = await createThesis(formData);
+            }
+            if (bypassRes && bypassRes.success === false) {
+              setErrorMsg(bypassRes.error || "Failed to save thesis.");
+            } else {
+              router.push(initialData ? `/theses/${formData.get("slug")}` : "/theses");
+            }
+          }
+        } else {
+          setErrorMsg(res.error || "Failed to save thesis.");
+        }
+      } else {
+        router.push(initialData ? `/theses/${formData.get("slug")}` : "/theses");
       }
     } catch (err: any) {
       setErrorMsg(err.message || "Failed to save thesis record.");
@@ -598,17 +624,20 @@ export function ThesisForm({
               className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
             />
           </div>
+        </div>
+      </div>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Classification Tags (comma separated)</label>
-            <input
-              type="text"
-              name="tags"
-              defaultValue={initialData?.tags ? initialData.tags.join(", ") : ""}
-              placeholder="e.g. HCI, Virtual Reality, Education"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+      {/* Dynamic Classification Tags */}
+      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
+        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
+          Research Classification Tags
+        </h3>
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Classification Tags</label>
+          <TagWidget
+            initialTags={initialData?.tags || []}
+            placeholder="Add thesis keywords and fields..."
+          />
         </div>
       </div>
 

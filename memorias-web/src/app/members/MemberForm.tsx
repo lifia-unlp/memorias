@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { createMember, updateMember } from "./actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { TagWidget } from "@/components/TagWidget";
 
 interface MemberFormProps {
   initialData?: any;
@@ -425,7 +426,7 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
             />
           </div>
 
-          <div className="space-y-1.5 col-span-1">
+           <div className="space-y-1.5 col-span-1">
             <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Avatar Image URL</label>
             <input
               type="url"
@@ -435,17 +436,20 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
               className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
             />
           </div>
+        </div>
+      </div>
 
-          <div className="space-y-1.5 md:col-span-3">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Interest Tags (comma separated)</label>
-            <input
-              type="text"
-              name="tags"
-              defaultValue={initialData?.tags ? initialData.tags.join(", ") : ""}
-              placeholder="e.g. Semantic Web, Artificial Intelligence, HCI"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+      {/* Dynamic Classification Tags */}
+      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
+        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
+          Research Classification Tags
+        </h3>
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Interest Tags</label>
+          <TagWidget
+            initialTags={initialData?.tags || []}
+            placeholder="Add academic or research interests..."
+          />
         </div>
       </div>
 

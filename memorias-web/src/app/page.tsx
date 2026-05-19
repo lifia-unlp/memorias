@@ -4,6 +4,8 @@ import { Header } from "@/components/Header";
 import { prisma } from "@/lib/prisma";
 import { formatCitation } from "@/lib/citations";
 import { getLabName, getLabUrl } from "@/lib/config";
+import { getAllTagsWithCounts } from "@/lib/tags";
+import { TagCloud } from "@/components/TagCloud";
 
 export default async function Home() {
   const labName = await getLabName();
@@ -35,6 +37,9 @@ export default async function Home() {
     subtitleOption?.value ||
     "A state-of-the-art research repository and laboratory management portal. Discover publications, explore active research projects, and access defended theses.";
 
+  // Fetch tag cloud metadata
+  const tags = await getAllTagsWithCounts();
+
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
       {/* Unified Header */}
@@ -50,6 +55,11 @@ export default async function Home() {
           <p className="text-lg text-muted max-w-2xl leading-relaxed">
             {welcomeSubtitle}
           </p>
+        </section>
+
+        {/* Dynamic Interactive Tag Cloud */}
+        <section className="animate-in fade-in slide-in-from-top-3 duration-300">
+          <TagCloud tags={tags} limit={40} />
         </section>
 
         {/* 1. Featured Publications (Full Width) */}

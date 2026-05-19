@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { createProject, updateProject } from "./actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { TagWidget } from "@/components/TagWidget";
 
 interface Member {
   id: string;
@@ -72,12 +73,37 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
     formData.set("featured", String(featured));
 
     try {
+      let res;
       if (initialData) {
-        await updateProject(initialData.id, formData);
-        router.push(`/projects/${formData.get("slug")}`);
+        res = await updateProject(initialData.id, formData);
       } else {
-        await createProject(formData);
-        router.push("/projects");
+        res = await createProject(formData);
+      }
+
+      if (res && res.success === false) {
+        if (res.duplicate) {
+          const choice = confirm(
+            `${res.error}\n\nDo you want to save this project entry anyway?`
+          );
+          if (choice) {
+            formData.append("ignoreDuplicateCheck", "true");
+            let bypassRes;
+            if (initialData) {
+              bypassRes = await updateProject(initialData.id, formData);
+            } else {
+              bypassRes = await createProject(formData);
+            }
+            if (bypassRes && bypassRes.success === false) {
+              setErrorMsg(bypassRes.error || "Failed to save project.");
+            } else {
+              router.push(initialData ? `/projects/${formData.get("slug")}` : "/projects");
+            }
+          }
+        } else {
+          setErrorMsg(res.error || "Failed to save project.");
+        }
+      } else {
+        router.push(initialData ? `/projects/${formData.get("slug")}` : "/projects");
       }
     } catch (err: any) {
       setErrorMsg(err.message || "Failed to save project.");
@@ -364,33 +390,32 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
         )}
       </div>
 
-      {/* 4. Rich Abstract Summary & Tagging */}
+      {/* 4. Rich Abstract Summary */}
       <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
         <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Summary & Classification
+          Project Abstract/Summary
         </h3>
+        <div className="space-y-1.5">
+          <textarea
+            name="summary"
+            defaultValue={initialData?.summary || ""}
+            placeholder="Provide a detailed overview of the research scope, objectives, and findings..."
+            className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm h-48"
+          />
+        </div>
+      </div>
 
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Project Abstract/Summary</label>
-            <textarea
-              name="summary"
-              defaultValue={initialData?.summary || ""}
-              placeholder="Provide a detailed overview of the research scope, objectives, and findings..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm h-48"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Classification Tags (comma separated)</label>
-            <input
-              type="text"
-              name="tags"
-              defaultValue={initialData?.tags ? initialData.tags.join(", ") : ""}
-              placeholder="e.g. HCI, Knowledge Management, Collaborative Learning"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+      {/* Dynamic Classification Tags */}
+      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
+        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
+          Research Classification Tags
+        </h3>
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Classification Tags</label>
+          <TagWidget
+            initialTags={initialData?.tags || []}
+            placeholder="Add project keywords and fields..."
+          />
         </div>
       </div>
 

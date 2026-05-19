@@ -171,3 +171,28 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+@media print {
+  /* Hide every page element on the body */
+  body * {
+    visibility: hidden;
+  }
+  /* Exclusively render the report document sheet canvas and its children */
+  .print-content,
+  .print-content * {
+    visibility: visible;
+  }
+  /* Position the print canvas at the absolute top-left of the page with clean full width */
+  .print-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+}

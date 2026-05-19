@@ -26,19 +26,6 @@ export default async function ThesesPage(props: {
     AND: [],
   };
 
-  if (q) {
-    whereConditions.AND.push({
-      OR: [
-        { title: { contains: q, mode: "insensitive" } },
-        { student: { contains: q, mode: "insensitive" } },
-        { director: { contains: q, mode: "insensitive" } },
-        { coDirector: { contains: q, mode: "insensitive" } },
-        { career: { contains: q, mode: "insensitive" } },
-        { summary: { contains: q, mode: "insensitive" } },
-      ],
-    });
-  }
-
   if (level) {
     whereConditions.AND.push({ level });
   }
@@ -66,6 +53,24 @@ export default async function ThesesPage(props: {
       { startDate: "desc" },
     ],
   });
+
+  // Filter in memory for keyword search
+  const lowerQ = q.trim().toLowerCase();
+  const filteredTheses = lowerQ
+    ? theses.filter((t) => {
+        const matchTitle = t.title.toLowerCase().includes(lowerQ);
+        const matchStudent = !!(t.student && t.student.toLowerCase().includes(lowerQ));
+        const matchAdvisors =
+          !!((t.director && t.director.toLowerCase().includes(lowerQ)) ||
+          (t.coDirector && t.coDirector.toLowerCase().includes(lowerQ)));
+        const matchCareer = !!(t.career && t.career.toLowerCase().includes(lowerQ));
+        const matchSummary = !!(t.summary && t.summary.toLowerCase().includes(lowerQ));
+        const matchTags = t.tags.some((tag) =>
+          tag.toLowerCase().includes(lowerQ)
+        );
+        return matchTitle || matchStudent || matchAdvisors || matchCareer || matchSummary || matchTags;
+      })
+    : theses;
 
   // Query levels choices
   const levelOptions = await prisma.systemOption.findMany({
@@ -169,7 +174,7 @@ export default async function ThesesPage(props: {
         </div>
 
         {/* Theses Grid */}
-        {theses.length === 0 ? (
+        {filteredTheses.length === 0 ? (
           <div className="text-center py-16 bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm space-y-3">
             <h3 className="font-extrabold text-slate-800 dark:text-slate-200">No Theses Found</h3>
             <p className="text-xs text-muted max-w-xs mx-auto">
@@ -178,7 +183,7 @@ export default async function ThesesPage(props: {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {theses.map((ths) => {
+            {filteredTheses.map((ths) => {
               const startStr = ths.startDate
                 ? new Date(ths.startDate).getFullYear()
                 : "N/D";
@@ -252,19 +257,6 @@ export default async function ThesesPage(props: {
                     <p className="text-xs text-muted leading-relaxed line-clamp-3">
                       {ths.summary}
                     </p>
-                  )}
-
-                  {/* Progress Milestone Bar */}
-                  {ths.progress !== null && (
-                    <div className="space-y-1.5 pt-1 border-t border-border/60">
-                      <div className="flex justify-between text-[10px] font-bold text-slate-500">
-                        <span>Milestone Progress</span>
-                        <span>{ths.progress}%</span>
-                      </div>
-                      <div className="h-1.5 bg-slate-100 dark:bg-slate-800 border border-border rounded-full overflow-hidden">
-                        <div className="bg-secondary h-full transition-all duration-300" style={{ width: `${ths.progress}%` }}></div>
-                      </div>
-                    </div>
                   )}
 
                   {/* Tags */}

@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { logAction } from "@/lib/audit";
+import { sanitizeTag } from "@/lib/tags";
 
 export async function ensureEditorOrAdmin() {
   const session = await auth();
@@ -17,125 +18,168 @@ export async function ensureEditorOrAdmin() {
 }
 
 export async function createScholarship(formData: FormData) {
-  await ensureEditorOrAdmin();
+  try {
+    await ensureEditorOrAdmin();
 
-  const title = formData.get("title") as string;
-  let slug = formData.get("slug") as string;
+    const title = formData.get("title") as string;
+    let slug = formData.get("slug") as string;
 
-  if (!title) {
-    throw new Error("Scholarship Title is required.");
-  }
+    if (!title) {
+      return { success: false, error: "Scholarship Title is required." };
+    }
 
-  if (!slug) {
-    slug = title
-      .toLowerCase()
-      .trim()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // remove accents
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-  }
+    // Duplicate Check
+    const ignoreCheck = formData.get("ignoreDuplicateCheck") === "true";
+    if (!ignoreCheck) {
+      const duplicate = await prisma.scholarship.findFirst({
+        where: {
+          title: { equals: title, mode: "insensitive" },
+        },
+      });
+      if (duplicate) {
+        return {
+          success: false,
+          duplicate: true,
+          error: `A scholarship titled "${title}" already exists.`,
+        };
+      }
+    }
 
-  // Ensure unique slug
-  const existing = await prisma.scholarship.findUnique({ where: { slug } });
-  if (existing) {
-    throw new Error(`The slug '${slug}' is already taken. Please customize it.`);
-  }
+    if (!slug) {
+      slug = title
+        .toLowerCase()
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // remove accents
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+    }
 
-  const startDateStr = formData.get("startDate") as string;
-  const endDateStr = formData.get("endDate") as string;
+    // Ensure unique slug
+    const existing = await prisma.scholarship.findUnique({ where: { slug } });
+    if (existing) {
+      return { success: false, error: `The slug '${slug}' is already taken. Please customize it.` };
+    }
 
-  const selectedMemberIds = formData.getAll("members") as string[];
-  const selectedProjectIds = formData.getAll("projects") as string[];
+    const startDateStr = formData.get("startDate") as string;
+    const endDateStr = formData.get("endDate") as string;
 
-  const scholarship = await prisma.scholarship.create({
-    data: {
-      title,
-      slug,
-      type: (formData.get("type") as string) || null,
-      student: (formData.get("student") as string) || null,
-      director: (formData.get("director") as string) || null,
-      coDirector: (formData.get("coDirector") as string) || null,
-      fundingAgency: (formData.get("fundingAgency") as string) || null,
-      startDate: startDateStr ? new Date(startDateStr) : null,
-      endDate: endDateStr ? new Date(endDateStr) : null,
-      summary: (formData.get("summary") as string) || null,
-      tags: formData.get("tags")
-        ? (formData.get("tags") as string)
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean)
-        : [],
-      members: {
-        connect: selectedMemberIds.map((id) => ({ id })),
+    const selectedMemberIds = formData.getAll("members") as string[];
+    const selectedProjectIds = formData.getAll("projects") as string[];
+
+    const scholarship = await prisma.scholarship.create({
+      data: {
+        title,
+        slug,
+        type: (formData.get("type") as string) || null,
+        student: (formData.get("student") as string) || null,
+        director: (formData.get("director") as string) || null,
+        coDirector: (formData.get("coDirector") as string) || null,
+        fundingAgency: (formData.get("fundingAgency") as string) || null,
+        startDate: startDateStr ? new Date(startDateStr) : null,
+        endDate: endDateStr ? new Date(endDateStr) : null,
+        summary: (formData.get("summary") as string) || null,
+        tags: formData.get("tags")
+          ? (formData.get("tags") as string)
+              .split(",")
+              .map((t) => sanitizeTag(t))
+              .filter(Boolean)
+          : [],
+        members: {
+          connect: selectedMemberIds.map((id) => ({ id })),
+        },
+        projects: {
+          connect: selectedProjectIds.map((id) => ({ id })),
+        },
       },
-      projects: {
-        connect: selectedProjectIds.map((id) => ({ id })),
-      },
-    },
-  });
+    });
 
-  await logAction("CREATE", "Scholarship", scholarship.id, scholarship.slug, `Created scholarship: ${scholarship.title}`);
+    await logAction("CREATE", "Scholarship", scholarship.id, scholarship.slug, `Created scholarship: ${scholarship.title}`);
 
-  revalidatePath("/scholarships");
-  return { success: true };
+    revalidatePath("/scholarships");
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message || "Failed to create scholarship." };
+  }
 }
 
 export async function updateScholarship(scholarshipId: string, formData: FormData) {
-  await ensureEditorOrAdmin();
+  try {
+    await ensureEditorOrAdmin();
 
-  const title = formData.get("title") as string;
-  let slug = formData.get("slug") as string;
+    const title = formData.get("title") as string;
+    let slug = formData.get("slug") as string;
 
-  if (!title || !slug) {
-    throw new Error("Scholarship Title and Slug are required.");
-  }
+    if (!title || !slug) {
+      return { success: false, error: "Scholarship Title and Slug are required." };
+    }
 
-  // Ensure unique slug
-  const existing = await prisma.scholarship.findUnique({ where: { slug } });
-  if (existing && existing.id !== scholarshipId) {
-    throw new Error(`The slug '${slug}' is already taken by another scholarship.`);
-  }
+    // Duplicate Check
+    const ignoreCheck = formData.get("ignoreDuplicateCheck") === "true";
+    if (!ignoreCheck) {
+      const duplicate = await prisma.scholarship.findFirst({
+        where: {
+          title: { equals: title, mode: "insensitive" },
+          id: { not: scholarshipId },
+        },
+      });
+      if (duplicate) {
+        return {
+          success: false,
+          duplicate: true,
+          error: `Another scholarship titled "${title}" already exists.`,
+        };
+      }
+    }
 
-  const startDateStr = formData.get("startDate") as string;
-  const endDateStr = formData.get("endDate") as string;
+    // Ensure unique slug
+    const existing = await prisma.scholarship.findUnique({ where: { slug } });
+    if (existing && existing.id !== scholarshipId) {
+      return { success: false, error: `The slug '${slug}' is already taken by another scholarship.` };
+    }
 
-  const selectedMemberIds = formData.getAll("members") as string[];
-  const selectedProjectIds = formData.getAll("projects") as string[];
+    const startDateStr = formData.get("startDate") as string;
+    const endDateStr = formData.get("endDate") as string;
 
-  const scholarship = await prisma.scholarship.update({
-    where: { id: scholarshipId },
-    data: {
-      title,
-      slug,
-      type: (formData.get("type") as string) || null,
-      student: (formData.get("student") as string) || null,
-      director: (formData.get("director") as string) || null,
-      coDirector: (formData.get("coDirector") as string) || null,
-      fundingAgency: (formData.get("fundingAgency") as string) || null,
-      startDate: startDateStr ? new Date(startDateStr) : null,
-      endDate: endDateStr ? new Date(endDateStr) : null,
-      summary: (formData.get("summary") as string) || null,
-      tags: formData.get("tags")
-        ? (formData.get("tags") as string)
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean)
-        : [],
-      members: {
-        set: selectedMemberIds.map((id) => ({ id })),
+    const selectedMemberIds = formData.getAll("members") as string[];
+    const selectedProjectIds = formData.getAll("projects") as string[];
+
+    const scholarship = await prisma.scholarship.update({
+      where: { id: scholarshipId },
+      data: {
+        title,
+        slug,
+        type: (formData.get("type") as string) || null,
+        student: (formData.get("student") as string) || null,
+        director: (formData.get("director") as string) || null,
+        coDirector: (formData.get("coDirector") as string) || null,
+        fundingAgency: (formData.get("fundingAgency") as string) || null,
+        startDate: startDateStr ? new Date(startDateStr) : null,
+        endDate: endDateStr ? new Date(endDateStr) : null,
+        summary: (formData.get("summary") as string) || null,
+        tags: formData.get("tags")
+          ? (formData.get("tags") as string)
+              .split(",")
+              .map((t) => sanitizeTag(t))
+              .filter(Boolean)
+          : [],
+        members: {
+          set: selectedMemberIds.map((id) => ({ id })),
+        },
+        projects: {
+          set: selectedProjectIds.map((id) => ({ id })),
+        },
       },
-      projects: {
-        set: selectedProjectIds.map((id) => ({ id })),
-      },
-    },
-  });
+    });
 
-  await logAction("UPDATE", "Scholarship", scholarship.id, scholarship.slug, `Updated scholarship: ${scholarship.title}`);
+    await logAction("UPDATE", "Scholarship", scholarship.id, scholarship.slug, `Updated scholarship: ${scholarship.title}`);
 
-  revalidatePath("/scholarships");
-  revalidatePath(`/scholarships/${slug}`);
-  return { success: true };
+    revalidatePath("/scholarships");
+    revalidatePath(`/scholarships/${slug}`);
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message || "Failed to update scholarship." };
+  }
 }
 
 export async function deleteScholarship(scholarshipId: string) {

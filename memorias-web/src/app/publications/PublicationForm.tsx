@@ -3,6 +3,7 @@
 import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { resolveDoiAction, parseBibtex, createPublication, updatePublication } from "./actions";
+import { TagWidget } from "@/components/TagWidget";
 
 export const BIBTEX_FIELDS_MAP: Record<string, { label: string; required: string[]; optional: string[] }> = {
   article: {
@@ -118,7 +119,7 @@ export function PublicationForm({
   const [type, setType] = useState(publication?.type || "article");
   const [ranking, setRanking] = useState(publication?.ranking || "");
   const [selfArchivingUrl, setSelfArchivingUrl] = useState(publication?.selfArchivingUrl || "");
-  const [tagsInput, setTagsInput] = useState((publication?.tags || []).join(", "));
+  const [tags, setTags] = useState<string[]>(publication?.tags || []);
   const [citationKey, setCitationKey] = useState(
     publication?.bibtexData?.citationKey || ""
   );
@@ -224,10 +225,7 @@ export function PublicationForm({
       }
     }
 
-    const tags = tagsInput
-      .split(",")
-      .map((t: string) => t.trim())
-      .filter(Boolean);
+
 
     // Filter customEntryTags to only save fields belonging to the active type
     const filteredCustomTags: Record<string, string> = {};
@@ -266,6 +264,23 @@ export function PublicationForm({
 
       if (res.success) {
         router.push(`/publications/${res.slug}`);
+      } else if ((res as any).duplicate) {
+        const choice = confirm(
+          `${res.error}\n\nDo you want to save this publication entry anyway?`
+        );
+        if (choice) {
+          startTransition(async () => {
+            const bypassRes = publication
+              ? await updatePublication(publication.slug, { ...payload, ignoreDuplicateCheck: true })
+              : await createPublication({ ...payload, ignoreDuplicateCheck: true });
+            
+            if (bypassRes.success) {
+              router.push(`/publications/${bypassRes.slug}`);
+            } else {
+              setFormError(bypassRes.error || "An unexpected error occurred while saving.");
+            }
+          });
+        }
       } else {
         setFormError(res.error || "An unexpected error occurred while saving the publication");
       }
@@ -605,20 +620,20 @@ export function PublicationForm({
               </div>
             </div>
 
-            <div>
-              <label className="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                Custom Tags / Keywords (Optional)
-              </label>
-              <input
-                type="text"
-                value={tagsInput}
-                onChange={(e) => setTagsInput(e.target.value)}
-                placeholder="e.g. Semantic Web, Ontology, Research portal"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm"
+            <div className="border border-border p-6 rounded-2xl bg-slate-50/50 dark:bg-slate-950/20 space-y-4">
+              <div>
+                <h4 className="text-xs font-extrabold text-slate-850 dark:text-slate-200 uppercase tracking-wider">
+                  Research Classification Tags
+                </h4>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Add custom keywords and research classifications to tag this publication globally.
+                </p>
+              </div>
+              <TagWidget
+                initialTags={publication?.tags || []}
+                placeholder="Add custom tags or keywords..."
+                onChange={(newTags) => setTags(newTags)}
               />
-              <span className="block text-[10px] text-slate-400 mt-1">
-                Enter comma-separated values.
-              </span>
             </div>
 
             <div>

@@ -37,21 +37,25 @@ export default async function PublicationsPage(props: {
   const publications = await prisma.publication.findMany({
     where: {
       AND: [
-        q
-          ? {
-              OR: [
-                { title: { contains: q, mode: "insensitive" } },
-                { authors: { contains: q, mode: "insensitive" } },
-                { tags: { has: q } },
-              ],
-            }
-          : {},
         typeFilter !== "all" ? { type: { equals: typeFilter } } : {},
         yearFilter !== "all" ? { year: { equals: parseInt(yearFilter, 10) } } : {},
       ],
     },
     orderBy: [{ year: "desc" }, { title: "asc" }],
   });
+
+  // Filter in memory for keyword search
+  const lowerQ = q.trim().toLowerCase();
+  const filteredPublications = lowerQ
+    ? publications.filter((p) => {
+        const matchTitle = p.title.toLowerCase().includes(lowerQ);
+        const matchAuthors = p.authors.toLowerCase().includes(lowerQ);
+        const matchTags = p.tags.some((tag) =>
+          tag.toLowerCase().includes(lowerQ)
+        );
+        return matchTitle || matchAuthors || matchTags;
+      })
+    : publications;
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
@@ -161,7 +165,7 @@ export default async function PublicationsPage(props: {
         </form>
 
         {/* Publications Bibliography Grid */}
-        {publications.length === 0 ? (
+        {filteredPublications.length === 0 ? (
           <div className="text-center py-16 bg-white dark:bg-slate-900 border border-border rounded-2xl p-8 space-y-2">
             <h3 className="text-lg font-bold">No publications found</h3>
             <p className="text-sm text-muted">
@@ -170,7 +174,7 @@ export default async function PublicationsPage(props: {
           </div>
         ) : (
           <div className="space-y-4">
-            {publications.map((pb) => {
+            {filteredPublications.map((pb) => {
               const citation = formatCitation(pb, styleFilter);
               const bibString = jsonToBibtex(pb);
               const bibDownloadUrl = bibString
@@ -218,7 +222,7 @@ export default async function PublicationsPage(props: {
                           rel="noopener noreferrer"
                           className="text-primary hover:text-primary-hover flex items-center gap-1 transition-all"
                         >
-                          📄 Self-archived PDF
+                          Self-archived PDF
                         </a>
                       )}
                       {bibDownloadUrl && (
@@ -227,14 +231,14 @@ export default async function PublicationsPage(props: {
                           download={`${pb.slug || "citation"}.bib`}
                           className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center gap-1 transition-all"
                         >
-                          📥 Download BibTeX
+                          Download BibTeX
                         </a>
                       )}
                       <Link
                         href={`/publications/${pb.slug}`}
                         className="text-secondary hover:text-secondary-hover flex items-center gap-1 transition-all"
                       >
-                        🔍 Details
+                        Details
                       </Link>
 
                       {/* Interactive Clipboard Copy */}
@@ -249,7 +253,7 @@ export default async function PublicationsPage(props: {
                         href={`/publications/${pb.slug}/edit`}
                         className="text-xs font-bold text-slate-700 hover:text-primary dark:text-slate-300 dark:hover:text-white border border-border rounded-lg px-3 py-1.5 transition-all bg-slate-50 dark:bg-slate-900"
                       >
-                        ✏️ Edit
+                        Edit
                       </Link>
                     </div>
                   )}

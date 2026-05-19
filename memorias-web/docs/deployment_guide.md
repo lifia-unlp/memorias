@@ -111,10 +111,17 @@ services:
       - "3000:3000"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres_secure_pwd@db:5432/memorias?schema=public
-      - NEXTAUTH_SECRET=your_very_long_nextauth_jwt_secret_key
-      - NEXTAUTH_URL=http://your-server-ip:3000
-      - GOOGLE_CLIENT_ID=your_google_oauth_client_id.apps.googleusercontent.com
-      - GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
+      - AUTH_SECRET=your_very_long_auth_jwt_secret_key
+      - AUTH_URL=http://your-server-ip:3000
+      # Google OAuth Credentials (Optional)
+      - AUTH_GOOGLE_ID=your_google_oauth_client_id.apps.googleusercontent.com
+      - AUTH_GOOGLE_SECRET=your_google_oauth_client_secret
+      # GitHub OAuth Credentials (Optional)
+      - AUTH_GITHUB_ID=your_github_client_id
+      - AUTH_GITHUB_SECRET=your_github_client_secret
+      # Microsoft OAuth (Entra ID) Credentials (Optional)
+      - AUTH_MICROSOFT_ENTRA_ID_ID=your_microsoft_client_id
+      - AUTH_MICROSOFT_ENTRA_ID_SECRET=your_microsoft_client_secret
     depends_on:
       db:
         condition: service_healthy
@@ -239,4 +246,44 @@ If your old MongoDB server is active and reachable over the network:
 ## 🔒 Step 5: Post-Migration Revalidation
 
 After running either option, log into the dashboard at `http://your-server-ip:3000` as an administrator. Your migrated data, connected authors, theses, projects, and the 9 clean featured records will load instantly!
+
+---
+
+## 🔑 Step 6: Configuring OAuth Identity Providers
+
+The Memorias portal supports Google, GitHub, and Microsoft (Entra ID / Office 365) authentication. 
+
+### Conditional Visibility Features
+To simplify configuration and reduce user confusion, **only the identity providers that are fully configured in the environment will appear in the login window**. If an identity provider does not have both its Client ID and Client Secret specified, its login button will automatically be hidden. 
+
+If no OAuth identity providers are configured, the login screen displays a prominent configuration alert banner (while local development mode retains a backdoor login for administrative testing).
+
+### Provider Configuration Guide
+
+#### 1. Google OAuth
+- Go to the **Google Cloud Console** > **APIs & Services** > **Credentials**.
+- Create an **OAuth 2.0 Client ID** as a *Web Application*.
+- Set the **Authorized Redirect URI** to: `https://your-domain.com/api/auth/callback/google`.
+- Set these variables in `docker-compose.yml` environment:
+  - `AUTH_GOOGLE_ID`
+  - `AUTH_GOOGLE_SECRET`
+
+#### 2. GitHub OAuth
+- Go to your GitHub account or Organization settings > **Developer Settings** > **OAuth Apps**.
+- Click **New OAuth App**.
+- Set the **Authorization callback URL** to: `https://your-domain.com/api/auth/callback/github`.
+- Set these variables in `docker-compose.yml` environment:
+  - `AUTH_GITHUB_ID`
+  - `AUTH_GITHUB_SECRET`
+
+#### 3. Microsoft OAuth (Entra ID / Office 365)
+- Go to the **Microsoft Entra Admin Center** (formerly Azure Portal) > **App registrations**.
+- Click **New registration** and name it (e.g. `Memorias Research Portal`).
+- Set **Supported account types** to: *Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant) and personal Microsoft accounts (e.g. Skype, Xbox)*. This ensures personal, work, and school Outlook/Office accounts can authenticate without demanding tenant administrator approval.
+- Set the **Redirect URI (Web)** to: `https://your-domain.com/api/auth/callback/microsoft-entra-id`.
+- Generate a new client secret under **Certificates & secrets** > **Client secrets**.
+- Set these variables in `docker-compose.yml` environment:
+  - `AUTH_MICROSOFT_ENTRA_ID_ID`
+  - `AUTH_MICROSOFT_ENTRA_ID_SECRET`
+
 

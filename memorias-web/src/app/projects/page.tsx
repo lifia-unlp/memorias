@@ -19,18 +19,8 @@ export default async function ProjectsPage(props: {
   const resolvedSearchParams = await props.searchParams;
   const q = resolvedSearchParams.q || "";
 
-  // Query projects based on search text
+  // Query all projects with members
   const projects = await prisma.project.findMany({
-    where: {
-      OR: [
-        { title: { contains: q, mode: "insensitive" } },
-        { code: { contains: q, mode: "insensitive" } },
-        { director: { contains: q, mode: "insensitive" } },
-        { coDirector: { contains: q, mode: "insensitive" } },
-        { summary: { contains: q, mode: "insensitive" } },
-        { fundingAgency: { contains: q, mode: "insensitive" } },
-      ],
-    },
     include: {
       members: {
         select: {
@@ -42,6 +32,24 @@ export default async function ProjectsPage(props: {
     },
     orderBy: { endDate: "desc" },
   });
+
+  // Filter in memory for maximum search flexibility (including partial, case-insensitive tag matching)
+  const lowerQ = q.trim().toLowerCase();
+  const filteredProjects = lowerQ
+    ? projects.filter((p) => {
+        const matchTitle = p.title.toLowerCase().includes(lowerQ);
+        const matchCode = !!(p.code && p.code.toLowerCase().includes(lowerQ));
+        const matchDirector =
+          !!((p.director && p.director.toLowerCase().includes(lowerQ)) ||
+          (p.coDirector && p.coDirector.toLowerCase().includes(lowerQ)));
+        const matchSummary = !!(p.summary && p.summary.toLowerCase().includes(lowerQ));
+        const matchAgency = !!(p.fundingAgency && p.fundingAgency.toLowerCase().includes(lowerQ));
+        const matchTags = p.tags.some((tag) =>
+          tag.toLowerCase().includes(lowerQ)
+        );
+        return matchTitle || matchCode || matchDirector || matchSummary || matchAgency || matchTags;
+      })
+    : projects;
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
@@ -105,7 +113,7 @@ export default async function ProjectsPage(props: {
         </div>
 
         {/* Projects Grid */}
-        {projects.length === 0 ? (
+        {filteredProjects.length === 0 ? (
           <div className="text-center py-16 bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm space-y-3">
             <h3 className="font-extrabold text-slate-800 dark:text-slate-200">No Projects Found</h3>
             <p className="text-xs text-muted max-w-xs mx-auto">
@@ -114,7 +122,7 @@ export default async function ProjectsPage(props: {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {projects.map((project) => {
+            {filteredProjects.map((project) => {
               const startStr = project.startDate
                 ? new Date(project.startDate).toLocaleDateString("en-US", { year: "numeric", month: "short" })
                 : "N/D";

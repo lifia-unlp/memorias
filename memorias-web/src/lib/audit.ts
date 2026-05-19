@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function logAction(
   action: "CREATE" | "UPDATE" | "DELETE",
-  entityType: "Member" | "Project" | "Thesis" | "Scholarship" | "Publication",
+  entityType: "Member" | "Project" | "Thesis" | "Scholarship" | "Publication" | "Tag",
   entityId: string,
   entitySlug: string | null,
   details: string | null

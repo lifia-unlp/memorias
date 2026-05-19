@@ -1,6 +1,7 @@
 import type { NextAuthConfig } from "next-auth";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
+import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 
 export default {
   providers: [
@@ -11,6 +12,10 @@ export default {
     Google({
       clientId: process.env.AUTH_GOOGLE_ID || "mock-google-id",
       clientSecret: process.env.AUTH_GOOGLE_SECRET || "mock-google-secret",
+    }),
+    MicrosoftEntraID({
+      clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID || "mock-microsoft-id",
+      clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET || "mock-microsoft-secret",
     }),
   ],
   session: {
