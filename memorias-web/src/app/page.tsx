@@ -223,8 +223,6 @@ export default async function Home() {
           <p>© {new Date().getFullYear()} <a href={labUrl} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors font-semibold">{labName}</a>. All rights reserved. Powered by Memorias.</p>
           <div className="flex gap-4">
             <a href="#" className="hover:underline">Semantic Web RDF</a>
-            <span>•</span>
-            <a href="#" className="hover:underline">MCP Server API</a>
           </div>
         </div>
       </footer>
