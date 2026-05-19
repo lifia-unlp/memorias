@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 const { auth } = NextAuth(authConfig);
 
-export default auth((req) => {
+export const proxy = auth((req) => {
   const { nextUrl, auth: session } = req;
   const isLoggedIn = !!session?.user;
   const isActive = session?.user?.active === true;
@@ -25,6 +25,12 @@ export default auth((req) => {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
+  // Reports protection policy: Only logged-in, activated users can access /reports routes
+  const isReportsRoute = nextUrl.pathname.startsWith("/reports");
+  if (isReportsRoute && (!isLoggedIn || !isActive)) {
+    return NextResponse.redirect(new URL("/auth/signin", req.url));
+  }
+
   return NextResponse.next();
 });
 
@@ -34,3 +40,4 @@ export const config = {
     "/((?!api|_next/static|_next/image|public|favicon.ico|.*\\.svg|.*\\.png).*)",
   ],
 };
+export default proxy;
