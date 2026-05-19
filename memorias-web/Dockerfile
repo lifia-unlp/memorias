@@ -36,6 +36,9 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/scripts ./scripts
 
+# Copy Prisma configuration file
+COPY --from=builder /app/prisma.config.* ./
+
 # Give user nextjs correct ownership
 RUN chown -R nextjs:nodejs /app
 
