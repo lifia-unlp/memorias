@@ -6,8 +6,10 @@ import {
   deleteTagGlobally,
   mergeTags,
   isOpenAIConfigured,
-  runGlobalAutoTaggerAction,
+  getAutoTaggerQueueAction,
+  executeAutoTagBatchAction,
   getTagsWithCountsAdmin,
+  addSystemTag,
 } from "./actions";
 
 interface TagInfo {
@@ -31,6 +33,7 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
   const [selectedTargets, setSelectedTargets] = useState<string[]>(["publication"]);
   const [selectedMode, setSelectedMode] = useState<"skip" | "merge" | "replace">("skip");
   const [isAutoTagging, setIsAutoTagging] = useState(false);
+  const [taggingProgress, setTaggingProgress] = useState<{ current: number; total: number } | null>(null);
 
   // Check if OpenAI is configured in the environment on mount
   useEffect(() => {
@@ -55,6 +58,9 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
   const [mergeTargetValue, setMergeTargetValue] = useState("");
 
   const [activeDeleteTag, setActiveDeleteTag] = useState<TagInfo | null>(null);
+
+  const [activeAddTag, setActiveAddTag] = useState(false);
+  const [addTagValue, setAddTagValue] = useState("");
 
   const [notification, setNotification] = useState<{
     type: "success" | "error";
@@ -83,6 +89,31 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
         }
       } catch (err: any) {
         showNotification("error", err?.message || "Failed to delete tag.");
+      }
+    });
+  };
+
+  // 1.5 Add Tag Handler
+  const handleAddSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newTag = addTagValue.trim().toLowerCase();
+    if (!newTag) return;
+
+    startTransition(async () => {
+      try {
+        const res = await addSystemTag(newTag);
+        if (res.success) {
+          setTags((prev) => {
+            const exists = prev.find(t => t.tag === newTag);
+            if (exists) return prev;
+            return [...prev, { tag: newTag, count: 0 }].sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+          });
+          showNotification("success", `Successfully added tag "${newTag}".`);
+          setActiveAddTag(false);
+          setAddTagValue("");
+        }
+      } catch (err: any) {
+        showNotification("error", err?.message || "Failed to add tag.");
       }
     });
   };
@@ -174,30 +205,59 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
     }
 
     setIsAutoTagging(true);
-    showNotification("success", "Global AI Auto-Tagger initiated. Processing batch queues...");
+    setTaggingProgress(null);
+    showNotification("success", "Constructing the queue of items to tag...");
 
     try {
-      const res = await runGlobalAutoTaggerAction({
-        model: selectedModel,
+      // 1. Fetch queue items
+      const queue = await getAutoTaggerQueueAction({
         targets: selectedTargets,
         mode: selectedMode,
       });
 
-      if (res.success) {
-        showNotification(
-          "success",
-          `AI Auto-Tagger finished successfully! Processed and updated: ${res.processedCount} element(s).`
-        );
-        // Refresh local curation tag stats list dynamically
-        const updatedTags = await getTagsWithCountsAdmin();
-        setTags(updatedTags);
-      } else {
-        showNotification("error", res.error || "Failed to execute AI Auto-Tagger.");
+      if (queue.length === 0) {
+        showNotification("success", "No matching items found to auto-tag.");
+        setIsAutoTagging(false);
+        return;
       }
+
+      setTaggingProgress({ current: 0, total: queue.length });
+      showNotification("success", `AI Auto-Tagger running. Processing ${queue.length} elements...`);
+
+      // 2. Loop and process in batches of 15
+      const batchSize = 15;
+      let processed = 0;
+
+      for (let i = 0; i < queue.length; i += batchSize) {
+        const batch = queue.slice(i, i + batchSize);
+        
+        const res = await executeAutoTagBatchAction({
+          model: selectedModel,
+          mode: selectedMode,
+          tasks: batch,
+        });
+
+        if (res.success) {
+          processed += batch.length;
+          setTaggingProgress({ current: Math.min(processed, queue.length), total: queue.length });
+        } else {
+          throw new Error("Failed to process tag batch.");
+        }
+      }
+
+      showNotification(
+        "success",
+        `AI Auto-Tagger finished successfully! Processed and updated: ${queue.length} elements.`
+      );
+
+      // Refresh local curation list
+      const updatedTags = await getTagsWithCountsAdmin();
+      setTags(updatedTags);
     } catch (err: any) {
       showNotification("error", err?.message || "An unexpected error occurred during execution.");
     } finally {
       setIsAutoTagging(false);
+      setTaggingProgress(null);
     }
   };
 
@@ -422,6 +482,21 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
               </div>
             </div>
 
+            {taggingProgress && (
+              <div className="mt-4 space-y-2">
+                <div className="flex justify-between text-[10px] font-extrabold text-indigo-650 dark:text-indigo-400 uppercase tracking-wider">
+                  <span>Progress</span>
+                  <span>{taggingProgress.current} / {taggingProgress.total}</span>
+                </div>
+                <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden border border-border/40">
+                  <div
+                    className="bg-indigo-600 h-full rounded-full transition-all duration-300"
+                    style={{ width: `${(taggingProgress.current / taggingProgress.total) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
             <button
               onClick={handleRunAutoTagger}
               disabled={
@@ -453,13 +528,24 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
           <h2 className="font-extrabold text-slate-800 dark:text-white text-base self-start sm:self-center">
             Active Taxonomy Register
           </h2>
-          <input
-            type="text"
-            placeholder="Search tags..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full sm:w-72 border border-border px-3.5 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs"
-          />
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <input
+              type="text"
+              placeholder="Search tags..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full sm:w-72 border border-border px-3.5 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs"
+            />
+            <button
+              onClick={() => {
+                setActiveAddTag(true);
+                setAddTagValue("");
+              }}
+              className="whitespace-nowrap px-4 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-xl shadow-sm transition-colors"
+            >
+              + Add Tag
+            </button>
+          </div>
         </div>
 
         {filteredTags.length === 0 ? (
@@ -690,6 +776,60 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* 4. Add Modal */}
+      {activeAddTag && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <form
+            onSubmit={handleAddSubmit}
+            className="w-full max-w-md bg-white dark:bg-slate-900 border border-border rounded-3xl shadow-2xl p-6 space-y-6 animate-in zoom-in-95 duration-200"
+          >
+            <div className="space-y-1">
+              <h3 className="text-lg font-black text-slate-800 dark:text-white">
+                Add New Tag
+              </h3>
+              <p className="text-xs text-slate-400 leading-normal">
+                Create a new empty tag in the system taxonomy.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
+                Tag Name
+              </label>
+              <input
+                type="text"
+                required
+                value={addTagValue}
+                onChange={(e) => setAddTagValue(e.target.value)}
+                placeholder="e.g. quantum computing"
+                className="w-full border border-border px-3.5 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm font-semibold"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-border/80">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveAddTag(false);
+                  setAddTagValue("");
+                }}
+                disabled={isPending}
+                className="px-5 py-2.5 rounded-xl border border-border text-xs font-bold text-slate-650 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isPending || !addTagValue.trim()}
+                className="bg-primary hover:bg-primary-hover disabled:opacity-50 text-white px-6 py-2.5 rounded-xl text-xs font-bold shadow cursor-pointer transition-colors"
+              >
+                {isPending ? "Adding..." : "Add Tag"}
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </div>

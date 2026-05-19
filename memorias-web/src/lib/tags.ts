@@ -17,15 +17,22 @@ export function sanitizeTag(tag: string): string {
  */
 export async function getAllTagsWithCounts(): Promise<{ tag: string; count: number }[]> {
   try {
-    const [members, projects, theses, scholarships, publications] = await Promise.all([
+    const [members, projects, theses, scholarships, publications, systemTags] = await Promise.all([
       prisma.member.findMany({ select: { tags: true } }),
       prisma.project.findMany({ select: { tags: true } }),
       prisma.thesis.findMany({ select: { tags: true } }),
       prisma.scholarship.findMany({ select: { tags: true } }),
       prisma.publication.findMany({ select: { tags: true } }),
+      prisma.systemOption.findMany({ where: { listName: "taxonomy_tag" }, select: { value: true } }),
     ]);
 
     const counts: Record<string, number> = {};
+
+    // Seed approved tags with count 0
+    for (const sysTag of systemTags) {
+      const tag = sanitizeTag(sysTag.value);
+      if (tag) counts[tag] = 0;
+    }
 
     const allEntries = [
       ...members,

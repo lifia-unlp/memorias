@@ -250,15 +250,13 @@ async function callOpenAIBatch(
 Analyze the provided list of academic items (each with an 'id', 'title', and optional 'summary').
 For each item, recommend 1 to 5 highly relevant, lowercase research tags or keywords representing the scientific fields, methodologies, or technologies.
 
-Here is the list of active research tags already established in the laboratory database:
+CRITICAL INSTRUCTION:
+You may ONLY recommend tags that are in the following list of approved taxonomy tags. DO NOT generate new tags under any circumstances. If an item cannot be mapped to any of the approved tags, return an empty array [] for it.
+
+Approved taxonomy tags:
 ${JSON.stringify(existingTags)}
 
-CRITICAL INSTRUCTIONS:
-1. Prioritize matching and reusing existing tags from the list above.
-2. Only generate a brand new tag if none of the established tags are suitable.
-3. Keep all tags strictly lowercase, trimmed of whitespace, and concise (e.g. 'nlp' or 'semantic web').
-4. If the title and summary are too brief, vague, generic, or if you lack confidence to classify the item, do not generate tags. Return an empty array [] for that item.
-5. Return your response ONLY as a JSON object matching this schema:
+Return your response ONLY as a JSON object matching this schema:
 {
   "classifications": [
     { "id": "item_id", "tags": ["tag1", "tag2"] }
@@ -302,244 +300,212 @@ CRITICAL INSTRUCTIONS:
 }
 
 /**
- * Global administrative action to execute database-wide batch AI auto-tagging.
+ * Admin action to fetch the entire queue of items to tag based on targets and mode.
  */
-export async function runGlobalAutoTaggerAction(params: {
-  model: string;
+export async function getAutoTaggerQueueAction(params: {
   targets: string[];
   mode: "skip" | "merge" | "replace";
 }) {
   await ensureEditorOrAdmin();
-  const { model, targets, mode } = params;
+  const { targets, mode } = params;
+  const queue: { id: string; target: string; title: string; summary: string; currentTags: string[] }[] = [];
 
-  if (targets.length === 0) {
-    return { success: false, error: "No target collections selected." };
-  }
-
-  // If using OpenAI (i.e. targets has non-member entities), check key
-  const hasAITarget = targets.some((t) => t !== "member");
-  if (hasAITarget && !process.env.OPENAI_API_KEY) {
-    return { success: false, error: "OpenAI API Key is missing in the environment." };
-  }
-
-  const existingTags = await getDistinctTags();
-  let totalProcessed = 0;
-  const newTagsSet = new Set<string>();
-
-  // Process sequentially to keep it stable
   for (const target of targets) {
     if (target === "publication") {
-      let pubs = await prisma.publication.findMany();
+      let pubs = await prisma.publication.findMany({ select: { id: true, title: true, bibtexData: true, tags: true } });
       if (mode === "skip") {
         pubs = pubs.filter((p) => p.tags.length === 0);
       }
-
-      // Batch in chunks of 15
-      const batchSize = 15;
-      for (let i = 0; i < pubs.length; i += batchSize) {
-        const chunk = pubs.slice(i, i + batchSize);
-        const items = chunk.map((p) => ({
-          id: p.id,
-          title: p.title,
-          summary: (p.bibtexData as any)?.abstract || "",
-        }));
-
-        try {
-          const suggestions = await callOpenAIBatch(model, items, existingTags);
-          for (const sug of suggestions) {
-            const pub = chunk.find((c) => c.id === sug.id);
-            if (!pub) continue;
-
-            const sanitizedSug = sug.tags.map((t) => t.trim().toLowerCase()).filter(Boolean);
-            const finalTags =
-              mode === "replace"
-                ? sanitizedSug
-                : Array.from(new Set([...pub.tags, ...sanitizedSug]));
-
-            await prisma.publication.update({
-              where: { id: pub.id },
-              data: { tags: finalTags },
-            });
-
-            sanitizedSug.forEach((t) => newTagsSet.add(t));
-            totalProcessed++;
-          }
-        } catch (err) {
-          console.error("Error processing publications batch:", err);
-        }
-      }
+      queue.push(...pubs.map(p => ({
+        id: p.id,
+        target,
+        title: p.title,
+        summary: (p.bibtexData as any)?.abstract || "",
+        currentTags: p.tags,
+      })));
     }
 
     if (target === "project") {
-      let projs = await prisma.project.findMany();
+      let projs = await prisma.project.findMany({ select: { id: true, title: true, summary: true, tags: true } });
       if (mode === "skip") {
         projs = projs.filter((p) => p.tags.length === 0);
       }
-
-      const batchSize = 15;
-      for (let i = 0; i < projs.length; i += batchSize) {
-        const chunk = projs.slice(i, i + batchSize);
-        const items = chunk.map((p) => ({
-          id: p.id,
-          title: p.title,
-          summary: p.summary || "",
-        }));
-
-        try {
-          const suggestions = await callOpenAIBatch(model, items, existingTags);
-          for (const sug of suggestions) {
-            const proj = chunk.find((c) => c.id === sug.id);
-            if (!proj) continue;
-
-            const sanitizedSug = sug.tags.map((t) => t.trim().toLowerCase()).filter(Boolean);
-            const finalTags =
-              mode === "replace"
-                ? sanitizedSug
-                : Array.from(new Set([...proj.tags, ...sanitizedSug]));
-
-            await prisma.project.update({
-              where: { id: proj.id },
-              data: { tags: finalTags },
-            });
-
-            sanitizedSug.forEach((t) => newTagsSet.add(t));
-            totalProcessed++;
-          }
-        } catch (err) {
-          console.error("Error processing projects batch:", err);
-        }
-      }
+      queue.push(...projs.map(p => ({
+        id: p.id,
+        target,
+        title: p.title,
+        summary: p.summary || "",
+        currentTags: p.tags,
+      })));
     }
 
     if (target === "thesis") {
-      let theses = await prisma.thesis.findMany();
+      let theses = await prisma.thesis.findMany({ select: { id: true, title: true, summary: true, tags: true } });
       if (mode === "skip") {
         theses = theses.filter((t) => t.tags.length === 0);
       }
-
-      const batchSize = 15;
-      for (let i = 0; i < theses.length; i += batchSize) {
-        const chunk = theses.slice(i, i + batchSize);
-        const items = chunk.map((t) => ({
-          id: t.id,
-          title: t.title,
-          summary: t.summary || "",
-        }));
-
-        try {
-          const suggestions = await callOpenAIBatch(model, items, existingTags);
-          for (const sug of suggestions) {
-            const thesis = chunk.find((c) => c.id === sug.id);
-            if (!thesis) continue;
-
-            const sanitizedSug = sug.tags.map((t) => t.trim().toLowerCase()).filter(Boolean);
-            const finalTags =
-              mode === "replace"
-                ? sanitizedSug
-                : Array.from(new Set([...thesis.tags, ...sanitizedSug]));
-
-            await prisma.thesis.update({
-              where: { id: thesis.id },
-              data: { tags: finalTags },
-            });
-
-            sanitizedSug.forEach((t) => newTagsSet.add(t));
-            totalProcessed++;
-          }
-        } catch (err) {
-          console.error("Error processing theses batch:", err);
-        }
-      }
+      queue.push(...theses.map(t => ({
+        id: t.id,
+        target,
+        title: t.title,
+        summary: t.summary || "",
+        currentTags: t.tags,
+      })));
     }
 
     if (target === "scholarship") {
-      let schs = await prisma.scholarship.findMany();
+      let schs = await prisma.scholarship.findMany({ select: { id: true, title: true, summary: true, tags: true } });
       if (mode === "skip") {
         schs = schs.filter((s) => s.tags.length === 0);
       }
-
-      const batchSize = 15;
-      for (let i = 0; i < schs.length; i += batchSize) {
-        const chunk = schs.slice(i, i + batchSize);
-        const items = chunk.map((s) => ({
-          id: s.id,
-          title: s.title,
-          summary: s.summary || "",
-        }));
-
-        try {
-          const suggestions = await callOpenAIBatch(model, items, existingTags);
-          for (const sug of suggestions) {
-            const sch = chunk.find((c) => c.id === sug.id);
-            if (!sch) continue;
-
-            const sanitizedSug = sug.tags.map((t) => t.trim().toLowerCase()).filter(Boolean);
-            const finalTags =
-              mode === "replace"
-                ? sanitizedSug
-                : Array.from(new Set([...sch.tags, ...sanitizedSug]));
-
-            await prisma.scholarship.update({
-              where: { id: sch.id },
-              data: { tags: finalTags },
-            });
-
-            sanitizedSug.forEach((t) => newTagsSet.add(t));
-            totalProcessed++;
-          }
-        } catch (err) {
-          console.error("Error processing scholarships batch:", err);
-        }
-      }
+      queue.push(...schs.map(s => ({
+        id: s.id,
+        target,
+        title: s.title,
+        summary: s.summary || "",
+        currentTags: s.tags,
+      })));
     }
 
     if (target === "member") {
-      // In-memory member tag derivation
-      let members = await prisma.member.findMany();
+      let members = await prisma.member.findMany({ select: { id: true, firstName: true, lastName: true, tags: true } });
       if (mode === "skip") {
         members = members.filter((m) => m.tags.length === 0);
       }
-
-      for (const m of members) {
-        const top3 = await deriveMemberTags(m.id);
-        const finalTags =
-          mode === "replace"
-            ? top3
-            : Array.from(new Set([...m.tags, ...top3]));
-
-        await prisma.member.update({
-          where: { id: m.id },
-          data: { tags: finalTags },
-        });
-
-        top3.forEach((t) => newTagsSet.add(t));
-        totalProcessed++;
-      }
+      queue.push(...members.map(m => ({
+        id: m.id,
+        target,
+        title: `${m.firstName} ${m.lastName}`,
+        summary: "",
+        currentTags: m.tags,
+      })));
     }
   }
 
-  await logAction(
-    "UPDATE",
-    "Tag",
-    "AI_TAGGER",
-    model,
-    `Ran global database-wide AI Auto-Tagger using model: ${model} on targets: ${targets.join(
-      ", "
-    )} (Mode: ${mode}). Processed and updated: ${totalProcessed} elements.`
-  );
+  return queue;
+}
 
-  // Clear caches
+/**
+ * Process a small batch of auto-tag tasks.
+ */
+export async function executeAutoTagBatchAction(params: {
+  model: string;
+  mode: "skip" | "merge" | "replace";
+  tasks: { id: string; target: string; title: string; summary: string; currentTags: string[] }[];
+}) {
+  await ensureEditorOrAdmin();
+  const { model, mode, tasks } = params;
+
+  const aiTasks = tasks.filter(t => t.target !== "member");
+  const localTasks = tasks.filter(t => t.target === "member");
+
+  const newTagsSet = new Set<string>();
+
+  // 1. Process AI Tasks
+  if (aiTasks.length > 0) {
+    const existingTags = await getDistinctTags();
+    
+    try {
+      const suggestions = await callOpenAIBatch(
+        model,
+        aiTasks.map(t => ({ id: t.id, title: t.title, summary: t.summary })),
+        existingTags
+      );
+
+      for (const sug of suggestions) {
+        const task = aiTasks.find(t => t.id === sug.id);
+        if (!task) continue;
+
+        // Strict taxonomy guard
+        const allowedSug = sug.tags
+          .map((t) => t.trim().toLowerCase())
+          .filter((t) => existingTags.includes(t));
+
+        const finalTags =
+          mode === "replace"
+            ? allowedSug
+            : Array.from(new Set([...task.currentTags, ...allowedSug]));
+
+        if (task.target === "project") {
+          await prisma.project.update({ where: { id: task.id }, data: { tags: finalTags } });
+        } else if (task.target === "publication") {
+          await prisma.publication.update({ where: { id: task.id }, data: { tags: finalTags } });
+        } else if (task.target === "thesis") {
+          await prisma.thesis.update({ where: { id: task.id }, data: { tags: finalTags } });
+        } else if (task.target === "scholarship") {
+          await prisma.scholarship.update({ where: { id: task.id }, data: { tags: finalTags } });
+        }
+
+        allowedSug.forEach(t => newTagsSet.add(t));
+      }
+    } catch (err) {
+      console.error("Failed to run OpenAI batch tagging:", err);
+      throw err;
+    }
+  }
+
+  // 2. Process Member derivation tasks
+  for (const task of localTasks) {
+    try {
+      const derived = await deriveMemberTags(task.id);
+      const finalTags =
+        mode === "replace"
+          ? derived
+          : Array.from(new Set([...task.currentTags, ...derived]));
+
+      await prisma.member.update({ where: { id: task.id }, data: { tags: finalTags } });
+      derived.forEach(t => newTagsSet.add(t));
+    } catch (err) {
+      console.error("Failed to derive member tags:", err);
+    }
+  }
+
+  // Revalidate routes
   revalidatePath("/");
   revalidatePath("/members");
   revalidatePath("/projects");
   revalidatePath("/theses");
   revalidatePath("/scholarships");
   revalidatePath("/publications");
-  revalidatePath("/admin/tags");
 
   return {
     success: true,
-    processedCount: totalProcessed,
     newTags: Array.from(newTagsSet),
   };
+}
+
+/**
+ * Admin action to add a new tag to the system taxonomy manually.
+ */
+export async function addSystemTag(tag: string) {
+  await ensureEditorOrAdmin();
+  const sanitized = sanitizeTag(tag);
+  if (!sanitized) throw new Error("Invalid tag name specified.");
+
+  // Check if it already exists in SystemOption
+  const existing = await prisma.systemOption.findFirst({
+    where: { listName: "taxonomy_tag", value: sanitized },
+  });
+
+  if (!existing) {
+    await prisma.systemOption.create({
+      data: {
+        listName: "taxonomy_tag",
+        value: sanitized,
+      },
+    });
+
+    await logAction(
+      "CREATE",
+      "Tag",
+      sanitized,
+      sanitized,
+      `Manually created system taxonomy tag: "${sanitized}"`
+    );
+
+    // Clear caches
+    revalidatePath("/admin/tags");
+  }
+
+  return { success: true };
 }
