@@ -93,24 +93,33 @@ ENV PORT=3000
 CMD ["npm", "run", "start"]
 ```
 
-### 2. `docker-compose.yml`
-Save this compose configuration inside `/opt/memorias/docker-compose.yml`:
+### 2. Docker Compose Configuration Files
+
+To make the environment highly modular, the services are split into three independent Docker Compose files. They all securely communicate over a shared Docker network named `memorias-network`.
+
+First, create the shared external network on your server:
+```bash
+sudo docker network create memorias-network
+```
+
+#### A. `docker-compose.app.yml` (Next.js Application)
+This file builds and launches the modernized portal under the service and container name **`new-memorias`**. Save this inside `/opt/memorias/docker-compose.app.yml`:
 
 ```yaml
 version: '3.8'
 
 services:
-  # Next.js Application
-  web:
+  new-memorias:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: memorias-web
+    container_name: new-memorias
     restart: always
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres_secure_pwd@db:5432/memorias?schema=public
+      - DATABASE_URL=postgresql://postgres:postgres_secure_pwd@memorias-db:5432/memorias?schema=public
+      - MONGODB_URI=mongodb://mongodb-temp:27017
       - AUTH_SECRET=your_very_long_auth_jwt_secret_key
       - AUTH_URL=http://your-server-ip:3000
       # Google OAuth Credentials (Optional)
@@ -122,11 +131,25 @@ services:
       # Microsoft OAuth (Entra ID) Credentials (Optional)
       - AUTH_MICROSOFT_ENTRA_ID_ID=your_microsoft_client_id
       - AUTH_MICROSOFT_ENTRA_ID_SECRET=your_microsoft_client_secret
-    depends_on:
-      db:
-        condition: service_healthy
+    networks:
+      - memorias-network
 
-  # PostgreSQL relational database
+networks:
+  memorias-network:
+    external: true
+```
+
+#### B. `docker-compose.db.yml` (Optional PostgreSQL Database)
+This file provisions the persistent relational PostgreSQL database. 
+> [!NOTE]
+> If you already have an active PostgreSQL database hosted elsewhere, you do not need this file. Simply update the `DATABASE_URL` in `docker-compose.app.yml` to point directly to your existing database.
+
+Save this inside `/opt/memorias/docker-compose.db.yml`:
+
+```yaml
+version: '3.8'
+
+services:
   db:
     image: postgres:15-alpine
     container_name: memorias-db
@@ -144,8 +167,24 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - memorias-network
 
-  # Temporary MongoDB (Only active during migration)
+volumes:
+  pgdata:
+
+networks:
+  memorias-network:
+    external: true
+```
+
+#### C. `docker-compose.migration.yml` (Temporary MongoDB Migration Engine)
+This file is only spun up temporarily during the ingestion phase and is stopped immediately after the data transfer is complete. Save this inside `/opt/memorias/docker-compose.migration.yml`:
+
+```yaml
+version: '3.8'
+
+services:
   mongodb-temp:
     image: mongo:6
     container_name: mongodb-temp
@@ -154,26 +193,33 @@ services:
     volumes:
       - mongodata:/data/db
       - ./dump:/migration-dump
-    profiles:
-      - migration # Only starts when requested via command
+    networks:
+      - memorias-network
 
 volumes:
-  pgdata:
   mongodata:
+
+networks:
+  memorias-network:
+    external: true
 ```
 
 ---
 
 ## 🚀 Step 3: Run the deployment
 
-1. Build and boot the stack:
+1. **Boot your Database (if needed)**:
    ```bash
-   sudo docker compose up -d db web
+   sudo docker compose -f docker-compose.db.yml up -d
    ```
-2. Wait a few seconds, then initialize the database tables inside the web container:
+2. **Boot the web portal**:
    ```bash
-   sudo docker compose exec web npx prisma db push
-   sudo docker compose exec web node prisma/seed-options.js
+   sudo docker compose -f docker-compose.app.yml up -d
+   ```
+3. **Initialize the database tables** inside the application container:
+   ```bash
+   sudo docker compose -f docker-compose.app.yml exec new-memorias npx prisma db push
+   sudo docker compose -f docker-compose.app.yml exec new-memorias node prisma/seed-options.js
    ```
 
 At this stage, the web portal is running cleanly on **`http://<your-proxmox-ip>:3000`** with a fresh database!
@@ -191,35 +237,34 @@ If you have a database backup folder (e.g. `lifiometro` dump containing BSON/JSO
    Copy the `dump` folder containing your backup collections to the `/opt/memorias/dump` directory on the Ubuntu Server.
    
 2. **Start the Temporary MongoDB Container**:
-   Launch the pre-configured MongoDB container using the `migration` profile:
+   Launch the pre-configured MongoDB container:
    ```bash
-   sudo docker compose --profile migration up -d mongodb-temp
+   sudo docker compose -f docker-compose.migration.yml up -d
    ```
 
 3. **Restore the Dump into the Temporary Database**:
    Import the files into the MongoDB instance inside the container:
    ```bash
-   sudo docker compose exec mongodb-temp mongorestore --db lifiometro /migration-dump/lifiometro
+   sudo docker compose -f docker-compose.migration.yml exec mongodb-temp mongorestore --db lifiometro /migration-dump/lifiometro
    ```
    *(Verify that the dump data loaded successfully by checking the logs).*
 
 4. **Run the Migration Script**:
-   Execute our relational translator script inside the Next.js app container. Note that we specify the temporary database link:
+   Execute our relational translator script inside the Next.js app container. Note that we specify the temporary database link via environment variable overrides:
    ```bash
-   sudo docker compose exec web npx tsx scripts/migrate.ts
+   sudo docker compose -f docker-compose.app.yml exec new-memorias npx tsx scripts/migrate.ts
    ```
 
 5. **Mark Featured Items**:
    Mark three entities as featured programmatically:
    ```bash
-   sudo docker compose exec web npx tsx scripts/feature-items.ts
+   sudo docker compose -f docker-compose.app.yml exec new-memorias npx tsx scripts/feature-items.ts
    ```
 
 6. **Cleanup Migration Container**:
-   Tear down the temporary MongoDB instance to free system resources:
+   Tear down the temporary MongoDB instance and its volumes to free system resources:
    ```bash
-   sudo docker compose --profile migration stop mongodb-temp
-   sudo docker compose --profile migration rm -f mongodb-temp
+   sudo docker compose -f docker-compose.migration.yml down -v
    ```
 
 ---
@@ -228,17 +273,17 @@ If you have a database backup folder (e.g. `lifiometro` dump containing BSON/JSO
 If your old MongoDB server is active and reachable over the network:
 
 1. **Temporarily Configure MongoDB URI**:
-   Modify `scripts/migrate.ts` line 60 to point to your live remote MongoDB server:
-   ```typescript
-   const mongoUri = "mongodb://<remote-mongo-ip>:27017";
+   Modify `MONGODB_URI` environment variable inside your `docker-compose.app.yml` file to point to your live remote MongoDB server:
+   ```yaml
+   - MONGODB_URI=mongodb://<remote-mongo-ip>:27017
    ```
    *Note: Ensure the target server allows network connections on port 27017.*
 
 2. **Execute the Migration Script**:
    Run the migration directly inside the container:
    ```bash
-   sudo docker compose exec web npx tsx scripts/migrate.ts
-   sudo docker compose exec web npx tsx scripts/feature-items.ts
+   sudo docker compose -f docker-compose.app.yml exec new-memorias npx tsx scripts/migrate.ts
+   sudo docker compose -f docker-compose.app.yml exec new-memorias npx tsx scripts/feature-items.ts
    ```
 
 ---
@@ -264,7 +309,7 @@ If no OAuth identity providers are configured, the login screen displays a promi
 - Go to the **Google Cloud Console** > **APIs & Services** > **Credentials**.
 - Create an **OAuth 2.0 Client ID** as a *Web Application*.
 - Set the **Authorized Redirect URI** to: `https://your-domain.com/api/auth/callback/google`.
-- Set these variables in `docker-compose.yml` environment:
+- Set these variables in `docker-compose.app.yml` environment:
   - `AUTH_GOOGLE_ID`
   - `AUTH_GOOGLE_SECRET`
 
@@ -272,7 +317,7 @@ If no OAuth identity providers are configured, the login screen displays a promi
 - Go to your GitHub account or Organization settings > **Developer Settings** > **OAuth Apps**.
 - Click **New OAuth App**.
 - Set the **Authorization callback URL** to: `https://your-domain.com/api/auth/callback/github`.
-- Set these variables in `docker-compose.yml` environment:
+- Set these variables in `docker-compose.app.yml` environment:
   - `AUTH_GITHUB_ID`
   - `AUTH_GITHUB_SECRET`
 
@@ -282,7 +327,7 @@ If no OAuth identity providers are configured, the login screen displays a promi
 - Set **Supported account types** to: *Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant) and personal Microsoft accounts (e.g. Skype, Xbox)*. This ensures personal, work, and school Outlook/Office accounts can authenticate without demanding tenant administrator approval.
 - Set the **Redirect URI (Web)** to: `https://your-domain.com/api/auth/callback/microsoft-entra-id`.
 - Generate a new client secret under **Certificates & secrets** > **Client secrets**.
-- Set these variables in `docker-compose.yml` environment:
+- Set these variables in `docker-compose.app.yml` environment:
   - `AUTH_MICROSOFT_ENTRA_ID_ID`
   - `AUTH_MICROSOFT_ENTRA_ID_SECRET`
 

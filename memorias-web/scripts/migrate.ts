@@ -57,7 +57,7 @@ function parseProgress(value: any): number | null {
 }
 
 async function main() {
-  const mongoUri = "mongodb://127.0.0.1:27017";
+  const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017";
   const client = new MongoClient(mongoUri);
 
   try {
