@@ -46,17 +46,28 @@ export default async function Home() {
       {/* Unified Header */}
       <Header />
 
+      {/* Hero Banner Section */}
+      <section className="bg-gradient-to-br from-primary to-primary-hover text-white py-12 px-6 shadow-inner relative overflow-hidden border-b border-blue-700/20">
+        {/* Dynamic Abstract Wave */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none">
+          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
+          </svg>
+        </div>
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="space-y-2">
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+              {welcomeTitle}
+            </h1>
+            <p className="text-blue-100 max-w-3xl text-sm md:text-base lg:text-lg leading-relaxed">
+              {welcomeSubtitle}
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Main Content Dashboard */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-10 space-y-12 animate-fadeIn">
-        {/* Welcome Section */}
-        <section className="space-y-4">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-850 dark:text-white">
-            {welcomeTitle}
-          </h1>
-          <p className="text-lg text-muted max-w-2xl leading-relaxed">
-            {welcomeSubtitle}
-          </p>
-        </section>
 
         {/* Dynamic Interactive Tag Cloud */}
         <section className="animate-in fade-in slide-in-from-top-3 duration-300">
