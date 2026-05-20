@@ -56,10 +56,10 @@ export default async function Home() {
         </div>
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="space-y-2">
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+            <h1 className="text-4xl font-extrabold tracking-tight">
               {welcomeTitle}
             </h1>
-            <p className="text-blue-100 max-w-3xl text-sm md:text-base lg:text-lg leading-relaxed">
+            <p className="text-blue-100 max-w-xl text-sm md:text-base leading-relaxed">
               {welcomeSubtitle}
             </p>
           </div>
