@@ -123,6 +123,16 @@ export function PublicationForm({
   const [citationKey, setCitationKey] = useState(
     publication?.bibtexData?.citationKey || ""
   );
+  const [doi, setDoi] = useState(
+    publication?.bibtexData?.entryTags?.doi ||
+    publication?.bibtexData?.entryTags?.DOI ||
+    ""
+  );
+  const [abstract, setAbstract] = useState(
+    publication?.bibtexData?.entryTags?.abstract ||
+    publication?.bibtexData?.entryTags?.ABSTRACT ||
+    ""
+  );
   const [customEntryTags, setCustomEntryTags] = useState<Record<string, string>>(
     publication?.bibtexData?.entryTags || {}
   );
@@ -166,8 +176,9 @@ export function PublicationForm({
         setYear(res.data.year);
         setType(res.data.type);
         setCitationKey(res.data.citationKey);
-        setSelfArchivingUrl(res.data.selfArchivingUrl);
         setRanking(res.data.ranking);
+        setDoi(res.data.entryTags?.doi || res.data.entryTags?.DOI || doiInput);
+        setAbstract(res.data.entryTags?.abstract || res.data.entryTags?.ABSTRACT || "");
         setCustomEntryTags(res.data.entryTags);
         setIngestionMethod("form");
       } else {
@@ -192,8 +203,9 @@ export function PublicationForm({
         setYear(res.data.year);
         setType(res.data.type);
         setCitationKey(res.data.citationKey);
-        setSelfArchivingUrl(res.data.selfArchivingUrl);
         setRanking(res.data.ranking);
+        setDoi(res.data.entryTags?.doi || res.data.entryTags?.DOI || "");
+        setAbstract(res.data.entryTags?.abstract || res.data.entryTags?.ABSTRACT || "");
         setCustomEntryTags(res.data.entryTags);
         setIngestionMethod("form");
       } else {
@@ -245,6 +257,8 @@ export function PublicationForm({
       type,
       ranking: ranking || undefined,
       selfArchivingUrl: selfArchivingUrl || undefined,
+      doi: doi || undefined,
+      abstract: abstract || undefined,
       tags,
       members: selectedMembers,
       projects: selectedProjects,
@@ -592,18 +606,20 @@ export function PublicationForm({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                  Ranking (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={ranking}
-                  onChange={(e) => setRanking(e.target.value)}
-                  placeholder="e.g. CORE A, Q1, Scopus"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm"
-                />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <div className="max-w-md">
+                  <label className="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                    Ranking (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={ranking}
+                    onChange={(e) => setRanking(e.target.value)}
+                    placeholder="e.g. CORE A, Q1, Scopus"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm"
+                  />
+                </div>
               </div>
 
               <div>
@@ -616,6 +632,19 @@ export function PublicationForm({
                   onChange={(e) => setSelfArchivingUrl(e.target.value)}
                   placeholder="e.g. https://docs.domain.com/...pdf"
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                  DOI (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={doi}
+                  onChange={(e) => setDoi(e.target.value)}
+                  placeholder="e.g. 10.1007/..."
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm font-mono"
                 />
               </div>
             </div>
@@ -633,6 +662,19 @@ export function PublicationForm({
                 initialTags={publication?.tags || []}
                 placeholder="Add custom tags or keywords..."
                 onChange={(newTags) => setTags(newTags)}
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                Abstract (Optional)
+              </label>
+              <textarea
+                rows={4}
+                value={abstract}
+                onChange={(e) => setAbstract(e.target.value)}
+                placeholder="Provide a detailed abstract summary of the publication scope, methodology, and key contributions..."
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm leading-relaxed"
               />
             </div>
 
@@ -672,7 +714,7 @@ export function PublicationForm({
             <div className="border-t border-slate-100 dark:border-slate-800/50 pt-6 mt-6 space-y-4">
               <div>
                 <h4 className="text-sm font-bold text-slate-850 dark:text-white flex items-center gap-1.5">
-                  Type-Specific Metadata ({BIBTEX_FIELDS_MAP[type]?.label || type})
+                  Type-Specific Metadata: {BIBTEX_FIELDS_MAP[type]?.label || type}
                 </h4>
                 <p className="text-[11px] text-slate-400 mt-1">
                   Provide additional metadata specific to the selected publication type. Required fields are marked with a red asterisk (<span className="text-red-500">*</span>).
@@ -705,7 +747,7 @@ export function PublicationForm({
                 {/* Render Optional Fields */}
                 {BIBTEX_FIELDS_MAP[type]?.optional.map((field) => {
                   // Skip standard core fields already in the top section
-                  if (["author", "title", "year", "doi"].includes(field)) return null;
+                  if (["author", "title", "year", "doi", "key"].includes(field)) return null;
 
                   return (
                     <div key={field}>

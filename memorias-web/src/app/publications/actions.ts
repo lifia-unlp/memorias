@@ -242,6 +242,8 @@ export async function createPublication(data: {
   type: string;
   ranking?: string;
   selfArchivingUrl?: string;
+  doi?: string;
+  abstract?: string;
   tags?: string[];
   members?: string[];
   projects?: string[];
@@ -300,6 +302,8 @@ export async function createPublication(data: {
   };
   if (data.ranking) entryTags.ranking = data.ranking;
   if (data.selfArchivingUrl) entryTags.url = data.selfArchivingUrl;
+  if (data.doi) entryTags.doi = data.doi.trim();
+  if (data.abstract) entryTags.abstract = data.abstract.trim();
 
   const bibtexData = {
     citationKey,
@@ -344,6 +348,8 @@ export async function updatePublication(
     type: string;
     ranking?: string;
     selfArchivingUrl?: string;
+    doi?: string;
+    abstract?: string;
     tags?: string[];
     members?: string[];
     projects?: string[];
@@ -402,6 +408,8 @@ export async function updatePublication(
   };
   if (data.ranking) entryTags.ranking = data.ranking;
   if (data.selfArchivingUrl) entryTags.url = data.selfArchivingUrl;
+  if (data.doi) entryTags.doi = data.doi.trim();
+  if (data.abstract) entryTags.abstract = data.abstract.trim();
 
   const bibtexData = {
     citationKey,

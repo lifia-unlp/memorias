@@ -320,7 +320,7 @@ export async function getAutoTaggerQueueAction(params: {
         id: p.id,
         target,
         title: p.title,
-        summary: (p.bibtexData as any)?.abstract || "",
+        summary: (p.bibtexData as any)?.entryTags?.abstract || (p.bibtexData as any)?.abstract || "",
         currentTags: p.tags,
       })));
     }

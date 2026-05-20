@@ -69,6 +69,10 @@ export default async function PublicationDetailPage({
   const citation = formatCitation(pb, styleFilter);
   const bibString = jsonToBibtex(pb);
 
+  const bib = pb.bibtexData as any;
+  const abstractVal = bib?.entryTags?.abstract || bib?.abstract || "";
+  const doiVal = bib?.entryTags?.doi || bib?.entryTags?.DOI || "";
+
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
       {/* Unified Brand Header */}
@@ -113,6 +117,18 @@ export default async function PublicationDetailPage({
               dangerouslySetInnerHTML={{ __html: citation.html }}
             />
           </div>
+
+          {/* Publication Abstract */}
+          {abstractVal && (
+            <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-3xl shadow-sm space-y-3">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-3">
+                Publication Abstract
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed whitespace-pre-line">
+                {abstractVal}
+              </p>
+            </div>
+          )}
 
           {/* BibTeX Code Container */}
           {bibString && (
@@ -170,6 +186,21 @@ export default async function PublicationDetailPage({
                 <span className="text-slate-400">Type</span>
                 <span className="font-bold text-primary uppercase">{pb.type}</span>
               </div>
+
+              {doiVal && (
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                  <span className="text-slate-400">DOI</span>
+                  <a
+                    href={`https://doi.org/${encodeURIComponent(doiVal)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-bold text-primary hover:underline truncate max-w-[180px] text-right"
+                    title={doiVal}
+                  >
+                    {doiVal}
+                  </a>
+                </div>
+              )}
 
               {pb.ranking && (
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
