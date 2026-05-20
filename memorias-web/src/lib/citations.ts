@@ -91,14 +91,57 @@ export function formatCitation(pb: any, style: string = "apa"): FormattedCitatio
     formattedHtml = formattedHtml.replace(/<div[^>]*csl-entry[^>]*>/i, "").replace(/<\/div>\s*$/i, "");
     formattedHtml = formattedHtml.trim();
 
-    // If DOI is present, append it as a premium link at the end of the HTML representation
+    // If DOI is present, cleanly linkify it in-place or append it
     if (doi) {
-      let doiUrl = doi.trim();
+      const trimmedDoi = doi.trim();
+      let doiUrl = trimmedDoi;
       if (!doiUrl.startsWith("http")) {
         doiUrl = `https://doi.org/${doiUrl}`;
       }
-      const doiLink = ` DOI: <a href="${doiUrl}" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline font-mono text-[11px] ml-1">${doiUrl}</a>`;
-      formattedHtml += doiLink;
+
+      // Check if it is already a link in the CSL HTML
+      const isAlreadyLinked = formattedHtml.includes("href=") && formattedHtml.includes(trimmedDoi);
+
+      if (!isAlreadyLinked) {
+        const urlPattern = `https://doi.org/${trimmedDoi}`;
+        const httpUrlPattern = `http://doi.org/${trimmedDoi}`;
+        const prefixPattern = `doi:${trimmedDoi}`;
+
+        const htmlLower = formattedHtml.toLowerCase();
+        
+        if (htmlLower.includes(urlPattern.toLowerCase())) {
+          const idx = htmlLower.indexOf(urlPattern.toLowerCase());
+          const originalText = formattedHtml.substring(idx, idx + urlPattern.length);
+          formattedHtml = formattedHtml.substring(0, idx) + 
+                          `<a href="${doiUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">${originalText}</a>` + 
+                          formattedHtml.substring(idx + urlPattern.length);
+        } else if (htmlLower.includes(httpUrlPattern.toLowerCase())) {
+          const idx = htmlLower.indexOf(httpUrlPattern.toLowerCase());
+          const originalText = formattedHtml.substring(idx, idx + httpUrlPattern.length);
+          formattedHtml = formattedHtml.substring(0, idx) + 
+                          `<a href="${doiUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">${originalText}</a>` + 
+                          formattedHtml.substring(idx + httpUrlPattern.length);
+        } else if (htmlLower.includes(prefixPattern.toLowerCase())) {
+          const idx = htmlLower.indexOf(prefixPattern.toLowerCase());
+          const originalText = formattedHtml.substring(idx, idx + prefixPattern.length);
+          formattedHtml = formattedHtml.substring(0, idx) + 
+                          `<a href="${doiUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">${originalText}</a>` + 
+                          formattedHtml.substring(idx + prefixPattern.length);
+        } else if (htmlLower.includes(trimmedDoi.toLowerCase())) {
+          const idx = htmlLower.indexOf(trimmedDoi.toLowerCase());
+          const precedingChar = idx > 0 ? formattedHtml.charAt(idx - 1) : "";
+          if (precedingChar !== '"' && precedingChar !== "'" && precedingChar !== "=" && precedingChar !== "/") {
+            const originalText = formattedHtml.substring(idx, idx + trimmedDoi.length);
+            formattedHtml = formattedHtml.substring(0, idx) + 
+                            `<a href="${doiUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">${originalText}</a>` + 
+                            formattedHtml.substring(idx + trimmedDoi.length);
+          }
+        } else {
+          // CSL didn't output the DOI at all; append it as a link using the same font
+          const doiLink = ` DOI: <a href="${doiUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">${trimmedDoi}</a>`;
+          formattedHtml += doiLink;
+        }
+      }
     }
 
     // Generate plain-text representation (without HTML tags) for copying
