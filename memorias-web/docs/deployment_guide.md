@@ -186,7 +186,7 @@ version: '3.8'
 
 services:
   mongodb-temp:
-    image: mongo:6
+    image: mongo:4.4
     container_name: mongodb-temp
     ports:
       - "27017:27017"
