@@ -4,7 +4,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 interface HeaderProps {
-  activeTab?: "members" | "projects" | "theses" | "scholarships" | "publications" | "ai-chat";
+  activeTab?: "members" | "projects" | "theses" | "scholarships" | "publications";
 }
 
 export async function Header({ activeTab }: HeaderProps) {
@@ -129,32 +129,9 @@ export async function Header({ activeTab }: HeaderProps) {
                     >
                       Report Builder
                     </Link>
-                    <Link
-                      href="/ai-chat"
-                      className="block px-4 py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-primary transition-all border-t border-border mt-1 pt-2 flex items-center gap-1"
-                    >
-                      Ask AI ✨
-                    </Link>
                   </div>
                 </div>
               </div>
-            )}
-
-            {/* AI Assistant Link */}
-            {session?.user?.active && (
-              <Link
-                href="/ai-chat"
-                className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 font-bold ${
-                  activeTab === "ai-chat"
-                    ? "bg-primary/10 text-primary font-extrabold"
-                    : "hover:bg-slate-100 dark:hover:bg-slate-800"
-                }`}
-              >
-                AI Assistant
-                <span className="inline-flex items-center rounded-md bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 text-[9px] font-black text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/10 dark:ring-emerald-400/20">
-                  New
-                </span>
-              </Link>
             )}
 
             {/* Admin Links */}
