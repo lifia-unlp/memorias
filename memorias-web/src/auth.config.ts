@@ -17,6 +17,24 @@ export default {
       clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID || "mock-microsoft-id",
       clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET || "mock-microsoft-secret",
     }),
+    {
+      id: "orcid",
+      name: "ORCID",
+      type: "oidc",
+      issuer: process.env.AUTH_ORCID_ISSUER || "https://sandbox.orcid.org",
+      clientId: process.env.AUTH_ORCID_ID || "mock-orcid-id",
+      clientSecret: process.env.AUTH_ORCID_SECRET || "mock-orcid-secret",
+      authorization: {
+        params: { scope: "openid profile" },
+      },
+      profile(profile) {
+        return {
+          id: profile.sub,
+          name: profile.name || `${profile.given_name || ""} ${profile.family_name || ""}`.trim() || null,
+          email: profile.email || null,
+        };
+      },
+    },
   ],
   session: {
     strategy: "jwt",
