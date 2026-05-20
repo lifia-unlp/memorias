@@ -2,6 +2,7 @@ import React from "react";
 import { prisma } from "@/lib/prisma";
 import { MemberFilters } from "./MemberFilters";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { Pagination } from "@/components/Pagination";
 import Link from "next/link";
 import { auth } from "@/auth";
@@ -194,6 +195,7 @@ export default async function MembersPage({
           </div>
         )}
       </main>
+      <Footer />
     </div>
   );
 }

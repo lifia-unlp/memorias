@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { ChatClient } from "./ChatClient";
 
 export default async function AIChatPage() {
@@ -47,10 +48,8 @@ export default async function AIChatPage() {
         )}
       </main>
 
-      {/* Portal Footer */}
-      <footer className="border-t border-border bg-surface/50 py-6 text-center text-[10px] text-muted">
-        <p>© {new Date().getFullYear()} Memorias Research Portal. All rights reserved. Database AI Integration.</p>
-      </footer>
+      {/* Reusable Portal Footer */}
+      <Footer />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
 import { formatCitation } from "@/lib/citations";
 import { getLabName, getLabUrl } from "@/lib/config";
@@ -227,12 +228,8 @@ export default async function Home() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-surface/50 py-8 text-center text-xs text-muted mt-12">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p>© {new Date().getFullYear()} <a href={labUrl} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors font-semibold">{labName}</a>. All rights reserved. Powered by Memorias.</p>
-        </div>
-      </footer>
+      {/* Reusable Portal Footer */}
+      <Footer />
     </div>
   );
 }

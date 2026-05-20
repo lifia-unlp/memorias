@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import Link from "next/link";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { jsonToBibtex } from "@/lib/bibtex";
 import { formatCitation, SUPPORTED_STYLES } from "@/lib/citations";
 import { CopyCitationButton } from "./CopyCitationButton";
@@ -277,6 +278,7 @@ export default async function PublicationsPage(props: {
           </div>
         )}
       </main>
+      <Footer />
     </div>
   );
 }

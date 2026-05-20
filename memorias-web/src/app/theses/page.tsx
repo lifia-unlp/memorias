@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { Pagination } from "@/components/Pagination";
 
 type Params = Promise<{}>;
@@ -306,6 +307,7 @@ export default async function ThesesPage(props: {
           </div>
         )}
       </main>
+      <Footer />
     </div>
   );
 }
