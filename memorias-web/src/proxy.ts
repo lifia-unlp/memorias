@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 const { auth } = NextAuth(authConfig);
 
-export const middleware = auth((req) => {
+export const proxy = auth((req) => {
   const { nextUrl, auth: session } = req;
   const isLoggedIn = !!session?.user;
   const isActive = session?.user?.active === true;
@@ -40,4 +40,4 @@ export const config = {
     "/((?!api|_next/static|_next/image|public|favicon.ico|.*\\.svg|.*\\.png).*)",
   ],
 };
-export default middleware;
+export default proxy;
