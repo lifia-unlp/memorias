@@ -30,6 +30,28 @@ npx prisma dev
 npx prisma dev stop default
 ```
 
+### Dropping and Recreating the Database:
+Depending on whether you want to just clear the data or completely delete and recreate the local Postgres sandbox:
+
+#### Method A: Reset all Tables and Clear Data (Keep the sandbox server running)
+If the database server is already running, you can drop all tables and reset the schema to start fresh with a single command:
+```bash
+npx prisma db push --force-reset
+```
+
+#### Method B: Completely Drop and Recreate the Database Server Sandbox
+To delete the actual sandbox database server instance and its underlying data files, and recreate a new one:
+```bash
+# 1. Stop and remove the database server sandbox (force stops it if running)
+npx prisma dev rm default --force
+
+# 2. Re-create and start a brand new database server sandbox in the background
+npx prisma dev --detach
+
+# 3. Push your Prisma schema to synchronize the new database
+npx prisma db push
+```
+
 ---
 
 ## 💻 2. Running the Next.js Web App
