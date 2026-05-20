@@ -3,6 +3,8 @@ import { MongoClient } from "mongodb";
 import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
+import Cite from "citation-js";
+
 
 // Re-initialize Prisma to bypass global cache during scripting
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -55,6 +57,167 @@ function parseProgress(value: any): number | null {
   }
   return null;
 }
+
+// Resolve DOI metadata using citation-js
+async function resolveDoiMetadata(doi: string): Promise<{
+  journal?: string;
+  booktitle?: string;
+  volume?: string;
+  publisher?: string;
+  pages?: string;
+  isbn?: string;
+  issn?: string;
+  url?: string;
+  year?: string;
+  author?: string;
+  editor?: string;
+} | null> {
+  try {
+    let cleanDoi = doi.replace(/\\_/g, "_").replace(/\\/g, "").trim();
+    cleanDoi = cleanDoi.replace(/^https?:\/\/(dx\.)?doi\.org\//i, "");
+    if (!cleanDoi) return null;
+
+    const maxRetries = 3;
+    let delay = 1000;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const data = await Cite.async(cleanDoi);
+        const obj = data.format("data", { format: "object" })?.[0];
+        if (!obj) return null;
+
+        const yearParts = obj.issued?.["date-parts"]?.[0] || obj.created?.["date-parts"]?.[0];
+        const year = yearParts?.[0] ? String(yearParts[0]) : undefined;
+
+        const formatAuthorsList = (list: any[]) => {
+          if (!Array.isArray(list) || list.length === 0) return undefined;
+          return list
+            .map(a => {
+              const family = a.family || "";
+              const given = a.given || "";
+              if (family && given) return `${given} ${family}`;
+              return family || given;
+            })
+            .filter(Boolean)
+            .join(" and ");
+        };
+
+        return {
+          journal: obj["container-title"],
+          booktitle: obj["container-title"],
+          volume: obj["volume"] ? String(obj["volume"]) : undefined,
+          publisher: obj["publisher"],
+          pages: obj["page"] ? String(obj["page"]).replace("-", "--") : undefined,
+          isbn: obj["ISBN"] ? String(obj["ISBN"]) : undefined,
+          issn: obj["ISSN"] ? String(obj["ISSN"]) : undefined,
+          url: obj["URL"] || `https://doi.org/${cleanDoi}`,
+          year,
+          author: formatAuthorsList(obj.author),
+          editor: formatAuthorsList(obj.editor),
+        };
+      } catch (err: any) {
+        const errMsg = err.message || String(err);
+        const shouldRetry = errMsg.includes("502") || errMsg.includes("503") || errMsg.includes("504") || errMsg.toLowerCase().includes("fetch");
+        if (attempt < maxRetries && shouldRetry) {
+          console.warn(`[Warning] DOI resolution for ${cleanDoi} failed (Attempt ${attempt}/${maxRetries}): ${errMsg}. Retrying in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          delay *= 2;
+        } else {
+          throw err;
+        }
+      }
+    }
+    return null;
+  } catch (err: any) {
+    console.warn(`[Warning] Could not resolve DOI ${doi}:`, err.message || err);
+    return null;
+  }
+}
+
+// Validate mandatory fields based on bibtex-fields.md
+function getMissingMandatoryFields(entryType: string, tags: any): string[] {
+  const missing: string[] = [];
+  const type = entryType.toLowerCase();
+
+  const getVal = (name: string): string => {
+    const t = tags[name];
+    return (t && typeof t === "object" ? t.value || "" : "").trim();
+  };
+
+  const hasField = (name: string): boolean => {
+    return getVal(name).length > 0;
+  };
+
+  switch (type) {
+    case "article":
+      if (!hasField("author")) missing.push("author");
+      if (!hasField("title")) missing.push("title");
+      if (!hasField("journal")) missing.push("journal");
+      if (!hasField("year")) missing.push("year");
+      if (!hasField("volume")) missing.push("volume");
+      break;
+    case "book":
+      if (!hasField("author") && !hasField("editor")) missing.push("author/editor");
+      if (!hasField("title")) missing.push("title");
+      if (!hasField("publisher")) missing.push("publisher");
+      if (!hasField("year")) missing.push("year");
+      break;
+    case "inbook":
+      if (!hasField("author") && !hasField("editor")) missing.push("author/editor");
+      if (!hasField("title")) missing.push("title");
+      if (!hasField("chapter") && !hasField("pages")) missing.push("chapter/pages");
+      if (!hasField("publisher")) missing.push("publisher");
+      if (!hasField("year")) missing.push("year");
+      break;
+    case "incollection":
+      if (!hasField("author")) missing.push("author");
+      if (!hasField("title")) missing.push("title");
+      if (!hasField("booktitle")) missing.push("booktitle");
+      if (!hasField("publisher")) missing.push("publisher");
+      if (!hasField("year")) missing.push("year");
+      break;
+    case "inproceedings":
+    case "conference":
+      if (!hasField("author")) missing.push("author");
+      if (!hasField("title")) missing.push("title");
+      if (!hasField("booktitle")) missing.push("booktitle");
+      if (!hasField("year")) missing.push("year");
+      break;
+    case "manual":
+      if (!hasField("title")) missing.push("title");
+      break;
+    case "mastersthesis":
+      if (!hasField("author")) missing.push("author");
+      if (!hasField("title")) missing.push("title");
+      if (!hasField("school")) missing.push("school");
+      if (!hasField("year")) missing.push("year");
+      break;
+    case "phdthesis":
+      if (!hasField("author")) missing.push("author");
+      if (!hasField("title")) missing.push("title");
+      if (!hasField("school")) missing.push("school");
+      if (!hasField("year")) missing.push("year");
+      break;
+    case "proceedings":
+      if (!hasField("title")) missing.push("title");
+      if (!hasField("year")) missing.push("year");
+      break;
+    case "techreport":
+      if (!hasField("author")) missing.push("author");
+      if (!hasField("title")) missing.push("title");
+      if (!hasField("institution")) missing.push("institution");
+      if (!hasField("year")) missing.push("year");
+      break;
+    case "unpublished":
+      if (!hasField("author")) missing.push("author");
+      if (!hasField("title")) missing.push("title");
+      if (!hasField("note")) missing.push("note");
+      break;
+    default:
+      break;
+  }
+  return missing;
+}
+
 
 async function main() {
   const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017";
@@ -232,6 +395,10 @@ async function main() {
     let migratedPubsCount = 0;
     
     // Ingest BibtexReference
+    const bibtexTypeCounts: Record<string, number> = {};
+    const bibtexMissingMandatoryCounts: Record<string, number> = {};
+    const missingFieldsDetail: any[] = [];
+
     for (const mPub of mongoPubs) {
       const entry = mPub.bibtexEntry;
       if (!entry) continue;
@@ -245,12 +412,121 @@ async function main() {
         return tag && typeof tag === "object" ? tag.value || "" : "";
       };
 
+      // Fix missing mandatory properties using DOI resolution or tag fallbacks before validation and DB write
+      const doiVal = getTagValue("doi") || getTagValue("DOI");
+      const lowerType = type.toLowerCase();
+
+      // 1. Article-specific Fallback: Copy journaltitle to journal if journal is empty
+      if (lowerType === "article") {
+        const journalVal = getTagValue("journal");
+        if (!journalVal) {
+          const journaltitleVal = getTagValue("journaltitle");
+          if (journaltitleVal) {
+            tagsObj["journal"] = {
+              "#instanceOf": "BibtexTag",
+              name: "journal",
+              value: journaltitleVal,
+            };
+            console.log(`[Journal Fallback] Copied journaltitle to journal for "${citationKey}"`);
+          }
+        }
+      }
+
+      // 2. Generic DOI Fallback for all types:
+      // If there's a DOI and the record has missing mandatory fields, resolve it!
+      const missingBeforeDoi = getMissingMandatoryFields(type, tagsObj);
+      if (doiVal && missingBeforeDoi.length > 0) {
+        console.log(`[DOI Resolution] "${citationKey}" (${type}) is missing: ${missingBeforeDoi.join(", ")}. Resolving DOI: ${doiVal}`);
+        const resolved = await resolveDoiMetadata(doiVal);
+        if (resolved) {
+          // Map resolved fields back to the tagsObj if they are currently missing/empty
+          if (resolved.journal && (lowerType === "article") && !getTagValue("journal")) {
+            tagsObj["journal"] = { "#instanceOf": "BibtexTag", name: "journal", value: resolved.journal };
+            console.log(`  -> Resolved journal: "${resolved.journal}"`);
+          }
+          if (resolved.booktitle && (lowerType === "inproceedings" || lowerType === "conference" || lowerType === "incollection") && !getTagValue("booktitle")) {
+            tagsObj["booktitle"] = { "#instanceOf": "BibtexTag", name: "booktitle", value: resolved.booktitle };
+            console.log(`  -> Resolved booktitle: "${resolved.booktitle}"`);
+          }
+          if (resolved.publisher && (lowerType === "book" || lowerType === "inbook" || lowerType === "incollection") && !getTagValue("publisher")) {
+            tagsObj["publisher"] = { "#instanceOf": "BibtexTag", name: "publisher", value: resolved.publisher };
+            console.log(`  -> Resolved publisher: "${resolved.publisher}"`);
+          }
+          if (resolved.volume && !getTagValue("volume")) {
+            tagsObj["volume"] = { "#instanceOf": "BibtexTag", name: "volume", value: resolved.volume };
+            console.log(`  -> Resolved volume: "${resolved.volume}"`);
+          }
+          if (resolved.pages && !getTagValue("pages")) {
+            tagsObj["pages"] = { "#instanceOf": "BibtexTag", name: "pages", value: resolved.pages };
+            console.log(`  -> Resolved pages: "${resolved.pages}"`);
+          }
+          if (resolved.isbn && !getTagValue("isbn")) {
+            tagsObj["isbn"] = { "#instanceOf": "BibtexTag", name: "isbn", value: resolved.isbn };
+            console.log(`  -> Resolved isbn: "${resolved.isbn}"`);
+          }
+          if (resolved.issn && !getTagValue("issn")) {
+            tagsObj["issn"] = { "#instanceOf": "BibtexTag", name: "issn", value: resolved.issn };
+            console.log(`  -> Resolved issn: "${resolved.issn}"`);
+          }
+          if (resolved.year && !getTagValue("year")) {
+            tagsObj["year"] = { "#instanceOf": "BibtexTag", name: "year", value: resolved.year };
+            console.log(`  -> Resolved year: "${resolved.year}"`);
+          }
+          if (resolved.author && !getTagValue("author") && !getTagValue("editor")) {
+            tagsObj["author"] = { "#instanceOf": "BibtexTag", name: "author", value: resolved.author };
+            console.log(`  -> Resolved author: "${resolved.author}"`);
+          }
+          if (resolved.editor && !getTagValue("editor") && !getTagValue("author")) {
+            tagsObj["editor"] = { "#instanceOf": "BibtexTag", name: "editor", value: resolved.editor };
+            console.log(`  -> Resolved editor: "${resolved.editor}"`);
+          }
+          if (resolved.publisher && lowerType === "techreport" && !getTagValue("institution")) {
+            tagsObj["institution"] = { "#instanceOf": "BibtexTag", name: "institution", value: resolved.publisher };
+            console.log(`  -> Resolved institution (from publisher): "${resolved.publisher}"`);
+          }
+          if (resolved.publisher && (lowerType === "mastersthesis" || lowerType === "phdthesis") && !getTagValue("school")) {
+            tagsObj["school"] = { "#instanceOf": "BibtexTag", name: "school", value: resolved.publisher };
+            console.log(`  -> Resolved school (from publisher): "${resolved.publisher}"`);
+          }
+        }
+      }
+
+      // Track statistics
+      bibtexTypeCounts[lowerType] = (bibtexTypeCounts[lowerType] || 0) + 1;
+
+      const missingFields = getMissingMandatoryFields(type, tagsObj);
+      if (missingFields.length > 0) {
+        bibtexMissingMandatoryCounts[lowerType] = (bibtexMissingMandatoryCounts[lowerType] || 0) + 1;
+        missingFieldsDetail.push({
+          citationKey,
+          type: lowerType,
+          title: getTagValue("title") || getTagValue("booktitle") || "Untitled",
+          missingFields,
+        });
+      }
+
       const title = getTagValue("title") || getTagValue("booktitle") || "Untitled";
       const authors = getTagValue("author") || getTagValue("editor") || "Unknown";
       const yearStr = getTagValue("year");
       const year = yearStr ? parseInt(yearStr) : 0;
 
       const slug = generateUniqueSlug(citationKey);
+
+
+      // Transform legacy bibtex tags into the modern flat entryTags structure expected by the new web application
+      const entryTags: Record<string, string> = {};
+      for (const [key, tag] of Object.entries(tagsObj)) {
+        if (tag && typeof tag === "object") {
+          const val = (tag as any).value || "";
+          entryTags[key] = val;
+        }
+      }
+
+      const modernBibtexData = {
+        citationKey,
+        entryType: type,
+        entryTags,
+      };
 
       const pgPub = await prisma.publication.create({
         data: {
@@ -260,7 +536,7 @@ async function main() {
           authors,
           year: isNaN(year) ? 0 : year,
           selfArchivingUrl: mPub.selfArchivingUrl || null,
-          bibtexData: entry as any,
+          bibtexData: modernBibtexData as any,
           tags: Array.isArray(mPub.tags) ? mPub.tags : [],
         },
       });
@@ -382,7 +658,7 @@ async function main() {
       }
     }
 
-    // Connect Publication relations (Publication -> Member, Publication -> Project)
+    // Connect Publication relations (Publication -> Member, Publication -> Project, Publication -> Thesis)
     console.log("Connecting Publications relations...");
     const allPubs = [...mongoPubs, ...mongoRawRefs];
     for (const mPub of allPubs) {
@@ -391,8 +667,9 @@ async function main() {
 
       const memberIds = getTargetIds(mPub.relatedLifians, memberMap);
       const projectIds = getTargetIds(mPub.relatedProjects, projectMap);
+      const thesisIds = getTargetIds(mPub.relatedThesis, thesisMap);
 
-      if (memberIds.length > 0 || projectIds.length > 0) {
+      if (memberIds.length > 0 || projectIds.length > 0 || thesisIds.length > 0) {
         await prisma.publication.update({
           where: { id: pgPubId },
           data: {
@@ -402,12 +679,39 @@ async function main() {
             projects: {
               connect: projectIds.map(id => ({ id })),
             },
+            theses: {
+              connect: thesisIds.map(id => ({ id })),
+            },
           },
         });
       }
     }
 
+    console.log("\n=========================================");
+    console.log("MIGRATION QUALITY REPORT & QUALITY ASSURANCE");
+    console.log("=========================================");
+    console.log(`Total publications migrated: ${migratedPubsCount}`);
+    console.log(`  - From BibtexReference: ${mongoPubs.length}`);
+    console.log(`  - From RawReference   : ${migratedRawCount}`);
+    console.log("\nDetailed BibtexReference Counts by Type:");
+    for (const [t, count] of Object.entries(bibtexTypeCounts)) {
+      const missingCount = bibtexMissingMandatoryCounts[t] || 0;
+      console.log(`  - ${t.padEnd(15)}: ${String(count).padStart(3)} records (${missingCount} had missing mandatory fields)`);
+    }
+
+    if (missingFieldsDetail.length > 0) {
+      console.log("\nRecords with Missing Mandatory Fields (Prioritized Review):");
+      for (const item of missingFieldsDetail) {
+        console.log(`  - [${item.type}] Key: ${item.citationKey}`);
+        console.log(`    Title: "${item.title.slice(0, 80)}"`);
+        console.log(`    Missing mandatory fields: ${item.missingFields.join(", ")}`);
+      }
+    } else {
+      console.log("\nAll migrated BibTeX records fully conform to mandatory field requirements! 🎉");
+    }
+
     console.log("\n🎉 DATA MIGRATION COMPLETED SUCCESSFULLY! 🎉\n");
+
   } catch (error) {
     console.error("Migration failed with error:", error);
   } finally {
