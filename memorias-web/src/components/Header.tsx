@@ -1,7 +1,7 @@
 import React from "react";
 import { auth, signOut } from "@/auth";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { Logo } from "@/components/Logo";
 
 interface HeaderProps {
   activeTab?: "members" | "projects" | "theses" | "scholarships" | "publications";
@@ -9,8 +9,6 @@ interface HeaderProps {
 
 export async function Header({ activeTab }: HeaderProps) {
   const session = await auth();
-  const logoSetting = await (prisma as any).systemSetting?.findUnique({ where: { key: "logo_url" } }).catch(() => null);
-  const logoUrl = logoSetting?.value || "";
   const isEditorOrAdmin =
     session?.user?.active &&
     (session.user.role === "EDITOR" || session.user.role === "ADMIN");
@@ -21,29 +19,7 @@ export async function Header({ activeTab }: HeaderProps) {
         
         {/* Unified Configurable Logo */}
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-all duration-200">
-            <div className="relative w-10 h-10 flex items-center justify-center bg-primary/5 rounded-xl border border-primary/10 overflow-hidden">
-              {logoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={logoUrl}
-                  alt="Logo"
-                  className="w-full h-full object-cover p-1"
-                />
-              ) : (
-                <svg viewBox="0 0 100 100" className="w-8 h-8">
-                  {/* Logo Wave Icon (Secondary Color) */}
-                  <circle cx="50" cy="50" r="15" fill="none" stroke="var(--secondary)" strokeWidth="8" />
-                  <circle cx="50" cy="50" r="30" fill="none" stroke="var(--secondary)" strokeWidth="6" strokeDasharray="10 8" />
-                  <circle cx="50" cy="50" r="45" fill="none" stroke="var(--primary)" strokeWidth="4" />
-                </svg>
-              )}
-            </div>
-            <div>
-              <span className="text-xl font-bold tracking-tight text-primary dark:text-white">MEMORIAS</span>
-              <span className="text-xs block text-muted font-medium tracking-widest uppercase">Research Portal</span>
-            </div>
-          </Link>
+          <Logo />
 
           {/* Core Navigation Links */}
           <nav className="hidden md:flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300">

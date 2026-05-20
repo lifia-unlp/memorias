@@ -4,6 +4,7 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { ConfigForm } from "./ConfigForm";
+import { Logo } from "@/components/Logo";
 
 export default async function AdminConfigPage() {
   const session = await auth();
@@ -31,30 +32,7 @@ export default async function AdminConfigPage() {
       {/* Premium Header */}
       <header className="sticky top-0 z-50 backdrop-blur-md bg-surface/90 border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-              <div className="relative w-10 h-10 flex items-center justify-center bg-primary/5 rounded-xl border border-primary/10">
-                {initialLogoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={initialLogoUrl}
-                    alt="Logo"
-                    className="w-full h-full object-cover p-1"
-                  />
-                ) : (
-                  <svg viewBox="0 0 100 100" className="w-8 h-8">
-                    <circle cx="50" cy="50" r="15" fill="none" stroke="var(--secondary)" strokeWidth="8" />
-                    <circle cx="50" cy="50" r="30" fill="none" stroke="var(--secondary)" strokeWidth="6" strokeDasharray="10 8" />
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="var(--primary)" strokeWidth="4" />
-                  </svg>
-                )}
-              </div>
-              <div>
-                <span className="text-xl font-bold tracking-tight text-primary dark:text-white">MEMORIAS</span>
-                <span className="text-xs block text-muted font-medium tracking-widest uppercase">Configuration Panel</span>
-              </div>
-            </Link>
-          </div>
+          <Logo />
 
           <nav className="flex items-center gap-4 text-sm font-medium">
             <Link href="/admin/audit" className="hover:text-primary transition-colors text-muted">

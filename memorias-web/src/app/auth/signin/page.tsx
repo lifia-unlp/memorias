@@ -1,23 +1,30 @@
 import React from "react";
 import { signIn } from "@/auth";
+import { prisma } from "@/lib/prisma";
 
-export default function SignInPage() {
+export default async function SignInPage() {
+  const logoSetting = await (prisma as any).systemSetting
+    ?.findUnique({ where: { key: "logo_url" } })
+    .catch(() => null);
+  const logoUrl = logoSetting?.value || "";
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="material-card w-full max-w-md space-y-8 py-10 px-8">
         {/* Brand Header */}
-        <div className="text-center space-y-3">
-          <div className="mx-auto w-16 h-16 flex items-center justify-center bg-primary/5 rounded-2xl border border-primary/10">
-            <svg viewBox="0 0 100 100" className="w-12 h-12">
-              <circle cx="50" cy="50" r="15" fill="none" stroke="var(--secondary)" strokeWidth="8" />
-              <circle cx="50" cy="50" r="30" fill="none" stroke="var(--secondary)" strokeWidth="6" strokeDasharray="10 8" />
-              <circle cx="50" cy="50" r="45" fill="none" stroke="var(--primary)" strokeWidth="4" />
-            </svg>
-          </div>
-          <div>
-            <h1 className="text-2xl font-extrabold text-primary dark:text-white">MEMORIAS</h1>
-            <p className="text-xs text-muted font-medium tracking-wider uppercase">Research Lab Management</p>
-          </div>
+        <div className="text-center space-y-3 flex flex-col items-center justify-center">
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logoUrl}
+              alt="Logo"
+              className="h-12 w-auto object-contain"
+            />
+          ) : (
+            <span className="text-sm font-semibold text-slate-400 italic">
+              (your logo here)
+            </span>
+          )}
         </div>
 
         <div className="space-y-4">

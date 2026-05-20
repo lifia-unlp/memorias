@@ -79,26 +79,22 @@ export function ConfigForm({
 
         <div className="flex flex-col md:flex-row gap-6 items-start">
           {/* Logo Live Preview */}
-          <div className="flex flex-col items-center gap-2 shrink-0">
+          <div className="flex flex-col gap-2 shrink-0">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Live Logo Preview</span>
-            <div className="relative w-24 h-24 flex items-center justify-center bg-slate-50 dark:bg-slate-950 rounded-2xl border border-border shadow-inner overflow-hidden">
+            <div className="flex items-center">
               {logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={logoUrl}
                   alt="Live Logo Preview"
-                  className="w-full h-full object-contain p-2"
+                  className="h-10 w-auto object-contain"
                   onError={(e) => {
-                    // Fallback to error graphic if URL is broken
+                    // Fallback to text if URL is broken
                     (e.target as HTMLElement).style.display = "none";
                   }}
                 />
               ) : (
-                <svg viewBox="0 0 100 100" className="w-16 h-16 opacity-80">
-                  <circle cx="50" cy="50" r="15" fill="none" stroke="var(--secondary)" strokeWidth="8" />
-                  <circle cx="50" cy="50" r="30" fill="none" stroke="var(--secondary)" strokeWidth="6" strokeDasharray="10 8" />
-                  <circle cx="50" cy="50" r="45" fill="none" stroke="var(--primary)" strokeWidth="4" />
-                </svg>
+                <span className="text-sm font-semibold text-slate-400 italic">(your logo here)</span>
               )}
             </div>
           </div>
@@ -117,7 +113,7 @@ export function ConfigForm({
               className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm font-semibold"
             />
             <p className="text-[10px] text-muted leading-relaxed">
-              Provide an absolute path relative to the public folder (e.g. `/images/logo.svg`) or an external URL. Leave blank to restore the default premium vector wave logo.
+              Provide an absolute path relative to the public folder (e.g. `/images/logo.svg`) or an external URL. Leave blank to display the default text legend.
             </p>
           </div>
         </div>
