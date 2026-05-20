@@ -6,9 +6,10 @@ import { Header } from "@/components/Header";
 import { jsonToBibtex } from "@/lib/bibtex";
 import { formatCitation, SUPPORTED_STYLES } from "@/lib/citations";
 import { CopyCitationButton } from "./CopyCitationButton";
+import { Pagination } from "@/components/Pagination";
 
 type Params = Promise<{}>;
-type SearchParams = Promise<{ q?: string; type?: string; year?: string; style?: string }>;
+type SearchParams = Promise<{ q?: string; type?: string; year?: string; style?: string; limit?: string; page?: string }>;
 
 export default async function PublicationsPage(props: {
   params: Params;
@@ -24,6 +25,8 @@ export default async function PublicationsPage(props: {
   const typeFilter = resolvedSearchParams.type || "all";
   const yearFilter = resolvedSearchParams.year || "all";
   const styleFilter = resolvedSearchParams.style || "apa";
+  const page = parseInt(resolvedSearchParams.page || "1", 10) || 1;
+  const limit = parseInt(resolvedSearchParams.limit || "10", 10) || 10;
 
   // Fetch unique years for filters
   const distinctYears = await prisma.publication.findMany({
@@ -56,6 +59,10 @@ export default async function PublicationsPage(props: {
         return matchTitle || matchAuthors || matchTags;
       })
     : publications;
+
+  // Paginate final list
+  const totalPages = Math.ceil(filteredPublications.length / limit);
+  const paginatedPublications = filteredPublications.slice((page - 1) * limit, page * limit);
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
@@ -146,6 +153,17 @@ export default async function PublicationsPage(props: {
               ))}
             </select>
 
+            <select
+              name="limit"
+              defaultValue={limit.toString()}
+              className="w-full sm:w-32 px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-border rounded-xl focus:outline-none text-slate-700 dark:text-slate-200 font-semibold"
+            >
+              <option value="10">10 per page</option>
+              <option value="20">20 per page</option>
+              <option value="30">30 per page</option>
+              <option value="100">100 per page</option>
+            </select>
+
             <button
               type="submit"
               className="w-full sm:w-auto bg-primary hover:bg-primary-hover text-white font-bold text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm text-center"
@@ -153,7 +171,7 @@ export default async function PublicationsPage(props: {
               Filter
             </button>
             
-            {(q || typeFilter !== "all" || yearFilter !== "all" || styleFilter !== "apa") && (
+            {(q || typeFilter !== "all" || yearFilter !== "all" || styleFilter !== "apa" || limit !== 10) && (
               <Link
                 href="/publications"
                 className="w-full sm:w-auto text-center px-4 py-2.5 text-xs text-muted hover:text-slate-700 dark:hover:text-white font-bold transition-all"
@@ -174,7 +192,7 @@ export default async function PublicationsPage(props: {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredPublications.map((pb) => {
+            {paginatedPublications.map((pb) => {
               const citation = formatCitation(pb, styleFilter);
               const bibString = jsonToBibtex(pb);
               const bibDownloadUrl = bibString
@@ -250,6 +268,12 @@ export default async function PublicationsPage(props: {
                 </div>
               );
             })}
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              currentSearchParams={{ q, type: typeFilter, year: yearFilter, style: styleFilter, limit }}
+              baseUrl="/publications"
+            />
           </div>
         )}
       </main>

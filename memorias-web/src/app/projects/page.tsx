@@ -3,9 +3,10 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Header } from "@/components/Header";
+import { Pagination } from "@/components/Pagination";
 
 type Params = Promise<{}>;
-type SearchParams = Promise<{ q?: string }>;
+type SearchParams = Promise<{ q?: string; limit?: string; page?: string }>;
 
 export default async function ProjectsPage(props: {
   params: Params;
@@ -18,6 +19,8 @@ export default async function ProjectsPage(props: {
 
   const resolvedSearchParams = await props.searchParams;
   const q = resolvedSearchParams.q || "";
+  const page = parseInt(resolvedSearchParams.page || "1", 10) || 1;
+  const limit = parseInt(resolvedSearchParams.limit || "10", 10) || 10;
 
   // Query all projects with members
   const projects = await prisma.project.findMany({
@@ -50,6 +53,10 @@ export default async function ProjectsPage(props: {
         return matchTitle || matchCode || matchDirector || matchSummary || matchAgency || matchTags;
       })
     : projects;
+
+  // Paginate final list
+  const totalPages = Math.ceil(filteredProjects.length / limit);
+  const paginatedProjects = filteredProjects.slice((page - 1) * limit, page * limit);
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
@@ -85,8 +92,8 @@ export default async function ProjectsPage(props: {
       <main className="max-w-7xl w-full mx-auto px-6 py-8 flex-1 space-y-6">
         {/* Inline Search Bar Form */}
         <div className="bg-white dark:bg-slate-900 border border-border p-4 rounded-2xl shadow-sm flex flex-col md:flex-row items-center gap-4">
-          <form method="GET" className="w-full flex items-center gap-3">
-            <div className="relative flex-1">
+          <form method="GET" className="w-full flex flex-col md:flex-row items-center gap-3">
+            <div className="relative flex-1 w-full">
               <input
                 type="text"
                 name="q"
@@ -95,16 +102,28 @@ export default async function ProjectsPage(props: {
                 className="w-full border border-border px-4 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs"
               />
             </div>
+            <div className="w-full md:w-40 shrink-0">
+              <select
+                name="limit"
+                defaultValue={limit.toString()}
+                className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs font-semibold"
+              >
+                <option value="10">10 per page</option>
+                <option value="20">20 per page</option>
+                <option value="30">30 per page</option>
+                <option value="100">100 per page</option>
+              </select>
+            </div>
             <button
               type="submit"
-              className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all cursor-pointer"
+              className="w-full md:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap"
             >
               Filter
             </button>
-            {q && (
+            {(q || limit !== 10) && (
               <Link
                 href="/projects"
-                className="text-xs font-bold text-slate-500 hover:underline px-2"
+                className="text-xs font-bold text-slate-500 hover:underline px-2 whitespace-nowrap"
               >
                 Clear
               </Link>
@@ -117,107 +136,115 @@ export default async function ProjectsPage(props: {
           <div className="text-center py-16 bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm space-y-3">
             <h3 className="font-extrabold text-slate-800 dark:text-slate-200">No Projects Found</h3>
             <p className="text-xs text-muted max-w-xs mx-auto">
-              We couldn't find any projects matching your search query. Try broadening your keywords.
+              We couldn&apos;t find any projects matching your search query. Try broadening your keywords.
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredProjects.map((project) => {
-              const startStr = project.startDate
-                ? new Date(project.startDate).toLocaleDateString("en-US", { year: "numeric", month: "short" })
-                : "N/D";
-              const endStr = project.endDate
-                ? new Date(project.endDate).toLocaleDateString("en-US", { year: "numeric", month: "short" })
-                : "Ongoing";
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {paginatedProjects.map((project) => {
+                const startStr = project.startDate
+                  ? new Date(project.startDate).toLocaleDateString("en-US", { year: "numeric", month: "short" })
+                  : "N/D";
+                const endStr = project.endDate
+                  ? new Date(project.endDate).toLocaleDateString("en-US", { year: "numeric", month: "short" })
+                  : "Ongoing";
 
-              return (
-                <div
-                  key={project.id}
-                  className="bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col p-6 space-y-4"
-                >
-                  <div className="flex items-start justify-between gap-3 min-w-0">
-                    <div className="min-w-0">
-                      <Link
-                        href={`/projects/${project.slug}`}
-                        className="font-extrabold text-base text-slate-800 dark:text-slate-100 hover:text-primary transition-all block leading-snug hover:underline"
-                      >
-                        {project.title}
-                      </Link>
-                      {project.code && (
-                        <span className="text-[10px] uppercase tracking-wider font-extrabold text-primary bg-primary/5 px-2 py-0.5 rounded mt-1.5 inline-block">
-                          Code: {project.code}
-                        </span>
+                return (
+                  <div
+                    key={project.id}
+                    className="bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col p-6 space-y-4"
+                  >
+                    <div className="flex items-start justify-between gap-3 min-w-0">
+                      <div className="min-w-0">
+                        <Link
+                          href={`/projects/${project.slug}`}
+                          className="font-extrabold text-base text-slate-800 dark:text-slate-100 hover:text-primary transition-all block leading-snug hover:underline"
+                        >
+                          {project.title}
+                        </Link>
+                        {project.code && (
+                          <span className="text-[10px] uppercase tracking-wider font-extrabold text-primary bg-primary/5 px-2 py-0.5 rounded mt-1.5 inline-block">
+                            Code: {project.code}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Dates & Directors Block */}
+                    <div className="space-y-1 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-border/80 text-xs">
+                      <div className="flex items-center gap-1.5 text-slate-500 font-medium">
+                        <span>Timeline:</span>
+                        <span>{startStr} – {endStr}</span>
+                      </div>
+                      {(project.director || project.coDirector) && (
+                        <div className="space-y-0.5 pt-1.5 border-t border-border mt-1.5">
+                          {project.director && (
+                            <div className="text-slate-700 dark:text-slate-300">
+                              <strong>Director:</strong> {project.director}
+                            </div>
+                          )}
+                          {project.coDirector && (
+                            <div className="text-slate-700 dark:text-slate-300">
+                              <strong>Co-Director:</strong> {project.coDirector}
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
-                  </div>
 
-                  {/* Dates & Directors Block */}
-                  <div className="space-y-1 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-border/80 text-xs">
-                    <div className="flex items-center gap-1.5 text-slate-500 font-medium">
-                      <span>Timeline:</span>
-                      <span>{startStr} – {endStr}</span>
-                    </div>
-                    {(project.director || project.coDirector) && (
-                      <div className="space-y-0.5 pt-1.5 border-t border-border mt-1.5">
-                        {project.director && (
-                          <div className="text-slate-700 dark:text-slate-300">
-                            <strong>Director:</strong> {project.director}
-                          </div>
-                        )}
-                        {project.coDirector && (
-                          <div className="text-slate-700 dark:text-slate-300">
-                            <strong>Co-Director:</strong> {project.coDirector}
-                          </div>
-                        )}
+                    {/* Summary Snippet */}
+                    {project.summary && (
+                      <p className="text-xs text-muted leading-relaxed line-clamp-3">
+                        {project.summary}
+                      </p>
+                    )}
+
+                    {/* Associated Members as links */}
+                    {project.members.length > 0 && (
+                      <div className="text-xs border-t border-border pt-3.5 space-y-1">
+                        <span className="font-bold text-slate-700 dark:text-slate-300 block">
+                          Associated Members:
+                        </span>
+                        <div className="flex flex-wrap gap-x-1.5 gap-y-0.5 text-primary">
+                          {project.members.map((member, i) => (
+                            <React.Fragment key={member.slug}>
+                              <Link
+                                href={`/members/${member.slug}`}
+                                className="font-semibold hover:underline"
+                              >
+                                {member.firstName} {member.lastName}
+                              </Link>
+                              {i < project.members.length - 1 && <span className="text-slate-400">,</span>}
+                            </React.Fragment>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tags */}
+                    {project.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 pt-2">
+                        {project.tags.slice(0, 4).map((tag) => (
+                          <span
+                            key={tag}
+                            className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded text-[10px] font-semibold"
+                          >
+                            #{tag}
+                          </span>
+                        ))}
                       </div>
                     )}
                   </div>
-
-                  {/* Summary Snippet */}
-                  {project.summary && (
-                    <p className="text-xs text-muted leading-relaxed line-clamp-3">
-                      {project.summary}
-                    </p>
-                  )}
-
-                  {/* Associated Members as links */}
-                  {project.members.length > 0 && (
-                    <div className="text-xs border-t border-border pt-3.5 space-y-1">
-                      <span className="font-bold text-slate-700 dark:text-slate-300 block">
-                        Associated Members:
-                      </span>
-                      <div className="flex flex-wrap gap-x-1.5 gap-y-0.5 text-primary">
-                        {project.members.map((member, i) => (
-                          <React.Fragment key={member.slug}>
-                            <Link
-                              href={`/members/${member.slug}`}
-                              className="font-semibold hover:underline"
-                            >
-                              {member.firstName} {member.lastName}
-                            </Link>
-                            {i < project.members.length - 1 && <span className="text-slate-400">,</span>}
-                          </React.Fragment>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Tags */}
-                  {project.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-2">
-                      {project.tags.slice(0, 4).map((tag) => (
-                        <span
-                          key={tag}
-                          className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded text-[10px] font-semibold"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              currentSearchParams={{ q, limit }}
+              baseUrl="/projects"
+            />
           </div>
         )}
       </main>

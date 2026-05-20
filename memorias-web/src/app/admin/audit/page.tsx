@@ -3,12 +3,15 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { Pagination } from "@/components/Pagination";
 
 interface PageProps {
   searchParams: Promise<{
     search?: string;
     action?: string;
     entityType?: string;
+    limit?: string;
+    page?: string;
   }>;
 }
 
@@ -18,7 +21,12 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
     redirect("/");
   }
 
-  const { search, action, entityType } = await searchParams;
+  const { search, action, entityType, limit: limitParam, page: pageParam } = await searchParams;
+
+  const limit = parseInt(limitParam || "20", 10) || 20;
+  const page = parseInt(pageParam || "1", 10) || 1;
+  const skip = (page - 1) * limit;
+  const take = limit;
 
   // Build prisma query filters
   const whereClause: any = {};
@@ -39,12 +47,19 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
     whereClause.entityType = entityType;
   }
 
-  // Fetch audit logs sorted by newest
+  // Fetch audit logs sorted by newest with dynamic pagination skips
   const logs = await prisma.auditLog.findMany({
     where: whereClause,
     orderBy: { createdAt: "desc" },
-    take: 100, // Show last 100 logs
+    skip,
+    take,
   });
+
+  // Fetch matched count for pagination calculations
+  const matchedLogsCount = await prisma.auditLog.count({
+    where: whereClause,
+  });
+  const totalPages = Math.ceil(matchedLogsCount / limit);
 
   // Calculate statistics for metrics cards
   const totalLogs = await prisma.auditLog.count();
@@ -59,7 +74,7 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-              <div className="relative w-10 h-10 flex items-center justify-center bg-primary/5 rounded-xl border border-primary/10">
+              <div className="relative w-10 h-10 flex items-center justify-center bg-primary/5 rounded-xl border border-primary/10 overflow-hidden">
                 <svg viewBox="0 0 100 100" className="w-8 h-8">
                   <circle cx="50" cy="50" r="15" fill="none" stroke="var(--secondary)" strokeWidth="8" />
                   <circle cx="50" cy="50" r="30" fill="none" stroke="var(--secondary)" strokeWidth="6" strokeDasharray="10 8" />
@@ -135,7 +150,7 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
 
         {/* Interactive Log Filters */}
         <div className="bg-white dark:bg-slate-900 border border-border p-5 rounded-2xl shadow-sm">
-          <form method="GET" className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <form method="GET" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
             <div className="space-y-1.5 md:col-span-2">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Search Details / Users</label>
               <input
@@ -177,7 +192,21 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
               </select>
             </div>
 
-            <div className="md:col-span-4 flex justify-end gap-3 pt-2">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Items Per Page</label>
+              <select
+                name="limit"
+                defaultValue={limit.toString()}
+                className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm font-semibold"
+              >
+                <option value="10">10 per page</option>
+                <option value="20">20 per page</option>
+                <option value="30">30 per page</option>
+                <option value="100">100 per page</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-5 flex justify-end gap-3 pt-2">
               <Link
                 href="/admin/audit"
                 className="px-4 py-2 rounded-xl border border-border text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-bold text-xs cursor-pointer flex items-center justify-center"
@@ -270,6 +299,14 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
                   })}
                 </tbody>
               </table>
+              <div className="p-4 bg-slate-55/20 dark:bg-slate-900/20 border-t border-border">
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  currentSearchParams={{ search, action, entityType, limit }}
+                  baseUrl="/admin/audit"
+                />
+              </div>
             </div>
           )}
         </div>

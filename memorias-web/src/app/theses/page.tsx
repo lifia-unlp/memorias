@@ -3,9 +3,10 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Header } from "@/components/Header";
+import { Pagination } from "@/components/Pagination";
 
 type Params = Promise<{}>;
-type SearchParams = Promise<{ q?: string; level?: string; status?: string }>;
+type SearchParams = Promise<{ q?: string; level?: string; status?: string; limit?: string; page?: string }>;
 
 export default async function ThesesPage(props: {
   params: Params;
@@ -20,6 +21,8 @@ export default async function ThesesPage(props: {
   const q = resolvedSearchParams.q || "";
   const level = resolvedSearchParams.level || "";
   const status = resolvedSearchParams.status || "";
+  const page = parseInt(resolvedSearchParams.page || "1", 10) || 1;
+  const limit = parseInt(resolvedSearchParams.limit || "10", 10) || 10;
 
   // Dynamically build Prisma filter query
   const whereConditions: any = {
@@ -72,6 +75,10 @@ export default async function ThesesPage(props: {
       })
     : theses;
 
+  // Paginate final list
+  const totalPages = Math.ceil(filteredTheses.length / limit);
+  const paginatedTheses = filteredTheses.slice((page - 1) * limit, page * limit);
+
   // Query levels choices
   const levelOptions = await prisma.systemOption.findMany({
     where: { listName: "thesisLevel" },
@@ -117,7 +124,7 @@ export default async function ThesesPage(props: {
         {/* Advanced Filters Panel */}
         <div className="bg-white dark:bg-slate-900 border border-border p-4 rounded-2xl shadow-sm">
           <form method="GET" className="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
-            <div className="relative md:col-span-6">
+            <div className="relative md:col-span-4">
             <input
                 type="text"
                 name="q"
@@ -127,7 +134,7 @@ export default async function ThesesPage(props: {
               />
             </div>
 
-            <div className="md:col-span-2.5 flex items-center gap-2">
+            <div className="md:col-span-2 flex items-center gap-2">
               <select
                 name="level"
                 defaultValue={level}
@@ -142,7 +149,7 @@ export default async function ThesesPage(props: {
               </select>
             </div>
 
-            <div className="md:col-span-2.5 flex items-center gap-2">
+            <div className="md:col-span-2 flex items-center gap-2">
               <select
                 name="status"
                 defaultValue={status}
@@ -154,14 +161,27 @@ export default async function ThesesPage(props: {
               </select>
             </div>
 
-            <div className="md:col-span-1 flex items-center gap-3">
+            <div className="md:col-span-2 flex items-center gap-2">
+              <select
+                name="limit"
+                defaultValue={limit.toString()}
+                className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs font-semibold"
+              >
+                <option value="10">10 per page</option>
+                <option value="20">20 per page</option>
+                <option value="30">30 per page</option>
+                <option value="100">100 per page</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-2 flex items-center gap-3">
               <button
                 type="submit"
                 className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-3 rounded-xl transition-all cursor-pointer text-center"
               >
                 Filter
               </button>
-              {(q || level || status) && (
+              {(q || level || status || limit !== 10) && (
                 <Link
                   href="/theses"
                   className="text-xs font-bold text-slate-500 hover:underline px-1 shrink-0"
@@ -178,103 +198,111 @@ export default async function ThesesPage(props: {
           <div className="text-center py-16 bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm space-y-3">
             <h3 className="font-extrabold text-slate-800 dark:text-slate-200">No Theses Found</h3>
             <p className="text-xs text-muted max-w-xs mx-auto">
-              We couldn't find any theses matching your search filters. Try broadening your keywords.
+              We couldn&apos;t find any theses matching your search filters. Try broadening your keywords.
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredTheses.map((ths) => {
-              const startStr = ths.startDate
-                ? new Date(ths.startDate).getFullYear()
-                : "N/D";
-              const endStr = ths.endDate
-                ? new Date(ths.endDate).getFullYear()
-                : ths.progress === 100
-                ? "Completed"
-                : "Ongoing";
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {paginatedTheses.map((ths) => {
+                const startStr = ths.startDate
+                  ? new Date(ths.startDate).getFullYear()
+                  : "N/D";
+                const endStr = ths.endDate
+                  ? new Date(ths.endDate).getFullYear()
+                  : ths.progress === 100
+                  ? "Completed"
+                  : "Ongoing";
 
-              return (
-                <div
-                  key={ths.id}
-                  className="bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col p-6 space-y-4"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between gap-2 flex-wrap">
-                      {ths.level && (
-                        <span className="text-[9px] uppercase tracking-wider font-black text-primary bg-primary/5 border border-primary/10 px-2 py-0.5 rounded">
-                          {ths.level}
-                        </span>
-                      )}
-                      {ths.progress !== null && (
-                        <span className={`text-[9px] uppercase font-black px-2 py-0.5 rounded border ${
-                          ths.progress === 100
-                            ? "bg-green-50 text-green-600 border-green-200 dark:bg-green-950/20 dark:text-green-500 dark:border-green-950/40"
-                            : "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-950/20 dark:text-amber-500 dark:border-amber-950/40"
-                        }`}>
-                          {ths.progress === 100 ? "Completed" : `${ths.progress}% Progress`}
-                        </span>
-                      )}
-                    </div>
-                    <Link
-                      href={`/theses/${ths.slug}`}
-                      className="font-extrabold text-base text-slate-800 dark:text-slate-100 hover:text-primary transition-all block leading-snug hover:underline"
-                    >
-                      {ths.title}
-                    </Link>
-                  </div>
-
-                  {/* Details Block */}
-                  <div className="space-y-1.5 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-border/80 text-xs">
-                    <div className="flex items-center gap-1.5 text-slate-500 font-semibold mb-1">
-                      <span>Timeline:</span>
-                      <span>{startStr} – {endStr}</span>
-                    </div>
-
-                    {ths.student && (
-                      <div className="text-slate-700 dark:text-slate-300">
-                        <strong>Student:</strong> {ths.student}
-                      </div>
-                    )}
-
-                    {(ths.director || ths.coDirector) && (
-                      <div className="space-y-0.5 pt-1.5 border-t border-border mt-1.5">
-                        {ths.director && (
-                          <div className="text-slate-700 dark:text-slate-300">
-                            <strong>Director:</strong> {ths.director}
-                          </div>
+                return (
+                  <div
+                    key={ths.id}
+                    className="bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col p-6 space-y-4"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        {ths.level && (
+                          <span className="text-[9px] uppercase tracking-wider font-black text-primary bg-primary/5 border border-primary/10 px-2 py-0.5 rounded">
+                            {ths.level}
+                          </span>
                         )}
-                        {ths.coDirector && (
-                          <div className="text-slate-700 dark:text-slate-300">
-                            <strong>Co-Director:</strong> {ths.coDirector}
-                          </div>
+                        {ths.progress !== null && (
+                          <span className={`text-[9px] uppercase font-black px-2 py-0.5 rounded border ${
+                            ths.progress === 100
+                              ? "bg-green-50 text-green-600 border-green-200 dark:bg-green-950/20 dark:text-green-500 dark:border-green-950/40"
+                              : "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-950/20 dark:text-amber-500 dark:border-amber-950/40"
+                          }`}>
+                            {ths.progress === 100 ? "Completed" : `${ths.progress}% Progress`}
+                          </span>
                         )}
                       </div>
+                      <Link
+                        href={`/theses/${ths.slug}`}
+                        className="font-extrabold text-base text-slate-800 dark:text-slate-100 hover:text-primary transition-all block leading-snug hover:underline"
+                      >
+                        {ths.title}
+                      </Link>
+                    </div>
+
+                    {/* Details Block */}
+                    <div className="space-y-1.5 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-border/80 text-xs">
+                      <div className="flex items-center gap-1.5 text-slate-500 font-semibold mb-1">
+                        <span>Timeline:</span>
+                        <span>{startStr} – {endStr}</span>
+                      </div>
+
+                      {ths.student && (
+                        <div className="text-slate-700 dark:text-slate-300">
+                          <strong>Student:</strong> {ths.student}
+                        </div>
+                      )}
+
+                      {(ths.director || ths.coDirector) && (
+                        <div className="space-y-0.5 pt-1.5 border-t border-border mt-1.5">
+                          {ths.director && (
+                            <div className="text-slate-700 dark:text-slate-300">
+                              <strong>Director:</strong> {ths.director}
+                            </div>
+                          )}
+                          {ths.coDirector && (
+                            <div className="text-slate-700 dark:text-slate-300">
+                              <strong>Co-Director:</strong> {ths.coDirector}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Summary Snippet */}
+                    {ths.summary && (
+                      <p className="text-xs text-muted leading-relaxed line-clamp-3">
+                        {ths.summary}
+                      </p>
+                    )}
+
+                    {/* Tags */}
+                    {ths.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 pt-2">
+                        {ths.tags.slice(0, 4).map((tag) => (
+                          <span
+                            key={tag}
+                            className="bg-slate-100 dark:bg-slate-800 text-slate-650 dark:text-slate-400 px-2 py-0.5 rounded text-[10px] font-semibold"
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
                     )}
                   </div>
-
-                  {/* Summary Snippet */}
-                  {ths.summary && (
-                    <p className="text-xs text-muted leading-relaxed line-clamp-3">
-                      {ths.summary}
-                    </p>
-                  )}
-
-                  {/* Tags */}
-                  {ths.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-2">
-                      {ths.tags.slice(0, 4).map((tag) => (
-                        <span
-                          key={tag}
-                          className="bg-slate-100 dark:bg-slate-800 text-slate-650 dark:text-slate-400 px-2 py-0.5 rounded text-[10px] font-semibold"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              currentSearchParams={{ q, level, status, limit }}
+              baseUrl="/theses"
+            />
           </div>
         )}
       </main>

@@ -16,6 +16,7 @@ export function MemberFilters({ positions }: { positions: string[] }) {
     } else {
       params.delete("query");
     }
+    params.delete("page"); // Reset page offset on filter change
     startTransition(() => {
       router.push(`${pathname}?${params.toString()}`);
     });
@@ -28,6 +29,20 @@ export function MemberFilters({ positions }: { positions: string[] }) {
     } else {
       params.delete("position");
     }
+    params.delete("page"); // Reset page offset on filter change
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`);
+    });
+  };
+
+  const handleLimitChange = (limit: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (limit && limit !== "10") {
+      params.set("limit", limit);
+    } else {
+      params.delete("limit");
+    }
+    params.delete("page"); // Reset page offset on limit change
     startTransition(() => {
       router.push(`${pathname}?${params.toString()}`);
     });
@@ -45,19 +60,34 @@ export function MemberFilters({ positions }: { positions: string[] }) {
         />
       </div>
       
-      <div className="w-full sm:w-64 flex items-center gap-3">
-        <select
-          defaultValue={searchParams.get("position") || ""}
-          onChange={(e) => handlePositionChange(e.target.value)}
-          className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm cursor-pointer"
-        >
-          <option value="">All Positions</option>
-          {positions.map((pos) => (
-            <option key={pos} value={pos}>
-              {pos}
-            </option>
-          ))}
-        </select>
+      <div className="w-full sm:w-auto flex flex-col sm:flex-row items-center gap-3">
+        <div className="w-full sm:w-48">
+          <select
+            defaultValue={searchParams.get("position") || ""}
+            onChange={(e) => handlePositionChange(e.target.value)}
+            className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm cursor-pointer"
+          >
+            <option value="">All Positions</option>
+            {positions.map((pos) => (
+              <option key={pos} value={pos}>
+                {pos}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="w-full sm:w-40">
+          <select
+            defaultValue={searchParams.get("limit") || "10"}
+            onChange={(e) => handleLimitChange(e.target.value)}
+            className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm cursor-pointer font-medium"
+          >
+            <option value="10">10 per page</option>
+            <option value="20">20 per page</option>
+            <option value="30">30 per page</option>
+            <option value="100">100 per page</option>
+          </select>
+        </div>
         
         {isPending && (
           <span className="text-xs text-primary font-bold animate-pulse shrink-0">
