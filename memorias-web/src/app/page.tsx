@@ -231,9 +231,6 @@ export default async function Home() {
       <footer className="border-t border-border bg-surface/50 py-8 text-center text-xs text-muted mt-12">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p>© {new Date().getFullYear()} <a href={labUrl} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors font-semibold">{labName}</a>. All rights reserved. Powered by Memorias.</p>
-          <div className="flex gap-4">
-            <a href="#" className="hover:underline">Semantic Web RDF</a>
-          </div>
         </div>
       </footer>
     </div>
