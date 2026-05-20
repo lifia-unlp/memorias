@@ -59,7 +59,7 @@ export default async function Home() {
             <h1 className="text-4xl font-extrabold tracking-tight">
               {welcomeTitle}
             </h1>
-            <p className="text-blue-100 max-w-xl text-sm md:text-base leading-relaxed">
+            <p className="text-blue-100 text-sm md:text-base leading-relaxed whitespace-pre-line">
               {welcomeSubtitle}
             </p>
           </div>
