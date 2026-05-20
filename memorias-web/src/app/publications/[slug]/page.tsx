@@ -1,7 +1,7 @@
 import React from "react";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { jsonToBibtex } from "@/lib/bibtex";
@@ -85,13 +85,27 @@ export default async function PublicationDetailPage({
             <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
           </svg>
         </div>
-        <div className="max-w-7xl mx-auto z-10 relative">
-          <span className="text-[10px] uppercase font-extrabold tracking-widest bg-white/10 px-2.5 py-1 rounded-full text-blue-100">
-            {pb.type} Bibliography Profile
-          </span>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-3 text-white leading-tight max-w-4xl">
-            {pb.title}
-          </h1>
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+          <div className="space-y-3">
+            <span className="text-[10px] uppercase font-extrabold tracking-widest bg-white/10 px-2.5 py-1 rounded-full text-blue-100">
+              {pb.type} Bibliography Profile
+            </span>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-3 text-white leading-tight max-w-4xl">
+              {pb.title}
+            </h1>
+          </div>
+
+          {isEditorOrAdmin && (
+            <div className="flex items-center gap-3">
+              <Link
+                href={`/publications/${pb.slug}/edit`}
+                className="bg-white hover:bg-slate-100 text-primary font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all text-center"
+              >
+                Edit Publication
+              </Link>
+              <DeletePublicationButton id={pb.id} title={pb.title} />
+            </div>
+          )}
         </div>
       </section>
 
@@ -281,18 +295,7 @@ export default async function PublicationDetailPage({
               </div>
             )}
 
-            {/* Edit / Delete Section */}
-            {isEditorOrAdmin && (
-              <div className="space-y-3 border-t border-border pt-6 mt-6">
-                <Link
-                  href={`/publications/${pb.slug}/edit`}
-                  className="block w-full bg-primary hover:bg-primary-hover text-white font-bold py-2.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs uppercase tracking-wider text-center cursor-pointer"
-                >
-                  Edit Publication
-                </Link>
-                <DeletePublicationButton id={pb.id} title={pb.title} />
-              </div>
-            )}
+
           </div>
         </div>
       </main>

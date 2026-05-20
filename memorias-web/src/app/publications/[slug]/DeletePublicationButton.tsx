@@ -33,7 +33,7 @@ export function DeletePublicationButton({
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="w-full bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 font-bold py-2.5 px-4 rounded-xl border border-red-200/50 dark:border-red-900/30 transition-all text-xs uppercase tracking-wider text-center cursor-pointer"
+        className="bg-red-50 hover:bg-red-100 text-red-600 dark:text-red-500 border border-red-200 dark:border-red-950 px-4 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md hover:shadow-lg"
       >
         🗑️ Delete Publication
       </button>

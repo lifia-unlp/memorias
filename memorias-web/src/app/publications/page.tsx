@@ -246,17 +246,7 @@ export default async function PublicationsPage(props: {
                     </div>
                   </div>
 
-                  {/* Editor / Admin Controls */}
-                  {isEditorOrAdmin && (
-                    <div className="flex md:flex-col items-center gap-2 border-t md:border-t-0 md:border-l border-border pt-3 md:pt-0 md:pl-4 self-stretch justify-end md:justify-start">
-                      <Link
-                        href={`/publications/${pb.slug}/edit`}
-                        className="text-xs font-bold text-slate-700 hover:text-primary dark:text-slate-300 dark:hover:text-white border border-border rounded-lg px-3 py-1.5 transition-all bg-slate-50 dark:bg-slate-900"
-                      >
-                        Edit
-                      </Link>
-                    </div>
-                  )}
+
                 </div>
               );
             })}
