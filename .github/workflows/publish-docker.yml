@@ -1,12 +1,7 @@
 name: Publish to Docker Hub
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'memorias-web/**'
-      - '.github/workflows/publish-docker.yml'
+  workflow_dispatch:
 
 jobs:
   build-and-push:
