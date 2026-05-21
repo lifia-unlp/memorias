@@ -12,6 +12,11 @@ export default {
     Google({
       clientId: process.env.AUTH_GOOGLE_ID || "mock-google-id",
       clientSecret: process.env.AUTH_GOOGLE_SECRET || "mock-google-secret",
+      authorization: {
+        params: {
+          prompt: "select_account",
+        },
+      },
     }),
     MicrosoftEntraID({
       clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID || "mock-microsoft-id",

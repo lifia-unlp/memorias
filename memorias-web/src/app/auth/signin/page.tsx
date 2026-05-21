@@ -8,6 +8,12 @@ export default async function SignInPage() {
     .catch(() => null);
   const logoUrl = logoSetting?.value || "";
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const requireActivationSetting = await (prisma as any).systemSetting
+    ?.findUnique({ where: { key: "require_user_activation" } })
+    .catch(() => null);
+  const requireUserActivation = requireActivationSetting?.value === "true";
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="material-card w-full max-w-md space-y-8 py-10 px-8">
@@ -215,8 +221,17 @@ export default async function SignInPage() {
         <div className="pt-6 border-t border-border bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg flex gap-3 text-xs text-muted leading-relaxed">
           <span className="text-lg">🛡️</span>
           <div>
-            <span className="font-bold text-foreground block mb-0.5">Admin Approval Required</span>
-            To protect lab confidentiality, first-time sign-ins are held in a pending queue. A system administrator must review and activate your account before you can edit data.
+            {requireUserActivation ? (
+              <>
+                <span className="font-bold text-foreground block mb-0.5">Admin Approval Required</span>
+                To protect lab confidentiality, first-time sign-ins are held in a pending queue. A system administrator must review and activate your account before you can edit data.
+              </>
+            ) : (
+              <>
+                <span className="font-bold text-foreground block mb-0.5">Instant Account Activation</span>
+                New accounts are automatically activated. You will receive immediate access with standard permissions upon signing in.
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { toggleUserActivationAction, updateUserRoleAction } from "./actions";
+import { toggleUserActivationAction, updateUserRoleAction, deleteUserAction } from "./actions";
 
 export function RoleSelector({
   userId,
@@ -90,6 +90,55 @@ export function ActivationButton({
         }`}
       >
         {isUpdating ? "Processing..." : active ? "Deactivate" : "Activate"}
+      </button>
+    </form>
+  );
+}
+
+export function DeleteUserButton({
+  userId,
+  currentUserId,
+}: {
+  userId: string;
+  currentUserId?: string;
+}) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (userId === currentUserId) {
+      alert("You cannot delete your own admin account.");
+      return;
+    }
+    if (!confirm("Are you sure you want to permanently delete this user? This action cannot be undone.")) {
+      return;
+    }
+    setIsDeleting(true);
+    try {
+      const formData = new FormData();
+      formData.append("userId", userId);
+      await deleteUserAction(formData);
+    } catch (err: unknown) {
+      console.error("Failed to delete user:", err);
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete user.";
+      alert(errorMessage);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  if (userId === currentUserId) {
+    return null;
+  }
+
+  return (
+    <form onSubmit={handleDelete} className="inline-block ml-2">
+      <button
+        type="submit"
+        disabled={isDeleting}
+        className="text-xs font-bold px-4 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 rounded-lg cursor-pointer transition-all shadow-sm disabled:opacity-50"
+      >
+        {isDeleting ? "Deleting..." : "Delete"}
       </button>
     </form>
   );

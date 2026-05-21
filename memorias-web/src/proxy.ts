@@ -13,6 +13,15 @@ export const proxy = auth((req) => {
   const isAuthPage = nextUrl.pathname.startsWith("/auth");
   const isApiAuth = nextUrl.pathname.startsWith("/api/auth");
   
+  // Custom policy: If already logged in, redirect away from /auth pages
+  if (isLoggedIn && isAuthPage) {
+    if (isActive) {
+      return NextResponse.redirect(new URL("/", req.url));
+    } else {
+      return NextResponse.redirect(new URL("/pending-activation", req.url));
+    }
+  }
+
   // Custom policy: If logged in but not activated by an admin, restrict to /pending-activation
   if (isLoggedIn && !isActive && !isPendingPage && !isAuthPage && !isApiAuth) {
     return NextResponse.redirect(new URL("/pending-activation", req.url));

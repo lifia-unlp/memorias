@@ -1,6 +1,6 @@
 import React from "react";
 import { prisma } from "@/lib/prisma";
-import { RoleSelector, ActivationButton } from "./UserControls";
+import { RoleSelector, ActivationButton, DeleteUserButton } from "./UserControls";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
@@ -106,9 +106,12 @@ export default async function AdminUsersPage() {
                       <RoleSelector userId={u.id} initialRole={u.role} />
                     </td>
 
-                    {/* Toggle Activation Button */}
-                    <td className="p-4 text-right">
-                      <ActivationButton userId={u.id} initialActive={u.active} />
+                    {/* Actions */}
+                    <td className="p-4 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-2">
+                        <ActivationButton userId={u.id} initialActive={u.active} />
+                        <DeleteUserButton userId={u.id} currentUserId={session.user?.id} />
+                      </div>
                     </td>
                   </tr>
                 ))}

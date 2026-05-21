@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
+import { Role } from "@prisma/client";
 import authConfig from "./auth.config";
 
 import Credentials from "next-auth/providers/credentials";
@@ -32,7 +33,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             data: {
               email,
               name: "Dev Admin Backdoor",
-              role: role as any,
+              role: role as Role,
               active: true,
             },
           });
@@ -40,7 +41,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           user = await prisma.user.update({
             where: { id: user.id },
             data: {
-              role: role as any,
+              role: role as Role,
               active: true,
             },
           });
@@ -75,6 +76,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (dbUser) {
           token.role = dbUser.role;
           token.active = dbUser.active;
+        } else {
+          // Invalidate the session if the user was deleted from the database
+          token.role = undefined;
+          token.active = false;
+          token.sub = undefined;
+          token.email = undefined;
         }
       }
       return token;
@@ -94,7 +101,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user.id) {
         const count = await prisma.user.count();
         const role = count === 1 ? "ADMIN" : "USER";
-        const active = count === 1 ? true : false;
+        
+        let active = true;
+        if (count > 1) {
+          const requireActivationSetting = await prisma.systemSetting.findUnique({
+            where: { key: "require_user_activation" },
+          }).catch(() => null);
+          if (requireActivationSetting?.value === "true") {
+            active = false;
+          }
+        }
 
         await prisma.user.update({
           where: { id: user.id },

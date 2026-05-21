@@ -18,6 +18,8 @@ export default async function AdminConfigPage() {
   const logoOption = await (prisma as any).systemSetting?.findUnique({ where: { key: "logo_url" } }).catch(() => null);
   const labNameOption = await (prisma as any).systemSetting?.findUnique({ where: { key: "lab_name" } }).catch(() => null);
   const labUrlOption = await (prisma as any).systemSetting?.findUnique({ where: { key: "lab_url" } }).catch(() => null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const requireActivationOption = await (prisma as any).systemSetting?.findUnique({ where: { key: "require_user_activation" } }).catch(() => null);
 
   const initialTitle = titleOption?.value || "Welcome to Memorias";
   const initialSubtitle =
@@ -26,6 +28,7 @@ export default async function AdminConfigPage() {
   const initialLogoUrl = logoOption?.value || "";
   const initialLabName = labNameOption?.value || process.env.LAB_NAME || "LIFIA";
   const initialLabUrl = labUrlOption?.value || process.env.LAB_URL || "https://lifia.info.unlp.edu.ar";
+  const initialRequireUserActivation = requireActivationOption?.value === "true";
 
   return (
     <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-900/50 min-h-screen">
@@ -68,6 +71,7 @@ export default async function AdminConfigPage() {
           initialLogoUrl={initialLogoUrl}
           initialLabName={initialLabName}
           initialLabUrl={initialLabUrl}
+          initialRequireUserActivation={initialRequireUserActivation}
         />
       </main>
 

@@ -9,6 +9,7 @@ interface ConfigFormProps {
   initialLogoUrl: string;
   initialLabName: string;
   initialLabUrl: string;
+  initialRequireUserActivation: boolean;
 }
 
 export function ConfigForm({
@@ -17,6 +18,7 @@ export function ConfigForm({
   initialLogoUrl,
   initialLabName,
   initialLabUrl,
+  initialRequireUserActivation,
 }: ConfigFormProps) {
   const [isPending, startTransition] = useTransition();
   const [welcomeTitle, setWelcomeTitle] = useState(initialTitle);
@@ -24,6 +26,7 @@ export function ConfigForm({
   const [logoUrl, setLogoUrl] = useState(initialLogoUrl);
   const [labName, setLabName] = useState(initialLabName);
   const [labUrl, setLabUrl] = useState(initialLabUrl);
+  const [requireUserActivation, setRequireUserActivation] = useState(initialRequireUserActivation);
 
 
   const [notification, setNotification] = useState<{
@@ -192,6 +195,34 @@ export function ConfigForm({
               placeholder="Provide a detailed introductory bio for the laboratory dashboard..."
               className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm h-36 leading-relaxed"
             />
+          </div>
+        </div>
+      </div>
+
+      {/* 3. User Management & Security Card */}
+      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
+        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
+          User Management & Security
+        </h3>
+
+        <div className="space-y-5">
+          <div className="flex items-start gap-3">
+            <input
+              type="checkbox"
+              id="requireUserActivation"
+              name="requireUserActivation"
+              checked={requireUserActivation}
+              onChange={(e) => setRequireUserActivation(e.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
+            />
+            <div className="space-y-1">
+              <label htmlFor="requireUserActivation" className="text-xs font-bold text-slate-700 dark:text-slate-300 block cursor-pointer">
+                Require Administrator Activation for New Users
+              </label>
+              <p className="text-[10px] text-muted leading-relaxed">
+                When enabled, newly registered users are put in a pending state and must be manually activated by an administrator before they can access core repository features. When disabled (default), new accounts are instantly activated with standard USER privileges.
+              </p>
+            </div>
           </div>
         </div>
       </div>

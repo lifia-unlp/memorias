@@ -47,3 +47,23 @@ export async function updateUserRoleAction(formData: FormData) {
   
   revalidatePath("/admin/users");
 }
+
+export async function deleteUserAction(formData: FormData) {
+  const session = await auth();
+  if (!session || session.user?.role !== "ADMIN" || !session.user?.active) {
+    throw new Error("Unauthorized. Active Administrator session required.");
+  }
+  
+  const userId = formData.get("userId") as string;
+  if (!userId) throw new Error("User ID is required");
+
+  if (session.user.id === userId) {
+    throw new Error("Cannot delete your own admin account.");
+  }
+
+  await prisma.user.delete({
+    where: { id: userId },
+  });
+
+  revalidatePath("/admin/users");
+}

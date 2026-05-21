@@ -15,6 +15,7 @@ export async function saveSystemSettings(formData: FormData) {
   const logoUrl = (formData.get("logoUrl") as string) || "";
   const labName = (formData.get("labName") as string) || "";
   const labUrl = (formData.get("labUrl") as string) || "";
+  const requireUserActivation = formData.get("requireUserActivation") === "on" || formData.get("requireUserActivation") === "true" ? "true" : "false";
 
   const systemSetting = (prisma as any).systemSetting;
   if (!systemSetting) {
@@ -48,6 +49,11 @@ export async function saveSystemSettings(formData: FormData) {
       update: { value: labUrl },
       create: { key: "lab_url", value: labUrl },
     }),
+    prisma.systemSetting.upsert({
+      where: { key: "require_user_activation" },
+      update: { value: requireUserActivation },
+      create: { key: "require_user_activation", value: requireUserActivation },
+    }),
   ]);
 
   // Log to Audit Log
@@ -59,7 +65,7 @@ export async function saveSystemSettings(formData: FormData) {
       entitySlug: "system-config",
       userId: session.user.id || null,
       userEmail: session.user.email || "Unknown Admin",
-      details: `Updated home welcome title: "${welcomeTitle.slice(0, 40)}...", subtitle: "${welcomeSubtitle.slice(0, 40)}...", lab name: "${labName}", and lab URL: "${labUrl}".`,
+      details: `Updated home welcome title: "${welcomeTitle.slice(0, 40)}...", subtitle: "${welcomeSubtitle.slice(0, 40)}...", lab name: "${labName}", lab URL: "${labUrl}", and require user activation: "${requireUserActivation}".`,
     },
   });
 
