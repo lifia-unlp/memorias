@@ -1,0 +1,10 @@
+# Plan: Material UI Mockup and Migration Guide
+Build a static Material Design mockup in memorias-mui-mockup that captures the portal's major screen families and reusable shell patterns, then turn that into a concise migration guide for the AI agent that will later replace Tailwind in memorias-web with MUI.
+
+**Steps**
+
+1. Audit the current UI surface and lock the mockup coverage to the major route families. Use the shared shell and representative screens as anchors: root layout, header, footer, home dashboard, entity list/detail/create/edit patterns, reports, admin, auth, preferences, about, and pending-activation. Depends on the discovery already done.
+2. Define the mockup architecture in memorias-mui-mockup as a static, responsive, semantic HTML plus centralized CSS prototype. Keep it framework-agnostic, no Tailwind, no inline styles, no iconography, and no page-specific styling unless unavoidable. Model the reusable patterns explicitly: app shell, navigation, cards, tables/lists, forms, filters, empty/error states, dense admin layouts, and interactive workspace layouts.
+3. Translate the current visual language into Material-oriented design tokens and reusable components. Preserve the portal's established brand colors and information density, but express them through MUI-friendly concepts: theme palette, typography scale, spacing, surface/elevation, button hierarchy, input states, responsive breakpoints, and card/list/table variants.
+4. Finalize a migration guide document in the mockup folder that becomes the AI agent handoff. Merge the existing mockup-rules.md into a more complete brief that includes scope, non-goals, screen inventory, component mapping, token rules, layout priorities, accessibility expectations, responsive behavior, and the intended migration order for removing Tailwind from memorias-web.
+5. Add a validation pass that compares the mockup and guide against the current app structure. Confirm that every major route family has a place in the mockup, that the guide is explicit enough for an implementation agent, and that the mockup remains easy to translate into MUI components and a centralized theme.
