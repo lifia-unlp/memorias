@@ -39,6 +39,17 @@ export default {
           email: profile.email || `${profile.sub}@orcid.org`,
         };
       },
+      account(account) {
+        return {
+          access_token: account.access_token,
+          expires_at: account.expires_at ? Math.min(account.expires_at, 2147483647) : undefined,
+          refresh_token: account.refresh_token,
+          token_type: account.token_type,
+          scope: account.scope,
+          id_token: account.id_token,
+          session_state: account.session_state,
+        };
+      },
     },
   ],
   session: {
