@@ -2,15 +2,20 @@ import React from "react";
 import { signIn } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
-export default async function SignInPage() {
-  const logoSetting = await (prisma as any).systemSetting
-    ?.findUnique({ where: { key: "logo_url" } })
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function SignInPage({ searchParams }: PageProps) {
+  const resolvedSearchParams = await searchParams;
+  const error = typeof resolvedSearchParams.error === "string" ? resolvedSearchParams.error : undefined;
+  const logoSetting = await prisma.systemSetting
+    .findUnique({ where: { key: "logo_url" } })
     .catch(() => null);
   const logoUrl = logoSetting?.value || "";
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const requireActivationSetting = await (prisma as any).systemSetting
-    ?.findUnique({ where: { key: "require_user_activation" } })
+  const requireActivationSetting = await prisma.systemSetting
+    .findUnique({ where: { key: "require_user_activation" } })
     .catch(() => null);
   const requireUserActivation = requireActivationSetting?.value === "true";
 
@@ -34,6 +39,24 @@ export default async function SignInPage() {
         </div>
 
         <div className="space-y-4">
+          {error === "OAuthAccountNotLinked" && (
+            <div className="p-4 bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 rounded-lg text-xs leading-relaxed space-y-1">
+              <p className="font-bold">Account exists under another method</p>
+              <p className="text-muted-foreground leading-normal">
+                An account with this email address is already registered using a different provider (such as Google or Microsoft). Please sign in using your original method.
+              </p>
+            </div>
+          )}
+
+          {error && error !== "OAuthAccountNotLinked" && (
+            <div className="p-4 bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 rounded-lg text-xs leading-relaxed space-y-1">
+              <p className="font-bold">Authentication Error</p>
+              <p className="text-muted-foreground leading-normal">
+                An error occurred during authentication. Please try again or contact support if the problem persists.
+              </p>
+            </div>
+          )}
+
           <p className="text-sm text-center text-muted">
             Sign in to manage your profile, publications, theses, and scholarships.
           </p>
