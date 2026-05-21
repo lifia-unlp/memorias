@@ -174,25 +174,11 @@
         <div style="margin-bottom: var(--spacing-xl); text-align: center;">
           <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--secondary); letter-spacing: 0.8px;">Bibliography Curation</span>
           <h1 style="font-family: var(--font-display); font-weight: 800; font-size: 28px; color: var(--text-primary); margin-top: 4px;">
-            Add Scientific Publication
+            Edit Scientific Publication
           </h1>
           <p style="color: var(--text-secondary); font-size: 13.5px; margin-top: var(--spacing-xs);">
-            Input details manually or paste a BibTeX snippet below to auto-populate the record instantly.
+            Update the scientific publication details below.
           </p>
-        </div>
-
-        <!-- Dynamic Parser Box (WOW factor) -->
-        <div class="mui-card" style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md); border-color: var(--primary-border); background-color: var(--primary-light);">
-          <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--primary); letter-spacing: 0.5px; display: block; margin-bottom: 6px;">⚡ Smart Auto-Fill (BibTeX)</span>
-          <textarea id="bibtex_raw" class="mui-input mui-textarea" placeholder="Paste BibTeX citation here (e.g. @article{...})" style="font-family: monospace; font-size: 12.5px; min-height: 80px; margin-bottom: var(--spacing-sm); border-color: rgba(25, 118, 210, 0.3);"></textarea>
-          <button type="button" onclick="parseBibTeX()" class="mui-btn mui-btn-contained" style="width: 100%; font-size: 11px; padding: 8px 12px;">
-            Parse & Auto-Fill Form Fields
-          </button>
-        </div>
-
-        <!-- Status / Feedback Alert -->
-        <div id="parser-alert" class="mui-alert" style="display: none;">
-          <div style="font-weight: 600;" id="parser-alert-text"></div>
         </div>
 
         <!-- Main Form -->
@@ -250,22 +236,10 @@
             </div>
           </div>
 
-          <div class="mui-grid-2" style="gap: 20px;">
-            <!-- DOI -->
-            <div class="mui-form-group">
-              <input type="text" id="pub_doi" class="mui-input" placeholder=" ">
-              <label class="mui-label">DOI Link / ID (e.g. 10.1109/...)</label>
-            </div>
-
-            <!-- Associated Project -->
-            <div class="mui-form-group">
-              <select id="pub_project" class="mui-input mui-select">
-                <option value="">None (Standalone)</option>
-                <option value="pict1">PICT-2023-010 (Distributed IIoT)</option>
-                <option value="pict2">PICT-2024-045 (Real-time Vision)</option>
-              </select>
-              <label class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Associated Project</label>
-            </div>
+          <!-- DOI -->
+          <div class="mui-form-group">
+            <input type="text" id="pub_doi" class="mui-input" placeholder=" " value="10.1109/TSE.2025.3198765">
+            <label class="mui-label">DOI Link / ID (e.g. 10.1109/...)</label>
           </div>
 
           <!-- Interactive TagWidget Section (Research Classification Keywords) -->
@@ -312,30 +286,139 @@
             </div>
           </div>
 
-          <!-- Authors Checkbox Selection -->
-          <div style="border: 1px solid var(--border); border-radius: var(--radius-xs); padding: var(--spacing-md); position: relative; margin-bottom: 10px;">
-            <label style="position: absolute; top: -10px; left: 10px; background-color: var(--surface); padding: 0 4px; font-size: 12px; font-weight: 700; color: var(--primary);">Lab Co-Authors</label>
-            <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: var(--spacing-sm);">Select all active laboratory members who contributed to this publication.</p>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              <label class="mui-switch-container" style="margin: 0; display: inline-flex;">
-                <input type="checkbox" checked style="margin-right: 8px;">
-                <span style="font-size: 13px;">John Smith (Director)</span>
+          <!-- Associated Projects scrollable list -->
+          <div class="mui-range-container" style="border: 1px solid var(--border); border-radius: var(--radius-xs); padding: var(--spacing-md); margin-bottom: 20px; background-color: var(--surface);">
+            <span class="mui-range-label" style="font-size: 13px; color: var(--text-primary); margin-bottom: var(--spacing-sm);">Associated Projects</span>
+            
+            <div class="mui-member-select-list">
+              
+              <!-- Project 1 -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" checked value="pict-2023-010">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 10px; font-weight: 700; margin: 0; background-color: var(--secondary-light); color: var(--secondary); border-radius: 4px;">PICT</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">PICT-2023-010</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">Distributed Ledgers and Edge Analytics for Secured Industrial Internet of Things</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-secondary" style="font-size: 8.5px; padding: 2px 6px;">Active</span>
               </label>
-              <label class="mui-switch-container" style="margin: 0; display: inline-flex;">
-                <input type="checkbox" checked style="margin-right: 8px;">
-                <span style="font-size: 13px;">Maria Garcia (Co-Director)</span>
+
+              <!-- Project 2 -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" value="unlp-f11-893">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 10px; font-weight: 700; margin: 0; background-color: var(--primary-light); color: var(--primary); border-radius: 4px;">UNLP</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">UNLP-F11-893</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">Intelligent Curation Paradigms for University Bibliographies</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-primary" style="font-size: 8.5px; padding: 2px 6px;">Active</span>
               </label>
-              <label class="mui-switch-container" style="margin: 0; display: inline-flex;">
-                <input type="checkbox" style="margin-right: 8px;">
-                <span style="font-size: 13px;">Alice Williams (PhD Candidate)</span>
+
+              <!-- Project 3 -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" value="pict-2021-002">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 10px; font-weight: 700; margin: 0; background-color: rgba(0,0,0,0.08); color: var(--text-primary); border-radius: 4px;">PICT</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">PICT-2021-002</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">Semantic Web Ontologies for Smart Cities</span>
+                  </div>
+                </div>
+                <span class="mui-chip" style="font-size: 8.5px; padding: 2px 6px; background-color: rgba(0,0,0,0.05); color: var(--text-secondary);">Completed</span>
               </label>
+
             </div>
           </div>
 
-          <!-- PDF Upload Field -->
-          <div class="mui-form-group">
-            <span style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">Self-Archived Publication PDF File</span>
-            <input type="file" style="font-size: 13px; color: var(--text-secondary); width: 100%; padding: var(--spacing-sm) 0;">
+          <!-- Working Group Members scrollable list -->
+          <div class="mui-range-container" style="border: 1px solid var(--border); border-radius: var(--radius-xs); padding: var(--spacing-md); margin-bottom: 20px; background-color: var(--surface);">
+            <span class="mui-range-label" style="font-size: 13px; color: var(--text-primary); margin-bottom: var(--spacing-sm);">Working Group Members / Participants</span>
+            
+            <div class="mui-member-select-list">
+              
+              <!-- Member 1: John Smith -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" checked value="1">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: var(--primary-light); color: var(--primary);">JS</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">John Smith</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">Director / Full Researcher</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-primary" style="font-size: 8.5px; padding: 2px 6px;">LIFIA Member</span>
+              </label>
+
+              <!-- Member 2: Maria Garcia -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" checked value="2">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: var(--secondary-light); color: var(--secondary);">MG</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">Maria Garcia</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">Co-Director / Full Researcher</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-primary" style="font-size: 8.5px; padding: 2px 6px;">LIFIA Member</span>
+              </label>
+
+              <!-- Member 3: Alice Williams -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" value="3">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: var(--success-light); color: var(--success);">AW</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">Alice Williams</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">PhD Candidate / Scholar</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-primary" style="font-size: 8.5px; padding: 2px 6px;">LIFIA Member</span>
+              </label>
+
+              <!-- Member 4: David Miller -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" value="4">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: rgba(0,0,0,0.08); color: var(--text-primary);">DM</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">David Miller</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">Assistant Researcher</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-primary" style="font-size: 8.5px; padding: 2px 6px;">LIFIA Member</span>
+              </label>
+
+              <!-- Member 5: Robert Taylor (External Partner) -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" value="5">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: var(--warning-light); color: var(--warning);">RT</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">Robert Taylor</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">External / Research Collaborator</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-secondary" style="font-size: 8.5px; padding: 2px 6px;">External</span>
+              </label>
+
+              <!-- Member 6: Sarah Jenkins -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" value="6">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: rgba(217,119,6,0.08); color: rgb(217,119,6);">SJ</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">Sarah Jenkins</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">PhD Candidate</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-primary" style="font-size: 8.5px; padding: 2px 6px;">LIFIA Member</span>
+              </label>
+
+            </div>
           </div>
 
           <!-- Feature Toggles -->
@@ -344,7 +427,7 @@
               <input type="checkbox" checked>
               <span class="mui-slider-switch"></span>
             </label>
-            <span class="mui-switch-label">Feature this publication on the main landing dashboard</span>
+            <span class="mui-switch-label">Feature this thesis on homepage</span>
           </div>
 
           <div class="mui-switch-container">
@@ -358,7 +441,7 @@
           <!-- Save/Cancel Actions -->
           <div style="display: flex; gap: var(--spacing-md); justify-content: flex-end; margin-top: var(--spacing-md);">
             <a href="publications.html" class="mui-btn mui-btn-outlined" style="min-width: 100px;">Cancel</a>
-            <button type="submit" class="mui-btn mui-btn-contained" style="min-width: 150px;">Save Record</button>
+            <button type="submit" class="mui-btn mui-btn-contained" style="min-width: 150px;">Save</button>
           </div>
 
         </form>
