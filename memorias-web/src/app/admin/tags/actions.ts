@@ -2,7 +2,14 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { ensureEditorOrAdmin } from "@/app/members/actions";
+import { auth } from "@/auth";
+
+export async function ensureAdmin() {
+  const session = await auth();
+  if (!session || !session.user?.active || session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized. Administrator role required.");
+  }
+}
 import { logAction } from "@/lib/audit";
 import { sanitizeTag, getDistinctTags, getPopularTags, getAllTagsWithCounts } from "@/lib/tags";
 
@@ -29,7 +36,7 @@ export async function getTagsMetadata() {
  * Admin action to fetch all unique tags and their count values.
  */
 export async function getTagsWithCountsAdmin() {
-  await ensureEditorOrAdmin();
+  await ensureAdmin();
   return getAllTagsWithCounts();
 }
 
@@ -37,7 +44,7 @@ export async function getTagsWithCountsAdmin() {
  * Admin action to globally delete a tag across all tables.
  */
 export async function deleteTagGlobally(tagToDelete: string) {
-  await ensureEditorOrAdmin();
+  await ensureAdmin();
   const sanitized = sanitizeTag(tagToDelete);
   if (!sanitized) throw new Error("Invalid tag name specified.");
 
@@ -111,7 +118,7 @@ export async function deleteTagGlobally(tagToDelete: string) {
  * Admin action to merge sourceTag into targetTag globally.
  */
 export async function mergeTags(sourceTag: string, targetTag: string) {
-  await ensureEditorOrAdmin();
+  await ensureAdmin();
   const source = sanitizeTag(sourceTag);
   const target = sanitizeTag(targetTag);
 
@@ -306,7 +313,7 @@ export async function getAutoTaggerQueueAction(params: {
   targets: string[];
   mode: "skip" | "merge" | "replace";
 }) {
-  await ensureEditorOrAdmin();
+  await ensureAdmin();
   const { targets, mode } = params;
   const queue: { id: string; target: string; title: string; summary: string; currentTags: string[] }[] = [];
 
@@ -316,13 +323,18 @@ export async function getAutoTaggerQueueAction(params: {
       if (mode === "skip") {
         pubs = pubs.filter((p) => p.tags.length === 0);
       }
-      queue.push(...pubs.map(p => ({
-        id: p.id,
-        target,
-        title: p.title,
-        summary: (p.bibtexData as any)?.entryTags?.abstract || (p.bibtexData as any)?.abstract || "",
-        currentTags: p.tags,
-      })));
+      queue.push(...pubs.map(p => {
+        const bibtex = p.bibtexData as Record<string, unknown> | null;
+        const entryTags = bibtex?.entryTags as Record<string, unknown> | undefined;
+        const abstract = (entryTags?.abstract as string) || (bibtex?.abstract as string) || "";
+        return {
+          id: p.id,
+          target,
+          title: p.title,
+          summary: abstract,
+          currentTags: p.tags,
+        };
+      }));
     }
 
     if (target === "project") {
@@ -393,7 +405,7 @@ export async function executeAutoTagBatchAction(params: {
   mode: "skip" | "merge" | "replace";
   tasks: { id: string; target: string; title: string; summary: string; currentTags: string[] }[];
 }) {
-  await ensureEditorOrAdmin();
+  await ensureAdmin();
   const { model, mode, tasks } = params;
 
   const aiTasks = tasks.filter(t => t.target !== "member");
@@ -478,7 +490,7 @@ export async function executeAutoTagBatchAction(params: {
  * Admin action to add a new tag to the system taxonomy manually.
  */
 export async function addSystemTag(tag: string) {
-  await ensureEditorOrAdmin();
+  await ensureAdmin();
   const sanitized = sanitizeTag(tag);
   if (!sanitized) throw new Error("Invalid tag name specified.");
 
