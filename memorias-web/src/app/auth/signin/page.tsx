@@ -60,7 +60,44 @@ export default async function SignInPage() {
               }
 
               return (
-                <>
+                <div className="space-y-3">
+                  {isOrcidConfigured && (
+                    <div className="border border-[#A6CE39]/35 bg-[#A6CE39]/5 dark:bg-[#A6CE39]/10 rounded-xl p-3.5 relative overflow-hidden shadow-sm space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-[#A6CE39] uppercase tracking-wider">
+                          Recommended Option
+                        </span>
+                      </div>
+                      <form
+                        action={async () => {
+                          "use server";
+                          await signIn("orcid", { redirectTo: "/" });
+                        }}
+                      >
+                        <button
+                          type="submit"
+                          className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-lg bg-[#A6CE39] hover:bg-[#96bd33] text-sm font-bold text-white transition-all cursor-pointer shadow-sm hover:shadow"
+                        >
+                          <svg viewBox="0 0 256 256" className="w-5 h-5 flex-shrink-0">
+                            <path fill="#FFF" d="M256 128c0 70.7-57.3 128-128 128S0 198.7 0 128 57.3 0 128 0s128 57.3 128 128z"/>
+                            <path fill="#A6CE39" d="M86.3 186.2H70.9V79.1h15.4v107.1zm-7.7-121c-5.7 0-10.4-4.7-10.4-10.4 0-5.7 4.7-10.4 10.4-10.4 5.8 0 10.4 4.7 10.4 10.4-.1 5.7-4.7 10.4-10.4 10.4zM189.4 133c0 30.6-21.6 54.4-53.9 54.4H101V79.1h35.3c31.4 0 53.1 22.1 53.1 53.9zm-73 40.5h18.2c22.1 0 37.7-14.7 37.7-40.5s-15.6-40.5-37.7-40.5h-18.2v81z"/>
+                          </svg>
+                          Continue with ORCID
+                        </button>
+                      </form>
+                    </div>
+                  )}
+
+                  {isOrcidConfigured && (isGitHubConfigured || isGoogleConfigured || isMicrosoftConfigured) && (
+                    <div className="relative flex py-2 items-center">
+                      <div className="flex-grow border-t border-border"></div>
+                      <span className="flex-shrink mx-4 text-slate-400 dark:text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                        Or Continue With
+                      </span>
+                      <div className="flex-grow border-t border-border"></div>
+                    </div>
+                  )}
+
                   {isGitHubConfigured && (
                     <form
                       action={async () => {
@@ -138,28 +175,7 @@ export default async function SignInPage() {
                       </button>
                     </form>
                   )}
-
-                  {isOrcidConfigured && (
-                    <form
-                      action={async () => {
-                        "use server";
-                        await signIn("orcid", { redirectTo: "/" });
-                      }}
-                    >
-                      <button
-                        type="submit"
-                        className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-border rounded-lg bg-surface hover:bg-surface-hover text-sm font-semibold text-foreground transition-all cursor-pointer shadow-sm hover:shadow"
-                      >
-                        {/* ORCID brand logo */}
-                        <svg viewBox="0 0 256 256" className="w-5 h-5 flex-shrink-0">
-                          <path fill="#A6CE39" d="M256 128c0 70.7-57.3 128-128 128S0 198.7 0 128 57.3 0 128 0s128 57.3 128 128z"/>
-                          <path fill="#FFF" d="M86.3 186.2H70.9V79.1h15.4v107.1zm-7.7-121c-5.7 0-10.4-4.7-10.4-10.4 0-5.7 4.7-10.4 10.4-10.4 5.8 0 10.4 4.7 10.4 10.4-.1 5.7-4.7 10.4-10.4 10.4zM189.4 133c0 30.6-21.6 54.4-53.9 54.4H101V79.1h35.3c31.4 0 53.1 22.1 53.1 53.9zm-73 40.5h18.2c22.1 0 37.7-14.7 37.7-40.5s-15.6-40.5-37.7-40.5h-18.2v81z"/>
-                        </svg>
-                        Continue with ORCID
-                      </button>
-                    </form>
-                  )}
-                </>
+                </div>
               );
             })()}
           </div>
