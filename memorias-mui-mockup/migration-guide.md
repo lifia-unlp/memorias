@@ -8,6 +8,9 @@ This guide leverages the design tokens and structural patterns validated in the 
 
 ## 1. Migration Scope & Goals
 
+> [!WARNING]
+> **Target Scope Context Constraint:** This migration plan targets exclusively the modern React/Next.js **`memorias-web`** application codebase. Under NO circumstances should any configuration or architectural guidelines in this document be applied to the legacy Pharo / Smalltalk web app (`memorias-legacy`), which is entirely deprecated and outside the scope of this migration.
+
 > [!NOTE]
 > **Primary Objective:** Drop Tailwind CSS completely from `memorias-web`. Remove all Tailwind dependencies, clean up CSS classes, and rebuild the UI structure using high-fidelity **Material-UI v5+** React components under a unified theme.
 
@@ -344,3 +347,31 @@ graph TD
 ### Phase 7: Validation & Optimization Pass
 * Audit performance and responsive breakpoints.
 * Check navigation link pipelines, data schema attributes, and accessibility configurations.
+
+---
+
+## 7. Component Specifics: TagWidget & Member Form Editor
+
+### Custom Interactive `TagWidget` (Next.js & MUI Integration)
+To replace standard tag fields with an interactive experience matching the actual application (`src/components/TagWidget.tsx`), implement a dedicated React component wrapping the MUI design system:
+
+* **Visual Pills Box:** Render currently selected tags as individual MUI `<Chip>` components inside a container with a dashed border. Provide an `onDelete` handler on each Chip to allow users to instantly discard tags.
+* **Floating Autocomplete Suggestions:** Integrate a floating panel utilizing MUI's `<Popper>` or `<Paper>` (with elevated shadow, matching `var(--shadow-dp4)`) that filters global tags in real-time as the curator types.
+* **Quick-Add Popular Row:** Display a row of popular/frequent tags beneath the input box as hoverable, clickable custom buttons. When clicked, these tags are instantly added to the selection pool and disabled in the popular list.
+* **Behavior Engine:** Support tag submission on typing and pressing `Enter`, `Comma`, or `Tab`. Ensure whitespace is normalized and duplicate entries are prevented.
+
+### Expanded Accreditations & SEO Fields in `MemberForm.tsx`
+The researcher profile editing screen (`member-form.html`) has been enriched to support the complete set of academic metadata defined in the React database schemas:
+
+1. **Configurable SEO Page Slug:**
+   - Add a full-width input field right below First and Last names to manage the database routing slug (`slug`).
+   - By default, dynamically generate a normalized, URL-safe slug from the researcher's first and last names (e.g. `john-smith`).
+   - Render a custom dynamic indicator badge (e.g. `✨ Auto-Generated`) that stays active until the user overrides the input.
+   - Provide a `Reset Auto` button to restore automatic slug updates.
+2. **Scientific Category (Incentivos):**
+   - Add a custom TextField for the scientific category (`category`), such as *Cat I*, *Cat II*, etc., corresponding to Incentivos accreditation.
+3. **Joined and Left Lab Dates:**
+   - Integrate native date picker fields (`startDate` and `endDate`) in a cohesive grid layout alongside the category category input.
+   - Ensure the Joined Lab Date is a required field (`required`) in compliance with portal integrity checks.
+4. **Purged Account Activations:**
+   - Remove all administrative toggle buttons or switches related to researcher user self-registration or pending status checks from forms (`member-form.html`), login pages (`auth.html`), and admin panels (`admin.html`). Registered profiles are handled through standard administrative invitation pipelines.
