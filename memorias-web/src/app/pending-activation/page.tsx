@@ -1,18 +1,18 @@
 import React from "react";
 import { auth, signOut } from "@/auth";
-import { redirect } from "next/navigation";
+import ClientRedirect from "./Redirect";
 
 export default async function PendingActivationPage() {
   const session = await auth();
 
-  // If not logged in, redirect to sign in
-  if (!session) {
-    redirect("/auth/signin");
+  // If not logged in, redirect to sign in safely using ClientRedirect to persist cookie invalidation
+  if (!session || !session.user) {
+    return <ClientRedirect to="/auth/signin" />;
   }
 
-  // If already active, redirect to home dashboard
-  if (session.user?.active) {
-    redirect("/");
+  // If already active, redirect to home dashboard safely using ClientRedirect to persist active cookie
+  if (session.user.active) {
+    return <ClientRedirect to="/" />;
   }
 
   return (
