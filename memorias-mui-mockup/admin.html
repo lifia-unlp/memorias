@@ -170,13 +170,6 @@
                 </div>
               </div>
 
-              <div class="mui-switch-container">
-                <label class="mui-switch">
-                  <input type="checkbox" checked>
-                  <span class="mui-slider-switch"></span>
-                </label>
-                <span class="mui-switch-label">Allow self-registration for new researchers (pending admin review)</span>
-              </div>
 
               <div class="mui-switch-container">
                 <label class="mui-switch">
@@ -257,19 +250,20 @@
                     <td><b>David Miller</b></td>
                     <td>dmiller@gmail.com</td>
                     <td>
-                      <span class="mui-chip mui-chip-warning">PENDING APPROVAL</span>
+                      <select style="padding: 4px; font-size: 12px; border-radius: var(--radius-xs); border: 1px solid var(--border);">
+                        <option value="admin">ADMIN</option>
+                        <option value="curator">CURATOR</option>
+                        <option value="researcher" selected>RESEARCHER</option>
+                      </select>
                     </td>
                     <td>
                       <label class="mui-switch" style="scale: 0.85;">
-                        <input type="checkbox">
+                        <input type="checkbox" checked>
                         <span class="mui-slider-switch"></span>
                       </label>
                     </td>
                     <td>
-                      <div style="display: flex; gap: 4px;">
-                        <button class="mui-btn mui-btn-contained" style="padding: 4px 8px; font-size: 10px; background-color: var(--success);">Approve</button>
-                        <button class="mui-btn mui-btn-outlined mui-btn-danger" style="padding: 4px 8px; font-size: 10px;">Reject</button>
-                      </div>
+                      <button class="mui-btn mui-btn-contained" style="padding: 4px 8px; font-size: 10px;">Save</button>
                     </td>
                   </tr>
                 </tbody>
@@ -349,10 +343,10 @@
                   </tr>
                   <tr>
                     <td style="color: var(--text-secondary);">2026-05-21 11:15:30</td>
-                    <td><b>SYSTEM</b></td>
+                    <td><b>jsmith</b></td>
                     <td><span class="mui-chip mui-chip-warning">SECURITY</span></td>
-                    <td>User registration</td>
-                    <td>New external registration request recorded: <i>"David Miller"</i></td>
+                    <td>User permissions</td>
+                    <td>Elevated user credentials to Researcher: <i>"David Miller"</i></td>
                   </tr>
                   <tr>
                     <td style="color: var(--text-secondary);">2026-05-20 17:01:45</td>
