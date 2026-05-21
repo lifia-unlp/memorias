@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add/Edit Publication | Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    function parseBibTeX() {
+      var raw = document.getElementById('bibtex_raw').value;
+      if (!raw.trim()) {
+        alert("Please paste a valid BibTeX entry first.");
+        return;
+      }
+      
+      // Basic regex parsing for BibTeX fields
+      var titleMatch = raw.match(/title\s*=\s*[{"]([^}"]+)[}"]/i);
+      var journalMatch = raw.match(/(journal|booktitle)\s*=\s*[{"]([^}"]+)[}"]/i);
+      var yearMatch = raw.match(/year\s*=\s*[{"]?(\d{4})[}"]?/i);
+      var volMatch = raw.match(/volume\s*=\s*[{"]?([^}"]+)[}"]?/i);
+      var numMatch = raw.match(/(number|issue)\s*=\s*[{"]?([^}"]+)[}"]?/i);
+      var pagesMatch = raw.match(/pages\s*=\s*[{"]([^}"]+)[}"]/i);
+      var doiMatch = raw.match(/doi\s*=\s*[{"]([^}"]+)[}"]/i);
+      
+      var count = 0;
+      if (titleMatch) {
+        document.getElementById('pub_title').value = titleMatch[1];
+        document.getElementById('pub_title').dispatchEvent(new Event('input'));
+        count++;
+      }
+      if (journalMatch) {
+        document.getElementById('pub_venue').value = journalMatch[2];
+        document.getElementById('pub_venue').dispatchEvent(new Event('input'));
+        count++;
+      }
+      if (yearMatch) {
+        document.getElementById('pub_year').value = yearMatch[1];
+        document.getElementById('pub_year').dispatchEvent(new Event('input'));
+        count++;
+      }
+      if (volMatch) {
+        document.getElementById('pub_volume').value = volMatch[1];
+        document.getElementById('pub_volume').dispatchEvent(new Event('input'));
+        count++;
+      }
+      if (numMatch) {
+        document.getElementById('pub_issue').value = numMatch[2];
+        document.getElementById('pub_issue').dispatchEvent(new Event('input'));
+        count++;
+      }
+      if (pagesMatch) {
+        document.getElementById('pub_pages').value = pagesMatch[1];
+        document.getElementById('pub_pages').dispatchEvent(new Event('input'));
+        count++;
+      }
+      if (doiMatch) {
+        document.getElementById('pub_doi').value = doiMatch[1];
+        document.getElementById('pub_doi').dispatchEvent(new Event('input'));
+        count++;
+      }
+      
+      var typeMatch = raw.match(/@(\w+)/);
+      if (typeMatch) {
+        var type = typeMatch[1].toLowerCase();
+        var select = document.getElementById('pub_type');
+        if (type === 'article') select.value = 'journal';
+        else if (type === 'inproceedings' || type === 'proceedings') select.value = 'conference';
+        else if (type === 'book') select.value = 'book';
+        else select.value = 'other';
+        count++;
+      }
+
+      // Show alert success
+      var alertBox = document.getElementById('parser-alert');
+      if (count > 0) {
+        alertBox.style.display = 'flex';
+        alertBox.className = 'mui-alert mui-alert-success';
+        document.getElementById('parser-alert-text').innerText = "Successfully parsed BibTeX! Auto-filled " + count + " fields in the form below.";
+      } else {
+        alertBox.style.display = 'flex';
+        alertBox.className = 'mui-alert mui-alert-warning';
+        document.getElementById('parser-alert-text').innerText = "Completed parsing but couldn't find matches. Please check the BibTeX format.";
+      }
+    }
+
+    // Helper to make labels float if fields pre-filled programmatically
+    window.addEventListener('DOMContentLoaded', (event) => {
+      document.querySelectorAll('.mui-input').forEach(function(input) {
+        input.addEventListener('input', function() {
+          if(input.value) {
+            input.setAttribute('placeholder', ' '); // ensures :not(:placeholder-shown) works
+          }
+        });
+      });
+    });
+  </script>
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        <div class="mui-flex-gap-sm">
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center; gap: 8px;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"><span style="font-family: var(--font-display); font-weight: 800; font-size: 20px; color: var(--text-primary);"><span style="color: var(--primary);">M</span>emorias</span></a>
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link">Members</a>
+            <a href="projects.html" class="mui-nav-link">Projects</a>
+            <a href="theses.html" class="mui-nav-link">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link active">Publications</a>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Admin Menu</button>
+              <div class="mui-dropdown">
+                <a href="admin.html" class="mui-dropdown-link">System Config</a>
+                <a href="admin.html" class="mui-dropdown-link">Lists Dashboard</a>
+                <a href="admin.html" class="mui-dropdown-link">Users Panel</a>
+                <a href="admin.html" class="mui-dropdown-link">Tag Curation</a>
+                <div class="mui-dropdown-divider"></div>
+                <a href="admin.html" class="mui-dropdown-link">Auditing Logs</a>
+              </div>
+            </div>
+          </nav>
+        </div>
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Form -->
+    <main class="mui-container mui-section">
+      
+      <div class="mui-form-card">
+        
+        <!-- Form Header -->
+        <div style="margin-bottom: var(--spacing-xl); text-align: center;">
+          <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--secondary); letter-spacing: 0.8px;">Bibliography Curation</span>
+          <h1 style="font-family: var(--font-display); font-weight: 800; font-size: 28px; color: var(--text-primary); margin-top: 4px;">
+            Add Scientific Publication
+          </h1>
+          <p style="color: var(--text-secondary); font-size: 13.5px; margin-top: var(--spacing-xs);">
+            Input details manually or paste a BibTeX snippet below to auto-populate the record instantly.
+          </p>
+        </div>
+
+        <!-- Dynamic Parser Box (WOW factor) -->
+        <div class="mui-card" style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md); border-color: var(--primary-border); background-color: var(--primary-light);">
+          <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--primary); letter-spacing: 0.5px; display: block; margin-bottom: 6px;">⚡ Smart Auto-Fill (BibTeX)</span>
+          <textarea id="bibtex_raw" class="mui-input mui-textarea" placeholder="Paste BibTeX citation here (e.g. @article{...})" style="font-family: monospace; font-size: 12.5px; min-height: 80px; margin-bottom: var(--spacing-sm); border-color: rgba(25, 118, 210, 0.3);"></textarea>
+          <button type="button" onclick="parseBibTeX()" class="mui-btn mui-btn-contained" style="width: 100%; font-size: 11px; padding: 8px 12px;">
+            Parse & Auto-Fill Form Fields
+          </button>
+        </div>
+
+        <!-- Status / Feedback Alert -->
+        <div id="parser-alert" class="mui-alert" style="display: none;">
+          <div style="font-weight: 600;" id="parser-alert-text"></div>
+        </div>
+
+        <!-- Main Form -->
+        <form onsubmit="event.preventDefault(); window.location.href='publications.html';" class="mui-card" style="gap: var(--spacing-md); padding: var(--spacing-xl);">
+          
+          <div class="mui-grid-2" style="gap: 20px;">
+            <!-- Publication Type -->
+            <div class="mui-form-group">
+              <select id="pub_type" class="mui-input mui-select" required>
+                <option value="journal">Journal Article</option>
+                <option value="conference">Conference Proceeding</option>
+                <option value="book">Book / Book Chapter</option>
+                <option value="technical">Technical Report</option>
+                <option value="other">Other / Dissertation</option>
+              </select>
+              <label class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Publication Type</label>
+            </div>
+
+            <!-- Publication Year -->
+            <div class="mui-form-group">
+              <input type="number" id="pub_year" class="mui-input" placeholder=" " min="1900" max="2100" required>
+              <label class="mui-label">Year of Publication</label>
+            </div>
+          </div>
+
+          <!-- Title -->
+          <div class="mui-form-group">
+            <input type="text" id="pub_title" class="mui-input" placeholder=" " required>
+            <label class="mui-label">Title of Publication</label>
+          </div>
+
+          <!-- Venue (Journal or Book or Conference Proceeding) -->
+          <div class="mui-form-group">
+            <input type="text" id="pub_venue" class="mui-input" placeholder=" " required>
+            <label class="mui-label">Journal / Venue Name (e.g. IEEE Transactions...)</label>
+          </div>
+
+          <div class="mui-grid-3" style="gap: 15px;">
+            <!-- Volume -->
+            <div class="mui-form-group">
+              <input type="text" id="pub_volume" class="mui-input" placeholder=" ">
+              <label class="mui-label">Volume</label>
+            </div>
+            
+            <!-- Issue -->
+            <div class="mui-form-group">
+              <input type="text" id="pub_issue" class="mui-input" placeholder=" ">
+              <label class="mui-label">Issue / Number</label>
+            </div>
+
+            <!-- Pages -->
+            <div class="mui-form-group">
+              <input type="text" id="pub_pages" class="mui-input" placeholder=" ">
+              <label class="mui-label">Pages (e.g. 142-156)</label>
+            </div>
+          </div>
+
+          <div class="mui-grid-2" style="gap: 20px;">
+            <!-- DOI -->
+            <div class="mui-form-group">
+              <input type="text" id="pub_doi" class="mui-input" placeholder=" ">
+              <label class="mui-label">DOI Link / ID (e.g. 10.1109/...)</label>
+            </div>
+
+            <!-- Associated Project -->
+            <div class="mui-form-group">
+              <select id="pub_project" class="mui-input mui-select">
+                <option value="">None (Standalone)</option>
+                <option value="pict1">PICT-2023-010 (Distributed IIoT)</option>
+                <option value="pict2">PICT-2024-045 (Real-time Vision)</option>
+              </select>
+              <label class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Associated Project</label>
+            </div>
+          </div>
+
+          <!-- Authors Checkbox Selection -->
+          <div style="border: 1px solid var(--border); border-radius: var(--radius-xs); padding: var(--spacing-md); position: relative; margin-bottom: 10px;">
+            <label style="position: absolute; top: -10px; left: 10px; background-color: var(--surface); padding: 0 4px; font-size: 12px; font-weight: 700; color: var(--primary);">Lab Co-Authors</label>
+            <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: var(--spacing-sm);">Select all active laboratory members who contributed to this publication.</p>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <label class="mui-switch-container" style="margin: 0; display: inline-flex;">
+                <input type="checkbox" checked style="margin-right: 8px;">
+                <span style="font-size: 13px;">John Smith (Director)</span>
+              </label>
+              <label class="mui-switch-container" style="margin: 0; display: inline-flex;">
+                <input type="checkbox" checked style="margin-right: 8px;">
+                <span style="font-size: 13px;">Maria Garcia (Co-Director)</span>
+              </label>
+              <label class="mui-switch-container" style="margin: 0; display: inline-flex;">
+                <input type="checkbox" style="margin-right: 8px;">
+                <span style="font-size: 13px;">Alice Williams (PhD Candidate)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- PDF Upload Field -->
+          <div class="mui-form-group">
+            <span style="font-size: 12px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">Self-Archived Publication PDF File</span>
+            <input type="file" style="font-size: 13px; color: var(--text-secondary); width: 100%; padding: var(--spacing-sm) 0;">
+          </div>
+
+          <!-- Feature Toggles -->
+          <div class="mui-switch-container">
+            <label class="mui-switch">
+              <input type="checkbox" checked>
+              <span class="mui-slider-switch"></span>
+            </label>
+            <span class="mui-switch-label">Feature this publication on the main landing dashboard</span>
+          </div>
+
+          <div class="mui-switch-container">
+            <label class="mui-switch">
+              <input type="checkbox" checked>
+              <span class="mui-slider-switch"></span>
+            </label>
+            <span class="mui-switch-label">Mark as peer-reviewed scientific literature</span>
+          </div>
+
+          <!-- Save/Cancel Actions -->
+          <div style="display: flex; gap: var(--spacing-md); justify-content: flex-end; margin-top: var(--spacing-md);">
+            <a href="publications.html" class="mui-btn mui-btn-outlined" style="min-width: 100px;">Cancel</a>
+            <button type="submit" class="mui-btn mui-btn-contained" style="min-width: 150px;">Save Record</button>
+          </div>
+
+        </form>
+
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

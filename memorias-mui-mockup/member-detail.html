@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>John Smith | Researcher Profile - Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Simple dynamic tab display using standard CSS sibling selectors */
+    #tab-es:checked ~ .mui-tabs #label-es,
+    #tab-en:checked ~ .mui-tabs #label-en,
+    #tab-int-es:checked ~ .mui-tabs #label-int-es,
+    #tab-int-en:checked ~ .mui-tabs #label-int-en {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      background-color: var(--surface);
+    }
+    
+    #tab-es:checked ~ .tab-content #content-es,
+    #tab-en:checked ~ .tab-content #content-en,
+    #tab-int-es:checked ~ .tab-content #content-int-es,
+    #tab-int-en:checked ~ .tab-content #content-int-en {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        <div class="mui-flex-gap-sm">
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center; gap: 8px;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"><span style="font-family: var(--font-display); font-weight: 800; font-size: 20px; color: var(--text-primary);"><span style="color: var(--primary);">M</span>emorias</span></a>
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link active">Members</a>
+            <a href="projects.html" class="mui-nav-link">Projects</a>
+            <a href="theses.html" class="mui-nav-link">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link">Publications</a>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Admin Menu</button>
+              <div class="mui-dropdown">
+                <a href="admin.html" class="mui-dropdown-link">System Config</a>
+                <a href="admin.html" class="mui-dropdown-link">Lists Dashboard</a>
+                <a href="admin.html" class="mui-dropdown-link">Users Panel</a>
+                <a href="admin.html" class="mui-dropdown-link">Tag Curation</a>
+                <div class="mui-dropdown-divider"></div>
+                <a href="admin.html" class="mui-dropdown-link">Auditing Logs</a>
+              </div>
+            </div>
+          </nav>
+        </div>
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Detail Layout -->
+    <main class="mui-container mui-detail-layout mui-section">
+      
+      <!-- Left Column Sidebar: Profile details -->
+      <section class="mui-detail-sidebar">
+        <div class="mui-card" style="padding: var(--spacing-lg); text-align: center; gap: var(--spacing-md);">
+          <!-- Top Accent Bar -->
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(to right, var(--primary), var(--secondary));"></div>
+          
+          <div class="mui-avatar" style="width: 112px; height: 112px; font-size: 36px; margin: var(--spacing-sm) auto var(--spacing-sm) auto; border: 2px solid rgba(25, 118, 210, 0.2); box-shadow: var(--shadow-dp2);">JS</div>
+          
+          <div>
+            <h1 class="mui-card-title" style="font-size: 22px; font-weight: 800; margin: 0;">John Smith</h1>
+            <span class="mui-card-subtitle" style="display: block; margin-top: 4px;">Director</span>
+          </div>
+
+          <!-- Scientific Accreditations -->
+          <div style="text-align: left; border-top: 1px solid var(--border); padding-top: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px;">Scientific Accreditations</span>
+            
+            <div style="font-size: 13px;">
+              <span style="font-weight: 600; display: block;">Degree</span>
+              <span style="color: var(--text-secondary); font-size: 11px;">PhD in Computer Science</span>
+            </div>
+            
+            <div style="font-size: 13px;">
+              <span style="font-weight: 600; display: block;">CONICET Position</span>
+              <span style="color: var(--text-secondary); font-size: 11px;">Principal Researcher</span>
+            </div>
+
+            <div style="font-size: 13px;">
+              <span style="font-weight: 600; display: block;">CIC Position</span>
+              <span style="color: var(--text-secondary); font-size: 11px;">N/A</span>
+            </div>
+          </div>
+
+          <!-- Contact & Profiles -->
+          <div style="text-align: left; border-top: 1px solid var(--border); padding-top: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px;">Contact & Profiles</span>
+            
+            <div style="font-size: 13px; display: flex; gap: var(--spacing-sm);">
+              <span style="font-weight: 600; color: var(--text-secondary);">Email:</span>
+              <a href="mailto:j.smith@lifia.info.unlp.edu.ar" style="font-size: 12px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">j.smith@lifia.info.unlp.edu.ar</a>
+            </div>
+
+            <div style="font-size: 13px; display: flex; gap: var(--spacing-sm);">
+              <span style="font-weight: 600; color: var(--text-secondary);">Website:</span>
+              <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-size: 12px;">Personal Web Page</a>
+            </div>
+
+            <div style="font-size: 13px; display: flex; gap: var(--spacing-sm);">
+              <span style="font-weight: 600; color: var(--text-secondary);">ORCID:</span>
+              <a href="https://orcid.org/0000-0002-1825-0097" target="_blank" style="font-size: 12px; font-weight: 700;">0000-0002-1825-0097</a>
+            </div>
+          </div>
+
+          <!-- Tags -->
+          <div style="display: flex; flex-wrap: wrap; gap: 4px; border-top: 1px solid var(--border); padding-top: var(--spacing-md);">
+            <span class="mui-chip">#Software Architecture</span>
+            <span class="mui-chip">#Semantic Web</span>
+            <span class="mui-chip">#Agile</span>
+          </div>
+
+          <!-- Editor Actions Panel -->
+          <div style="border-top: 1px solid var(--border); padding-top: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-sm); margin-top: var(--spacing-sm);">
+            <a href="member-form.html" class="mui-btn mui-btn-contained" style="width: 100%;">Edit Profile</a>
+            <button class="mui-btn mui-btn-outlined mui-btn-danger" style="width: 100%;">Delete Profile</button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Right Column: CV Tabs & Associated Database Lists -->
+      <section class="mui-detail-main">
+        
+        <!-- Tabbed CV Control -->
+        <div class="mui-tabs-container">
+          <!-- Sibling Radio inputs for tabs styling -->
+          <input type="radio" name="cv-tabs" id="tab-es" checked style="display: none;">
+          <input type="radio" name="cv-tabs" id="tab-en" style="display: none;">
+          <input type="radio" name="cv-tabs" id="tab-int-es" style="display: none;">
+          <input type="radio" name="cv-tabs" id="tab-int-en" style="display: none;">
+          
+          <div class="mui-tabs">
+            <label for="tab-es" id="label-es" class="mui-tab">CV (Spanish)</label>
+            <label for="tab-en" id="label-en" class="mui-tab">CV (English)</label>
+            <label for="tab-int-es" id="label-int-es" class="mui-tab">Interests (Spanish)</label>
+            <label for="tab-int-en" id="label-int-en" class="mui-tab">Interests (English)</label>
+          </div>
+          
+          <div class="tab-content" style="font-size: 14px; line-height: 1.6; color: var(--text-primary);">
+            
+            <div id="content-es" class="mui-tab-pane active" style="display: none;">
+              <p>John Smith es Profesor Titular en la Facultad de Informática de la Universidad Nacional de La Plata (UNLP) e Investigador Principal del CONICET en el LIFIA. Obtuvo su doctorado en Ciencias de la Computación en 2010. Sus líneas de investigación se centran en arquitecturas distribuidas, web semántica y metodologías de desarrollo de software ágiles.</p>
+            </div>
+            
+            <div id="content-en" class="mui-tab-pane" style="display: none;">
+              <p>John Smith is a Full Professor at the School of Computer Science, National University of La Plata (UNLP), and a Principal Researcher of CONICET at LIFIA. He received his PhD in Computer Science in 2010. His research interests focus on distributed systems, semantic web, and agile software development methodologies.</p>
+            </div>
+            
+            <div id="content-int-es" class="mui-tab-pane" style="display: none;">
+              <p>Mis intereses actuales incluyen la interoperabilidad semántica en sistemas distribuidos de IoT, diseño e implementación de arquitecturas basadas en microservicios, y la incorporación de tecnologías de registros distribuidos en plataformas académicas.</p>
+            </div>
+            
+            <div id="content-int-en" class="mui-tab-pane" style="display: none;">
+              <p>My current research interests include semantic interoperability in distributed IoT systems, design and implementation of microservice architectures, and the incorporation of distributed ledger technologies in academic portals.</p>
+            </div>
+            
+          </div>
+        </div>
+
+        <!-- Associated Projects -->
+        <div class="mui-card">
+          <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 18px; margin-bottom: var(--spacing-md);">
+            <span>Associated Projects</span>
+          </h2>
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            
+            <!-- Project 1 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: var(--spacing-sm); border-bottom: 1px solid rgba(0,0,0,0.05);">
+              <div>
+                <a href="project-detail.html" style="font-weight: 700; font-size: 14px;">Distributed Ledgers and Edge Analytics for Secured Industrial Internet of Things</a>
+                <span style="display: block; font-size: 11px; color: var(--text-secondary); margin-top: 2px;">2023 — Present | Director: John Smith</span>
+              </div>
+              <span class="mui-chip mui-chip-secondary">Director</span>
+            </div>
+
+            <!-- Project 2 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: var(--spacing-sm); border-bottom: 1px solid rgba(0,0,0,0.05); margin-top: var(--spacing-sm);">
+              <div>
+                <a href="project-detail.html" style="font-weight: 700; font-size: 14px;">Augmented Intelligence and Immersive Interfaces for Digital Laboratories</a>
+                <span style="display: block; font-size: 11px; color: var(--text-secondary); margin-top: 2px;">2022 — Present | Director: Maria Garcia</span>
+              </div>
+              <span class="mui-chip">Member</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Associated Theses -->
+        <div class="mui-card">
+          <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 18px; margin-bottom: var(--spacing-md);">
+            <span>Associated Theses</span>
+          </h2>
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            
+            <!-- Thesis 1 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: var(--spacing-sm); border-bottom: 1px solid rgba(0,0,0,0.05);">
+              <div>
+                <a href="thesis-detail.html" style="font-weight: 700; font-size: 14px;">Semantic Curation Frameworks for Heterogeneous Academic Publications</a>
+                <span style="display: block; font-size: 11px; color: var(--text-secondary); margin-top: 2px;">
+                  Student: Alice Williams | Degree: PhD Thesis | 2021 — 2025
+                </span>
+              </div>
+              <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                <div class="mui-linear-progress" style="width: 80px;">
+                  <div class="mui-linear-progress-bar" style="width: 100%;"></div>
+                </div>
+                <span class="mui-chip mui-chip-success">Completed</span>
+                <span class="mui-chip mui-chip-primary">Director</span>
+              </div>
+            </div>
+
+            <!-- Thesis 2 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: var(--spacing-sm); border-bottom: 1px solid rgba(0,0,0,0.05); margin-top: var(--spacing-sm);">
+              <div>
+                <a href="thesis-detail.html" style="font-weight: 700; font-size: 14px;">An IoT-based Edge Computing Framework for Environmental Monitoring</a>
+                <span style="display: block; font-size: 11px; color: var(--text-secondary); margin-top: 2px;">
+                  Student: Robert Chen | Degree: Master Thesis | 2023 — Present
+                </span>
+              </div>
+              <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                <div class="mui-linear-progress" style="width: 80px;">
+                  <div class="mui-linear-progress-bar" style="width: 85%;"></div>
+                </div>
+                <span class="mui-chip">85%</span>
+                <span class="mui-chip">Co-Director</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Associated Scholarships -->
+        <div class="mui-card">
+          <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 18px; margin-bottom: var(--spacing-md);">
+            <span>Associated Scholarships</span>
+          </h2>
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            
+            <!-- Scholarship 1 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: var(--spacing-sm); border-bottom: 1px solid rgba(0,0,0,0.05);">
+              <div>
+                <a href="scholarship-detail.html" style="font-weight: 700; font-size: 14px;">CONICET Doctoral Fellowship on Semantic Web & Knowledge Graphs</a>
+                <span style="display: block; font-size: 11px; color: var(--text-secondary); margin-top: 2px;">
+                  Funding: CONICET | Student: Alice Williams | 2021 — 2026
+                </span>
+              </div>
+              <span class="mui-chip mui-chip-primary">Director</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Bibliography / Publications -->
+        <div class="mui-card">
+          <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 18px; margin-bottom: var(--spacing-md);">
+            <span>Bibliography / Publications</span>
+          </h2>
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+            
+            <!-- Publication 1 -->
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <a href="publication-detail.html" style="font-weight: 700; font-size: 14px; line-height: 1.4;">Architecting Micro-Frontends on Modern Web Frameworks: A Case Study on Scalability</a>
+              <div style="font-size: 12px; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--background); border-radius: var(--radius-sm); border: 1px solid var(--border); font-style: italic; color: var(--text-primary);">
+                Smith, J., Doe, R., & Garcia, M. (2025). <strong>IEEE Transactions on Software Engineering</strong>, 51(3), 142-156.
+              </div>
+              <div style="display: flex; gap: var(--spacing-md); font-size: 12px; font-weight: 700;">
+                <a href="publication-detail.html" style="color: var(--secondary);">Details</a>
+                <a href="#" style="color: var(--primary);">Download BibTeX</a>
+                <a href="#" style="color: var(--secondary);">Self-Archived PDF</a>
+              </div>
+            </div>
+
+            <!-- Publication 2 -->
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: var(--spacing-sm);">
+              <a href="publication-detail.html" style="font-weight: 700; font-size: 14px; line-height: 1.4;">Deep Learning Architectures for Real-time Computer Vision in Autonomous Drones</a>
+              <div style="font-size: 12px; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--background); border-radius: var(--radius-sm); border: 1px solid var(--border); font-style: italic; color: var(--text-primary);">
+                Garcia, M., & Smith, J. (2024). <strong>Journal of Intelligent & Robotic Systems</strong>, 110(2), 89-104.
+              </div>
+              <div style="display: flex; gap: var(--spacing-md); font-size: 12px; font-weight: 700;">
+                <a href="publication-detail.html" style="color: var(--secondary);">Details</a>
+                <a href="#" style="color: var(--primary);">Download BibTeX</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

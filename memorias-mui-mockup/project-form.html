@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Project | Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        <div class="mui-flex-gap-sm">
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center; gap: 8px;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"><span style="font-family: var(--font-display); font-weight: 800; font-size: 20px; color: var(--text-primary);"><span style="color: var(--primary);">M</span>emorias</span></a>
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link">Members</a>
+            <a href="projects.html" class="mui-nav-link active">Projects</a>
+            <a href="theses.html" class="mui-nav-link">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link">Publications</a>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Admin Menu</button>
+              <div class="mui-dropdown">
+                <a href="admin.html" class="mui-dropdown-link">System Config</a>
+                <a href="admin.html" class="mui-dropdown-link">Lists Dashboard</a>
+                <a href="admin.html" class="mui-dropdown-link">Users Panel</a>
+                <a href="admin.html" class="mui-dropdown-link">Tag Curation</a>
+                <div class="mui-dropdown-divider"></div>
+                <a href="admin.html" class="mui-dropdown-link">Auditing Logs</a>
+              </div>
+            </div>
+          </nav>
+        </div>
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Form -->
+    <main class="mui-container mui-section">
+      
+      <div class="mui-card mui-form-card" style="position: relative;">
+        <!-- Top accent -->
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background-color: var(--secondary);"></div>
+        
+        <h1 class="mui-card-title" style="font-size: 20px; font-weight: 800; border-bottom: 1px solid var(--border); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-lg); margin-top: var(--spacing-xs);">
+          Edit Research Project
+        </h1>
+        
+        <form action="project-detail.html" method="GET" style="display: flex; flex-direction: column; gap: 4px;">
+          
+          <!-- Code -->
+          <div class="mui-form-group">
+            <input type="text" class="mui-input" id="code" placeholder=" " value="PICT-2023-010" required>
+            <label for="code" class="mui-label">Project Code / Identifier</label>
+          </div>
+
+          <!-- Title -->
+          <div class="mui-form-group">
+            <input type="text" class="mui-input" id="title" placeholder=" " value="Distributed Ledgers and Edge Analytics for Secured Industrial Internet of Things" required>
+            <label for="title" class="mui-label">Project Title</label>
+          </div>
+
+          <!-- Funding Agency -->
+          <div class="mui-form-group">
+            <input type="text" class="mui-input" id="funding" placeholder=" " value="Agencia I+D+i" required>
+            <label for="funding" class="mui-label">Funding Agency</label>
+          </div>
+
+          <!-- Director and Co-Director -->
+          <div class="mui-grid-2" style="gap: var(--spacing-md);">
+            <div class="mui-form-group">
+              <select class="mui-input mui-select" id="director" required>
+                <option value="1" selected>John Smith</option>
+                <option value="2">Maria Garcia</option>
+                <option value="3">Alice Williams</option>
+              </select>
+              <label for="director" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Director</label>
+            </div>
+            <div class="mui-form-group">
+              <select class="mui-input mui-select" id="co-director">
+                <option value="">None</option>
+                <option value="1">John Smith</option>
+                <option value="2" selected>Maria Garcia</option>
+                <option value="3">Alice Williams</option>
+              </select>
+              <label for="co-director" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Co-Director</label>
+            </div>
+          </div>
+
+          <!-- Team Members checkboxes -->
+          <div class="mui-range-container" style="border: 1px solid var(--border); border-radius: var(--radius-xs); padding: var(--spacing-md); margin-bottom: 20px; background-color: var(--surface);">
+            <span class="mui-range-label" style="font-size: 13px; color: var(--text-primary); margin-bottom: var(--spacing-sm);">Working Group Members / Participants</span>
+            <div style="display: flex; flex-direction: column; gap: var(--spacing-sm); font-size: 13px;">
+              <label class="mui-flex-gap-sm" style="cursor: pointer;">
+                <input type="checkbox" checked value="1" style="accent-color: var(--primary);">
+                <span>John Smith</span>
+              </label>
+              <label class="mui-flex-gap-sm" style="cursor: pointer;">
+                <input type="checkbox" checked value="2" style="accent-color: var(--primary);">
+                <span>Maria Garcia</span>
+              </label>
+              <label class="mui-flex-gap-sm" style="cursor: pointer;">
+                <input type="checkbox" checked value="3" style="accent-color: var(--primary);">
+                <span>Alice Williams</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Dates Grid -->
+          <div class="mui-grid-2" style="gap: var(--spacing-md);">
+            <div class="mui-form-group">
+              <input type="date" class="mui-input" id="start-date" value="2023-01-01" required>
+              <label for="start-date" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Start Date</label>
+            </div>
+            <div class="mui-form-group">
+              <input type="date" class="mui-input" id="end-date" value="2026-12-31">
+              <label for="end-date" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">End Date (Optional)</label>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mui-form-group">
+            <textarea class="mui-input mui-textarea" id="desc" placeholder=" " required>This project aims to resolve severe security and scalability bottlenecks in modern Smart Manufacturing and Industrial IoT (IIoT) setups. By creating localized micro-ledgers, we support high-frequency transactions with absolute cryptographic verification without burdening the central enterprise nodes.
+
+Furthermore, the project designs customized, low-footprint Deep Learning execution layers that reside directly on edge gate-controllers. These layers perform real-time diagnostic checks and predict mechanical failures locally, sharing only consolidated alerts and high-level training weights back to the system core.</textarea>
+            <label for="desc" class="mui-label">Project Abstract & Objectives</label>
+          </div>
+
+          <!-- Tags -->
+          <div class="mui-form-group">
+            <input type="text" class="mui-input" id="tags" placeholder=" " value="IoT, Blockchain, Edge Computing">
+            <label for="tags" class="mui-label">Curation Tags (comma separated)</label>
+          </div>
+
+          <!-- Toggles -->
+          <div class="mui-switch-container">
+            <label class="mui-switch">
+              <input type="checkbox" checked>
+              <span class="mui-slider-switch"></span>
+            </label>
+            <span class="mui-switch-label">Feature this project on homepage</span>
+          </div>
+
+          <div class="mui-switch-container">
+            <label class="mui-switch">
+              <input type="checkbox" checked>
+              <span class="mui-slider-switch"></span>
+            </label>
+            <span class="mui-switch-label">Project is Active (uncheck to mark Completed)</span>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="mui-card-actions" style="justify-content: flex-end; gap: var(--spacing-md);">
+            <a href="project-detail.html" class="mui-btn mui-btn-outlined">Cancel</a>
+            <button type="submit" class="mui-btn mui-btn-contained">Save Changes</button>
+          </div>
+
+        </form>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

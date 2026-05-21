@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Scholarship | Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        <div class="mui-flex-gap-sm">
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center; gap: 8px;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"><span style="font-family: var(--font-display); font-weight: 800; font-size: 20px; color: var(--text-primary);"><span style="color: var(--primary);">M</span>emorias</span></a>
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link">Members</a>
+            <a href="projects.html" class="mui-nav-link">Projects</a>
+            <a href="theses.html" class="mui-nav-link">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link active">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link">Publications</a>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Admin Menu</button>
+              <div class="mui-dropdown">
+                <a href="admin.html" class="mui-dropdown-link">System Config</a>
+                <a href="admin.html" class="mui-dropdown-link">Lists Dashboard</a>
+                <a href="admin.html" class="mui-dropdown-link">Users Panel</a>
+                <a href="admin.html" class="mui-dropdown-link">Tag Curation</a>
+                <div class="mui-dropdown-divider"></div>
+                <a href="admin.html" class="mui-dropdown-link">Auditing Logs</a>
+              </div>
+            </div>
+          </nav>
+        </div>
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Form -->
+    <main class="mui-container mui-section">
+      
+      <div class="mui-card mui-form-card" style="position: relative;">
+        <!-- Top accent -->
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background-color: var(--primary);"></div>
+        
+        <h1 class="mui-card-title" style="font-size: 20px; font-weight: 800; border-bottom: 1px solid var(--border); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-lg); margin-top: var(--spacing-xs);">
+          Edit Scholarship Details
+        </h1>
+        
+        <form action="scholarship-detail.html" method="GET" style="display: flex; flex-direction: column; gap: 4px;">
+          
+          <!-- Scholarship Title -->
+          <div class="mui-form-group">
+            <input type="text" class="mui-input" id="title" placeholder=" " value="CONICET Doctoral Fellowship on Semantic Web & Knowledge Graphs" required>
+            <label for="title" class="mui-label">Scholarship Title</label>
+          </div>
+
+          <!-- Scholarship Type select -->
+          <div class="mui-form-group">
+            <select class="mui-input mui-select" id="type" required>
+              <option value="CONICET Doctoral" selected>CONICET Doctoral</option>
+              <option value="CONICET Postdoc">CONICET Postdoc</option>
+              <option value="CIC Doctoral">CIC Doctoral</option>
+              <option value="EVC-CIN">CIN Student Scholarship</option>
+            </select>
+            <label for="type" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Scholarship Type</label>
+          </div>
+
+          <!-- Student Select -->
+          <div class="mui-form-group">
+            <select class="mui-input mui-select" id="student" required>
+              <option value="1">John Smith</option>
+              <option value="2">Maria Garcia</option>
+              <option value="3" selected>Alice Williams</option>
+            </select>
+            <label for="student" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Assigned Lab Student</label>
+          </div>
+
+          <!-- Directors -->
+          <div class="mui-grid-2" style="gap: var(--spacing-md);">
+            <div class="mui-form-group">
+              <select class="mui-input mui-select" id="director" required>
+                <option value="1" selected>John Smith</option>
+                <option value="2">Maria Garcia</option>
+                <option value="3">Alice Williams</option>
+              </select>
+              <label for="director" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Director</label>
+            </div>
+            <div class="mui-form-group">
+              <select class="mui-input mui-select" id="co-director">
+                <option value="" selected>None</option>
+                <option value="1">John Smith</option>
+                <option value="2">Maria Garcia</option>
+                <option value="3">Alice Williams</option>
+              </select>
+              <label for="co-director" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Co-Director</label>
+            </div>
+          </div>
+
+          <!-- Funding Agency -->
+          <div class="mui-form-group">
+            <input type="text" class="mui-input" id="funding" placeholder=" " value="CONICET" required>
+            <label for="funding" class="mui-label">Funding Sponsor Agency</label>
+          </div>
+
+          <!-- Dates Grid -->
+          <div class="mui-grid-2" style="gap: var(--spacing-md);">
+            <div class="mui-form-group">
+              <input type="date" class="mui-input" id="start-date" value="2021-04-01" required>
+              <label for="start-date" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Start Date</label>
+            </div>
+            <div class="mui-form-group">
+              <input type="date" class="mui-input" id="end-date" value="2026-03-31">
+              <label for="end-date" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Estimated End Date</label>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mui-form-group">
+            <textarea class="mui-input mui-textarea" id="desc" placeholder=" " required>This doctoral training scholarship provides student living costs and laboratory support to carry out doctoral research on semantically aligned information networks.
+
+Under the supervision of John Smith, the scholar is responsible for publishing R&D conference proceedings, mapping raw university metadata to semantic ontologies, and defending a final PhD thesis in Computer Science before the funding ends in early 2026.</textarea>
+            <label for="desc" class="mui-label">Scholarship Description & Objectives</label>
+          </div>
+
+          <!-- Tags -->
+          <div class="mui-form-group">
+            <input type="text" class="mui-input" id="tags" placeholder=" " value="Knowledge Graphs, Curation">
+            <label for="tags" class="mui-label">Curation Tags (comma separated)</label>
+          </div>
+
+          <!-- Actions -->
+          <div class="mui-card-actions" style="justify-content: flex-end; gap: var(--spacing-md);">
+            <a href="scholarship-detail.html" class="mui-btn mui-btn-outlined">Cancel</a>
+            <button type="submit" class="mui-btn mui-btn-contained">Save Changes</button>
+          </div>
+
+        </form>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

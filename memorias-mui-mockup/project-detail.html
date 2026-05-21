@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PICT-2023-010 | Project Detail - Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        <div class="mui-flex-gap-sm">
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center; gap: 8px;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"><span style="font-family: var(--font-display); font-weight: 800; font-size: 20px; color: var(--text-primary);"><span style="color: var(--primary);">M</span>emorias</span></a>
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link">Members</a>
+            <a href="projects.html" class="mui-nav-link active">Projects</a>
+            <a href="theses.html" class="mui-nav-link">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link">Publications</a>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Admin Menu</button>
+              <div class="mui-dropdown">
+                <a href="admin.html" class="mui-dropdown-link">System Config</a>
+                <a href="admin.html" class="mui-dropdown-link">Lists Dashboard</a>
+                <a href="admin.html" class="mui-dropdown-link">Users Panel</a>
+                <a href="admin.html" class="mui-dropdown-link">Tag Curation</a>
+                <div class="mui-dropdown-divider"></div>
+                <a href="admin.html" class="mui-dropdown-link">Auditing Logs</a>
+              </div>
+            </div>
+          </nav>
+        </div>
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="mui-container mui-detail-layout mui-section">
+      
+      <!-- Left Column Sidebar: Project Details -->
+      <section class="mui-detail-sidebar">
+        <div class="mui-card" style="padding: var(--spacing-lg); gap: var(--spacing-md);">
+          <!-- Top Accent Bar -->
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background-color: var(--secondary);"></div>
+          
+          <div style="margin-top: var(--spacing-xs);">
+            <span class="mui-chip mui-chip-secondary" style="font-size: 11px;">PICT-2023-010</span>
+            <h1 class="mui-card-title" style="font-size: 16px; font-weight: 800; margin-top: 8px;">Project Metadata</h1>
+          </div>
+
+          <div style="border-top: 1px solid var(--border); padding-top: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            
+            <div style="font-size: 13px;">
+              <span style="font-weight: 600; display: block;">Status</span>
+              <span class="mui-chip mui-chip-success" style="margin-top: 4px;">Active</span>
+            </div>
+            
+            <div style="font-size: 13px;">
+              <span style="font-weight: 600; display: block;">Funding Agency</span>
+              <span style="color: var(--text-secondary); font-size: 12px;">Agencia Nacional de Promoción de la Investigación, el Desarrollo Tecnológico y la Innovación (Agencia I+D+i)</span>
+            </div>
+
+            <div style="font-size: 13px;">
+              <span style="font-weight: 600; display: block;">Start Date</span>
+              <span style="color: var(--text-secondary); font-size: 12px;">January 1, 2023</span>
+            </div>
+
+            <div style="font-size: 13px;">
+              <span style="font-weight: 600; display: block;">Estimated End Date</span>
+              <span style="color: var(--text-secondary); font-size: 12px;">December 31, 2026</span>
+            </div>
+
+            <div style="font-size: 13px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: var(--spacing-sm);">
+              <span style="font-weight: 600; display: block;">Director</span>
+              <a href="member-detail.html" style="font-size: 12px; font-weight: 700;">John Smith</a>
+            </div>
+
+            <div style="font-size: 13px;">
+              <span style="font-weight: 600; display: block;">Co-Director</span>
+              <a href="member-detail.html" style="font-size: 12px; font-weight: 700;">Maria Garcia</a>
+            </div>
+          </div>
+
+          <!-- Tags -->
+          <div style="display: flex; flex-wrap: wrap; gap: 4px; border-top: 1px solid var(--border); padding-top: var(--spacing-md);">
+            <span class="mui-chip">#IoT</span>
+            <span class="mui-chip">#Blockchain</span>
+            <span class="mui-chip">#Edge Computing</span>
+          </div>
+
+          <!-- Editor Actions -->
+          <div style="border-top: 1px solid var(--border); padding-top: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            <a href="project-form.html" class="mui-btn mui-btn-contained" style="width: 100%;">Edit Project</a>
+            <button class="mui-btn mui-btn-outlined mui-btn-danger" style="width: 100%;">Delete Project</button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Right Column: Title, abstract, and Team members -->
+      <section class="mui-detail-main">
+        
+        <!-- Project abstract -->
+        <div class="mui-card">
+          <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--secondary); letter-spacing: 0.5px;">R&D Project Abstract</span>
+          <h2 class="mui-card-title" style="font-size: 20px; font-weight: 800; margin-top: 4px; margin-bottom: var(--spacing-md); line-height: 1.4;">
+            Distributed Ledgers and Edge Analytics for Secured Industrial Internet of Things
+          </h2>
+          <div style="font-size: 14px; line-height: 1.7; color: var(--text-primary); text-align: justify; display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            <p>This project aims to resolve severe security and scalability bottlenecks in modern Smart Manufacturing and Industrial IoT (IIoT) setups. By creating localized micro-ledgers, we support high-frequency transactions with absolute cryptographic verification without burdening the central enterprise nodes.</p>
+            <p>Furthermore, the project designs customized, low-footprint Deep Learning execution layers that reside directly on edge gate-controllers. These layers perform real-time diagnostic checks and predict mechanical failures locally, sharing only consolidated alerts and high-level training weights back to the system core.</p>
+          </div>
+        </div>
+
+        <!-- Team Members list -->
+        <div class="mui-card">
+          <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 18px; margin-bottom: var(--spacing-md);">
+            <span>Project Working Group / Team Members</span>
+          </h2>
+          
+          <div class="mui-table-container" style="box-shadow: none; border-color: rgba(0,0,0,0.06);">
+            <table class="mui-table">
+              <thead>
+                <tr>
+                  <th>Researcher</th>
+                  <th>Lab Role</th>
+                  <th>Project Assignment</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><a href="member-detail.html" style="font-weight: 700;">John Smith</a></td>
+                  <td>Director</td>
+                  <td>Principal Investigator / Lead System Architect</td>
+                </tr>
+                <tr>
+                  <td><a href="member-detail.html" style="font-weight: 700;">Maria Garcia</a></td>
+                  <td>Co-Director</td>
+                  <td>Lead Edge Analytics Architect</td>
+                </tr>
+                <tr>
+                  <td><a href="member-detail.html" style="font-weight: 700;">Alice Williams</a></td>
+                  <td>PhD Candidate</td>
+                  <td>Distributed Cryptography Protocols Researcher</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

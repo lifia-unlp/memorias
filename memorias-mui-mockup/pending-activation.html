@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pending Activation | Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background-color: var(--background);
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      display: flex;
+      padding: var(--spacing-md);
+    }
+  </style>
+  <script>
+    function submitRequest() {
+      var name = document.getElementById('req_name').value.trim();
+      if (!name) {
+        alert("Please enter your name.");
+        return;
+      }
+      
+      document.getElementById('form-view').style.display = 'none';
+      document.getElementById('success-view').style.display = 'block';
+      document.getElementById('user-welcome-name').innerText = name;
+    }
+  </script>
+</head>
+<body>
+
+  <div class="mui-card" style="width: 100%; max-width: 520px; padding: var(--spacing-xl); box-shadow: var(--shadow-dp8); border-radius: var(--radius-lg); position: relative;">
+    <!-- Top Accent Bar -->
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--secondary), var(--warning));"></div>
+    
+    <!-- VIEW 1: REQUEST FORM -->
+    <div id="form-view">
+      <div style="text-align: center; margin-bottom: var(--spacing-lg);">
+        <h1 class="mui-brand" style="justify-content: center; font-size: 28px; margin-bottom: var(--spacing-xs);">
+          <span style="color: var(--primary);">M</span>emorias
+        </h1>
+        <h2 style="font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--text-primary);">
+          Curator Access Request
+        </h2>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">
+          Register your credentials to begin uploading publications, theses, and tracking R&D projects.
+        </p>
+      </div>
+
+      <form onsubmit="event.preventDefault(); submitRequest();" style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+        
+        <div class="mui-form-group">
+          <input type="text" id="req_name" class="mui-input" placeholder=" " required>
+          <label class="mui-label">Full Name</label>
+        </div>
+
+        <div class="mui-form-group">
+          <input type="email" id="req_email" class="mui-input" placeholder=" " required>
+          <label class="mui-label">Email Address</label>
+        </div>
+
+        <div class="mui-grid-2" style="gap: 20px;">
+          <div class="mui-form-group" style="margin: 0;">
+            <select class="mui-input mui-select" required>
+              <option value="conicet">CONICET</option>
+              <option value="cic">CIC</option>
+              <option value="unlp">UNLP (University)</option>
+              <option value="external">External Institution</option>
+            </select>
+            <label class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Affiliated Agency</label>
+          </div>
+
+          <div class="mui-form-group" style="margin: 0;">
+            <select class="mui-input mui-select" required>
+              <option value="fellow">PhD Fellow</option>
+              <option value="investigator">Researcher</option>
+              <option value="student">Undergrad Scholar</option>
+              <option value="staff">Administrative Staff</option>
+            </select>
+            <label class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Academic Role</label>
+          </div>
+        </div>
+
+        <div class="mui-form-group">
+          <textarea class="mui-input mui-textarea" placeholder=" " style="min-height: 70px;"></textarea>
+          <label class="mui-label">Curation Access Message (Describe active lab tasks)</label>
+        </div>
+
+        <button type="submit" class="mui-btn mui-btn-contained" style="width: 100%; font-size: 13px; padding: 12px 16px;">
+          Submit Access Request
+        </button>
+
+        <div style="text-align: center; margin-top: var(--spacing-xs);">
+          <a href="auth.html" style="font-size: 13px; font-weight: 700;">➜ Back to Sign In</a>
+        </div>
+      </form>
+    </div>
+
+    <!-- VIEW 2: SUCCESS / PENDING STATUS (WOW factor) -->
+    <div id="success-view" style="display: none; text-align: center;">
+      <div style="font-size: 48px; margin-bottom: var(--spacing-sm);">⏳</div>
+      <h2 style="font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--text-primary); margin-bottom: var(--spacing-xs);">
+        Request Submitted!
+      </h2>
+      <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: var(--spacing-lg);">
+        Thank you, <span id="user-welcome-name" style="font-weight: 700; color: var(--text-primary);">Researcher</span>. Your registration credentials have been recorded.
+      </p>
+
+      <!-- MUI-style warning alert -->
+      <div class="mui-alert mui-alert-warning" style="text-align: left; line-height: 1.5;">
+        <span style="font-size: 18px;">⚠️</span>
+        <div>
+          <span style="font-weight: 700; display: block; margin-bottom: 2px;">Activation Pending</span>
+          Your account is currently waiting for validation. Administrators must audit your curation request before you can log in.
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid var(--border); padding-top: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-sm); margin-top: var(--spacing-md);">
+        <p style="font-size: 12px; color: var(--text-secondary);">
+          Primary administrator for your group: <br>
+          <b>John Smith</b> (jsmith@lifia.info.unlp.edu.ar)
+        </p>
+        <a href="auth.html" class="mui-btn mui-btn-outlined" style="margin-top: var(--spacing-xs); width: 100%;">
+          Return to Login
+        </a>
+      </div>
+    </div>
+    
+  </div>
+
+</body>
+</html>

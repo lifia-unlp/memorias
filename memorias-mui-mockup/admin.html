@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    function switchAdminPanel(panelId) {
+      document.querySelectorAll('.admin-pane').forEach(function(pane) {
+        pane.style.display = 'none';
+      });
+      document.getElementById('pane-' + panelId).style.display = 'block';
+      
+      document.querySelectorAll('.admin-tab-btn').forEach(function(btn) {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+    }
+
+    function addCurationTag() {
+      var tagInput = document.getElementById('new-tag-input');
+      var tagText = tagInput.value.trim();
+      if (!tagText) return;
+      
+      if (!tagText.startsWith('#')) {
+        tagText = '#' + tagText;
+      }
+      
+      var tagContainer = document.getElementById('tags-curation-list');
+      
+      var newTag = document.createElement('span');
+      newTag.className = 'mui-chip mui-chip-primary';
+      newTag.style.padding = '6px 10px';
+      newTag.style.fontSize = '12px';
+      newTag.style.cursor = 'pointer';
+      newTag.innerHTML = tagText + ' <span onclick="this.parentElement.remove()" style="margin-left: 6px; font-weight: 900; color: var(--error);">×</span>';
+      
+      tagContainer.appendChild(newTag);
+      tagInput.value = '';
+    }
+  </script>
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        <div class="mui-flex-gap-sm">
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center; gap: 8px;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"><span style="font-family: var(--font-display); font-weight: 800; font-size: 20px; color: var(--text-primary);"><span style="color: var(--primary);">M</span>emorias</span></a>
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link">Members</a>
+            <a href="projects.html" class="mui-nav-link">Projects</a>
+            <a href="theses.html" class="mui-nav-link">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link">Publications</a>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger active">Admin Menu</button>
+              <div class="mui-dropdown">
+                <a href="admin.html" class="mui-dropdown-link">System Config</a>
+                <a href="admin.html" class="mui-dropdown-link">Lists Dashboard</a>
+                <a href="admin.html" class="mui-dropdown-link">Users Panel</a>
+                <a href="admin.html" class="mui-dropdown-link">Tag Curation</a>
+                <div class="mui-dropdown-divider"></div>
+                <a href="admin.html" class="mui-dropdown-link">Auditing Logs</a>
+              </div>
+            </div>
+          </nav>
+        </div>
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="mui-container mui-detail-layout mui-section">
+      
+      <!-- Left Column Sidebar: Section selection -->
+      <section class="mui-detail-sidebar" style="width: 250px;">
+        <div class="mui-card" style="padding: var(--spacing-md); gap: 4px; background-color: var(--background);">
+          <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; padding: var(--spacing-sm); display: block;">Administrative Console</span>
+          <button class="mui-btn admin-tab-btn active" onclick="switchAdminPanel('config')" style="justify-content: flex-start; text-align: left; padding: var(--spacing-md); font-size: 12.5px; background: none; border: none; font-weight: 700; width: 100%; border-radius: var(--radius-sm); border-left: 3px solid var(--primary); color: var(--primary);">
+            ⚙️ System Config
+          </button>
+          <button class="mui-btn admin-tab-btn" onclick="switchAdminPanel('users')" style="justify-content: flex-start; text-align: left; padding: var(--spacing-md); font-size: 12.5px; background: none; border: none; font-weight: 700; width: 100%; border-radius: var(--radius-sm); color: var(--text-secondary);">
+            👥 Users Role Matrix
+          </button>
+          <button class="mui-btn admin-tab-btn" onclick="switchAdminPanel('tags')" style="justify-content: flex-start; text-align: left; padding: var(--spacing-md); font-size: 12.5px; background: none; border: none; font-weight: 700; width: 100%; border-radius: var(--radius-sm); color: var(--text-secondary);">
+            🏷️ Tag Curation
+          </button>
+          <button class="mui-btn admin-tab-btn" onclick="switchAdminPanel('logs')" style="justify-content: flex-start; text-align: left; padding: var(--spacing-md); font-size: 12.5px; background: none; border: none; font-weight: 700; width: 100%; border-radius: var(--radius-sm); color: var(--text-secondary);">
+            📋 Auditing Logs
+          </button>
+        </div>
+      </section>
+
+      <!-- Right Column: Panel Detail view -->
+      <section class="mui-detail-main">
+        
+        <!-- PANE 1: SYSTEM CONFIG -->
+        <div id="pane-config" class="admin-pane">
+          <div class="mui-card" style="gap: var(--spacing-md);">
+            <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 18px;">
+              <span>System Settings & Branding Config</span>
+            </h2>
+            
+            <form onsubmit="event.preventDefault(); alert('System configuration saved successfully!');" style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+              <div class="mui-form-group">
+                <input type="text" class="mui-input" value="LIFIA Research Portal" placeholder=" ">
+                <label class="mui-label">Portal Title (welcome_title)</label>
+              </div>
+
+              <div class="mui-form-group">
+                <textarea class="mui-input mui-textarea" placeholder=" ">Scientific production database tracking grants, publications, and thesis developments.</textarea>
+                <label class="mui-label">Editorial Subtitle</label>
+              </div>
+
+              <div class="mui-grid-2" style="gap: 20px;">
+                <div class="mui-form-group">
+                  <input type="text" class="mui-input" value="LIFIA, UNLP, CONICET, CIC" placeholder=" ">
+                  <label class="mui-label">Institutional Affiliation Keywords</label>
+                </div>
+                
+                <div class="mui-form-group">
+                  <select class="mui-input mui-select">
+                    <option value="es-en">Spanish & English (Bilingual)</option>
+                    <option value="es">Spanish Only</option>
+                    <option value="en">English Only</option>
+                  </select>
+                  <label class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Default Portal Languages</label>
+                </div>
+              </div>
+
+              <div class="mui-switch-container">
+                <label class="mui-switch">
+                  <input type="checkbox" checked>
+                  <span class="mui-slider-switch"></span>
+                </label>
+                <span class="mui-switch-label">Allow self-registration for new researchers (pending admin review)</span>
+              </div>
+
+              <div class="mui-switch-container">
+                <label class="mui-switch">
+                  <input type="checkbox" checked>
+                  <span class="mui-slider-switch"></span>
+                </label>
+                <span class="mui-switch-label">Enable public database downloads for BibTeX and CSV records</span>
+              </div>
+
+              <div style="display: flex; gap: var(--spacing-md); justify-content: flex-end;">
+                <button type="submit" class="mui-btn mui-btn-contained" style="min-width: 150px;">Save Configuration</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- PANE 2: USER MATRIX -->
+        <div id="pane-users" class="admin-pane" style="display: none;">
+          <div class="mui-card" style="gap: var(--spacing-md);">
+            <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 18px;">
+              <span>Users Permissions Matrix</span>
+            </h2>
+            <p style="font-size: 13px; color: var(--text-secondary);">Manage registered members, approve incoming requests, and grant portal curator/admin credentials.</p>
+            
+            <div class="mui-table-container">
+              <table class="mui-table">
+                <thead>
+                  <tr>
+                    <th>Researcher</th>
+                    <th>Email Address</th>
+                    <th>Assigned Role</th>
+                    <th>Active status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><b>John Smith</b></td>
+                    <td>jsmith@lifia.info.unlp.edu.ar</td>
+                    <td>
+                      <select style="padding: 4px; font-size: 12px; border-radius: var(--radius-xs); border: 1px solid var(--border);">
+                        <option value="admin" selected>ADMIN</option>
+                        <option value="curator">CURATOR</option>
+                        <option value="researcher">RESEARCHER</option>
+                      </select>
+                    </td>
+                    <td>
+                      <label class="mui-switch" style="scale: 0.85;">
+                        <input type="checkbox" checked>
+                        <span class="mui-slider-switch"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <button class="mui-btn mui-btn-contained" style="padding: 4px 8px; font-size: 10px;">Save</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Maria Garcia</b></td>
+                    <td>mgarcia@lifia.info.unlp.edu.ar</td>
+                    <td>
+                      <select style="padding: 4px; font-size: 12px; border-radius: var(--radius-xs); border: 1px solid var(--border);">
+                        <option value="admin">ADMIN</option>
+                        <option value="curator" selected>CURATOR</option>
+                        <option value="researcher">RESEARCHER</option>
+                      </select>
+                    </td>
+                    <td>
+                      <label class="mui-switch" style="scale: 0.85;">
+                        <input type="checkbox" checked>
+                        <span class="mui-slider-switch"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <button class="mui-btn mui-btn-contained" style="padding: 4px 8px; font-size: 10px;">Save</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>David Miller</b></td>
+                    <td>dmiller@gmail.com</td>
+                    <td>
+                      <span class="mui-chip mui-chip-warning">PENDING APPROVAL</span>
+                    </td>
+                    <td>
+                      <label class="mui-switch" style="scale: 0.85;">
+                        <input type="checkbox">
+                        <span class="mui-slider-switch"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <div style="display: flex; gap: 4px;">
+                        <button class="mui-btn mui-btn-contained" style="padding: 4px 8px; font-size: 10px; background-color: var(--success);">Approve</button>
+                        <button class="mui-btn mui-btn-outlined mui-btn-danger" style="padding: 4px 8px; font-size: 10px;">Reject</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANE 3: TAG CURATION -->
+        <div id="pane-tags" class="admin-pane" style="display: none;">
+          <div class="mui-card" style="gap: var(--spacing-md);">
+            <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 18px;">
+              <span>Keywords & Domain Taxonomy Curation</span>
+            </h2>
+            <p style="font-size: 13px; color: var(--text-secondary);">Manage global search tags. Remove redundant or misspelled tags and add new institutional taxonomy indices.</p>
+            
+            <!-- Quick Tag Add -->
+            <div style="display: flex; gap: var(--spacing-md); max-width: 450px;">
+              <input type="text" id="new-tag-input" class="mui-input" placeholder="Enter new tag (e.g. #WebComponents)" style="padding: 10px 12px; font-size: 13px;">
+              <button onclick="addCurationTag()" class="mui-btn mui-btn-contained" style="font-size: 11px; padding: 0 16px;">Add Tag</button>
+            </div>
+
+            <!-- Existing Tags Curation List -->
+            <div id="tags-curation-list" style="display: flex; flex-wrap: wrap; gap: var(--spacing-sm); border: 1px solid var(--border); padding: var(--spacing-md); border-radius: var(--radius-md); min-height: 120px;">
+              <span class="mui-chip mui-chip-primary" style="padding: 6px 10px; font-size: 12px; cursor: pointer;">
+                #IoT <span onclick="this.parentElement.remove()" style="margin-left: 6px; font-weight: 900; color: var(--error);">×</span>
+              </span>
+              <span class="mui-chip mui-chip-primary" style="padding: 6px 10px; font-size: 12px; cursor: pointer;">
+                #Blockchain <span onclick="this.parentElement.remove()" style="margin-left: 6px; font-weight: 900; color: var(--error);">×</span>
+              </span>
+              <span class="mui-chip mui-chip-primary" style="padding: 6px 10px; font-size: 12px; cursor: pointer;">
+                #DeepLearning <span onclick="this.parentElement.remove()" style="margin-left: 6px; font-weight: 900; color: var(--error);">×</span>
+              </span>
+              <span class="mui-chip mui-chip-primary" style="padding: 6px 10px; font-size: 12px; cursor: pointer;">
+                #MicroFrontends <span onclick="this.parentElement.remove()" style="margin-left: 6px; font-weight: 900; color: var(--error);">×</span>
+              </span>
+              <span class="mui-chip mui-chip-primary" style="padding: 6px 10px; font-size: 12px; cursor: pointer;">
+                #SemanticWeb <span onclick="this.parentElement.remove()" style="margin-left: 6px; font-weight: 900; color: var(--error);">×</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANE 4: AUDITING LOGS -->
+        <div id="pane-logs" class="admin-pane" style="display: none;">
+          <div class="mui-card" style="gap: var(--spacing-md);">
+            <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 18px;">
+              <span>System Auditing Log Feed</span>
+            </h2>
+            <p style="font-size: 13px; color: var(--text-secondary);">Full chronological feed documenting database alterations, metadata revisions, and security elevations.</p>
+            
+            <div class="mui-table-container">
+              <table class="mui-table" style="font-size: 12px;">
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Entity Model</th>
+                    <th>Audit Details</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="color: var(--text-secondary);">2026-05-21 14:05:12</td>
+                    <td><b>jsmith</b></td>
+                    <td><span class="mui-chip mui-chip-success">CREATE</span></td>
+                    <td>Publication</td>
+                    <td>Added publication record: <i>"Architecting Micro-Frontends on Modern Web Frameworks"</i></td>
+                  </tr>
+                  <tr>
+                    <td style="color: var(--text-secondary);">2026-05-21 13:42:01</td>
+                    <td><b>mgarcia</b></td>
+                    <td><span class="mui-chip mui-chip-primary">UPDATE</span></td>
+                    <td>Member profile</td>
+                    <td>Updated CV metadata details for member: <i>"John Smith"</i></td>
+                  </tr>
+                  <tr>
+                    <td style="color: var(--text-secondary);">2026-05-21 11:15:30</td>
+                    <td><b>SYSTEM</b></td>
+                    <td><span class="mui-chip mui-chip-warning">SECURITY</span></td>
+                    <td>User registration</td>
+                    <td>New external registration request recorded: <i>"David Miller"</i></td>
+                  </tr>
+                  <tr>
+                    <td style="color: var(--text-secondary);">2026-05-20 17:01:45</td>
+                    <td><b>jsmith</b></td>
+                    <td><span class="mui-chip mui-chip-success">CREATE</span></td>
+                    <td>Project</td>
+                    <td>Added new R&D funding project record: <i>"PICT-2023-010"</i></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scholarships | Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        <div class="mui-flex-gap-sm">
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center; gap: 8px;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"><span style="font-family: var(--font-display); font-weight: 800; font-size: 20px; color: var(--text-primary);"><span style="color: var(--primary);">M</span>emorias</span></a>
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link">Members</a>
+            <a href="projects.html" class="mui-nav-link">Projects</a>
+            <a href="theses.html" class="mui-nav-link">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link active">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link">Publications</a>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Admin Menu</button>
+              <div class="mui-dropdown">
+                <a href="admin.html" class="mui-dropdown-link">System Config</a>
+                <a href="admin.html" class="mui-dropdown-link">Lists Dashboard</a>
+                <a href="admin.html" class="mui-dropdown-link">Users Panel</a>
+                <a href="admin.html" class="mui-dropdown-link">Tag Curation</a>
+                <div class="mui-dropdown-divider"></div>
+                <a href="admin.html" class="mui-dropdown-link">Auditing Logs</a>
+              </div>
+            </div>
+          </nav>
+        </div>
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="mui-hero">
+      <div class="mui-container" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="mui-hero-content">
+          <h1 class="mui-hero-title">Academic Scholarships</h1>
+          <p class="mui-hero-subtitle">
+            Manage and view doctoral, postdoctoral, and student research scholarships awarded by national scientific boards.
+          </p>
+        </div>
+        <a href="scholarship-form.html" class="mui-btn mui-btn-contained" style="background-color: var(--surface); color: var(--primary);">
+          Add Scholarship
+        </a>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="mui-container mui-section" style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+      
+      <!-- Filters -->
+      <section class="mui-filters-card">
+        <div class="mui-filters-item" style="flex-grow: 2;">
+          <input type="text" class="mui-filters-input" placeholder="Search by student, sponsor agency, or title...">
+        </div>
+        <div class="mui-filters-item">
+          <select class="mui-filters-input mui-select">
+            <option value="">All Scholarship Types</option>
+            <option value="CONICET Doctoral">CONICET Doctoral</option>
+            <option value="CONICET Postdoc">CONICET Postdoc</option>
+            <option value="CIC Doctoral">CIC Doctoral</option>
+            <option value="EVC-CIN">CIN Student Scholarship</option>
+          </select>
+        </div>
+        <button class="mui-btn mui-btn-contained" style="padding: 10px 20px;">Filter</button>
+      </section>
+
+      <!-- Scholarships List Cards -->
+      <section class="mui-grid-2">
+        
+        <!-- Scholarship 1 -->
+        <div class="mui-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
+            <span class="mui-chip mui-chip-primary">CONICET Doctoral</span>
+            <span class="mui-chip mui-chip-success">Active</span>
+          </div>
+          <a href="scholarship-detail.html" class="mui-card-title">
+            CONICET Doctoral Fellowship on Semantic Web & Knowledge Graphs
+          </a>
+          <p class="mui-card-content" style="margin-top: var(--spacing-sm);">
+            Doctoral training grant investigating semantic metadata, disambiguation pipelines, and knowledge graph mapping heuristics.
+          </p>
+          <div class="mui-card-meta">
+            <strong>Student:</strong> <a href="member-detail.html">Alice Williams</a><br>
+            <strong>Director:</strong> <a href="member-detail.html">John Smith</a><br>
+            <strong>Funding Sponsor:</strong> CONICET (Consejo Nacional de Investigaciones Científicas y Técnicas)
+          </div>
+          <div class="mui-card-actions" style="justify-content: space-between; align-items: center;">
+            <span style="font-size: 11px; font-weight: 600; color: var(--text-secondary);">Apr 2021 — Mar 2026</span>
+            <a href="scholarship-detail.html" class="mui-btn mui-btn-text">Details →</a>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

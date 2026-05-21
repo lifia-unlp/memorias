@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In | Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background-color: var(--background);
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mui-card" style="width: 100%; max-width: 420px; padding: var(--spacing-xl); box-shadow: var(--shadow-dp8); border-radius: var(--radius-lg); position: relative;">
+    <!-- Top Accent Bar -->
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--primary), var(--secondary));"></div>
+    
+    <!-- Branding Header -->
+    <div style="text-align: center; margin-bottom: var(--spacing-lg);">
+      <h1 class="mui-brand" style="justify-content: center; font-size: 32px; margin-bottom: var(--spacing-xs);">
+        <span style="color: var(--primary);">M</span>emorias
+      </h1>
+      <p style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">
+        Scientific Production Portal Curation
+      </p>
+    </div>
+
+    <!-- Sign In Form -->
+    <form onsubmit="event.preventDefault(); window.location.href='index.html';" style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+      
+      <div class="mui-form-group">
+        <input type="email" class="mui-input" value="jsmith@lifia.info.unlp.edu.ar" placeholder=" " required>
+        <label class="mui-label">Email Address / Username</label>
+      </div>
+
+      <div class="mui-form-group">
+        <input type="password" class="mui-input" value="••••••••" placeholder=" " required>
+        <label class="mui-label">Password</label>
+      </div>
+
+      <!-- Keep Signed In & Forgot Password -->
+      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-top: -10px; margin-bottom: var(--spacing-xs);">
+        <label style="display: inline-flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-secondary);">
+          <input type="checkbox" checked> Remember me
+        </label>
+        <a href="#" style="font-weight: 700;">Forgot Password?</a>
+      </div>
+
+      <!-- Actions -->
+      <button type="submit" class="mui-btn mui-btn-contained" style="width: 100%; font-size: 13px; padding: 12px 16px;">
+        Sign In to Portal
+      </button>
+
+      <div style="text-align: center; margin-top: var(--spacing-xs); display: flex; flex-direction: column; gap: var(--spacing-sm);">
+        <span style="font-size: 12.5px; color: var(--text-secondary);">
+          Need an account? <a href="pending-activation.html" style="font-weight: 700;">Request Access</a>
+        </span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm); margin-top: var(--spacing-xs);">
+          <span style="height: 1px; width: 40px; background-color: var(--border);"></span>
+          <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-disabled); font-weight: 800;">or</span>
+          <span style="height: 1px; width: 40px; background-color: var(--border);"></span>
+        </div>
+        <a href="index.html" class="mui-btn mui-btn-text" style="font-size: 12px; font-weight: 700; width: 100%;">
+          Browse Portal as Guest ➜
+        </a>
+      </div>
+    </form>
+    
+  </div>
+
+</body>
+</html>

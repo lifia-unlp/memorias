@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thesis Details | Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        <div class="mui-flex-gap-sm">
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center; gap: 8px;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"><span style="font-family: var(--font-display); font-weight: 800; font-size: 20px; color: var(--text-primary);"><span style="color: var(--primary);">M</span>emorias</span></a>
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link">Members</a>
+            <a href="projects.html" class="mui-nav-link">Projects</a>
+            <a href="theses.html" class="mui-nav-link active">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link">Publications</a>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Admin Menu</button>
+              <div class="mui-dropdown">
+                <a href="admin.html" class="mui-dropdown-link">System Config</a>
+                <a href="admin.html" class="mui-dropdown-link">Lists Dashboard</a>
+                <a href="admin.html" class="mui-dropdown-link">Users Panel</a>
+                <a href="admin.html" class="mui-dropdown-link">Tag Curation</a>
+                <div class="mui-dropdown-divider"></div>
+                <a href="admin.html" class="mui-dropdown-link">Auditing Logs</a>
+              </div>
+            </div>
+          </nav>
+        </div>
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Detail Layout -->
+    <main class="mui-container mui-detail-layout mui-section">
+      
+      <!-- Left Column Sidebar: Thesis details -->
+      <section class="mui-detail-sidebar">
+        <div class="mui-card" style="padding: var(--spacing-lg); gap: var(--spacing-md);">
+          <!-- Top Accent Bar -->
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background-color: var(--primary);"></div>
+          
+          <div style="margin-top: var(--spacing-xs);">
+            <span class="mui-chip mui-chip-primary">PhD Thesis</span>
+            <h1 class="mui-card-title" style="font-size: 16px; font-weight: 800; margin-top: 8px;">Thesis Supervision</h1>
+          </div>
+
+          <div style="border-top: 1px solid var(--border); padding-top: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            
+            <div style="font-size: 13px;">
+              <span style="font-weight: 600; display: block;">Status</span>
+              <span class="mui-chip mui-chip-success" style="margin-top: 4px;">Completed (100%)</span>
+            </div>
+            
+            <div style="font-size: 13px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: var(--spacing-sm);">
+              <span style="font-weight: 600; display: block;">Student</span>
+              <a href="member-detail.html" style="font-size: 12px; font-weight: 700;">Alice Williams</a>
+            </div>
+
+            <div style="font-size: 13px;">
+              <span style="font-weight: 600; display: block;">Director</span>
+              <a href="member-detail.html" style="font-size: 12px; font-weight: 700;">John Smith</a>
+            </div>
+
+            <div style="font-size: 13px;">
+              <span style="font-weight: 600; display: block;">Co-Director</span>
+              <span style="color: var(--text-secondary); font-size: 12px;">N/A</span>
+            </div>
+
+            <div style="font-size: 13px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: var(--spacing-sm);">
+              <span style="font-weight: 600; display: block;">Start Date</span>
+              <span style="color: var(--text-secondary); font-size: 12px;">April 1, 2021</span>
+            </div>
+
+            <div style="font-size: 13px;">
+              <span style="font-weight: 600; display: block;">Defense Date</span>
+              <span style="color: var(--text-secondary); font-size: 12px;">March 15, 2025</span>
+            </div>
+
+            <div style="font-size: 13px;">
+              <span style="font-weight: 600; display: block;">Defense Grade</span>
+              <span style="color: var(--success); font-weight: 700; font-size: 12px;">Outstanding (10/10)</span>
+            </div>
+          </div>
+
+          <!-- Tags -->
+          <div style="display: flex; flex-wrap: wrap; gap: 4px; border-top: 1px solid var(--border); padding-top: var(--spacing-md);">
+            <span class="mui-chip">#Knowledge Graphs</span>
+            <span class="mui-chip">#Curation</span>
+            <span class="mui-chip">#Semantic Metadata</span>
+          </div>
+
+          <!-- Actions -->
+          <div style="border-top: 1px solid var(--border); padding-top: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            <a href="thesis-form.html" class="mui-btn mui-btn-contained" style="width: 100%;">Edit Thesis</a>
+            <button class="mui-btn mui-btn-outlined mui-btn-danger" style="width: 100%;">Delete Thesis</button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Right Column: Abstract & Core Info -->
+      <section class="mui-detail-main">
+        
+        <!-- Abstract Card -->
+        <div class="mui-card">
+          <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--primary); letter-spacing: 0.5px;">Academic Thesis Abstract</span>
+          <h2 class="mui-card-title" style="font-size: 20px; font-weight: 800; margin-top: 4px; margin-bottom: var(--spacing-md); line-height: 1.4;">
+            Semantic Curation Frameworks for Heterogeneous Academic Publications
+          </h2>
+          <div style="font-size: 14px; line-height: 1.7; color: var(--text-primary); text-align: justify; display: flex; flex-direction: column; gap: var(--spacing-md);">
+            <p>This thesis addresses structural curation issues within modern university repositories and laboratory indexes. Academic portals today must process a heterogeneous volume of bibliography entries originating from multiple databases (IEEE, ACM, Springer) which rarely match in citation schemas or metadata quality.</p>
+            <p>By introducing a decentralized Knowledge Graph framework, we propose automated semantic alignment pipelines. The framework ingests raw BibTeX metadata, maps it to a unified ontology scale, resolves duplicate authors through custom disambiguation heuristic weights, and produces rich, curated citations supporting interactive search models.</p>
+          </div>
+        </div>
+
+        <!-- Defense Jury & Lab Context -->
+        <div class="mui-card">
+          <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 18px; margin-bottom: var(--spacing-md);">
+            <span>Defense Information & Laboratory Context</span>
+          </h2>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--spacing-md);">
+            This thesis was successfully defended in front of an academic jury at the Faculty of Informatics, National University of La Plata (UNLP), on March 15, 2025, satisfying all conditions to award the student the degree of <strong>Doctor in Computer Science</strong>.
+          </p>
+          <div class="mui-table-container" style="box-shadow: none; border-color: rgba(0,0,0,0.06);">
+            <table class="mui-table">
+              <thead>
+                <tr>
+                  <th>Role</th>
+                  <th>Affiliation / Member</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Jury Member 1</strong></td>
+                  <td>Dr. Robert Martinez (Universidad Nacional del Sur)</td>
+                </tr>
+                <tr>
+                  <td><strong>Jury Member 2</strong></td>
+                  <td>Dr. Sofia Lopez (CONICET - Universidad de Buenos Aires)</td>
+                </tr>
+                <tr>
+                  <td><strong>Jury Member 3</strong></td>
+                  <td>Dr. Carlos Rodriguez (LIFIA - UNLP)</td>
+                </tr>
+                <tr>
+                  <td><strong>Active Lab Participants</strong></td>
+                  <td>John Smith (Director), Alice Williams (Student)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

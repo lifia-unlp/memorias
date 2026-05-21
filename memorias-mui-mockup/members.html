@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Researchers | Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        <div class="mui-flex-gap-sm">
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center; gap: 8px;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"><span style="font-family: var(--font-display); font-weight: 800; font-size: 20px; color: var(--text-primary);"><span style="color: var(--primary);">M</span>emorias</span></a>
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link active">Members</a>
+            <a href="projects.html" class="mui-nav-link">Projects</a>
+            <a href="theses.html" class="mui-nav-link">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link">Publications</a>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Admin Menu</button>
+              <div class="mui-dropdown">
+                <a href="admin.html" class="mui-dropdown-link">System Config</a>
+                <a href="admin.html" class="mui-dropdown-link">Lists Dashboard</a>
+                <a href="admin.html" class="mui-dropdown-link">Users Panel</a>
+                <a href="admin.html" class="mui-dropdown-link">Tag Curation</a>
+                <div class="mui-dropdown-divider"></div>
+                <a href="admin.html" class="mui-dropdown-link">Auditing Logs</a>
+              </div>
+            </div>
+          </nav>
+        </div>
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="mui-hero">
+      <div class="mui-container" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="mui-hero-content">
+          <h1 class="mui-hero-title">Our Researchers</h1>
+          <p class="mui-hero-subtitle">
+            Meet the academics, PhD scholars, and scientific collaborators conducting pioneering research at our Lab.
+          </p>
+        </div>
+        <a href="member-form.html" class="mui-btn mui-btn-contained" style="background-color: var(--surface); color: var(--primary);">
+          Add Researcher
+        </a>
+      </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <main class="mui-container mui-section" style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+      
+      <!-- Filters bar -->
+      <section class="mui-filters-card">
+        <div class="mui-filters-item" style="flex-grow: 2;">
+          <input type="text" class="mui-filters-input" placeholder="Search by name, position, or scientific tags...">
+        </div>
+        <div class="mui-filters-item">
+          <select class="mui-filters-input mui-select">
+            <option value="">All Positions at Lab</option>
+            <option value="Director">Director</option>
+            <option value="Co-Director">Co-Director</option>
+            <option value="Full Researcher">Full Researcher</option>
+            <option value="Assistant Researcher">Assistant Researcher</option>
+            <option value="PhD Candidate">PhD Candidate</option>
+          </select>
+        </div>
+        <button class="mui-btn mui-btn-contained" style="padding: 10px 20px;">Filter</button>
+      </section>
+
+      <!-- Grid of Members -->
+      <section class="mui-grid-3">
+        
+        <!-- Member 1: John Smith -->
+        <a href="member-detail.html" class="mui-card" style="text-decoration: none; color: inherit;">
+          <div style="display: flex; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-md);">
+            <div class="mui-avatar" style="width: 56px; height: 56px; font-size: 20px;">JS</div>
+            <div>
+              <h3 class="mui-card-title" style="margin: 0; font-size: 17px;">John Smith</h3>
+              <span class="mui-card-subtitle" style="margin: 2px 0 0 0; display: block;">Director</span>
+            </div>
+          </div>
+          <div class="mui-card-content" style="font-size: 12px; border-top: 1px solid var(--border); padding-top: var(--spacing-sm); display: flex; flex-direction: column; gap: 4px;">
+            <div><strong>Degree:</strong> PhD in Computer Science</div>
+            <div><strong>CONICET:</strong> Principal Researcher</div>
+            <div style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"><strong>Email:</strong> j.smith@lifia.info.unlp.edu.ar</div>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: var(--spacing-md); padding-top: var(--spacing-sm); border-top: 1px solid rgba(0,0,0,0.05);">
+            <span class="mui-chip">#Software Architecture</span>
+            <span class="mui-chip">#Semantic Web</span>
+            <span class="mui-chip">#Agile</span>
+          </div>
+        </a>
+
+        <!-- Member 2: Maria Garcia -->
+        <a href="member-detail.html" class="mui-card" style="text-decoration: none; color: inherit;">
+          <div style="display: flex; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-md);">
+            <div class="mui-avatar" style="width: 56px; height: 56px; font-size: 20px;">MG</div>
+            <div>
+              <h3 class="mui-card-title" style="margin: 0; font-size: 17px;">Maria Garcia</h3>
+              <span class="mui-card-subtitle" style="margin: 2px 0 0 0; display: block;">Co-Director</span>
+            </div>
+          </div>
+          <div class="mui-card-content" style="font-size: 12px; border-top: 1px solid var(--border); padding-top: var(--spacing-sm); display: flex; flex-direction: column; gap: 4px;">
+            <div><strong>Degree:</strong> PhD in Artificial Intelligence</div>
+            <div><strong>CONICET:</strong> Independent Researcher</div>
+            <div style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"><strong>Email:</strong> m.garcia@lifia.info.unlp.edu.ar</div>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: var(--spacing-md); padding-top: var(--spacing-sm); border-top: 1px solid rgba(0,0,0,0.05);">
+            <span class="mui-chip">#Machine Learning</span>
+            <span class="mui-chip">#Computer Vision</span>
+            <span class="mui-chip">#Robotics</span>
+          </div>
+        </a>
+
+        <!-- Member 3: Alice Williams -->
+        <a href="member-detail.html" class="mui-card" style="text-decoration: none; color: inherit;">
+          <div style="display: flex; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-md);">
+            <div class="mui-avatar" style="width: 56px; height: 56px; font-size: 20px;">AW</div>
+            <div>
+              <h3 class="mui-card-title" style="margin: 0; font-size: 17px;">Alice Williams</h3>
+              <span class="mui-card-subtitle" style="margin: 2px 0 0 0; display: block;">PhD Candidate</span>
+            </div>
+          </div>
+          <div class="mui-card-content" style="font-size: 12px; border-top: 1px solid var(--border); padding-top: var(--spacing-sm); display: flex; flex-direction: column; gap: 4px;">
+            <div><strong>Degree:</strong> MSc in Software Engineering</div>
+            <div><strong>CONICET:</strong> Doctoral Fellow</div>
+            <div style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"><strong>Email:</strong> a.williams@lifia.info.unlp.edu.ar</div>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: var(--spacing-md); padding-top: var(--spacing-sm); border-top: 1px solid rgba(0,0,0,0.05);">
+            <span class="mui-chip">#Human-Computer Interaction</span>
+            <span class="mui-chip">#Data Science</span>
+            <span class="mui-chip">#Virtual Reality</span>
+          </div>
+        </a>
+
+      </section>
+
+      <!-- Pagination -->
+      <div class="mui-pagination">
+        <button class="mui-pagination-btn" disabled>«</button>
+        <button class="mui-pagination-btn active">1</button>
+        <button class="mui-pagination-btn">2</button>
+        <button class="mui-pagination-btn">»</button>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

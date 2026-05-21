@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Researcher Profile | Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        <div class="mui-flex-gap-sm">
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center; gap: 8px;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"><span style="font-family: var(--font-display); font-weight: 800; font-size: 20px; color: var(--text-primary);"><span style="color: var(--primary);">M</span>emorias</span></a>
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link active">Members</a>
+            <a href="projects.html" class="mui-nav-link">Projects</a>
+            <a href="theses.html" class="mui-nav-link">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link">Publications</a>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Admin Menu</button>
+              <div class="mui-dropdown">
+                <a href="admin.html" class="mui-dropdown-link">System Config</a>
+                <a href="admin.html" class="mui-dropdown-link">Lists Dashboard</a>
+                <a href="admin.html" class="mui-dropdown-link">Users Panel</a>
+                <a href="admin.html" class="mui-dropdown-link">Tag Curation</a>
+                <div class="mui-dropdown-divider"></div>
+                <a href="admin.html" class="mui-dropdown-link">Auditing Logs</a>
+              </div>
+            </div>
+          </nav>
+        </div>
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content: Form Layout -->
+    <main class="mui-container mui-section">
+      
+      <div class="mui-card mui-form-card" style="position: relative;">
+        <!-- Top accent bar -->
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background-color: var(--primary);"></div>
+        
+        <h1 class="mui-card-title" style="font-size: 20px; font-weight: 800; border-bottom: 1px solid var(--border); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-lg); margin-top: var(--spacing-xs);">
+          Edit Researcher Profile
+        </h1>
+        
+        <form action="member-detail.html" method="GET" style="display: flex; flex-direction: column; gap: 4px;">
+          
+          <!-- Identity Fields Grid -->
+          <div class="mui-grid-2" style="gap: var(--spacing-md);">
+            <div class="mui-form-group">
+              <input type="text" class="mui-input" id="first-name" placeholder=" " value="John" required>
+              <label for="first-name" class="mui-label">First Name</label>
+            </div>
+            <div class="mui-form-group">
+              <input type="text" class="mui-input" id="last-name" placeholder=" " value="Smith" required>
+              <label for="last-name" class="mui-label">Last Name</label>
+            </div>
+          </div>
+
+          <!-- Position At Lab -->
+          <div class="mui-form-group">
+            <select class="mui-input mui-select" id="position-lab" required>
+              <option value="Director" selected>Director</option>
+              <option value="Co-Director">Co-Director</option>
+              <option value="Full Researcher">Full Researcher</option>
+              <option value="Assistant Researcher">Assistant Researcher</option>
+              <option value="PhD Candidate">PhD Candidate</option>
+            </select>
+            <label for="position-lab" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Position at Lab</label>
+          </div>
+
+          <!-- Academic Degree -->
+          <div class="mui-form-group">
+            <input type="text" class="mui-input" id="degree" placeholder=" " value="PhD in Computer Science">
+            <label for="degree" class="mui-label">Highest Academic Degree</label>
+          </div>
+
+          <!-- Scientific Agencies -->
+          <div class="mui-grid-2" style="gap: var(--spacing-md);">
+            <div class="mui-form-group">
+              <select class="mui-input mui-select" id="conicet">
+                <option value="">None</option>
+                <option value="Principal Researcher" selected>Principal Researcher</option>
+                <option value="Independent Researcher">Independent Researcher</option>
+                <option value="Assistant Researcher">Assistant Researcher</option>
+                <option value="Doctoral Fellow">Doctoral Fellow</option>
+              </select>
+              <label for="conicet" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">CONICET Position</label>
+            </div>
+            <div class="mui-form-group">
+              <select class="mui-input mui-select" id="cic">
+                <option value="" selected>None</option>
+                <option value="Principal Investigator">Principal Investigator</option>
+                <option value="Associated Investigator">Associated Investigator</option>
+                <option value="CIC Fellow">CIC Fellow</option>
+              </select>
+              <label for="cic" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">CIC Position</label>
+            </div>
+          </div>
+
+          <!-- Contact Coordinates -->
+          <div class="mui-grid-2" style="gap: var(--spacing-md);">
+            <div class="mui-form-group">
+              <input type="email" class="mui-input" id="inst-email" placeholder=" " value="j.smith@lifia.info.unlp.edu.ar" required>
+              <label for="inst-email" class="mui-label">Institutional Email</label>
+            </div>
+            <div class="mui-form-group">
+              <input type="email" class="mui-input" id="pers-email" placeholder=" " value="john.smith@gmail.com">
+              <label for="pers-email" class="mui-label">Personal Email</label>
+            </div>
+          </div>
+
+          <!-- Profiles URLs -->
+          <div class="mui-grid-2" style="gap: var(--spacing-md);">
+            <div class="mui-form-group">
+              <input type="url" class="mui-input" id="website" placeholder=" " value="https://lifia.info.unlp.edu.ar">
+              <label for="website" class="mui-label">Personal Website URL</label>
+            </div>
+            <div class="mui-form-group">
+              <input type="text" class="mui-input" id="orcid" placeholder=" " value="0000-0002-1825-0097">
+              <label for="orcid" class="mui-label">ORCID Identifier</label>
+            </div>
+          </div>
+
+          <!-- Curation Tags -->
+          <div class="mui-form-group">
+            <input type="text" class="mui-input" id="tags" placeholder=" " value="Software Architecture, Semantic Web, Agile">
+            <label for="tags" class="mui-label">Curation Tags (comma separated)</label>
+          </div>
+
+          <!-- Spanish CV -->
+          <div class="mui-form-group">
+            <textarea class="mui-input mui-textarea" id="cv-es" placeholder=" ">John Smith es Profesor Titular en la Facultad de Informática de la Universidad Nacional de La Plata (UNLP) e Investigador Principal del CONICET en el LIFIA. Obtuvo su doctorado en Ciencias de la Computación en 2010. Sus líneas de investigación se centran en arquitecturas distribuidas, web semántica y metodologías de desarrollo de software ágiles.</textarea>
+            <label for="cv-es" class="mui-label">Short CV in Spanish</label>
+          </div>
+
+          <!-- English CV -->
+          <div class="mui-form-group">
+            <textarea class="mui-input mui-textarea" id="cv-en" placeholder=" ">John Smith is a Full Professor at the School of Computer Science, National University of La Plata (UNLP), and a Principal Researcher of CONICET at LIFIA. He received his PhD in Computer Science in 2010. His research interests focus on distributed systems, semantic web, and agile software development methodologies.</textarea>
+            <label for="cv-en" class="mui-label">Short CV in English</label>
+          </div>
+
+          <!-- Interests Spanish -->
+          <div class="mui-form-group">
+            <textarea class="mui-input mui-textarea" id="int-es" placeholder=" ">Mis intereses actuales incluyen la interoperabilidad semántica en sistemas distribuidos de IoT, diseño e implementación de arquitecturas basadas en microservicios, y la incorporación de tecnologías de registros distribuidos en plataformas académicas.</textarea>
+            <label for="int-es" class="mui-label">Interests in Spanish</label>
+          </div>
+
+          <!-- Interests English -->
+          <div class="mui-form-group">
+            <textarea class="mui-input mui-textarea" id="int-en" placeholder=" ">My current research interests include semantic interoperability in distributed IoT systems, design and implementation of microservice architectures, and the incorporation of distributed ledger technologies in academic portals.</p></textarea>
+            <label for="int-en" class="mui-label">Interests in English</label>
+          </div>
+
+          <!-- Avatar Image URL -->
+          <div class="mui-form-group">
+            <input type="text" class="mui-input" id="avatar" placeholder=" " value="">
+            <label for="avatar" class="mui-label">Avatar Image URL (leave empty for initials)</label>
+          </div>
+
+          <!-- System Access Configuration Toggle -->
+          <div class="mui-switch-container">
+            <label class="mui-switch">
+              <input type="checkbox" checked>
+              <span class="mui-slider-switch"></span>
+            </label>
+            <span class="mui-switch-label">User Account Approved & Activated</span>
+          </div>
+
+          <!-- Form Buttons -->
+          <div class="mui-card-actions" style="justify-content: flex-end; gap: var(--spacing-md);">
+            <a href="member-detail.html" class="mui-btn mui-btn-outlined">Cancel</a>
+            <button type="submit" class="mui-btn mui-btn-contained">Save Changes</button>
+          </div>
+
+        </form>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>
