@@ -136,6 +136,10 @@ a:hover {
   gap: var(--spacing-xs);
 }
 
+.mui-mobile-menu {
+  display: none;
+}
+
 .mui-nav-link {
   font-family: var(--font-display);
   font-size: 13px;
@@ -958,8 +962,24 @@ a:hover {
   .mui-grid-3 {
     grid-template-columns: repeat(2, 1fr);
   }
+  .mui-user-info {
+    display: none; /* Hide name/role text to save horizontal space on tablets */
+  }
+  .mui-user-menu {
+    padding: 4px; /* Circle profile only */
+  }
+  .mui-nav-link, .mui-menu-trigger {
+    padding: var(--spacing-sm) var(--spacing-sm); /* Tighten spacing on tablet landscape */
+    font-size: 12.5px;
+  }
+}
+
+@media (max-width: 768px) {
   .mui-nav {
-    display: none; /* Hide navigation on tablets to prevent horizontal overflow */
+    display: none; /* Hide horizontal nav links on mobile/portrait viewports */
+  }
+  .mui-mobile-menu {
+    display: inline-block; /* Show mobile menu dropdown */
   }
 }
 @media (max-width: 600px) {
