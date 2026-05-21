@@ -36,7 +36,7 @@ export default {
         return {
           id: profile.sub,
           name: profile.name || `${profile.given_name || ""} ${profile.family_name || ""}`.trim() || null,
-          email: profile.email || null,
+          email: profile.email || `${profile.sub}@orcid.org`,
         };
       },
     },
