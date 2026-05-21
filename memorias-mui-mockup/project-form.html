@@ -95,6 +95,21 @@
             <label for="code" class="mui-label">Project Code / Identifier</label>
           </div>
 
+          <!-- SEO Configurable Page Slug Row (on its own row right below Project Code/Identifier) -->
+          <div class="mui-form-group" style="margin-top: 4px; margin-bottom: var(--spacing-md);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label for="slug" class="mui-label" style="position: static; transform: none; font-size: 12px; font-weight: 700; color: var(--text-primary);">SEO Page Slug *</label>
+              <span id="slug-auto-badge" class="mui-chip mui-chip-success" style="font-size: 9px; padding: 2px 6px; text-transform: uppercase;">✨ Auto-Generated</span>
+            </div>
+            <div style="display: flex; gap: var(--spacing-sm); align-items: center; position: relative;">
+              <input type="text" class="mui-input" id="slug" value="pict-2023-010" required style="font-weight: 600; padding-right: 100px;">
+              <button type="button" id="btn-reset-slug" class="mui-btn mui-btn-outlined" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 10px; padding: 4px 8px; height: 28px; line-height: 1; min-width: auto;">Reset Auto</button>
+            </div>
+            <p style="font-size: 10px; color: var(--text-secondary); margin-top: 6px; margin-bottom: 0; line-height: 1.4;">
+              This slug generates the URL `/projects/[slug]` for this project. Manual override is active if you type in it.
+            </p>
+          </div>
+
           <!-- Title -->
           <div class="mui-form-group">
             <input type="text" class="mui-input" id="title" placeholder=" " value="Distributed Ledgers and Edge Analytics for Secured Industrial Internet of Things" required>
@@ -110,42 +125,102 @@
           <!-- Director and Co-Director -->
           <div class="mui-grid-2" style="gap: var(--spacing-md);">
             <div class="mui-form-group">
-              <select class="mui-input mui-select" id="director" required>
-                <option value="1" selected>John Smith</option>
-                <option value="2">Maria Garcia</option>
-                <option value="3">Alice Williams</option>
-              </select>
-              <label for="director" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Director</label>
+              <input type="text" class="mui-input" id="director" placeholder=" " value="John Smith" required>
+              <label for="director" class="mui-label">Director</label>
             </div>
             <div class="mui-form-group">
-              <select class="mui-input mui-select" id="co-director">
-                <option value="">None</option>
-                <option value="1">John Smith</option>
-                <option value="2" selected>Maria Garcia</option>
-                <option value="3">Alice Williams</option>
-              </select>
-              <label for="co-director" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Co-Director</label>
+              <input type="text" class="mui-input" id="co-director" placeholder=" " value="Maria Garcia">
+              <label for="co-director" class="mui-label">Co-Director (Optional)</label>
             </div>
           </div>
 
-          <!-- Team Members checkboxes -->
+          <!-- Working Group Members scrollable list -->
           <div class="mui-range-container" style="border: 1px solid var(--border); border-radius: var(--radius-xs); padding: var(--spacing-md); margin-bottom: 20px; background-color: var(--surface);">
             <span class="mui-range-label" style="font-size: 13px; color: var(--text-primary); margin-bottom: var(--spacing-sm);">Working Group Members / Participants</span>
-            <div style="display: flex; flex-direction: column; gap: var(--spacing-sm); font-size: 13px;">
-              <label class="mui-flex-gap-sm" style="cursor: pointer;">
-                <input type="checkbox" checked value="1" style="accent-color: var(--primary);">
-                <span>John Smith</span>
+            
+            <div class="mui-member-select-list">
+              
+              <!-- Member 1: John Smith -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" checked value="1">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: var(--primary-light); color: var(--primary);">JS</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">John Smith</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">Director / Full Researcher</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-primary" style="font-size: 8.5px; padding: 2px 6px;">LIFIA Member</span>
               </label>
-              <label class="mui-flex-gap-sm" style="cursor: pointer;">
-                <input type="checkbox" checked value="2" style="accent-color: var(--primary);">
-                <span>Maria Garcia</span>
+
+              <!-- Member 2: Maria Garcia -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" checked value="2">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: var(--secondary-light); color: var(--secondary);">MG</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">Maria Garcia</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">Co-Director / Full Researcher</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-primary" style="font-size: 8.5px; padding: 2px 6px;">LIFIA Member</span>
               </label>
-              <label class="mui-flex-gap-sm" style="cursor: pointer;">
-                <input type="checkbox" checked value="3" style="accent-color: var(--primary);">
-                <span>Alice Williams</span>
+
+              <!-- Member 3: Alice Williams -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" checked value="3">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: var(--success-light); color: var(--success);">AW</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">Alice Williams</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">PhD Candidate / Scholar</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-primary" style="font-size: 8.5px; padding: 2px 6px;">LIFIA Member</span>
               </label>
+
+              <!-- Member 4: David Miller -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" value="4">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: rgba(0,0,0,0.08); color: var(--text-primary);">DM</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">David Miller</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">Assistant Researcher</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-primary" style="font-size: 8.5px; padding: 2px 6px;">LIFIA Member</span>
+              </label>
+
+              <!-- Member 5: Robert Taylor (External Partner) -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" value="5">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: var(--warning-light); color: var(--warning);">RT</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">Robert Taylor</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">External / Research Collaborator</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-secondary" style="font-size: 8.5px; padding: 2px 6px;">External</span>
+              </label>
+
+              <!-- Member 6: Sarah Jenkins -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" value="6">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: rgba(217,119,6,0.08); color: rgb(217,119,6);">SJ</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">Sarah Jenkins</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">PhD Candidate</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-primary" style="font-size: 8.5px; padding: 2px 6px;">LIFIA Member</span>
+              </label>
+
             </div>
           </div>
+
 
           <!-- Dates Grid -->
           <div class="mui-grid-2" style="gap: var(--spacing-md);">
@@ -218,14 +293,6 @@ Furthermore, the project designs customized, low-footprint Deep Learning executi
               <span class="mui-slider-switch"></span>
             </label>
             <span class="mui-switch-label">Feature this project on homepage</span>
-          </div>
-
-          <div class="mui-switch-container">
-            <label class="mui-switch">
-              <input type="checkbox" checked>
-              <span class="mui-slider-switch"></span>
-            </label>
-            <span class="mui-switch-label">Project is Active (uncheck to mark Completed)</span>
           </div>
 
           <!-- Action buttons -->
@@ -377,11 +444,53 @@ Furthermore, the project designs customized, low-footprint Deep Learning executi
       renderTagWidget(widgetId);
     }
 
+    // Dynamic SEO Slug Generation & TagWidget Initialization
     document.addEventListener('DOMContentLoaded', () => {
+      const codeInput = document.getElementById('code');
+      const slugInput = document.getElementById('slug');
+      const slugBadge = document.getElementById('slug-auto-badge');
+      const resetBtn = document.getElementById('btn-reset-slug');
+      
+      let isSlugOverridden = false;
+      
+      function generateSlug(code) {
+        return code
+          .toLowerCase()
+          .trim()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "") // remove accents
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+      }
+
+      function updateSlug() {
+        if (!isSlugOverridden && codeInput && slugInput) {
+          slugInput.value = generateSlug(codeInput.value);
+        }
+      }
+
+      if (codeInput && slugInput) {
+        codeInput.addEventListener('input', updateSlug);
+        
+        slugInput.addEventListener('input', () => {
+          isSlugOverridden = true;
+          if (slugBadge) slugBadge.style.display = 'none';
+        });
+
+        if (resetBtn) {
+          resetBtn.addEventListener('click', () => {
+            isSlugOverridden = false;
+            if (slugBadge) slugBadge.style.display = 'inline-block';
+            updateSlug();
+          });
+        }
+      }
+
       // Initialize projects page TagWidget with initial data
       initTagWidget('tag-widget-projects', ['iot', 'blockchain', 'edge computing']);
     });
   </script>
+
 
 </body>
 </html>

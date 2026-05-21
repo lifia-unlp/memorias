@@ -1127,3 +1127,40 @@ a:hover {
   to { opacity: 1; transform: scale(1); }
 }
 
+/* Scrollable Member Select List */
+.mui-member-select-list {
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mui-member-select-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast) ease;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+}
+.mui-member-select-item:last-child {
+  border-bottom: none;
+}
+.mui-member-select-item:hover {
+  background-color: rgba(25, 118, 210, 0.04);
+}
+.mui-member-select-item input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  margin: 0;
+}
+
+
