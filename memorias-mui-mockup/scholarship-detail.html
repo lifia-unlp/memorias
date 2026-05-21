@@ -74,9 +74,7 @@
           </div>
         </div>
       </div>
-    </header>
-
-    <!-- Main Detail Layout -->
+    </header>    <!-- Main Detail Layout -->
     <main class="mui-container mui-detail-layout mui-section">
       
       <!-- Left Column Sidebar: Scholarship details -->
@@ -87,7 +85,18 @@
           
           <div style="margin-top: var(--spacing-xs);">
             <span class="mui-chip mui-chip-primary">CONICET Doctoral</span>
-            <h1 class="mui-card-title" style="font-size: 16px; font-weight: 800; margin-top: 8px;">Scholarship Info</h1>
+            <h1 class="mui-card-title" style="font-size: 16px; font-weight: 800; margin-top: 8px;">About the scholarship</h1>
+          </div>
+
+          <!-- Scholarship Title & Description -->
+          <div style="margin-top: var(--spacing-sm); border-top: 1px solid var(--border); padding-top: var(--spacing-md);">
+            <h2 class="mui-card-title" style="font-size: 15px; font-weight: 800; margin-bottom: var(--spacing-sm); line-height: 1.4;">
+              CONICET Doctoral Fellowship on Semantic Web & Knowledge Graphs
+            </h2>
+            <div style="font-size: 12.5px; line-height: 1.6; color: var(--text-secondary); text-align: justify; display: flex; flex-direction: column; gap: var(--spacing-xs);">
+              <p>This doctoral training scholarship provides student living costs and laboratory support to carry out doctoral research on semantically aligned information networks.</p>
+              <p>Under the supervision of John Smith, the scholar is responsible for publishing R&D conference proceedings, mapping university metadata to semantic ontologies, and defending a final PhD thesis in Computer Science before the funding ends in early 2026.</p>
+            </div>
           </div>
 
           <div style="border-top: 1px solid var(--border); padding-top: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-sm);">
@@ -140,19 +149,73 @@
       <!-- Right Column: Abstract & Core Info -->
       <section class="mui-detail-main">
         
-        <!-- Abstract Card -->
+        <!-- Associated Projects -->
         <div class="mui-card">
-          <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--primary); letter-spacing: 0.5px;">Scholarship description</span>
-          <h2 class="mui-card-title" style="font-size: 20px; font-weight: 800; margin-top: 4px; margin-bottom: var(--spacing-md); line-height: 1.4;">
-            CONICET Doctoral Fellowship on Semantic Web & Knowledge Graphs
+          <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 18px; margin-bottom: var(--spacing-md);">
+            <span>Associated Projects</span>
           </h2>
-          <div style="font-size: 14px; line-height: 1.7; color: var(--text-primary); text-align: justify; display: flex; flex-direction: column; gap: var(--spacing-md);">
-            <p>This doctoral training scholarship provides student living costs and laboratory support to carry out doctoral research on semantically aligned information networks.</p>
-            <p>Under the supervision of John Smith, the scholar is responsible for publishing R&D conference proceedings, mapping raw university metadata to semantic ontologies, and defending a final PhD thesis in Computer Science before the funding ends in early 2026.</p>
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            
+            <!-- Project 1 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: var(--spacing-sm); border-bottom: 1px solid rgba(0,0,0,0.05);">
+              <div>
+                <a href="project-detail.html" style="font-weight: 700; font-size: 14px;">Distributed Ledgers and Edge Analytics for Secured Industrial Internet of Things</a>
+                <span style="display: block; font-size: 11px; color: var(--text-secondary); margin-top: 2px;">2023 — Present | Director: John Smith</span>
+              </div>
+              <span class="mui-chip mui-chip-secondary">Active</span>
+            </div>
+
           </div>
         </div>
 
-      </section>
+        <!-- Associated Theses -->
+        <div class="mui-card">
+          <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 18px; margin-bottom: var(--spacing-md);">
+            <span>Associated Theses</span>
+          </h2>
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            
+            <!-- Thesis 1 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: var(--spacing-sm); border-bottom: 1px solid rgba(0,0,0,0.05);">
+              <div>
+                <a href="thesis-detail.html" style="font-weight: 700; font-size: 14px;">Semantic Curation Frameworks for Heterogeneous Academic Publications</a>
+                <span style="display: block; font-size: 11px; color: var(--text-secondary); margin-top: 2px;">
+                  Student: Alice Williams | Degree: PhD Thesis | 2021 — 2025
+                </span>
+              </div>
+              <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                <div class="mui-linear-progress" style="width: 80px;">
+                  <div class="mui-linear-progress-bar" style="width: 100%;"></div>
+                </div>
+                <span class="mui-chip mui-chip-success">Completed</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Associated Publications -->
+        <div class="mui-card">
+          <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 18px; margin-bottom: var(--spacing-md);">
+            <span>Associated Publications</span>
+          </h2>
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+            
+            <!-- Publication 1 -->
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <a href="publication-detail.html" style="font-weight: 700; font-size: 14px; line-height: 1.4;">Architecting Micro-Frontends on Modern Web Frameworks: A Case Study on Scalability</a>
+              <div style="font-size: 12.5px; font-style: italic; color: var(--text-secondary); margin-left: 2px;">
+                Smith, J., Doe, R., & Garcia, M. (2025). <strong>IEEE Transactions on Software Engineering</strong>, 51(3), 142-156.
+              </div>
+              <div style="display: flex; gap: var(--spacing-md); font-size: 12px; font-weight: 700;">
+                <a href="publication-detail.html" style="color: var(--secondary);">Details</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </section>ion>
 
     </main>
 
