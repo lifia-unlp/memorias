@@ -109,7 +109,7 @@ a:hover {
   z-index: 1000;
   background-color: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(8px);
-  border-b: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow-dp1);
 }
 
@@ -408,7 +408,7 @@ a:hover {
   gap: var(--spacing-sm);
   margin-top: var(--spacing-md);
   padding-top: var(--spacing-md);
-  border-t: 1px solid var(--border);
+  border-top: 1px solid var(--border);
 }
 
 /* Outlined Buttons & Contained Buttons */
@@ -958,8 +958,14 @@ a:hover {
   .mui-grid-3 {
     grid-template-columns: repeat(2, 1fr);
   }
+  .mui-nav {
+    display: none; /* Hide navigation on tablets to prevent horizontal overflow */
+  }
 }
 @media (max-width: 600px) {
+  .mui-container {
+    padding: 0 var(--spacing-md); /* Comfortable side spacing on mobile viewports */
+  }
   .mui-grid-3, .mui-grid-2 {
     grid-template-columns: 1fr;
   }
@@ -967,9 +973,7 @@ a:hover {
     flex-direction: column;
     align-items: flex-start;
   }
-  .mui-nav {
-    display: none; /* simple responsive hide */
-  }
+
   .mui-footer-content {
     flex-direction: column;
     text-align: center;
