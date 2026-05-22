@@ -78,72 +78,82 @@ export default async function ProjectsPage(props: {
       {/* Unified Navigation Header */}
       <Header activeTab="projects" />
 
-      {/* Title Banner (Gradient aligned with Members page) */}
-      <Container maxWidth="lg" sx={{ py: 4, flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
-        
-        <Box
-          sx={{
-            background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
-            color: "common.white",
-            py: 6,
-            px: { xs: 3, md: 6 },
-            borderRadius: 4,
-            boxShadow: "inset 0 0 40px rgba(0,0,0,0.1)",
-            position: "relative",
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            alignItems: { xs: "flex-start", md: "center" },
-            justifyContent: "space-between",
-            gap: 3,
-          }}
-        >
-          {/* Wave background element */}
+      {/* Hero Banner Section */}
+      <Box
+        sx={{
+          background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
+          color: "common.white",
+          py: 6,
+          px: 3,
+          boxShadow: "inset 0px -4px 10px rgba(0, 0, 0, 0.1)",
+          position: "relative",
+          overflow: "hidden",
+          borderBottom: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 10 }}>
           <Box
             sx={{
-              position: "absolute",
-              inset: 0,
-              opacity: 0.08,
-              pointerEvents: "none",
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              alignItems: { xs: "flex-start", md: "center" },
+              justifyContent: "space-between",
+              gap: 3,
             }}
           >
-            <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
-            </svg>
-          </Box>
-
-          <Box sx={{ zIndex: 1, maxWidth: 600 }}>
-            <Typography variant="h1" sx={{ color: "common.white", mb: 1, fontSize: { xs: "2rem", md: "2.5rem" } }}>
-              Research Projects
-            </Typography>
-            <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.85)" }}>
-              Explore scientific investigations, research initiatives, and technology transfers engineered by our lab.
-            </Typography>
-          </Box>
-
-          {isEditorOrAdmin && (
-            <LinkButton 
-              href="/projects/new"
-              variant="contained"
+            {/* Wave background element */}
+            <Box
               sx={{
-                bgcolor: "common.white",
-                color: "primary.main",
-                fontWeight: "bold",
-                borderRadius: 3,
-                boxShadow: 2,
-                px: 3,
-                py: 1.5,
-                zIndex: 1,
-                "&:hover": {
-                  bgcolor: "rgba(255, 255, 255, 0.9)",
-                  boxShadow: 3,
-                },
+                position: "absolute",
+                inset: 0,
+                opacity: 0.08,
+                pointerEvents: "none",
+                "& svg": { width: "100%", height: "100%" },
               }}
             >
-              Add Project
-            </LinkButton>
-          )}
-        </Box>
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
+              </svg>
+            </Box>
+
+            <Box sx={{ zIndex: 1, maxWidth: 600 }}>
+              <Typography variant="h1" sx={{ color: "common.white", mb: 1, fontSize: { xs: "2rem", md: "2.5rem" } }}>
+                Research Projects
+              </Typography>
+              <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.85)" }}>
+                Explore scientific investigations, research initiatives, and technology transfers engineered by our lab.
+              </Typography>
+            </Box>
+
+            {isEditorOrAdmin && (
+              <LinkButton 
+                href="/projects/new"
+                variant="contained"
+                sx={{
+                  bgcolor: "common.white",
+                  color: "primary.main",
+                  fontWeight: "bold",
+                  borderRadius: 3,
+                  boxShadow: 2,
+                  px: 3,
+                  py: 1.5,
+                  zIndex: 1,
+                  "&:hover": {
+                    bgcolor: "rgba(255, 255, 255, 0.9)",
+                    boxShadow: 3,
+                  },
+                }}
+              >
+                Add Project
+              </LinkButton>
+            )}
+          </Box>
+        </Container>
+      </Box>
+
+      {/* Main Layout Container */}
+      <Container maxWidth="lg" sx={{ py: 4, flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
 
         {/* Main Search and Grid Section */}
         <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>

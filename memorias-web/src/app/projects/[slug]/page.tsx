@@ -94,10 +94,12 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
           background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
           color: "common.white",
           py: 6,
-          px: { xs: 3, md: 6 },
-          boxShadow: "inset 0 0 40px rgba(0,0,0,0.1)",
+          px: 3,
+          boxShadow: "inset 0px -4px 10px rgba(0, 0, 0, 0.1)",
           position: "relative",
           overflow: "hidden",
+          borderBottom: "1px solid",
+          borderColor: "divider",
         }}
       >
         {/* Wave background element */}
@@ -107,9 +109,10 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
             inset: 0,
             opacity: 0.08,
             pointerEvents: "none",
+            "& svg": { width: "100%", height: "100%" },
           }}
         >
-          <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none">
             <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
           </svg>
         </Box>
@@ -118,7 +121,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
           maxWidth="lg"
           sx={{
             position: "relative",
-            zIndex: 1,
+            zIndex: 10,
             display: "flex",
             flexDirection: { xs: "column", md: "row" },
             alignItems: { xs: "flex-start", md: "center" },

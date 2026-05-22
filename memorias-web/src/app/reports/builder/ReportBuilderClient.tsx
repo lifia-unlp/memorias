@@ -813,36 +813,25 @@ export default function ReportBuilderClient() {
       <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <Box
           sx={{
-            background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
-            color: "white",
-            py: 5,
-            px: 4,
-            borderRadius: 4,
-            boxShadow: "inset 0 -2px 10px rgba(0,0,0,0.1)",
             display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            alignItems: { xs: "flex-start", md: "center" },
             justifyContent: "space-between",
-            gap: 3,
+            alignItems: "center",
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            pb: 2,
           }}
         >
-          <Box>
-            <Typography variant="h4" component="h1" sx={{ fontWeight: 800, mb: 1 }}>
-              Saved Reports
-            </Typography>
-            <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.8)", maxWidth: 500 }}>
-              View, edit, print, or download configurations of your custom research summaries.
-            </Typography>
-          </Box>
+          <Typography variant="h2" sx={{ fontSize: "1.35rem", fontWeight: 800 }}>
+            Saved Configs
+          </Typography>
           <Button
             variant="contained"
             onClick={handleCreateNewReport}
             sx={{
-              bgcolor: "white",
-              color: "primary.main",
               fontWeight: "bold",
               textTransform: "none",
-              "&:hover": { bgcolor: "grey.100" },
+              borderRadius: 2.5,
+              px: 3,
             }}
           >
             Create New Report

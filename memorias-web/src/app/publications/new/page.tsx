@@ -39,17 +39,36 @@ export default async function NewPublicationPage() {
       <Box
         sx={{
           background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
-          color: "white",
+          color: "common.white",
           py: 6,
           px: 3,
-          boxShadow: "inset 0 -2px 10px rgba(0,0,0,0.1)",
+          boxShadow: "inset 0px -4px 10px rgba(0, 0, 0, 0.1)",
+          position: "relative",
+          overflow: "hidden",
+          borderBottom: "1px solid",
+          borderColor: "divider",
         }}
       >
-        <Container maxWidth="lg">
-          <Typography variant="h4" component="h1" sx={{ fontWeight: 800, mb: 1 }}>
+        {/* Wave background element */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0.08,
+            pointerEvents: "none",
+            "& svg": { width: "100%", height: "100%" },
+          }}
+        >
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
+          </svg>
+        </Box>
+
+        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 10 }}>
+          <Typography variant="h1" sx={{ color: "common.white", mb: 1, fontSize: { xs: "2rem", md: "2.5rem" } }}>
             Add Publication
           </Typography>
-          <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.8)", maxWidth: 600 }}>
+          <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.85)" }}>
             Ingest and register a new scientific publication into the lab's bibliography system.
           </Typography>
         </Container>
