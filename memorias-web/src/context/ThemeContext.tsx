@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+import Box from "@mui/material/Box";
 import { buildAppTheme, ThemeMode, CustomColors } from "@/styles/theme";
 
 interface ThemeContextType {
@@ -66,7 +67,17 @@ export function ThemeContextProvider({ children }: { children: React.ReactNode }
     <ThemeContext.Provider value={{ themeMode, customColors, setThemeMode, setCustomColors }}>
       <ThemeProvider theme={activeTheme}>
         <CssBaseline />
-        {children}
+        <Box
+          sx={{
+            bgcolor: "background.default",
+            color: "text.primary",
+            minHeight: "100vh",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {children}
+        </Box>
       </ThemeProvider>
     </ThemeContext.Provider>
   );

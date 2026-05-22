@@ -115,7 +115,7 @@ export function TagCloud({ tags, limit = 40 }: TagCloudProps) {
                       ? "rgba(255, 255, 255, 0.03)"
                       : "rgba(0, 0, 0, 0.01)",
                   borderColor: `hsla(215, ${saturation}%, 50%, 0.25)`,
-                  color: (theme) => (theme.palette.mode === "dark" ? "primary.light" : tagColor),
+                  color: (theme) => (theme.palette.mode === "dark" ? "primary.main" : tagColor),
                   transition: "all 0.2s ease-in-out",
                   "&:hover": {
                     transform: "scale(1.05) translateY(-1px)",
