@@ -62,7 +62,7 @@ export default async function Home() {
       <Header />
 
       {/* Hero Banner Section */}
-      <Box
+      <Box data-component-semantics="Hero banner"
         sx={{
           background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
           color: "#ffffff",
@@ -91,7 +91,7 @@ export default async function Home() {
         </Box>
         <Container maxWidth="xl" sx={{ position: "relative", zIndex: 10 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-            <Typography
+            <Typography data-component-semantics="Hero title"
               variant="h1"
               sx={{
                 fontSize: { xs: "2rem", md: "2.75rem" },
@@ -101,7 +101,7 @@ export default async function Home() {
             >
               {welcomeTitle}
             </Typography>
-            <Typography
+            <Typography data-component-semantics="Hero subtitle"
               variant="body1"
               sx={{
                 color: "rgba(255, 255, 255, 0.85)",
@@ -121,7 +121,7 @@ export default async function Home() {
       <Container maxWidth="xl" component="main" sx={{ py: 6, flexGrow: 1, display: "flex", flexDirection: "column", gap: 6 }}>
         
         {/* Dynamic Tag Cloud Topic Explorer */}
-        <Box>
+        <Box data-component-semantics="Topic cloud">
           <TagCloud tags={tags} limit={40} />
         </Box>
 
@@ -171,6 +171,7 @@ export default async function Home() {
                 return (
                   <Card
                     key={pub.id}
+                    data-component-semantics="Featured publication"
                     sx={{
                       display: "flex",
                       flexDirection: { xs: "column", md: "row" },
@@ -185,6 +186,7 @@ export default async function Home() {
                         <Chip
                           label="Featured Publication"
                           size="small"
+                          data-component-semantics="Featured badge"
                           sx={{
                             fontWeight: "bold",
                             fontSize: "0.625rem",
@@ -199,6 +201,7 @@ export default async function Home() {
                         <Chip
                           label={`Year ${pub.year}`}
                           size="small"
+                          data-component-semantics="Metadata badge"
                           sx={{
                             fontWeight: "bold",
                             fontSize: "0.625rem",
@@ -327,6 +330,7 @@ export default async function Home() {
                   {featuredTheses.map((thesis) => (
                     <Card
                       key={thesis.id}
+                      data-component-semantics="Featured thesis"
                       sx={{
                         display: "flex",
                         flexDirection: "column",
@@ -340,6 +344,7 @@ export default async function Home() {
                             <Chip
                               label={thesis.level}
                               size="small"
+                              data-component-semantics="Metadata badge"
                               sx={{
                                 fontWeight: "bold",
                                 fontSize: "0.625rem",
@@ -356,6 +361,7 @@ export default async function Home() {
                             <Chip
                               label={thesis.progress === 100 ? "Completed" : `${thesis.progress}%`}
                               size="small"
+                              data-component-semantics="Status badge"
                               sx={{
                                 fontWeight: "black",
                                 fontSize: "0.625rem",
@@ -477,6 +483,7 @@ export default async function Home() {
                   {featuredProjects.map((project) => (
                     <Card
                       key={project.id}
+                      data-component-semantics="Featured project"
                       sx={{
                         display: "flex",
                         flexDirection: "column",
@@ -489,6 +496,7 @@ export default async function Home() {
                           <Chip
                             label={project.code}
                             size="small"
+                            data-component-semantics="Metadata badge"
                             sx={{
                               fontWeight: "bold",
                               fontSize: "0.625rem",

@@ -95,7 +95,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
 
       {/* Main Layout Container */}
       <Container
-        maxWidth="lg"
+        maxWidth="xl"
         sx={{
           py: 4,
           flex: 1,
@@ -303,10 +303,15 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                     size="small"
                     sx={{
                       fontSize: "0.625rem",
-                      height: 20,
-                      bgcolor: "action.hover",
-                      fontWeight: 500,
+                      height: 18,
+                      borderRadius: 1,
+                      border: "1px solid",
+                      borderColor: "primary.light",
+                      bgcolor: "primary.light",
+                      color: "primary.main",
+                      fontWeight: "bold",
                     }}
+                    data-component-semantics="Tag badge"
                   />
                 ))}
               </Box>
@@ -347,7 +352,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
 
           {/* 4. Associated Scholarships */}
           {scholarships.length > 0 && (
-            <Box sx={{ width: "100%" }}>
+            <Box data-component-semantics="Relevant scholarships" sx={{ width: "100%" }}>
               <Typography
                 variant="h3"
                 sx={{
@@ -359,7 +364,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                   pb: 1,
                 }}
               >
-                Associated Scholarships
+                Relevant scholarships
               </Typography>
               <Grid container spacing={2}>
                 {scholarships.map((s) => (

@@ -32,7 +32,7 @@ export async function Logo() {
             src={logoUrl}
             alt="Logo"
             sx={{
-              height: 40,
+              height: 45,
               width: "auto",
               objectFit: "contain",
             }}

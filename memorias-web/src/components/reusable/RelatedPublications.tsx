@@ -129,16 +129,18 @@ export function RelatedPublications({ publications }: RelatedPublicationsProps) 
                       <Chip
                         label={pb.type}
                         size="small"
-                        color="primary"
                         sx={{
                           fontWeight: "bold",
                           fontSize: "0.625rem",
                           height: 18,
                           borderRadius: 1,
                           textTransform: "uppercase",
-                          bgcolor: (theme) => theme.palette.primary.light,
-                          color: "primary.main",
+                          border: "1px solid",
+                          borderColor: "divider",
+                          bgcolor: "action.hover",
+                          color: "text.secondary",
                         }}
+                        data-component-semantics="Metadata badge"
                       />
                       {pb.ranking && (
                         <Chip
@@ -150,11 +152,12 @@ export function RelatedPublications({ publications }: RelatedPublicationsProps) 
                             height: 18,
                             borderRadius: 1,
                             textTransform: "uppercase",
-                            bgcolor: "warning.light",
-                            color: "warning.main",
                             border: "1px solid",
-                            borderColor: "warning.main",
+                            borderColor: "divider",
+                            bgcolor: "action.hover",
+                            color: "text.secondary",
                           }}
+                          data-component-semantics="Metadata badge"
                         />
                       )}
                       {pb.tags.map((tag) => (
@@ -162,14 +165,17 @@ export function RelatedPublications({ publications }: RelatedPublicationsProps) 
                           key={tag}
                           label={`#${tag}`}
                           size="small"
-                          variant="outlined"
                           sx={{
                             fontSize: "0.625rem",
                             height: 18,
                             borderRadius: 1,
-                            color: "text.secondary",
-                            borderColor: "divider",
+                            border: "1px solid",
+                            borderColor: "primary.light",
+                            bgcolor: "primary.light",
+                            color: "primary.main",
+                            fontWeight: "bold",
                           }}
+                          data-component-semantics="Tag badge"
                         />
                       ))}
                     </Box>

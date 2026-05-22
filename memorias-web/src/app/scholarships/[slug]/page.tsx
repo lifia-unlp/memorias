@@ -70,15 +70,15 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
     : "Ongoing";
 
   return (
-    <Box sx={{ flex1: 1, display: "flex", flexDirection: "column", minHeight: "screen" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header activeTab="scholarships" />
 
       {/* Hero Header Banner */}
-      <Box
+      <Box data-component-semantics="Hero banner"
         sx={{
           background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
           color: "common.white",
-          py: 6,
+          py: 8,
           px: 3,
           boxShadow: "inset 0px -4px 10px rgba(0, 0, 0, 0.1)",
           position: "relative",
@@ -102,7 +102,7 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
           </svg>
         </Box>
 
-        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 10 }}>
+        <Container maxWidth="xl" sx={{ position: "relative", zIndex: 10 }}>
           <Box
             sx={{
               display: "flex",
@@ -127,7 +127,7 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
                   }}
                 />
               )}
-              <Typography
+              <Typography data-component-semantics="Hero title"
                 variant="h1"
                 sx={{
                   color: "common.white",
@@ -140,7 +140,7 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
                 {scholarship.title}
               </Typography>
 
-              <Typography variant="body2" sx={{ color: "rgba(255, 255, 255, 0.85)", fontWeight: "bold" }}>
+              <Typography data-component-semantics="Hero subtitle" variant="body2" sx={{ color: "rgba(255, 255, 255, 0.85)", fontWeight: "bold" }}>
                 Timeline: {startStr} – {endStr}
               </Typography>
             </Box>
@@ -172,7 +172,7 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
       </Box>
 
       {/* Main Content Grid */}
-      <Container maxWidth="lg" sx={{ py: 6, flex: 1 }}>
+      <Container maxWidth="xl" sx={{ py: 6, flex: 1 }}>
         <Grid container spacing={4}>
           {/* Left Column: Summary and Linked Projects */}
           <Grid size={{ xs: 12, lg: 8 }} sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -299,7 +299,7 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
             {/* Associated Members/Participants */}
             {scholarship.members.length > 0 && (
               <Box>
-                <RelatedMembers members={scholarship.members} title="Associated Members" />
+                <RelatedMembers members={scholarship.members} />
               </Box>
             )}
 
@@ -331,10 +331,16 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
                         label={`#${tag}`}
                         size="small"
                         sx={{
-                          fontSize: "0.7rem",
-                          fontWeight: 600,
-                          bgcolor: "action.selected",
+                          fontSize: "0.625rem",
+                          height: 18,
+                          borderRadius: 1,
+                          border: "1px solid",
+                          borderColor: "primary.light",
+                          bgcolor: "primary.light",
+                          color: "primary.main",
+                          fontWeight: "bold",
                         }}
+                        data-component-semantics="Tag badge"
                       />
                     ))}
                   </Box>

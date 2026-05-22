@@ -30,7 +30,7 @@ export function RelatedTheses({ theses }: RelatedThesesProps) {
   if (!theses || theses.length === 0) return null;
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box data-component-semantics="Relevant theses" sx={{ width: "100%" }}>
       <Typography
         variant="h3"
         sx={{
@@ -42,7 +42,7 @@ export function RelatedTheses({ theses }: RelatedThesesProps) {
           pb: 1,
         }}
       >
-        Related Theses
+        Relevant theses
       </Typography>
       <Grid container spacing={2}>
         {theses.map((thesis) => (

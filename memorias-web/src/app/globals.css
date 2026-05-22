@@ -65,3 +65,51 @@ body {
     background: transparent !important;
   }
 }
+
+/*
+ * Development-only bounding box highlight for semantic components on mouseover.
+ * Only active when the body has the .highlight-semantics-enabled class.
+ * Uses outline to avoid shifting layout components or affecting bounding size calculations.
+ */
+.highlight-semantics-enabled [data-component-semantics] {
+  position: relative !important;
+}
+
+.highlight-semantics-enabled [data-component-semantics]:hover {
+  outline: 2px solid #ef4444 !important;
+  outline-offset: -2px !important;
+  overflow: visible !important; /* Prevent label clipping on elements with overflow: hidden (e.g., MUI Chips) */
+}
+
+.highlight-semantics-enabled [data-component-semantics]:hover::after {
+  content: attr(data-component-semantics) !important;
+  position: absolute !important;
+  top: -18px !important;
+  left: -2px !important; /* Align exactly with the 2px outline */
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  padding: 1px 5px !important;
+  border-radius: 2px 2px 0 0 !important;
+  white-space: nowrap !important;
+  z-index: 2147483647 !important; /* Ensure the label is drawn on top of all other elements */
+  pointer-events: none !important; /* Prevent mouse events from being blocked */
+  line-height: 1.2 !important;
+  text-transform: none !important; /* Ensure capitalization is preserved */
+  letter-spacing: normal !important;
+}
+
+/*
+ * Show the semantic label under components that lie on the top of the page.
+ */
+.highlight-semantics-enabled [data-component-semantics="Menubar"]:hover::after,
+.highlight-semantics-enabled [data-component-semantics="Menubar logo"]:hover::after,
+.highlight-semantics-enabled [data-component-semantics="Session button"]:hover::after {
+  top: 100% !important;
+  border-radius: 0 0 2px 2px !important;
+}
+
+
+

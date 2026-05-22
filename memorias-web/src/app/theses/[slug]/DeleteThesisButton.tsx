@@ -43,17 +43,14 @@ export function DeleteThesisButton({
   return (
     <>
       <Button
-        variant="outlined"
+        variant="contained"
         color="error"
         onClick={() => setShowConfirm(true)}
         sx={{
           borderRadius: 3,
           fontWeight: "bold",
-          bgcolor: "rgba(211, 47, 47, 0.05)",
-          borderColor: "rgba(211, 47, 47, 0.3)",
           "&:hover": {
-            bgcolor: "rgba(211, 47, 47, 0.1)",
-            borderColor: "error.main",
+            bgcolor: "error.dark",
           },
         }}
       >

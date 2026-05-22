@@ -53,6 +53,7 @@ export function HeaderClient({ session, logoUrl, activeTab }: HeaderClientProps)
 
   return (
     <AppBar
+      data-component-semantics="Menubar"
       position="sticky"
       elevation={1}
       sx={{
@@ -68,12 +69,16 @@ export function HeaderClient({ session, logoUrl, activeTab }: HeaderClientProps)
           {/* Logo & Navigation */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
             {/* Logo */}
-            <Link href="/" style={{ display: "flex", alignItems: "center" }}>
+            <Link
+              data-component-semantics="Menubar logo"
+              href="/"
+              style={{ display: "flex", alignItems: "center" }}
+            >
               {logoUrl ? (
                 <img
                   src={logoUrl}
                   alt="Logo"
-                  style={{ height: 38, width: "auto", objectFit: "contain" }}
+                  style={{ height: 45, width: "auto", objectFit: "contain" }}
                 />
               ) : (
                 <Typography
@@ -95,7 +100,7 @@ export function HeaderClient({ session, logoUrl, activeTab }: HeaderClientProps)
                     component={Link}
                     href={link.href}
                     sx={{
-                      fontSize: "0.75rem",
+                      fontSize: "0.85rem",
                       fontWeight: isActive ? 800 : 700,
                       px: 2,
                       py: 0.75,
@@ -119,7 +124,7 @@ export function HeaderClient({ session, logoUrl, activeTab }: HeaderClientProps)
                   <Button
                     onClick={(e) => setReportsAnchor(e.currentTarget)}
                     sx={{
-                      fontSize: "0.75rem",
+                      fontSize: "0.85rem",
                       fontWeight: 700,
                       px: 2,
                       py: 0.75,
@@ -176,7 +181,7 @@ export function HeaderClient({ session, logoUrl, activeTab }: HeaderClientProps)
                   <Button
                     onClick={(e) => setAdminAnchor(e.currentTarget)}
                     sx={{
-                      fontSize: "0.75rem",
+                      fontSize: "0.85rem",
                       fontWeight: 700,
                       px: 2,
                       py: 0.75,
@@ -259,16 +264,15 @@ export function HeaderClient({ session, logoUrl, activeTab }: HeaderClientProps)
             {isLoggedIn ? (
               <Box>
                 <Button
+                  data-component-semantics="Session button"
                   onClick={(e) => setUserAnchor(e.currentTarget)}
                   sx={{
                     textTransform: "none",
-                    px: 1.5,
-                    py: 0.5,
-                    borderRadius: 3,
-                    border: "1px solid",
-                    borderColor: "divider",
-                    color: "text.primary",
-                    "&:hover": { bgcolor: "action.hover" },
+                    px: 2,
+                    py: 0.75,
+                    borderRadius: 2,
+                    color: "text.secondary",
+                    "&:hover": { bgcolor: "action.hover", color: "text.primary" },
                   }}
                 >
                   <Avatar
@@ -286,15 +290,12 @@ export function HeaderClient({ session, logoUrl, activeTab }: HeaderClientProps)
                     {session.user?.name?.[0] || "U"}
                   </Avatar>
                   <Box sx={{ display: { xs: "none", sm: "block" }, textAlign: "left", mr: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 800, fontSize: "0.75rem", lineHeight: 1.1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 700, fontSize: "0.85rem", color: "inherit" }}>
                       {session.user?.name}
-                    </Typography>
-                    <Typography variant="caption" sx={{ fontSize: "0.625rem", color: "text.secondary", textTransform: "uppercase", fontWeight: 800 }}>
-                      {session.user?.role}
                     </Typography>
                   </Box>
                   <svg
-                    style={{ width: 10, height: 10, color: "gray" }}
+                    style={{ width: 10, height: 10, color: "currentColor" }}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -333,11 +334,19 @@ export function HeaderClient({ session, logoUrl, activeTab }: HeaderClientProps)
               </Box>
             ) : (
               <Button
+                data-component-semantics="Session button"
                 component={Link}
                 href="/auth/signin"
-                variant="contained"
-                size="small"
-                sx={{ fontSize: "0.75rem", fontWeight: "bold", px: 2, py: 0.75 }}
+                variant="text"
+                sx={{
+                  fontSize: "0.85rem",
+                  fontWeight: 700,
+                  px: 2,
+                  py: 0.75,
+                  borderRadius: 2,
+                  color: "text.secondary",
+                  "&:hover": { bgcolor: "action.hover", color: "text.primary" },
+                }}
               >
                 Sign In
               </Button>

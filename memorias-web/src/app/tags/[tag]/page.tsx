@@ -76,7 +76,7 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
 
       <Container
         component="main"
-        maxWidth="lg"
+        maxWidth="xl"
         sx={{ flex: 1, py: 5, px: { xs: 3, md: 3 }, display: "flex", flexDirection: "column", gap: 5 }}
       >
         {/* Navigation Breadcrumb & Page Header */}
@@ -236,9 +236,17 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
                                 key={idx}
                                 label={`#${t}`}
                                 size="small"
-                                color="primary"
-                                variant="outlined"
-                                sx={{ fontSize: "0.5625rem", fontWeight: 700, height: 18 }}
+                                sx={{
+                                  fontSize: "0.625rem",
+                                  height: 18,
+                                  borderRadius: 1,
+                                  border: "1px solid",
+                                  borderColor: "primary.light",
+                                  bgcolor: "primary.light",
+                                  color: "primary.main",
+                                  fontWeight: "bold",
+                                }}
+                                data-component-semantics="Tag badge"
                               />
                             ))}
                             {member.tags.length > 5 && (

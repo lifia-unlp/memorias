@@ -79,11 +79,11 @@ export default async function ProjectsPage(props: {
       <Header activeTab="projects" />
 
       {/* Hero Banner Section */}
-      <Box
+      <Box data-component-semantics="Hero banner"
         sx={{
           background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
           color: "common.white",
-          py: 6,
+          py: 8,
           px: 3,
           boxShadow: "inset 0px -4px 10px rgba(0, 0, 0, 0.1)",
           position: "relative",
@@ -92,7 +92,22 @@ export default async function ProjectsPage(props: {
           borderColor: "divider",
         }}
       >
-        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 10 }}>
+        {/* Wave background element */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0.08,
+            pointerEvents: "none",
+            "& svg": { width: "100%", height: "100%" },
+          }}
+        >
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
+          </svg>
+        </Box>
+
+        <Container maxWidth="xl" sx={{ position: "relative", zIndex: 10 }}>
           <Box
             sx={{
               display: "flex",
@@ -102,26 +117,11 @@ export default async function ProjectsPage(props: {
               gap: 3,
             }}
           >
-            {/* Wave background element */}
-            <Box
-              sx={{
-                position: "absolute",
-                inset: 0,
-                opacity: 0.08,
-                pointerEvents: "none",
-                "& svg": { width: "100%", height: "100%" },
-              }}
-            >
-              <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-                <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
-              </svg>
-            </Box>
-
             <Box sx={{ zIndex: 1, maxWidth: 600 }}>
-              <Typography variant="h1" sx={{ color: "common.white", mb: 1, fontSize: { xs: "2rem", md: "2.5rem" } }}>
+              <Typography data-component-semantics="Hero title" variant="h1" sx={{ color: "common.white", mb: 1, fontSize: { xs: "2rem", md: "2.5rem" } }}>
                 Research Projects
               </Typography>
-              <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.85)" }}>
+              <Typography data-component-semantics="Hero subtitle" variant="body1" sx={{ color: "rgba(255,255,255,0.85)" }}>
                 Explore scientific investigations, research initiatives, and technology transfers engineered by our lab.
               </Typography>
             </Box>
@@ -153,7 +153,7 @@ export default async function ProjectsPage(props: {
       </Box>
 
       {/* Main Layout Container */}
-      <Container maxWidth="lg" sx={{ py: 4, flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4, flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
 
         {/* Main Search and Grid Section */}
         <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -252,6 +252,7 @@ export default async function ProjectsPage(props: {
                   return (
                     <Grid size={{ xs: 12, md: 6 }} key={project.id}>
                       <Card
+                        data-component-semantics="Project directory card"
                         sx={{
                           display: "flex",
                           flexDirection: "column",
@@ -270,12 +271,30 @@ export default async function ProjectsPage(props: {
                             transform: "scaleX(0)",
                             transformOrigin: "left",
                             transition: "transform 0.3s ease",
+                            zIndex: 2,
                           },
                           "&:hover::before": {
                             transform: "scaleX(1)",
                           },
+                          "&:hover .project-card-title": {
+                            color: "primary.main",
+                            textDecoration: "underline",
+                          },
                         }}
                       >
+                        {/* Absolute overlay link for entire card click */}
+                        <Link
+                          href={`/projects/${project.slug}`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            zIndex: 1,
+                          }}
+                        />
+
                         <Box sx={{ mb: 2 }}>
                           <Typography
                             variant="h3"
@@ -286,41 +305,37 @@ export default async function ProjectsPage(props: {
                               transition: "color 0.2s",
                             }}
                           >
-                            <Link
-                              href={`/projects/${project.slug}`}
-                              style={{
-                                color: "inherit",
-                                textDecoration: "none",
+                            <Box
+                              component="span"
+                              className="project-card-title"
+                              sx={{
+                                color: "text.primary",
+                                display: "-webkit-box",
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden",
+                                transition: "color 0.2s",
                               }}
                             >
-                              <Box
-                                component="span"
-                                sx={{
-                                  color: "text.primary",
-                                  display: "-webkit-box",
-                                  WebkitLineClamp: 2,
-                                  WebkitBoxOrient: "vertical",
-                                  overflow: "hidden",
-                                  "&:hover": { color: "primary.main", textDecoration: "underline" },
-                                }}
-                              >
-                                {project.title}
-                              </Box>
-                            </Link>
+                              {project.title}
+                            </Box>
                           </Typography>
                           {project.code && (
                             <Chip
                               label={`Code: ${project.code}`}
                               size="small"
-                              color="primary"
-                              variant="outlined"
                               sx={{
                                 fontWeight: "bold",
                                 fontSize: "0.625rem",
-                                height: 20,
+                                height: 18,
                                 borderRadius: 1,
+                                border: "1px solid",
+                                borderColor: "divider",
+                                bgcolor: "action.hover",
+                                color: "text.secondary",
                                 mt: 1.5,
                               }}
+                              data-component-semantics="Metadata badge"
                             />
                           )}
                         </Box>
@@ -395,7 +410,7 @@ export default async function ProjectsPage(props: {
                                 <React.Fragment key={member.slug}>
                                   <Link
                                     href={`/members/${member.slug}`}
-                                    style={{ textDecoration: "none" }}
+                                    style={{ textDecoration: "none", position: "relative", zIndex: 2 }}
                                   >
                                     <Typography
                                       variant="caption"
@@ -429,11 +444,15 @@ export default async function ProjectsPage(props: {
                                 size="small"
                                 sx={{
                                   fontSize: "0.625rem",
-                                  height: 20,
-                                  bgcolor: "action.hover",
-                                  color: "text.secondary",
-                                  fontWeight: 500,
+                                  height: 18,
+                                  borderRadius: 1,
+                                  border: "1px solid",
+                                  borderColor: "primary.light",
+                                  bgcolor: "primary.light",
+                                  color: "primary.main",
+                                  fontWeight: "bold",
                                 }}
+                                data-component-semantics="Tag badge"
                               />
                             ))}
                           </Box>

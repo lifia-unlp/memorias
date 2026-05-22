@@ -25,11 +25,11 @@ interface RelatedMembersProps {
   title?: string;
 }
 
-export function RelatedMembers({ members, title = "Participants" }: RelatedMembersProps) {
+export function RelatedMembers({ members, title = "Relevant lab members" }: RelatedMembersProps) {
   if (!members || members.length === 0) return null;
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box data-component-semantics="Relevant lab members" sx={{ width: "100%" }}>
       <Typography
         variant="h3"
         sx={{

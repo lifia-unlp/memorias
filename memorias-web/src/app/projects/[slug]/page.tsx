@@ -93,7 +93,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
         sx={{
           background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
           color: "common.white",
-          py: 6,
+          py: 8,
           px: 3,
           boxShadow: "inset 0px -4px 10px rgba(0, 0, 0, 0.1)",
           position: "relative",
@@ -118,7 +118,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
         </Box>
 
         <Container
-          maxWidth="lg"
+          maxWidth="xl"
           sx={{
             position: "relative",
             zIndex: 10,
@@ -180,7 +180,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
 
       {/* Main content split grid */}
       <Container
-        maxWidth="lg"
+        maxWidth="xl"
         sx={{
           py: 4,
           flex: 1,
@@ -213,7 +213,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
 
           {/* Linked Scholarships */}
           {project.scholarships.length > 0 && (
-            <Box sx={{ width: "100%" }}>
+            <Box data-component-semantics="Relevant scholarships" sx={{ width: "100%" }}>
               <Typography
                 variant="h3"
                 sx={{
@@ -225,7 +225,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                   pb: 1,
                 }}
               >
-                Linked Scholarships
+                Relevant scholarships
               </Typography>
               <Grid container spacing={2}>
                 {project.scholarships.map((sch) => (
@@ -459,11 +459,15 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                     size="small"
                     sx={{
                       fontSize: "0.625rem",
-                      height: 20,
-                      bgcolor: "action.hover",
-                      color: "text.secondary",
-                      fontWeight: 505,
+                      height: 18,
+                      borderRadius: 1,
+                      border: "1px solid",
+                      borderColor: "primary.light",
+                      bgcolor: "primary.light",
+                      color: "primary.main",
+                      fontWeight: "bold",
                     }}
+                    data-component-semantics="Tag badge"
                   />
                 ))}
               </Box>

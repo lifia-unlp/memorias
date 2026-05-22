@@ -65,10 +65,16 @@ export function DeleteMemberButton({
   return (
     <>
       <Button
-        variant="outlined"
+        variant="contained"
         color="error"
         onClick={() => setShowConfirm(true)}
-        sx={{ borderRadius: 3, fontWeight: "bold" }}
+        sx={{
+          borderRadius: 3,
+          fontWeight: "bold",
+          "&:hover": {
+            bgcolor: "error.dark",
+          },
+        }}
       >
         Delete Member
       </Button>

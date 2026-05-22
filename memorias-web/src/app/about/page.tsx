@@ -284,7 +284,7 @@ export default async function AboutPage() {
       <Header />
 
       {/* Hero Banner Section */}
-      <Box
+      <Box data-component-semantics="Hero banner"
         component="section"
         sx={{
           background: "linear-gradient(to bottom right, var(--mui-palette-primary-main), var(--mui-palette-primary-dark))",
@@ -323,7 +323,7 @@ export default async function AboutPage() {
 
         <Box
           sx={{
-            maxWidth: "md",
+            maxWidth: "xl",
             mx: "auto",
             display: "flex",
             flexDirection: "column",
@@ -371,7 +371,7 @@ export default async function AboutPage() {
       {/* Main Content Area */}
       <Container
         component="main"
-        maxWidth="md"
+        maxWidth="xl"
         sx={{ flex: 1, py: 5, px: { xs: 3, md: 3 } }}
       >
         <Box

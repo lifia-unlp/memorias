@@ -38,7 +38,7 @@ export default function PreferencesClient({ session }: PreferencesClientProps) {
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: 6, flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+    <Container maxWidth="xl" sx={{ py: 6, flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
       <Paper
         elevation={2}
         sx={{

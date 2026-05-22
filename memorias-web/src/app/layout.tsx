@@ -43,9 +43,14 @@ export default async function RootLayout({
     redirect("/");
   }
 
+  const highlightSemantics = process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_HIGHLIGHT_SEMANTIC_COMPONENTS === "true";
+
   return (
     <html lang="en">
-      <body style={{ margin: 0, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <body
+        className={highlightSemantics ? "highlight-semantics-enabled" : ""}
+        style={{ margin: 0, minHeight: "100vh", display: "flex", flexDirection: "column" }}
+      >
         <ThemeRegistry>
           <ThemeContextProvider>
             {children}

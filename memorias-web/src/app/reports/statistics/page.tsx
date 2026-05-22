@@ -19,7 +19,7 @@ export default function StatisticsPage() {
       {/* Unified Navigation Header */}
       <Header />
 
-      <Container maxWidth="md" sx={{ py: 8, flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", gap: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 8, flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", gap: 4 }}>
         
         {/* Animated Construction Vector SVG Icon (Replacing Emoji) */}
         <Box sx={{ position: "relative", width: 96, height: 96, display: "flex", alignItems: "center", justifyContent: "center" }}>

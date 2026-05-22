@@ -33,11 +33,11 @@ export default async function NewProjectPage() {
       <Header activeTab="projects" />
 
       {/* Hero Banner Section */}
-      <Box
+      <Box data-component-semantics="Hero banner"
         sx={{
           background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
           color: "common.white",
-          py: 6,
+          py: 8,
           px: 3,
           boxShadow: "inset 0px -4px 10px rgba(0, 0, 0, 0.1)",
           position: "relative",
@@ -61,18 +61,18 @@ export default async function NewProjectPage() {
           </svg>
         </Box>
 
-        <Container maxWidth="md" sx={{ position: "relative", zIndex: 10 }}>
-          <Typography variant="h1" sx={{ color: "common.white", mb: 1, fontSize: { xs: "2rem", md: "2.5rem" } }}>
+        <Container maxWidth="xl" sx={{ position: "relative", zIndex: 10 }}>
+          <Typography data-component-semantics="Hero title" variant="h1" sx={{ color: "common.white", mb: 1, fontSize: { xs: "2rem", md: "2.5rem" } }}>
             Create Research Project
           </Typography>
-          <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.85)" }}>
+          <Typography data-component-semantics="Hero subtitle" variant="body1" sx={{ color: "rgba(255,255,255,0.85)" }}>
             Launch a new research project profile. Funding agency allocations, website redirects, and associated members will be linked dynamically.
           </Typography>
         </Container>
       </Box>
 
       {/* Form Area */}
-      <Container maxWidth="md" sx={{ py: 6, flex: 1 }}>
+      <Container maxWidth="xl" sx={{ py: 6, flex: 1 }}>
         <ProjectForm members={members} />
       </Container>
     </Box>

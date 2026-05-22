@@ -78,15 +78,15 @@ export default async function PublicationsPage(props: {
   const paginatedPublications = filteredPublications.slice((page - 1) * limit, page * limit);
 
   return (
-    <Box sx={{ flex1: 1, display: "flex", flexDirection: "column", minHeight: "screen" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header activeTab="publications" />
 
       {/* Hero Banner Section */}
-      <Box
+      <Box data-component-semantics="Hero banner"
         sx={{
           background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
           color: "common.white",
-          py: 6,
+          py: 8,
           px: 3,
           boxShadow: "inset 0px -4px 10px rgba(0, 0, 0, 0.1)",
           position: "relative",
@@ -95,7 +95,22 @@ export default async function PublicationsPage(props: {
           borderColor: "divider",
         }}
       >
-        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 10 }}>
+        {/* Wave background element */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0.08,
+            pointerEvents: "none",
+            "& svg": { width: "100%", height: "100%" },
+          }}
+        >
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
+          </svg>
+        </Box>
+
+        <Container maxWidth="xl" sx={{ position: "relative", zIndex: 10 }}>
           <Box
             sx={{
               display: "flex",
@@ -105,26 +120,11 @@ export default async function PublicationsPage(props: {
               gap: 3,
             }}
           >
-            {/* Wave background element */}
-            <Box
-              sx={{
-                position: "absolute",
-                inset: 0,
-                opacity: 0.08,
-                pointerEvents: "none",
-                "& svg": { width: "100%", height: "100%" },
-              }}
-            >
-              <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-                <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
-              </svg>
-            </Box>
-
             <Box sx={{ zIndex: 1, maxWidth: 600 }}>
-              <Typography variant="h1" sx={{ color: "common.white", mb: 1, fontSize: { xs: "2rem", md: "2.5rem" } }}>
+              <Typography data-component-semantics="Hero title" variant="h1" sx={{ color: "common.white", mb: 1, fontSize: { xs: "2rem", md: "2.5rem" } }}>
                 Research Bibliography
               </Typography>
-              <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.85)" }}>
+              <Typography data-component-semantics="Hero subtitle" variant="body1" sx={{ color: "rgba(255,255,255,0.85)" }}>
                 Browse scientific publications, books, doctoral dissertations, and conference proceedings compiled by our members.
               </Typography>
             </Box>
@@ -156,7 +156,7 @@ export default async function PublicationsPage(props: {
       </Box>
 
       {/* Main Layout Container */}
-      <Container maxWidth="lg" sx={{ py: 4, flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4, flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
 
         {/* Filters and Grid Section */}
         <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -191,7 +191,42 @@ export default async function PublicationsPage(props: {
 
                   return (
                     <Grid size={{ xs: 12 }} key={pb.id}>
-                      <Card sx={{ width: "100%" }}>
+                      <Card
+                        data-component-semantics="Publication directory card"
+                        sx={{
+                          width: "100%",
+                          position: "relative",
+                          overflow: "hidden",
+                          "&::before": {
+                            content: '""',
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "4px",
+                            background: "linear-gradient(90deg, var(--mui-palette-secondary-main), var(--mui-palette-primary-main) 40%)",
+                            transform: "scaleX(0)",
+                            transformOrigin: "left",
+                            transition: "transform 0.3s ease",
+                            zIndex: 2,
+                          },
+                          "&:hover::before": {
+                            transform: "scaleX(1)",
+                          },
+                        }}
+                      >
+                        {/* Absolute overlay link for entire card click */}
+                        <Link
+                          href={`/publications/${pb.slug}`}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            zIndex: 1,
+                          }}
+                        />
                         <CardContent sx={{ p: 3, "&:last-child": { pb: 3 }, display: "flex", flexDirection: "column", gap: 2 }}>
                           {/* Dynamic HTML Citation */}
                           <Box
@@ -199,6 +234,8 @@ export default async function PublicationsPage(props: {
                               fontSize: "0.9rem",
                               lineHeight: 1.6,
                               color: "text.primary",
+                              position: "relative",
+                              zIndex: 2,
                               "& a": {
                                 color: "primary.main",
                                 textDecoration: "none",
@@ -226,16 +263,18 @@ export default async function PublicationsPage(props: {
                               <Chip
                                 label={pb.type}
                                 size="small"
-                                color="primary"
                                 sx={{
                                   fontWeight: "bold",
                                   fontSize: "0.625rem",
                                   height: 18,
                                   borderRadius: 1,
                                   textTransform: "uppercase",
-                                  bgcolor: "primary.light",
-                                  color: "primary.main",
+                                  border: "1px solid",
+                                  borderColor: "divider",
+                                  bgcolor: "action.hover",
+                                  color: "text.secondary",
                                 }}
+                                data-component-semantics="Metadata badge"
                               />
                               {pb.ranking && (
                                 <Chip
@@ -247,11 +286,12 @@ export default async function PublicationsPage(props: {
                                     height: 18,
                                     borderRadius: 1,
                                     textTransform: "uppercase",
-                                    bgcolor: "warning.light",
-                                    color: "warning.main",
                                     border: "1px solid",
-                                    borderColor: "warning.main",
+                                    borderColor: "divider",
+                                    bgcolor: "action.hover",
+                                    color: "text.secondary",
                                   }}
+                                  data-component-semantics="Metadata badge"
                                 />
                               )}
                               {pb.tags.map((tag) => (
@@ -259,14 +299,17 @@ export default async function PublicationsPage(props: {
                                   key={tag}
                                   label={`#${tag}`}
                                   size="small"
-                                  variant="outlined"
                                   sx={{
                                     fontSize: "0.625rem",
                                     height: 18,
                                     borderRadius: 1,
-                                    color: "text.secondary",
-                                    borderColor: "divider",
+                                    border: "1px solid",
+                                    borderColor: "primary.light",
+                                    bgcolor: "primary.light",
+                                    color: "primary.main",
+                                    fontWeight: "bold",
                                   }}
+                                  data-component-semantics="Tag badge"
                                 />
                               ))}
                             </Box>
@@ -287,6 +330,8 @@ export default async function PublicationsPage(props: {
                                     px: 1,
                                     height: 24,
                                     borderRadius: 1.5,
+                                    position: "relative",
+                                    zIndex: 2,
                                   }}
                                 >
                                   PDF
@@ -311,29 +356,17 @@ export default async function PublicationsPage(props: {
                                     borderColor: "divider",
                                     border: "1px solid",
                                     "&:hover": { bgcolor: "action.hover", borderColor: "text.primary" },
+                                    position: "relative",
+                                    zIndex: 2,
                                   }}
                                 >
                                   BibTeX
                                 </Button>
                               )}
 
-                              <LinkButton 
-                                href={`/publications/${pb.slug}`}
-                                size="small"
-                                color="secondary"
-                                sx={{
-                                  fontSize: "0.625rem",
-                                  fontWeight: 750,
-                                  py: 0.25,
-                                  px: 1,
-                                  height: 24,
-                                  borderRadius: 1.5,
-                                }}
-                              >
-                                Details
-                              </LinkButton>
-
-                              <CopyCitationButton textToCopy={citation.text} />
+                              <Box sx={{ position: "relative", zIndex: 2 }}>
+                                <CopyCitationButton textToCopy={citation.text} />
+                              </Box>
                             </Box>
                           </Box>
                         </CardContent>
