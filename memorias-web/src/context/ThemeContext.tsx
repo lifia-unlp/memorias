@@ -61,6 +61,48 @@ export function ThemeContextProvider({ children }: { children: React.ReactNode }
   // Build the dynamic theme
   const activeTheme = buildAppTheme(themeMode, customColors);
 
+  // Synchronize dynamic theme colors with documentElement CSS variables on the client side.
+  // This guarantees that CSS variable references like var(--mui-palette-primary-main) used
+  // in gradients or components immediately and cleanly update when the theme mode changes.
+  useEffect(() => {
+    if (!mounted) return;
+
+    try {
+      const root = document.documentElement;
+      const palette = activeTheme.palette;
+
+      if (palette.primary?.main) {
+        root.style.setProperty("--mui-palette-primary-main", palette.primary.main);
+      }
+      if (palette.primary?.dark) {
+        root.style.setProperty("--mui-palette-primary-dark", palette.primary.dark);
+      }
+      if (palette.secondary?.main) {
+        root.style.setProperty("--mui-palette-secondary-main", palette.secondary.main);
+      }
+      if (palette.secondary?.dark) {
+        root.style.setProperty("--mui-palette-secondary-dark", palette.secondary.dark);
+      }
+      if (palette.background?.default) {
+        root.style.setProperty("--mui-palette-background-default", palette.background.default);
+      }
+      if (palette.background?.paper) {
+        root.style.setProperty("--mui-palette-background-paper", palette.background.paper);
+      }
+      if (palette.text?.primary) {
+        root.style.setProperty("--mui-palette-text-primary", palette.text.primary);
+      }
+      if (palette.text?.secondary) {
+        root.style.setProperty("--mui-palette-text-secondary", palette.text.secondary);
+      }
+      if (palette.divider) {
+        root.style.setProperty("--mui-palette-divider", palette.divider);
+      }
+    } catch (e) {
+      console.error("Failed to synchronize theme CSS variables:", e);
+    }
+  }, [activeTheme, mounted]);
+
   // Render a baseline theme during server rendering to prevent blank flashes
   // Once mounted, it will correctly hydrate with the user's local settings
   return (

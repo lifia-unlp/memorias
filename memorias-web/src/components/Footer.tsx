@@ -15,7 +15,8 @@ export async function Footer() {
       sx={{
         borderTop: "1px solid",
         borderColor: "divider",
-        bgcolor: "background.paper", style: { backdropFilter: "blur(8px)" },
+        bgcolor: "background.paper",
+        backdropFilter: "blur(8px)",
         py: 4,
         mt: "auto",
       }}
