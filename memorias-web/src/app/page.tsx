@@ -185,8 +185,6 @@ export default async function Home() {
                         <Chip
                           label="Featured Publication"
                           size="small"
-                          className="memorias-badge-featured"
-                          data-badge="featured"
                           sx={{
                             fontWeight: "bold",
                             fontSize: "0.625rem",
@@ -201,8 +199,6 @@ export default async function Home() {
                         <Chip
                           label={`Year ${pub.year}`}
                           size="small"
-                          className="memorias-badge-metadata"
-                          data-badge="metadata"
                           sx={{
                             fontWeight: "bold",
                             fontSize: "0.625rem",
@@ -344,8 +340,6 @@ export default async function Home() {
                             <Chip
                               label={thesis.level}
                               size="small"
-                              className="memorias-badge-metadata"
-                              data-badge="metadata"
                               sx={{
                                 fontWeight: "bold",
                                 fontSize: "0.625rem",
@@ -362,8 +356,6 @@ export default async function Home() {
                             <Chip
                               label={thesis.progress === 100 ? "Completed" : `${thesis.progress}%`}
                               size="small"
-                              className="memorias-badge-status"
-                              data-badge="status"
                               sx={{
                                 fontWeight: "black",
                                 fontSize: "0.625rem",
@@ -497,8 +489,6 @@ export default async function Home() {
                           <Chip
                             label={project.code}
                             size="small"
-                            className="memorias-badge-metadata"
-                            data-badge="metadata"
                             sx={{
                               fontWeight: "bold",
                               fontSize: "0.625rem",
