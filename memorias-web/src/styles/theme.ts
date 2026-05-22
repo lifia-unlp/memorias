@@ -122,25 +122,40 @@ export function buildAppTheme(mode: ThemeMode, customColors?: CustomColors): The
       palette = {
         mode: "dark",
         primary: {
-          main: "#90caf9",
-          dark: "#42a5f5",
-          light: "rgba(144, 202, 249, 0.08)",
+          main: "#818cf8", // Premium Indigo
+          dark: "#4f46e5",
+          light: "rgba(129, 140, 248, 0.1)",
         },
         secondary: {
-          main: "#f48fb1",
-          dark: "#ab47bc",
-          light: "rgba(244, 143, 177, 0.08)",
+          main: "#a78bfa", // Lavender/Violet
+          dark: "#7c3aed",
+          light: "rgba(167, 139, 250, 0.1)",
+        },
+        success: {
+          main: "#4caf50",
+          dark: "#81c784",
+          light: "rgba(76, 175, 80, 0.16)",
+        },
+        warning: {
+          main: "#ff9800",
+          dark: "#ffb74d",
+          light: "rgba(255, 152, 0, 0.16)",
+        },
+        error: {
+          main: "#f44336",
+          dark: "#e57373",
+          light: "rgba(244, 67, 54, 0.16)",
         },
         background: {
-          default: "#0b0f19",
-          paper: "#141c2f",
+          default: "#090d16", // Deep rich dark midnight
+          paper: "#111827",   // slate-900 dark depth
         },
         text: {
           primary: "#f8fafc",
           secondary: "#94a3b8",
           disabled: "#475569",
         },
-        divider: "#1e293b",
+        divider: "#1f2937",   // slate-800 subtle borders
       };
       break;
 
@@ -181,8 +196,8 @@ export function buildAppTheme(mode: ThemeMode, customColors?: CustomColors): The
       break;
 
     case "custom":
-      const pColor = customColors?.primary || "#00bcd4";
-      const sColor = customColors?.secondary || "#ff4081";
+      const pColor = customColors?.primary || "#093A54";
+      const sColor = customColors?.secondary || "#E56226";
       palette = {
         mode: "light",
         primary: {
@@ -193,13 +208,28 @@ export function buildAppTheme(mode: ThemeMode, customColors?: CustomColors): The
           main: sColor,
           light: `${sColor}14`,
         },
+        success: {
+          main: "#2e7d32",
+          dark: "#1b5e20",
+          light: "rgba(46, 125, 50, 0.08)",
+        },
+        warning: {
+          main: "#d97706",
+          dark: "#b45309",
+          light: "rgba(217, 119, 6, 0.08)",
+        },
+        error: {
+          main: "#d32f2f",
+          dark: "#c62828",
+          light: "rgba(211, 47, 47, 0.08)",
+        },
         background: {
           default: "#f8fafc",
           paper: "#ffffff",
         },
         text: {
-          primary: "#1e293b",
-          secondary: "#64748b",
+          primary: "#0f172a",
+          secondary: "#475569",
           disabled: "#cbd5e1",
         },
         divider: "#e2e8f0",
@@ -211,22 +241,37 @@ export function buildAppTheme(mode: ThemeMode, customColors?: CustomColors): The
       palette = {
         mode: "light",
         primary: {
-          main: "#1976d2",
-          dark: "#1565c0",
-          light: "rgba(25, 118, 210, 0.08)",
+          main: "#4f46e5", // Royal Indigo
+          dark: "#3730a3",
+          light: "rgba(79, 70, 229, 0.08)",
         },
         secondary: {
-          main: "#9c27b0",
-          dark: "#7b1fa2",
-          light: "rgba(156, 39, 176, 0.08)",
+          main: "#7c3aed", // Elegant Violet Accent
+          dark: "#5b21b6",
+          light: "rgba(124, 58, 237, 0.08)",
+        },
+        success: {
+          main: "#2e7d32",
+          dark: "#1b5e20",
+          light: "rgba(46, 125, 50, 0.08)",
+        },
+        warning: {
+          main: "#d97706",
+          dark: "#b45309",
+          light: "rgba(217, 119, 6, 0.08)",
+        },
+        error: {
+          main: "#d32f2f",
+          dark: "#c62828",
+          light: "rgba(211, 47, 47, 0.08)",
         },
         background: {
           default: "#f8fafc",
           paper: "#ffffff",
         },
         text: {
-          primary: "#1e293b",
-          secondary: "#64748b",
+          primary: "#0f172a",
+          secondary: "#475569",
           disabled: "#cbd5e1",
         },
         divider: "#e2e8f0",

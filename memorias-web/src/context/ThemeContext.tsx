@@ -17,8 +17,8 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeContextProvider({ children }: { children: React.ReactNode }) {
   const [themeMode, setThemeModeState] = useState<ThemeMode>("lifia"); // Default to institutional LIFIA
   const [customColors, setCustomColorsState] = useState<CustomColors>({
-    primary: "#00bcd4",
-    secondary: "#ff4081",
+    primary: "#093A54",
+    secondary: "#E56226",
   });
   const [mounted, setMounted] = useState(false);
 
