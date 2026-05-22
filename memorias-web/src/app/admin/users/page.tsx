@@ -1,10 +1,26 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { prisma } from "@/lib/prisma";
 import { RoleSelector, ActivationButton, DeleteUserButton } from "./UserControls";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { Logo } from "@/components/Logo";
+import {
+  Container,
+  Box,
+  Typography,
+  Chip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Avatar,
+  Button,
+} from "@mui/material";
 
 export default async function AdminUsersPage() {
   const session = await auth();
@@ -17,109 +33,130 @@ export default async function AdminUsersPage() {
   });
 
   return (
-    <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-900/50 min-h-screen">
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>
       {/* Premium Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-surface/90 border-b border-border shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <Box
+        component="header"
+        sx={{
+          sticky: "top",
+          position: "sticky",
+          top: 0,
+          zIndex: 50,
+          backdropFilter: "blur(8px)",
+          bgcolor: "background.paper",
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          boxShadow: 1,
+        }}
+      >
+        <Container maxWidth="xl" sx={{ py: 2, display: "flex", items: "center", justify: "space-between", justifyContent: "space-between", alignItems: "center" }}>
           <Logo />
           
-          <nav className="flex items-center gap-4 text-sm font-medium">
-            <Link href="/" className="hover:text-primary transition-colors text-muted">
+          <Box component="nav" sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <LinkButton 
+              href="/"
+              variant="text"
+              size="small"
+              sx={{ fontWeight: "bold", textTransform: "none" }}
+            >
               Back to Portal
-            </Link>
-          </nav>
-        </div>
-      </header>
+            </LinkButton>
+          </Box>
+        </Container>
+      </Box>
 
       {/* Main Grid */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-6 py-10 space-y-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-extrabold tracking-tight">User Administration</h1>
-            <p className="text-sm text-muted">
+      <Container maxWidth="md" sx={{ py: 6, flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+        <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", md: "center" }, gap: 2 }}>
+          <Box>
+            <Typography variant="h4" component="h1" sx={{ fontWeight: 800, mb: 1, color: "text.primary" }}>
+              User Administration
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
               Authorize user sign-ups, activate editor privileges, or assign system administrators.
-            </p>
-          </div>
-          <div className="bg-primary/10 text-primary border border-primary/20 px-4 py-2 rounded-xl text-xs font-bold self-start">
-            🛡️ Authorized Session: {session.user?.name}
-          </div>
-        </div>
+            </Typography>
+          </Box>
+          <Chip
+            label={`Authorized Session: ${session.user?.name || ""}`}
+            color="primary"
+            variant="outlined"
+            size="small"
+            sx={{ fontWeight: "bold", alignSelf: { xs: "flex-start", md: "center" } }}
+          />
+        </Box>
 
         {/* Users Table / Grid */}
-        <div className="material-card overflow-hidden border border-border p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-border bg-slate-100/50 dark:bg-slate-800/50">
-                  <th className="p-4 text-xs font-bold uppercase tracking-wider text-muted">User</th>
-                  <th className="p-4 text-xs font-bold uppercase tracking-wider text-muted">Status</th>
-                  <th className="p-4 text-xs font-bold uppercase tracking-wider text-muted">Role</th>
-                  <th className="p-4 text-xs font-bold uppercase tracking-wider text-muted text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                    {/* User Info */}
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        {u.image ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={u.image}
-                            alt="avatar"
-                            className="w-10 h-10 rounded-full border border-border"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-full text-lg">
-                            👤
-                          </div>
-                        )}
-                        <div>
-                          <span className="font-bold text-sm block text-foreground leading-tight">
-                            {u.name || "Unnamed User"}
-                          </span>
-                          <span className="text-xs text-muted block">
-                            {u.email}
-                          </span>
-                        </div>
-                      </div>
-                    </td>
+        <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3, overflow: "hidden", bgcolor: "background.paper" }}>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ bgcolor: "action.hover" }}>
+                <TableCell sx={{ fontSize: "0.75rem", fontWeight: "bold", textTransform: "uppercase", tracking: "0.05em", color: "text.secondary" }}>User</TableCell>
+                <TableCell sx={{ fontSize: "0.75rem", fontWeight: "bold", textTransform: "uppercase", tracking: "0.05em", color: "text.secondary" }}>Status</TableCell>
+                <TableCell sx={{ fontSize: "0.75rem", fontWeight: "bold", textTransform: "uppercase", tracking: "0.05em", color: "text.secondary" }}>Role</TableCell>
+                <TableCell align="right" sx={{ fontSize: "0.75rem", fontWeight: "bold", textTransform: "uppercase", tracking: "0.05em", color: "text.secondary" }}>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {users.map((u) => (
+                <TableRow key={u.id} sx={{ "&:hover": { bgcolor: "action.hover" }, transition: "background-color 0.2s" }}>
+                  {/* User Info */}
+                  <TableCell>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <Avatar
+                        src={u.image || undefined}
+                        alt={u.name || "User Avatar"}
+                        sx={{ width: 40, height: 40, border: "1px solid", borderColor: "divider", bgcolor: "primary.light", color: "primary.contrastText", fontWeight: "bold" }}
+                      >
+                        {!u.image && (u.name ? u.name.charAt(0).toUpperCase() : "U")}
+                      </Avatar>
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: "bold", color: "text.primary" }}>
+                          {u.name || "Unnamed User"}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+                          {u.email}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </TableCell>
 
-                    {/* Status Badge */}
-                    <td className="p-4">
-                      {u.active ? (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200">
-                          <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                          Active
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">
-                          <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
-                          Pending Review
-                        </span>
-                      )}
-                    </td>
+                  {/* Status Badge */}
+                  <TableCell>
+                    {u.active ? (
+                      <Chip
+                        label="Active"
+                        color="success"
+                        size="small"
+                        sx={{ fontWeight: "bold", fontSize: "0.625rem", borderRadius: 1 }}
+                      />
+                    ) : (
+                      <Chip
+                        label="Pending Review"
+                        color="warning"
+                        size="small"
+                        sx={{ fontWeight: "bold", fontSize: "0.625rem", borderRadius: 1 }}
+                      />
+                    )}
+                  </TableCell>
 
-                    {/* Role Dropdown */}
-                    <td className="p-4">
-                      <RoleSelector userId={u.id} initialRole={u.role} />
-                    </td>
+                  {/* Role Dropdown */}
+                  <TableCell>
+                    <RoleSelector userId={u.id} initialRole={u.role} />
+                  </TableCell>
 
-                    {/* Actions */}
-                    <td className="p-4 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-2">
-                        <ActivationButton userId={u.id} initialActive={u.active} />
-                        <DeleteUserButton userId={u.id} currentUserId={session.user?.id} />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </main>
-    </div>
+                  {/* Actions */}
+                  <TableCell align="right">
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 1 }}>
+                      <ActivationButton userId={u.id} initialActive={u.active} />
+                      <DeleteUserButton userId={u.id} currentUserId={session.user?.id} />
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Container>
+    </Box>
   );
 }

@@ -1,22 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import ThemeRegistry from "@/components/ThemeRegistry";
+import { ThemeContextProvider } from "@/context/ThemeContext";
 
 export const metadata: Metadata = {
   title: "Memorias | Scientific Research Portal",
@@ -52,12 +43,20 @@ export default async function RootLayout({
     redirect("/");
   }
 
+  const highlightSemantics = process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_HIGHLIGHT_SEMANTIC_COMPONENTS === "true";
+
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en">
+      <body
+        className={highlightSemantics ? "highlight-semantics-enabled" : ""}
+        style={{ margin: 0, minHeight: "100vh", display: "flex", flexDirection: "column" }}
+      >
+        <ThemeRegistry>
+          <ThemeContextProvider>
+            {children}
+          </ThemeContextProvider>
+        </ThemeRegistry>
+      </body>
     </html>
   );
 }

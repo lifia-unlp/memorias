@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
 import { Header } from "@/components/Header";
 import { PublicationForm } from "../../PublicationForm";
+import { Container, Box, Typography } from "@mui/material";
 
 type Params = Promise<{ slug: string }>;
 
@@ -48,26 +49,58 @@ export default async function EditPublicationPage({ params }: { params: Params }
   });
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>
       <Header activeTab="publications" />
 
-      <section className="bg-gradient-to-br from-primary to-primary-hover text-white py-12 px-6 shadow-inner relative overflow-hidden border-b border-blue-700/20">
-        <div className="max-w-7xl mx-auto z-10 relative">
-          <h1 className="text-4xl font-extrabold tracking-tight">Edit Publication</h1>
-          <p className="text-blue-100 text-sm mt-2 max-w-xl">
-            Update attributes, revise tags, or sync researcher and project relationships below.
-          </p>
-        </div>
-      </section>
+      {/* Hero Banner Section */}
+      <Box data-component-semantics="Hero banner"
+        sx={{
+          background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
+          color: "common.white",
+          py: 8,
+          px: 3,
+          boxShadow: "inset 0px -4px 10px rgba(0, 0, 0, 0.1)",
+          position: "relative",
+          overflow: "hidden",
+          borderBottom: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        {/* Wave background element */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0.08,
+            pointerEvents: "none",
+            "& svg": { width: "100%", height: "100%" },
+          }}
+        >
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
+          </svg>
+        </Box>
 
-      <main className="max-w-7xl w-full mx-auto px-6 py-10 flex-1">
+        <Container maxWidth="xl" sx={{ position: "relative", zIndex: 10 }}>
+          <Typography data-component-semantics="Hero title" variant="h1" sx={{ color: "common.white", mb: 1, fontSize: { xs: "2rem", md: "2.5rem" } }}>
+            Edit Publication
+          </Typography>
+          <Typography data-component-semantics="Hero subtitle" variant="body1" sx={{ color: "rgba(255,255,255,0.85)" }}>
+            Update attributes, revise tags, or sync researcher and project relationships below.
+          </Typography>
+        </Container>
+      </Box>
+
+      {/* Form Area */}
+      <Container maxWidth="xl" sx={{ py: 6, flex: 1 }}>
         <PublicationForm
           publication={publication}
           members={members}
           projects={projects}
           theses={theses}
         />
-      </main>
-    </div>
+      </Container>
+    </Box>
   );
 }
+

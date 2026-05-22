@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memorias | Scientific Research Portal - Mockup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        
+        <div class="mui-flex-gap-sm">
+          <!-- Logo -->
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"></a>
+          
+          <!-- Navigation Menu -->
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link">Members</a>
+            <a href="projects.html" class="mui-nav-link">Projects</a>
+            <a href="theses.html" class="mui-nav-link">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link">Publications</a>
+            
+            <!-- Reports Dropdown -->
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+          </nav>
+          
+          <!-- Mobile Menu Dropdown -->
+          <div class="mui-menu-parent mui-mobile-menu">
+            <button class="mui-menu-trigger" style="font-weight: 700; gap: 4px;">Menu ☰</button>
+            <div class="mui-dropdown">
+              <a href="members.html" class="mui-dropdown-link">Members</a>
+              <a href="projects.html" class="mui-dropdown-link">Projects</a>
+              <a href="theses.html" class="mui-dropdown-link">Theses</a>
+              <a href="scholarships.html" class="mui-dropdown-link">Scholarships</a>
+              <a href="publications.html" class="mui-dropdown-link">Publications</a>
+              <div class="mui-dropdown-divider"></div>
+              <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+              <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- User Menu Trigger -->
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+        
+      </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="mui-hero">
+      <div class="mui-container mui-hero-content">
+        <h1 class="mui-hero-title">Welcome to Memorias</h1>
+        <p class="mui-hero-subtitle">
+          A state-of-the-art research repository and laboratory management portal. Discover publications, explore active research projects, and access defended theses.
+        </p>
+      </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="mui-container mui-section" style="display: flex; flex-direction: column; gap: var(--spacing-xl);">
+      
+      <!-- Tag Cloud -->
+      <section class="mui-tag-cloud">
+        <h2 class="mui-tag-cloud-title" style="margin-bottom: 4px;">Explore by Research Topic</h2>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: var(--spacing-md); line-height: 1.4;">Click on a keyword to discover all related laboratory works and members.</p>
+        <div class="mui-tag-cloud-container">
+          <a href="publications.html" class="mui-tag-link">#Artificial Intelligence (24)</a>
+          <a href="publications.html" class="mui-tag-link">#Software Architecture (15)</a>
+          <a href="publications.html" class="mui-tag-link">#Machine Learning (19)</a>
+          <a href="publications.html" class="mui-tag-link">#Human-Computer Interaction (11)</a>
+          <a href="publications.html" class="mui-tag-link">#Semantic Web (8)</a>
+          <a href="publications.html" class="mui-tag-link">#Agile Methodologies (6)</a>
+          <a href="publications.html" class="mui-tag-link">#Virtual Reality (7)</a>
+          <a href="publications.html" class="mui-tag-link">#Distributed Systems (14)</a>
+          <a href="publications.html" class="mui-tag-link">#IoT (12)</a>
+          <a href="publications.html" class="mui-tag-link">#Cloud Computing (9)</a>
+          <a href="publications.html" class="mui-tag-link">#Data Science (18)</a>
+          <a href="publications.html" class="mui-tag-link">#Computer Vision (16)</a>
+          <a href="publications.html" class="mui-tag-link">#Robotics (10)</a>
+        </div>
+      </section>
+
+      <!-- 1. Featured Publications (Full Width List) -->
+      <section style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+        <div class="mui-section-title">
+          <span>Featured Publications</span>
+          <a href="publications.html" style="font-size: 12px; font-weight: 700;">Browse All Publications →</a>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+          
+          <!-- Publication Card 1 -->
+          <div class="mui-card" style="flex-direction: row; align-items: center; justify-content: space-between; gap: var(--spacing-lg);">
+            <div style="flex-grow: 1; display: flex; flex-direction: column; gap: var(--spacing-xs);">
+              <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
+                <span class="mui-chip">Year 2025</span>
+              </div>
+              <a href="publication-detail.html" class="mui-card-title" style="margin: 4px 0 0 0;">
+                Architecting Micro-Frontends on Modern Web Frameworks: A Case Study on Scalability
+              </a>
+              <p class="mui-card-content" style="font-style: italic;">
+                Smith, J., Doe, R., & Garcia, M. (2025). <strong>IEEE Transactions on Software Engineering</strong>, 51(3), 142-156.
+              </p>
+            </div>
+            <a href="publication-detail.html" class="mui-btn mui-btn-outlined" style="flex-shrink: 0;">View Citation Details</a>
+          </div>
+
+          <!-- Publication Card 2 -->
+          <div class="mui-card" style="flex-direction: row; align-items: center; justify-content: space-between; gap: var(--spacing-lg);">
+            <div style="flex-grow: 1; display: flex; flex-direction: column; gap: var(--spacing-xs);">
+              <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
+                <span class="mui-chip">Year 2024</span>
+              </div>
+              <a href="publication-detail.html" class="mui-card-title" style="margin: 4px 0 0 0;">
+                Deep Learning Architectures for Real-time Computer Vision in Autonomous Drones
+              </a>
+              <p class="mui-card-content" style="font-style: italic;">
+                Garcia, M., & Smith, J. (2024). <strong>Journal of Intelligent & Robotic Systems</strong>, 110(2), 89-104.
+              </p>
+            </div>
+            <a href="publication-detail.html" class="mui-btn mui-btn-outlined" style="flex-shrink: 0;">View Citation Details</a>
+          </div>
+          
+        </div>
+      </section>
+
+      <!-- 2. Featured Theses & Projects (Side-by-Side) -->
+      <section class="mui-grid-2">
+        
+        <!-- Featured Theses Column -->
+        <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+          <div class="mui-section-title">
+            <span>Featured Theses</span>
+            <a href="theses.html" style="font-size: 11px; font-weight: 700;">All Theses →</a>
+          </div>
+          
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+            <!-- Thesis Card 1 -->
+            <div class="mui-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
+                <span class="mui-chip mui-chip-primary">PhD Thesis</span>
+                <span class="mui-chip mui-chip-success">Completed</span>
+              </div>
+              <a href="thesis-detail.html" class="mui-card-title">
+                Semantic Curation Frameworks for Heterogeneous Academic Publications
+              </a>
+              <div class="mui-card-meta">
+                <strong>Student:</strong> Alice Williams<br>
+                <strong>Director:</strong> John Smith
+              </div>
+            </div>
+
+            <!-- Thesis Card 2 -->
+            <div class="mui-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
+                <span class="mui-chip mui-chip-primary">Master Thesis</span>
+                <span class="mui-chip mui-chip-amber">85% Progress</span>
+              </div>
+              <a href="thesis-detail.html" class="mui-card-title">
+                An IoT-based Edge Computing Framework for Environmental Monitoring
+              </a>
+              <div class="mui-card-meta">
+                <strong>Student:</strong> Robert Chen<br>
+                <strong>Director:</strong> Maria Garcia
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Featured Projects Column -->
+        <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+          <div class="mui-section-title">
+            <span>Featured Projects</span>
+            <a href="projects.html" style="font-size: 11px; font-weight: 700;">All Projects →</a>
+          </div>
+          
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+            <!-- Project Card 1 -->
+            <div class="mui-card">
+              <div style="margin-bottom: var(--spacing-sm);">
+                <span class="mui-chip mui-chip-secondary">Project I+D+i (PICT-2023-010)</span>
+              </div>
+              <a href="project-detail.html" class="mui-card-title">
+                Distributed Ledgers and Edge Analytics for Secured Industrial Internet of Things
+              </a>
+              <div class="mui-card-meta">
+                <strong>Director:</strong> John Smith<br>
+                <strong>Funding:</strong> Agencia I+D+i
+              </div>
+            </div>
+
+            <!-- Project Card 2 -->
+            <div class="mui-card">
+              <div style="margin-bottom: var(--spacing-sm);">
+                <span class="mui-chip mui-chip-secondary">Project UNLP (11/F945)</span>
+              </div>
+              <a href="project-detail.html" class="mui-card-title">
+                Augmented Intelligence and Immersive Interfaces for Digital Laboratories
+              </a>
+              <div class="mui-card-meta">
+                <strong>Director:</strong> Maria Garcia<br>
+                <strong>Funding:</strong> Universidad Nacional de La Plata
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

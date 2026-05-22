@@ -1,10 +1,12 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { ConfigForm } from "./ConfigForm";
 import { Logo } from "@/components/Logo";
+import { Box, Container, Typography, Button } from "@mui/material";
 
 export default async function AdminConfigPage() {
   const session = await auth();
@@ -31,39 +33,103 @@ export default async function AdminConfigPage() {
   const initialRequireUserActivation = requireActivationOption?.value === "true";
 
   return (
-    <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-900/50 min-h-screen">
+    <Box sx={{ display: "flex", flexDirection: "column", bgcolor: "background.default", minHeight: "100vh" }}>
       {/* Premium Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-surface/90 border-b border-border shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <Box
+        component="header"
+        sx={{
+          position: "sticky",
+          top: 0,
+          zIndex: 1100,
+          backdropFilter: "blur(8px)",
+          bgcolor: "background.paper",
+          opacity: 0.95,
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          boxShadow: "0 1px 3px 0 rgba(0,0,0,0.05)",
+        }}
+      >
+        <Container
+          maxWidth="lg"
+          sx={{
+            py: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <Logo />
 
-          <nav className="flex items-center gap-4 text-sm font-medium">
-            <Link href="/admin/audit" className="hover:text-primary transition-colors text-muted">
+          <Box component="nav" sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+            <LinkButton 
+              href="/admin/audit"
+              variant="text"
+              color="inherit"
+              sx={{ textTransform: "none", fontWeight: 500, fontSize: "0.875rem" }}
+            >
               Auditing Logs
-            </Link>
-            <Link href="/admin/users" className="hover:text-primary transition-colors text-muted border-l border-border pl-4">
+            </LinkButton>
+            <LinkButton 
+              href="/admin/users"
+              variant="text"
+              color="inherit"
+              sx={{
+                textTransform: "none",
+                fontWeight: 500,
+                fontSize: "0.875rem",
+                borderLeft: "1px solid",
+                borderColor: "divider",
+                pl: 3,
+                borderRadius: 0,
+              }}
+            >
               Users Panel
-            </Link>
-            <Link href="/" className="hover:text-primary transition-colors text-muted border-l border-border pl-4">
+            </LinkButton>
+            <LinkButton 
+              href="/"
+              variant="text"
+              color="inherit"
+              sx={{
+                textTransform: "none",
+                fontWeight: 500,
+                fontSize: "0.875rem",
+                borderLeft: "1px solid",
+                borderColor: "divider",
+                pl: 3,
+                borderRadius: 0,
+              }}
+            >
               Back to Portal
-            </Link>
-          </nav>
-        </div>
-      </header>
+            </LinkButton>
+          </Box>
+        </Container>
+      </Box>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-4xl w-full mx-auto px-6 py-10 space-y-8 animate-fadeIn">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-850 dark:text-white">System Settings</h1>
-            <p className="text-sm text-muted">
+      <Container maxWidth="md" sx={{ py: 6, flexGrow: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+        <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", md: "center" }, gap: 2 }}>
+          <Box>
+            <Typography variant="h1" sx={{ fontSize: "1.75rem", fontWeight: 800, color: "text.primary", mb: 0.5 }}>
+              System Settings
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
               Customize portal branding, site title welcome headers, and initial landing page introduction configurations.
-            </p>
-          </div>
-          <div className="bg-primary/10 text-primary border border-primary/20 px-4 py-2 rounded-xl text-xs font-bold self-start">
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              bgcolor: "primary.light",
+              color: "primary.contrastText",
+              px: 2,
+              py: 1,
+              borderRadius: 3,
+              fontSize: "0.75rem",
+              fontWeight: "bold",
+            }}
+          >
             Authorized Session: {session.user?.name}
-          </div>
-        </div>
+          </Box>
+        </Box>
 
         <ConfigForm
           initialTitle={initialTitle}
@@ -73,8 +139,7 @@ export default async function AdminConfigPage() {
           initialLabUrl={initialLabUrl}
           initialRequireUserActivation={initialRequireUserActivation}
         />
-      </main>
-
-    </div>
+      </Container>
+    </Box>
   );
 }

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Scholarship | Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        <div class="mui-flex-gap-sm">
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"></a>
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link">Members</a>
+            <a href="projects.html" class="mui-nav-link">Projects</a>
+            <a href="theses.html" class="mui-nav-link">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link active">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link">Publications</a>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+          </nav>
+          
+          <!-- Mobile Menu Dropdown -->
+          <div class="mui-menu-parent mui-mobile-menu">
+            <button class="mui-menu-trigger" style="font-weight: 700; gap: 4px;">Menu ☰</button>
+            <div class="mui-dropdown">
+              <a href="members.html" class="mui-dropdown-link">Members</a>
+              <a href="projects.html" class="mui-dropdown-link">Projects</a>
+              <a href="theses.html" class="mui-dropdown-link">Theses</a>
+              <a href="scholarships.html" class="mui-dropdown-link">Scholarships</a>
+              <a href="publications.html" class="mui-dropdown-link">Publications</a>
+              <div class="mui-dropdown-divider"></div>
+              <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+              <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+            </div>
+          </div>
+        </div>
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Form -->
+    <main class="mui-container mui-section">
+      
+      <div class="mui-card mui-form-card" style="position: relative;">
+        <!-- Top accent -->
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background-color: var(--primary);"></div>
+        
+        <h1 class="mui-card-title" style="font-size: 20px; font-weight: 800; border-bottom: 1px solid var(--border); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-lg); margin-top: var(--spacing-xs);">
+          Edit Scholarship Details
+        </h1>
+        
+        <form action="scholarship-detail.html" method="GET" style="display: flex; flex-direction: column; gap: 4px;">
+          
+          <!-- Scholarship Title -->
+          <div class="mui-form-group">
+            <input type="text" class="mui-input" id="title" placeholder=" " value="CONICET Doctoral Fellowship on Semantic Web & Knowledge Graphs" required>
+            <label for="title" class="mui-label">Scholarship Title</label>
+          </div>
+
+          <!-- SEO Configurable Page Slug Row (on its own row right below Scholarship Title) -->
+          <div class="mui-form-group" style="margin-top: 4px; margin-bottom: var(--spacing-md);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label for="slug" class="mui-label" style="position: static; transform: none; font-size: 12px; font-weight: 700; color: var(--text-primary);">SEO Page Slug *</label>
+              <span id="slug-auto-badge" class="mui-chip mui-chip-success" style="font-size: 9px; padding: 2px 6px; text-transform: uppercase;">✨ Auto-Generated</span>
+            </div>
+            <div style="display: flex; gap: var(--spacing-sm); align-items: center; position: relative;">
+              <input type="text" class="mui-input" id="slug" value="conicet-doctoral-fellowship-on-semantic-web-knowledge-graphs" required style="font-weight: 600; padding-right: 100px;">
+              <button type="button" id="btn-reset-slug" class="mui-btn mui-btn-outlined" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 10px; padding: 4px 8px; height: 28px; line-height: 1; min-width: auto;">Reset Auto</button>
+            </div>
+            <p style="font-size: 10px; color: var(--text-secondary); margin-top: 6px; margin-bottom: 0; line-height: 1.4;">
+              This slug generates the URL `/scholarships/[slug]` for this scholarship. Manual override is active if you type in it.
+            </p>
+          </div>
+
+          <!-- Scholarship Type select -->
+          <div class="mui-form-group">
+            <select class="mui-input mui-select" id="type" required>
+              <option value="CONICET Doctoral" selected>CONICET Doctoral</option>
+              <option value="CONICET Postdoc">CONICET Postdoc</option>
+              <option value="CIC Doctoral">CIC Doctoral</option>
+              <option value="EVC-CIN">CIN Student Scholarship</option>
+            </select>
+            <label for="type" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Scholarship Type</label>
+          </div>
+
+          <!-- Student Select -->
+          <div class="mui-form-group">
+            <select class="mui-input mui-select" id="student" required>
+              <option value="1">John Smith</option>
+              <option value="2">Maria Garcia</option>
+              <option value="3" selected>Alice Williams</option>
+            </select>
+            <label for="student" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Student</label>
+          </div>
+
+          <!-- Directors -->
+          <div class="mui-grid-2" style="gap: var(--spacing-md);">
+            <div class="mui-form-group">
+              <input type="text" class="mui-input" id="director" placeholder=" " value="John Smith" required>
+              <label for="director" class="mui-label">Director</label>
+            </div>
+            <div class="mui-form-group">
+              <input type="text" class="mui-input" id="co-director" placeholder=" " value="Maria Garcia">
+              <label for="co-director" class="mui-label">Co-Director (Optional)</label>
+            </div>
+          </div>
+
+          <!-- Funding Agency -->
+          <div class="mui-form-group">
+            <input type="text" class="mui-input" id="funding" placeholder=" " value="CONICET" required>
+            <label for="funding" class="mui-label">Funding Sponsor Agency</label>
+          </div>
+
+          <!-- Dates Grid -->
+          <div class="mui-grid-2" style="gap: var(--spacing-md);">
+            <div class="mui-form-group">
+              <input type="date" class="mui-input" id="start-date" value="2021-04-01" required>
+              <label for="start-date" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Start Date</label>
+            </div>
+            <div class="mui-form-group">
+              <input type="date" class="mui-input" id="end-date" value="2026-03-31">
+              <label for="end-date" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Estimated End Date</label>
+            </div>
+          </div>
+
+          <!-- Working Group Members scrollable list -->
+          <div class="mui-range-container" style="border: 1px solid var(--border); border-radius: var(--radius-xs); padding: var(--spacing-md); margin-bottom: 20px; background-color: var(--surface);">
+            <span class="mui-range-label" style="font-size: 13px; color: var(--text-primary); margin-bottom: var(--spacing-sm);">Working Group Members / Participants</span>
+            
+            <div class="mui-member-select-list">
+              
+              <!-- Member 1: John Smith -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" checked value="1">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: var(--primary-light); color: var(--primary);">JS</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">John Smith</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">Director / Full Researcher</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-primary" style="font-size: 8.5px; padding: 2px 6px;">LIFIA Member</span>
+              </label>
+
+              <!-- Member 2: Maria Garcia -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" value="2">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: var(--secondary-light); color: var(--secondary);">MG</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">Maria Garcia</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">Co-Director / Full Researcher</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-primary" style="font-size: 8.5px; padding: 2px 6px;">LIFIA Member</span>
+              </label>
+
+              <!-- Member 3: Alice Williams -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" checked value="3">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: var(--success-light); color: var(--success);">AW</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">Alice Williams</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">PhD Candidate / Scholar</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-primary" style="font-size: 8.5px; padding: 2px 6px;">LIFIA Member</span>
+              </label>
+
+              <!-- Member 4: David Miller -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" value="4">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: rgba(0,0,0,0.08); color: var(--text-primary);">DM</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">David Miller</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">Assistant Researcher</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-primary" style="font-size: 8.5px; padding: 2px 6px;">LIFIA Member</span>
+              </label>
+
+              <!-- Member 5: Robert Taylor (External Partner) -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" value="5">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: var(--warning-light); color: var(--warning);">RT</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">Robert Taylor</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">External / Research Collaborator</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-secondary" style="font-size: 8.5px; padding: 2px 6px;">External</span>
+              </label>
+
+              <!-- Member 6: Sarah Jenkins -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" value="6">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 12px; font-weight: 700; margin: 0; background-color: rgba(217,119,6,0.08); color: rgb(217,119,6);">SJ</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">Sarah Jenkins</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">PhD Candidate</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-primary" style="font-size: 8.5px; padding: 2px 6px;">LIFIA Member</span>
+              </label>
+
+            </div>
+          </div>
+
+          <!-- Related Projects scrollable list -->
+          <div class="mui-range-container" style="border: 1px solid var(--border); border-radius: var(--radius-xs); padding: var(--spacing-md); margin-bottom: 20px; background-color: var(--surface);">
+            <span class="mui-range-label" style="font-size: 13px; color: var(--text-primary); margin-bottom: var(--spacing-sm);">Related Projects</span>
+            
+            <div class="mui-member-select-list">
+              
+              <!-- Project 1 -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" checked value="pict-2023-010">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 10px; font-weight: 700; margin: 0; background-color: var(--secondary-light); color: var(--secondary); border-radius: 4px;">PICT</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">PICT-2023-010</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">Distributed Ledgers and Edge Analytics for Secured Industrial Internet of Things</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-secondary" style="font-size: 8.5px; padding: 2px 6px;">Active</span>
+              </label>
+
+              <!-- Project 2 -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" value="unlp-f11-893">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 10px; font-weight: 700; margin: 0; background-color: var(--primary-light); color: var(--primary); border-radius: 4px;">UNLP</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">UNLP-F11-893</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">Intelligent Curation Paradigms for University Bibliographies</span>
+                  </div>
+                </div>
+                <span class="mui-chip mui-chip-primary" style="font-size: 8.5px; padding: 2px 6px;">Active</span>
+              </label>
+
+              <!-- Project 3 -->
+              <label class="mui-member-select-item">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                  <input type="checkbox" value="pict-2021-002">
+                  <div class="mui-avatar" style="width: 32px; height: 32px; font-size: 10px; font-weight: 700; margin: 0; background-color: rgba(0,0,0,0.08); color: var(--text-primary); border-radius: 4px;">PICT</div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-primary);">PICT-2021-002</span>
+                    <span style="font-size: 10px; color: var(--text-secondary);">Semantic Web Ontologies for Smart Cities</span>
+                  </div>
+                </div>
+                <span class="mui-chip" style="font-size: 8.5px; padding: 2px 6px; background-color: rgba(0,0,0,0.05); color: var(--text-secondary);">Completed</span>
+              </label>
+
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mui-form-group">
+            <textarea class="mui-input mui-textarea" id="desc" placeholder=" " required>This doctoral training scholarship provides student living costs and laboratory support to carry out doctoral research on semantically aligned information networks.
+
+Under the supervision of John Smith, the scholar is responsible for publishing R&D conference proceedings, mapping raw university metadata to semantic ontologies, and defending a final PhD thesis in Computer Science before the funding ends in early 2026.</textarea>
+            <label for="desc" class="mui-label">Scholarship Description & Objectives</label>
+          </div>
+
+          <!-- Interactive TagWidget Section (Replaces comma-separated text input) -->
+          <div style="border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--spacing-md); background-color: var(--surface); display: flex; flex-direction: column; gap: var(--spacing-md); margin-bottom: var(--spacing-sm);">
+            <span style="font-size: 12px; font-weight: 700; color: var(--primary); display: block; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 4px;">Research Classification Tags</span>
+            
+            <div class="mui-tag-widget-container" id="tag-widget-scholarships">
+              <!-- 1. Visual Tags Pills Container -->
+              <div class="mui-tag-widget-tags-box" id="scholarships-tags-box">
+                <!-- Dynamic pills rendered by JavaScript -->
+              </div>
+              
+              <!-- 2. Text Input & AutoComplete Suggestions -->
+              <div class="mui-tag-widget-input-wrapper">
+                <input type="text" id="scholarships-tag-input" class="mui-input" placeholder="Type tag and press Enter or comma..." style="margin: 0;">
+                <label for="scholarships-tag-input" class="mui-label" style="display: none;">Add Tag</label>
+                
+                <!-- Autocomplete Dropdown overlay -->
+                <div class="mui-tag-widget-suggestions" id="scholarships-tag-suggestions">
+                  <button type="button" class="mui-tag-widget-suggestion-item" onclick="addMockTag('tag-widget-scholarships', 'knowledge graphs')">💡 knowledge graphs</button>
+                  <button type="button" class="mui-tag-widget-suggestion-item" onclick="addMockTag('tag-widget-scholarships', 'curation')">💡 curation</button>
+                  <button type="button" class="mui-tag-widget-suggestion-item" onclick="addMockTag('tag-widget-scholarships', 'semantic metadata')">💡 semantic metadata</button>
+                  <button type="button" class="mui-tag-widget-suggestion-item" onclick="addMockTag('tag-widget-scholarships', 'iot')">💡 iot</button>
+                  <button type="button" class="mui-tag-widget-suggestion-item" onclick="addMockTag('tag-widget-scholarships', 'blockchain')">💡 blockchain</button>
+                  <button type="button" class="mui-tag-widget-suggestion-item" onclick="addMockTag('tag-widget-scholarships', 'edge computing')">💡 edge computing</button>
+                  <button type="button" class="mui-tag-widget-suggestion-item" onclick="addMockTag('tag-widget-scholarships', 'deep learning')">💡 deep learning</button>
+                </div>
+              </div>
+              
+              <!-- 3. Clickable Top Popular Tags Pills -->
+              <div>
+                <span class="mui-tag-widget-pop-label">Popular Tags (Click to quick-add)</span>
+                <div class="mui-tag-widget-pop-container" id="scholarships-pop-container">
+                  <button type="button" class="mui-tag-widget-pop-btn" onclick="addMockTag('tag-widget-scholarships', 'software architecture')">+ software architecture</button>
+                  <button type="button" class="mui-tag-widget-pop-btn" onclick="addMockTag('tag-widget-scholarships', 'semantic web')">+ semantic web</button>
+                  <button type="button" class="mui-tag-widget-pop-btn" onclick="addMockTag('tag-widget-scholarships', 'agile')">+ agile</button>
+                  <button type="button" class="mui-tag-widget-pop-btn" onclick="addMockTag('tag-widget-scholarships', 'iot')">+ iot</button>
+                  <button type="button" class="mui-tag-widget-pop-btn" onclick="addMockTag('tag-widget-scholarships', 'blockchain')">+ blockchain</button>
+                  <button type="button" class="mui-tag-widget-pop-btn" onclick="addMockTag('tag-widget-scholarships', 'deep learning')">+ deep learning</button>
+                  <button type="button" class="mui-tag-widget-pop-btn" onclick="addMockTag('tag-widget-scholarships', 'microservices')">+ microservices</button>
+                  <button type="button" class="mui-tag-widget-pop-btn" onclick="addMockTag('tag-widget-scholarships', 'knowledge graphs')">+ knowledge graphs</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="mui-card-actions" style="justify-content: flex-end; gap: var(--spacing-md);">
+            <a href="scholarship-detail.html" class="mui-btn mui-btn-outlined">Cancel</a>
+            <button type="submit" class="mui-btn mui-btn-contained">Save</button>
+          </div>
+
+        </form>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Reusable Interactive Mockup JS Controllers for Dynamic TagWidgets -->
+  <script>
+    const tagWidgetState = {};
+
+    function initTagWidget(widgetId, initialTags) {
+      tagWidgetState[widgetId] = {
+        tags: [...initialTags]
+      };
+      
+      const input = document.querySelector(`#${widgetId} input[type="text"]`);
+      const suggestions = document.querySelector(`#${widgetId} .mui-tag-widget-suggestions`);
+      
+      if (input) {
+        input.addEventListener('focus', () => {
+          if (input.value.trim().length > 0) {
+            suggestions.style.display = 'block';
+          }
+        });
+        
+        input.addEventListener('input', () => {
+          const q = input.value.trim().toLowerCase();
+          if (q.length > 0) {
+            suggestions.style.display = 'block';
+            let matchCount = 0;
+            suggestions.querySelectorAll('.mui-tag-widget-suggestion-item').forEach(item => {
+              const txt = item.innerText.replace(/^💡\s*/, '').trim().toLowerCase();
+              if (txt.includes(q) && !tagWidgetState[widgetId].tags.includes(txt)) {
+                item.style.display = 'block';
+                matchCount++;
+              } else {
+                item.style.display = 'none';
+              }
+            });
+            if (matchCount === 0) {
+              suggestions.style.display = 'none';
+            }
+          } else {
+            suggestions.style.display = 'none';
+          }
+        });
+
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const val = input.value.trim().toLowerCase();
+            if (val) {
+              addMockTag(widgetId, val);
+              input.value = '';
+              suggestions.style.display = 'none';
+            }
+          } else if (e.key === ',' || e.key === 'Tab') {
+            if (e.key === ',') e.preventDefault();
+            const val = input.value.trim().toLowerCase();
+            if (val) {
+              addMockTag(widgetId, val);
+              input.value = '';
+              suggestions.style.display = 'none';
+            }
+          }
+        });
+
+        // Close on clicking outside
+        document.addEventListener('mousedown', (e) => {
+          if (!input.contains(e.target) && !suggestions.contains(e.target)) {
+            suggestions.style.display = 'none';
+          }
+        });
+      }
+
+      renderTagWidget(widgetId);
+    }
+
+    function renderTagWidget(widgetId) {
+      const box = document.querySelector(`#${widgetId} .mui-tag-widget-tags-box`);
+      if (!box) return;
+
+      const currentTags = tagWidgetState[widgetId].tags;
+
+      // Render visual tag pills
+      box.innerHTML = currentTags.map((tag, idx) => `
+        <span class="mui-tag-pill">
+          <span>${tag}</span>
+          <button type="button" class="mui-tag-pill-remove" onclick="removeMockTag('${widgetId}', ${idx})" title="Remove tag: ${tag}">×</button>
+        </span>
+      `).join('');
+
+      if (currentTags.length === 0) {
+        box.innerHTML = `<span style="font-size: 11px; color: var(--text-secondary); font-style: italic; padding: 4px;">No tags selected. Add some below...</span>`;
+      }
+
+      // Update popular buttons states (disabled if already selected)
+      const popContainer = document.querySelector(`#${widgetId} .mui-tag-widget-pop-container`);
+      if (popContainer) {
+        popContainer.querySelectorAll('.mui-tag-widget-pop-btn').forEach(btn => {
+          const tagText = btn.innerText.replace(/^\+\s*/, '').trim().toLowerCase();
+          if (currentTags.includes(tagText)) {
+            btn.disabled = true;
+          } else {
+            btn.disabled = false;
+          }
+        });
+      }
+    }
+
+    function addMockTag(widgetId, tag) {
+      const sanitized = tag.trim().toLowerCase().replace(/\s+/g, ' ');
+      if (sanitized && !tagWidgetState[widgetId].tags.includes(sanitized)) {
+        tagWidgetState[widgetId].tags.push(sanitized);
+        renderTagWidget(widgetId);
+      }
+      
+      const input = document.querySelector(`#${widgetId} input[type="text"]`);
+      if (input) {
+        input.value = '';
+      }
+      const suggestions = document.querySelector(`#${widgetId} .mui-tag-widget-suggestions`);
+      if (suggestions) {
+        suggestions.style.display = 'none';
+      }
+    }
+
+    function removeMockTag(widgetId, idx) {
+      tagWidgetState[widgetId].tags.splice(idx, 1);
+      renderTagWidget(widgetId);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const titleInput = document.getElementById('title');
+      const slugInput = document.getElementById('slug');
+      const slugBadge = document.getElementById('slug-auto-badge');
+      const resetBtn = document.getElementById('btn-reset-slug');
+      
+      let isSlugOverridden = false;
+      
+      function generateSlug(title) {
+        return title
+          .toLowerCase()
+          .trim()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "") // remove accents
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+      }
+
+      function updateSlug() {
+        if (!isSlugOverridden && titleInput && slugInput) {
+          slugInput.value = generateSlug(titleInput.value);
+        }
+      }
+
+      if (titleInput && slugInput) {
+        titleInput.addEventListener('input', updateSlug);
+        
+        slugInput.addEventListener('input', () => {
+          isSlugOverridden = true;
+          if (slugBadge) slugBadge.style.display = 'none';
+        });
+
+        if (resetBtn) {
+          resetBtn.addEventListener('click', () => {
+            isSlugOverridden = false;
+            if (slugBadge) slugBadge.style.display = 'inline-block';
+            updateSlug();
+          });
+        }
+      }
+
+      // Initialize scholarships page TagWidget with initial data
+      initTagWidget('tag-widget-scholarships', ['knowledge graphs', 'curation']);
+    });
+  </script>
+
+</body>
+</html>

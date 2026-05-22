@@ -1,5 +1,7 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import Link from "next/link";
+import { Box, Container, Typography, Link as MuiLink, Button } from "@mui/material";
 import { getLabName, getLabUrl } from "@/lib/config";
 
 export async function Footer() {
@@ -8,36 +10,77 @@ export async function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-border bg-surface/50 py-8 text-xs text-muted mt-auto">
-      <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-        <p className="text-center md:text-left leading-relaxed">
-          © {currentYear}{" "}
-          <a
-            href={labUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-primary transition-colors font-semibold underline decoration-dotted underline-offset-2"
+    <Box
+      component="footer"
+      sx={{
+        borderTop: "1px solid",
+        borderColor: "divider",
+        bgcolor: "background.paper",
+        backdropFilter: "blur(8px)",
+        py: 4,
+        mt: "auto",
+      }}
+    >
+      <Container maxWidth="xl">
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ textAlign: { xs: "center", md: "left" }, fontSize: "0.75rem", lineHeight: 1.6 }}
           >
-            {labName}
-          </a>
-          . All rights reserved. Powered by{" "}
-          <span className="font-semibold text-slate-700 dark:text-slate-350">
-            Memorias
-          </span>
-          .
-        </p>
-        <div className="flex items-center gap-6 font-semibold">
-          <Link
-            href="/about"
-            className="hover:text-primary transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            <span>About the Portal</span>
-            <span className="text-[10px] text-primary/70 dark:text-amber-500/70">
-              ✨
-            </span>
-          </Link>
-        </div>
-      </div>
-    </footer>
+            © {currentYear}{" "}
+            <MuiLink
+              href={labUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              color="primary.main"
+              underline="always"
+              sx={{
+                fontWeight: 600,
+                textDecorationStyle: "dotted",
+                textUnderlineOffset: 3,
+                "&:hover": { color: "primary.dark" },
+              }}
+            >
+              {labName}
+            </MuiLink>
+            . All rights reserved. Powered by{" "}
+            <Typography component="span" variant="body2" sx={{ fontWeight: 600, color: "text.primary", fontSize: "0.75rem" }}>
+              Memorias
+            </Typography>
+            .
+          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+            <LinkButton 
+              href="/about"
+              size="small"
+              sx={{
+                fontWeight: 700,
+                fontSize: "0.75rem",
+                color: "text.secondary",
+                borderRadius: 2,
+                px: 2,
+                py: 0.75,
+                textTransform: "none",
+                "&:hover": {
+                  bgcolor: "action.hover",
+                  color: "text.primary",
+                },
+              }}
+            >
+              About the Portal
+            </LinkButton>
+          </Box>
+        </Box>
+      </Container>
+    </Box>
   );
 }

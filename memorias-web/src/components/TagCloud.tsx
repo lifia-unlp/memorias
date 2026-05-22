@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { Card, CardContent, Box, Typography, Chip } from "@mui/material";
 
 interface TagWithCount {
   tag: string;
@@ -25,64 +28,122 @@ export function TagCloud({ tags, limit = 40 }: TagCloudProps) {
   const spread = maxCount - minCount || 1;
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-3xl shadow-sm space-y-4">
-      <div className="flex items-center justify-between border-b border-border pb-3">
-        <div>
-          <h3 className="font-extrabold text-lg text-slate-850 dark:text-white">
-            Explore by Research Topic
-          </h3>
-          <p className="text-[11px] text-slate-400 mt-0.5">
-            Click on a keyword to discover all related laboratory works and members.
-          </p>
-        </div>
-        <span className="text-[10px] font-bold text-slate-400 bg-slate-50 dark:bg-slate-950 px-2.5 py-1 rounded-lg border border-border">
-          {tags.length} Total Topics
-        </span>
-      </div>
+    <Card sx={{ borderRadius: 4, width: "100%" }}>
+      <CardContent sx={{ p: 3, "&:last-child": { pb: 3 } }}>
+        {/* Title & Stats */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            pb: 2,
+            mb: 2,
+            flexWrap: "wrap",
+            gap: 1.5,
+          }}
+        >
+          <Box>
+            <Typography variant="h3" sx={{ fontSize: "1.1rem", fontWeight: 800 }}>
+              Explore by Research Topic
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.725rem", mt: 0.5 }}>
+              Click on a keyword to discover all related laboratory works and members.
+            </Typography>
+          </Box>
+          <Chip
+            label={`${tags.length} Total Topics`}
+            size="small"
+            variant="outlined"
+            sx={{
+              fontSize: "0.675rem",
+              fontWeight: "bold",
+              color: "text.secondary",
+              borderColor: "divider",
+              borderRadius: 1.5,
+            }}
+          />
+        </Box>
 
-      <div className="flex flex-wrap gap-2.5 justify-center py-4 px-2">
-        {visibleTags.map(({ tag, count }) => {
-          // Normalize count between 0 and 1
-          const weight = (count - minCount) / spread;
+        {/* Cloud Wrapper */}
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 1.25,
+            justifyContent: "center",
+            py: 2,
+          }}
+        >
+          {visibleTags.map(({ tag, count }) => {
+            const weight = (count - minCount) / spread;
 
-          // HSL tailors:
-          // Hue: 215 (gorgeous deep blue)
-          // Saturation: higher weight = more saturated (45% to 85%)
-          // Lightness: higher weight = darker in light mode / brighter in dark mode
-          const saturation = Math.round(45 + weight * 40);
-          
-          // Generate font-size classes based on weight
-          let fontSize = "text-xs";
-          if (weight > 0.8) fontSize = "text-base md:text-lg font-black";
-          else if (weight > 0.5) fontSize = "text-sm md:text-base font-extrabold";
-          else if (weight > 0.2) fontSize = "text-xs md:text-sm font-bold";
-          else fontSize = "text-[11px] md:text-xs font-semibold";
+            // Generate customized styles based on weight
+            const saturation = Math.round(45 + weight * 40);
+            const tagColor = `hsl(215, ${saturation}%, 42%)`;
 
-          return (
-            <Link
-              key={tag}
-              href={`/tags/${encodeURIComponent(tag)}`}
-              style={{
-                borderColor: `hsla(215, ${saturation}%, 50%, 0.25)`,
-              }}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border bg-slate-50/50 hover:bg-primary/5 dark:bg-slate-950/20 dark:hover:bg-primary/10 transition-all duration-200 shadow-sm hover:shadow hover:scale-105 hover:-translate-y-0.5 cursor-pointer ${fontSize}`}
-              title={`${count} items tagged with '${tag}'`}
-            >
-              <span
-                style={{
-                  color: `hsl(215, ${saturation}%, 42%)`,
+            let fontSize = "0.75rem";
+            let fontWeight = 600;
+            if (weight > 0.8) {
+              fontSize = "1rem";
+              fontWeight = 800;
+            } else if (weight > 0.5) {
+              fontSize = "0.875rem";
+              fontWeight = 700;
+            } else if (weight > 0.2) {
+              fontSize = "0.8rem";
+              fontWeight = 700;
+            }
+
+            return (
+              <Chip
+                key={tag}
+                label={tag}
+                component={Link}
+                href={`/tags/${encodeURIComponent(tag)}`}
+                clickable
+                variant="outlined"
+                sx={{
+                  fontSize: fontSize,
+                  fontWeight: fontWeight,
+                  borderRadius: 2,
+                  px: 0.5,
+                  py: 1.75,
+                  bgcolor: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "rgba(255, 255, 255, 0.03)"
+                      : "rgba(0, 0, 0, 0.01)",
+                  borderColor: `hsla(215, ${saturation}%, 50%, 0.25)`,
+                  color: (theme) => (theme.palette.mode === "dark" ? "primary.main" : tagColor),
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    transform: "scale(1.05) translateY(-1px)",
+                    borderColor: "primary.main",
+                    bgcolor: "primary.light",
+                  },
                 }}
-                className="dark:text-blue-300"
-              >
-                {tag}
-              </span>
-              <span className="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded font-black">
-                {count}
-              </span>
-            </Link>
-          );
-        })}
-      </div>
-    </div>
+                avatar={
+                  <Avatar
+                    sx={{
+                      width: 18,
+                      height: 18,
+                      fontSize: "0.625rem",
+                      fontWeight: "bold",
+                      bgcolor: "action.hover",
+                      color: "text.secondary",
+                      ml: 0.5,
+                    }}
+                  >
+                    {count}
+                  </Avatar>
+                }
+              />
+            );
+          })}
+        </Box>
+      </CardContent>
+    </Card>
   );
 }
+import { Avatar } from "@mui/material";

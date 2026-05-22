@@ -2,6 +2,13 @@
 
 import React, { useState } from "react";
 import { toggleUserActivationAction, updateUserRoleAction, deleteUserAction } from "./actions";
+import {
+  Box,
+  Select,
+  MenuItem,
+  Button,
+  FormControl,
+} from "@mui/material";
 
 export function RoleSelector({
   userId,
@@ -23,7 +30,6 @@ export function RoleSelector({
       await updateUserRoleAction(formData);
     } catch (err) {
       console.error("Failed to update user role:", err);
-      // Fallback
       setRole(initialRole);
     } finally {
       setIsSaving(false);
@@ -31,25 +37,36 @@ export function RoleSelector({
   };
 
   return (
-    <form onSubmit={handleSave} className="flex items-center gap-2">
-      <select
-        value={role}
-        onChange={(e) => setRole(e.target.value as any)}
-        disabled={isSaving}
-        className="bg-background text-foreground text-xs font-bold border border-border px-3 py-1.5 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer disabled:opacity-50"
-      >
-        <option value="USER">USER</option>
-        <option value="EDITOR">EDITOR</option>
-        <option value="ADMIN">ADMIN</option>
-      </select>
-      <button
+    <Box component="form" onSubmit={handleSave} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <FormControl size="small">
+        <Select
+          value={role}
+          onChange={(e) => setRole(e.target.value as any)}
+          disabled={isSaving}
+          sx={{ fontSize: "0.75rem", fontWeight: "bold", minWidth: 100, borderRadius: 2 }}
+        >
+          <MenuItem value="USER">USER</MenuItem>
+          <MenuItem value="EDITOR">EDITOR</MenuItem>
+          <MenuItem value="ADMIN">ADMIN</MenuItem>
+        </Select>
+      </FormControl>
+      <Button
         type="submit"
+        variant="outlined"
+        size="small"
         disabled={isSaving || role === initialRole}
-        className="text-[10px] uppercase font-extrabold px-2.5 py-1.5 bg-primary/10 text-primary border border-primary/20 rounded-lg hover:bg-primary/20 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        sx={{
+          fontSize: "0.625rem",
+          fontWeight: "black",
+          textTransform: "uppercase",
+          py: 0.75,
+          px: 1.5,
+          borderRadius: 2,
+        }}
       >
         {isSaving ? "Saving..." : "Save"}
-      </button>
-    </form>
+      </Button>
+    </Box>
   );
 }
 
@@ -79,19 +96,25 @@ export function ActivationButton({
   };
 
   return (
-    <form onSubmit={handleToggle}>
-      <button
+    <Box component="form" onSubmit={handleToggle}>
+      <Button
         type="submit"
         disabled={isUpdating}
-        className={`text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition-all shadow-sm disabled:opacity-50 ${
-          active
-            ? "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
-            : "bg-green-50 text-green-600 hover:bg-green-100 border border-green-200"
-        }`}
+        variant="outlined"
+        size="small"
+        color={active ? "error" : "success"}
+        sx={{
+          fontWeight: "bold",
+          fontSize: "0.75rem",
+          textTransform: "none",
+          px: 2,
+          py: 0.75,
+          borderRadius: 2,
+        }}
       >
         {isUpdating ? "Processing..." : active ? "Deactivate" : "Activate"}
-      </button>
-    </form>
+      </Button>
+    </Box>
   );
 }
 
@@ -132,14 +155,24 @@ export function DeleteUserButton({
   }
 
   return (
-    <form onSubmit={handleDelete} className="inline-block ml-2">
-      <button
+    <Box component="form" onSubmit={handleDelete} sx={{ display: "inline-block", ml: 1 }}>
+      <Button
         type="submit"
         disabled={isDeleting}
-        className="text-xs font-bold px-4 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 rounded-lg cursor-pointer transition-all shadow-sm disabled:opacity-50"
+        variant="contained"
+        size="small"
+        color="error"
+        sx={{
+          fontWeight: "bold",
+          fontSize: "0.75rem",
+          textTransform: "none",
+          px: 2,
+          py: 0.75,
+          borderRadius: 2,
+        }}
       >
         {isDeleting ? "Deleting..." : "Delete"}
-      </button>
-    </form>
+      </Button>
+    </Box>
   );
 }

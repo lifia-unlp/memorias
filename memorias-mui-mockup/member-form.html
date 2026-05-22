@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Researcher Profile | Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        <div class="mui-flex-gap-sm">
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"></a>
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link active">Members</a>
+            <a href="projects.html" class="mui-nav-link">Projects</a>
+            <a href="theses.html" class="mui-nav-link">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link">Publications</a>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+          </nav>
+          
+          <!-- Mobile Menu Dropdown -->
+          <div class="mui-menu-parent mui-mobile-menu">
+            <button class="mui-menu-trigger" style="font-weight: 700; gap: 4px;">Menu ☰</button>
+            <div class="mui-dropdown">
+              <a href="members.html" class="mui-dropdown-link">Members</a>
+              <a href="projects.html" class="mui-dropdown-link">Projects</a>
+              <a href="theses.html" class="mui-dropdown-link">Theses</a>
+              <a href="scholarships.html" class="mui-dropdown-link">Scholarships</a>
+              <a href="publications.html" class="mui-dropdown-link">Publications</a>
+              <div class="mui-dropdown-divider"></div>
+              <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+              <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+            </div>
+          </div>
+        </div>
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content: Form Layout -->
+    <main class="mui-container mui-section">
+      
+      <div class="mui-card mui-form-card" style="position: relative;">
+        <!-- Top accent bar -->
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background-color: var(--primary);"></div>
+        
+        <h1 class="mui-card-title" style="font-size: 20px; font-weight: 800; border-bottom: 1px solid var(--border); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-lg); margin-top: var(--spacing-xs);">
+          Edit Researcher Profile
+        </h1>
+        
+        <form action="member-detail.html" method="GET" style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+          
+          <!-- Identity Fields Grid -->
+          <div class="mui-grid-2" style="gap: var(--spacing-md); margin-bottom: 4px;">
+            <div class="mui-form-group">
+              <input type="text" class="mui-input" id="first-name" placeholder=" " value="John" required>
+              <label for="first-name" class="mui-label">First Name</label>
+            </div>
+            <div class="mui-form-group">
+              <input type="text" class="mui-input" id="last-name" placeholder=" " value="Smith" required>
+              <label for="last-name" class="mui-label">Last Name</label>
+            </div>
+          </div>
+
+          <!-- SEO Configurable Page Slug Row (on its own row right below names) -->
+          <div class="mui-form-group" style="margin-top: 4px; margin-bottom: var(--spacing-md);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label for="slug" class="mui-label" style="position: static; transform: none; font-size: 12px; font-weight: 700; color: var(--text-primary);">SEO Page Slug *</label>
+              <span id="slug-auto-badge" class="mui-chip mui-chip-success" style="font-size: 9px; padding: 2px 6px; text-transform: uppercase;">✨ Auto-Generated</span>
+            </div>
+            <div style="display: flex; gap: var(--spacing-sm); align-items: center; position: relative;">
+              <input type="text" class="mui-input" id="slug" value="john-smith" required style="font-weight: 600; padding-right: 100px;">
+              <button type="button" id="btn-reset-slug" class="mui-btn mui-btn-outlined" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 10px; padding: 4px 8px; height: 28px; line-height: 1; min-width: auto;">Reset Auto</button>
+            </div>
+            <p style="font-size: 10px; color: var(--text-secondary); margin-top: 6px; margin-bottom: 0; line-height: 1.4;">
+              This slug generates the URL `/members/[slug]` for this CV profile. Manual override is active if you type in it.
+            </p>
+          </div>
+
+          <!-- Position At Lab -->
+          <div class="mui-form-group">
+            <select class="mui-input mui-select" id="position-lab" required>
+              <option value="Director" selected>Director</option>
+              <option value="Co-Director">Co-Director</option>
+              <option value="Full Researcher">Full Researcher</option>
+              <option value="Assistant Researcher">Assistant Researcher</option>
+              <option value="PhD Candidate">PhD Candidate</option>
+            </select>
+            <label for="position-lab" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Position at Lab</label>
+          </div>
+
+          <!-- Academic Degree -->
+          <div class="mui-form-group">
+            <input type="text" class="mui-input" id="degree" placeholder=" " value="PhD in Computer Science">
+            <label for="degree" class="mui-label">Highest Academic Degree</label>
+          </div>
+
+          <!-- Scientific Agencies (CONICET and CIC) -->
+          <div class="mui-grid-2" style="gap: var(--spacing-md); margin-bottom: 4px;">
+            <div class="mui-form-group">
+              <select class="mui-input mui-select" id="conicet">
+                <option value="">None</option>
+                <option value="Principal Researcher" selected>Principal Researcher</option>
+                <option value="Independent Researcher">Independent Researcher</option>
+                <option value="Assistant Researcher">Assistant Researcher</option>
+                <option value="Doctoral Fellow">Doctoral Fellow</option>
+              </select>
+              <label for="conicet" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">CONICET Position</label>
+            </div>
+            <div class="mui-form-group">
+              <select class="mui-input mui-select" id="cic">
+                <option value="" selected>None</option>
+                <option value="Principal Investigator">Principal Investigator</option>
+                <option value="Associated Investigator">Associated Investigator</option>
+                <option value="CIC Fellow">CIC Fellow</option>
+              </select>
+              <label for="cic" class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">CIC Position</label>
+            </div>
+          </div>
+
+          <!-- Category (Incentivos) & Joined / Left dates (Matching Next.js Form exactly) -->
+          <div class="mui-grid-3" style="gap: var(--spacing-md); margin-bottom: 4px;">
+            <div class="mui-form-group">
+              <input type="text" class="mui-input" id="category" placeholder=" " value="Cat I">
+              <label for="category" class="mui-label">Scientific Category (Incentivos)</label>
+            </div>
+            <div class="mui-form-group">
+              <input type="date" class="mui-input" id="joined-date" value="2015-03-01" required>
+              <label for="joined-date" class="mui-label" style="top: 0; font-size: 11px; color: var(--primary); font-weight: 500;">Joined Lab (Date) *</label>
+            </div>
+            <div class="mui-form-group">
+              <input type="date" class="mui-input" id="left-date" value="">
+              <label for="left-date" class="mui-label" style="top: 0; font-size: 11px; color: var(--primary); font-weight: 500;">Left Lab (Date)</label>
+            </div>
+          </div>
+
+          <!-- Contact Coordinates -->
+          <div class="mui-grid-2" style="gap: var(--spacing-md); margin-bottom: 4px;">
+            <div class="mui-form-group">
+              <input type="email" class="mui-input" id="inst-email" placeholder=" " value="j.smith@lifia.info.unlp.edu.ar" required>
+              <label for="inst-email" class="mui-label">Institutional Email</label>
+            </div>
+            <div class="mui-form-group">
+              <input type="email" class="mui-input" id="pers-email" placeholder=" " value="john.smith@gmail.com">
+              <label for="pers-email" class="mui-label">Personal Email</label>
+            </div>
+          </div>
+
+          <!-- Profiles URLs -->
+          <div class="mui-grid-2" style="gap: var(--spacing-md); margin-bottom: var(--spacing-sm);">
+            <div class="mui-form-group">
+              <input type="url" class="mui-input" id="website" placeholder=" " value="https://lifia.info.unlp.edu.ar">
+              <label for="website" class="mui-label">Personal Website URL</label>
+            </div>
+            <div class="mui-form-group">
+              <input type="text" class="mui-input" id="orcid" placeholder=" " value="0000-0002-1825-0097">
+              <label for="orcid" class="mui-label">ORCID Identifier</label>
+            </div>
+          </div>
+
+          <!-- Interactive TagWidget Section (Replaces comma-separated text input) -->
+          <div style="border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--spacing-md); background-color: var(--surface); display: flex; flex-direction: column; gap: var(--spacing-md); margin-bottom: var(--spacing-sm);">
+            <span style="font-size: 12px; font-weight: 700; color: var(--primary); display: block; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 4px;">Research Classification Tags</span>
+            
+            <div class="mui-tag-widget-container" id="tag-widget-members">
+              <!-- 1. Visual Tags Pills Container -->
+              <div class="mui-tag-widget-tags-box" id="members-tags-box">
+                <!-- Dynamic pills rendered by JavaScript -->
+              </div>
+              
+              <!-- 2. Text Input & AutoComplete Suggestions -->
+              <div class="mui-tag-widget-input-wrapper">
+                <input type="text" id="members-tag-input" class="mui-input" placeholder="Type tag and press Enter or comma..." style="margin: 0;">
+                <label for="members-tag-input" class="mui-label" style="display: none;">Add Tag</label>
+                
+                <!-- Autocomplete Dropdown overlay -->
+                <div class="mui-tag-widget-suggestions" id="members-tag-suggestions">
+                  <button type="button" class="mui-tag-widget-suggestion-item" onclick="addMockTag('tag-widget-members', 'knowledge graphs')">💡 knowledge graphs</button>
+                  <button type="button" class="mui-tag-widget-suggestion-item" onclick="addMockTag('tag-widget-members', 'curation')">💡 curation</button>
+                  <button type="button" class="mui-tag-widget-suggestion-item" onclick="addMockTag('tag-widget-members', 'semantic metadata')">💡 semantic metadata</button>
+                  <button type="button" class="mui-tag-widget-suggestion-item" onclick="addMockTag('tag-widget-members', 'iot')">💡 iot</button>
+                  <button type="button" class="mui-tag-widget-suggestion-item" onclick="addMockTag('tag-widget-members', 'blockchain')">💡 blockchain</button>
+                  <button type="button" class="mui-tag-widget-suggestion-item" onclick="addMockTag('tag-widget-members', 'edge computing')">💡 edge computing</button>
+                  <button type="button" class="mui-tag-widget-suggestion-item" onclick="addMockTag('tag-widget-members', 'deep learning')">💡 deep learning</button>
+                </div>
+              </div>
+              
+              <!-- 3. Clickable Top Popular Tags Pills -->
+              <div>
+                <span class="mui-tag-widget-pop-label">Popular Tags (Click to quick-add)</span>
+                <div class="mui-tag-widget-pop-container" id="members-pop-container">
+                  <button type="button" class="mui-tag-widget-pop-btn" onclick="addMockTag('tag-widget-members', 'software architecture')">+ software architecture</button>
+                  <button type="button" class="mui-tag-widget-pop-btn" onclick="addMockTag('tag-widget-members', 'semantic web')">+ semantic web</button>
+                  <button type="button" class="mui-tag-widget-pop-btn" onclick="addMockTag('tag-widget-members', 'agile')">+ agile</button>
+                  <button type="button" class="mui-tag-widget-pop-btn" onclick="addMockTag('tag-widget-members', 'iot')">+ iot</button>
+                  <button type="button" class="mui-tag-widget-pop-btn" onclick="addMockTag('tag-widget-members', 'blockchain')">+ blockchain</button>
+                  <button type="button" class="mui-tag-widget-pop-btn" onclick="addMockTag('tag-widget-members', 'deep learning')">+ deep learning</button>
+                  <button type="button" class="mui-tag-widget-pop-btn" onclick="addMockTag('tag-widget-members', 'microservices')">+ microservices</button>
+                  <button type="button" class="mui-tag-widget-pop-btn" onclick="addMockTag('tag-widget-members', 'knowledge graphs')">+ knowledge graphs</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Spanish CV -->
+          <div class="mui-form-group">
+            <textarea class="mui-input mui-textarea" id="cv-es" placeholder=" ">John Smith es Profesor Titular en la Facultad de Informática de la Universidad Nacional de La Plata (UNLP) e Investigador Principal del CONICET en el LIFIA. Obtuvo su doctorado en Ciencias de la Computación en 2010. Sus líneas de investigación se centran en arquitecturas distribuidas, web semántica y metodologías de desarrollo de software ágiles.</textarea>
+            <label for="cv-es" class="mui-label">Short CV in Spanish</label>
+          </div>
+
+          <!-- English CV -->
+          <div class="mui-form-group">
+            <textarea class="mui-input mui-textarea" id="cv-en" placeholder=" ">John Smith is a Full Professor at the School of Computer Science, National University of La Plata (UNLP), and a Principal Researcher of CONICET at LIFIA. He received his PhD in Computer Science in 2010. His research interests focus on distributed systems, semantic web, and agile software development methodologies.</textarea>
+            <label for="cv-en" class="mui-label">Short CV in English</label>
+          </div>
+
+          <!-- Interests Spanish -->
+          <div class="mui-form-group">
+            <textarea class="mui-input mui-textarea" id="int-es" placeholder=" ">Mis intereses actuales incluyen la interoperabilidad semántica en sistemas distribuidos de IoT, diseño e implementación de arquitecturas basadas en microservicios, y la incorporación de tecnologías de registros distribuidos en plataformas académicas.</textarea>
+            <label for="int-es" class="mui-label">Interests in Spanish</label>
+          </div>
+
+          <!-- Interests English -->
+          <div class="mui-form-group">
+            <textarea class="mui-input mui-textarea" id="int-en" placeholder=" ">My current research interests include semantic interoperability in distributed IoT systems, design and implementation of microservice architectures, and the incorporation of distributed ledger technologies in academic portals.</p></textarea>
+            <label for="int-en" class="mui-label">Interests in English</label>
+          </div>
+
+          <!-- Avatar Image URL -->
+          <div class="mui-form-group" style="margin-bottom: var(--spacing-md);">
+            <input type="text" class="mui-input" id="avatar" placeholder=" " value="">
+            <label for="avatar" class="mui-label">Avatar Image URL (leave empty for initials)</label>
+          </div>
+
+          <!-- Form Buttons (Note: Activation Switch successfully purged) -->
+          <div class="mui-card-actions" style="justify-content: flex-end; gap: var(--spacing-md); padding-top: var(--spacing-sm);">
+            <a href="member-detail.html" class="mui-btn mui-btn-outlined">Cancel</a>
+            <button type="submit" class="mui-btn mui-btn-contained">Save</button>
+          </div>
+
+        </form>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Reusable Interactive Mockup JS Controllers for Dynamic TagWidgets and SEO Slug Generator -->
+  <script>
+    const tagWidgetState = {};
+
+    function initTagWidget(widgetId, initialTags) {
+      tagWidgetState[widgetId] = {
+        tags: [...initialTags]
+      };
+      
+      const input = document.querySelector(`#${widgetId} input[type="text"]`);
+      const suggestions = document.querySelector(`#${widgetId} .mui-tag-widget-suggestions`);
+      
+      if (input) {
+        input.addEventListener('focus', () => {
+          if (input.value.trim().length > 0) {
+            suggestions.style.display = 'block';
+          }
+        });
+        
+        input.addEventListener('input', () => {
+          const q = input.value.trim().toLowerCase();
+          if (q.length > 0) {
+            suggestions.style.display = 'block';
+            let matchCount = 0;
+            suggestions.querySelectorAll('.mui-tag-widget-suggestion-item').forEach(item => {
+              const txt = item.innerText.replace(/^💡\s*/, '').trim().toLowerCase();
+              if (txt.includes(q) && !tagWidgetState[widgetId].tags.includes(txt)) {
+                item.style.display = 'block';
+                matchCount++;
+              } else {
+                item.style.display = 'none';
+              }
+            });
+            if (matchCount === 0) {
+              suggestions.style.display = 'none';
+            }
+          } else {
+            suggestions.style.display = 'none';
+          }
+        });
+
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const val = input.value.trim().toLowerCase();
+            if (val) {
+              addMockTag(widgetId, val);
+              input.value = '';
+              suggestions.style.display = 'none';
+            }
+          } else if (e.key === ',' || e.key === 'Tab') {
+            if (e.key === ',') e.preventDefault();
+            const val = input.value.trim().toLowerCase();
+            if (val) {
+              addMockTag(widgetId, val);
+              input.value = '';
+              suggestions.style.display = 'none';
+            }
+          }
+        });
+
+        // Close on clicking outside
+        document.addEventListener('mousedown', (e) => {
+          if (!input.contains(e.target) && !suggestions.contains(e.target)) {
+            suggestions.style.display = 'none';
+          }
+        });
+      }
+
+      renderTagWidget(widgetId);
+    }
+
+    function renderTagWidget(widgetId) {
+      const box = document.querySelector(`#${widgetId} .mui-tag-widget-tags-box`);
+      if (!box) return;
+
+      const currentTags = tagWidgetState[widgetId].tags;
+
+      // Render visual tag pills
+      box.innerHTML = currentTags.map((tag, idx) => `
+        <span class="mui-tag-pill">
+          <span>${tag}</span>
+          <button type="button" class="mui-tag-pill-remove" onclick="removeMockTag('${widgetId}', ${idx})" title="Remove tag: ${tag}">×</button>
+        </span>
+      `).join('');
+
+      if (currentTags.length === 0) {
+        box.innerHTML = `<span style="font-size: 11px; color: var(--text-secondary); font-style: italic; padding: 4px;">No tags selected. Add some below...</span>`;
+      }
+
+      // Update popular buttons states (disabled if already selected)
+      const popContainer = document.querySelector(`#${widgetId} .mui-tag-widget-pop-container`);
+      if (popContainer) {
+        popContainer.querySelectorAll('.mui-tag-widget-pop-btn').forEach(btn => {
+          const tagText = btn.innerText.replace(/^\+\s*/, '').trim().toLowerCase();
+          if (currentTags.includes(tagText)) {
+            btn.disabled = true;
+          } else {
+            btn.disabled = false;
+          }
+        });
+      }
+    }
+
+    function addMockTag(widgetId, tag) {
+      const sanitized = tag.trim().toLowerCase().replace(/\s+/g, ' ');
+      if (sanitized && !tagWidgetState[widgetId].tags.includes(sanitized)) {
+        tagWidgetState[widgetId].tags.push(sanitized);
+        renderTagWidget(widgetId);
+      }
+      
+      const input = document.querySelector(`#${widgetId} input[type="text"]`);
+      if (input) {
+        input.value = '';
+      }
+      const suggestions = document.querySelector(`#${widgetId} .mui-tag-widget-suggestions`);
+      if (suggestions) {
+        suggestions.style.display = 'none';
+      }
+    }
+
+    function removeMockTag(widgetId, idx) {
+      tagWidgetState[widgetId].tags.splice(idx, 1);
+      renderTagWidget(widgetId);
+    }
+
+    // Dynamic SEO Slug Generation
+    document.addEventListener('DOMContentLoaded', () => {
+      const firstNameInput = document.getElementById('first-name');
+      const lastNameInput = document.getElementById('last-name');
+      const slugInput = document.getElementById('slug');
+      const slugBadge = document.getElementById('slug-auto-badge');
+      const resetBtn = document.getElementById('btn-reset-slug');
+      
+      let isSlugOverridden = false;
+      
+      function generateSlug(first, last) {
+        return `${first} ${last}`
+          .toLowerCase()
+          .trim()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "") // remove accents
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+      }
+
+      function updateSlug() {
+        if (!isSlugOverridden) {
+          slugInput.value = generateSlug(firstNameInput.value, lastNameInput.value);
+        }
+      }
+
+      if (firstNameInput && lastNameInput && slugInput) {
+        firstNameInput.addEventListener('input', updateSlug);
+        lastNameInput.addEventListener('input', updateSlug);
+        
+        slugInput.addEventListener('input', () => {
+          isSlugOverridden = true;
+          if (slugBadge) slugBadge.style.display = 'none';
+        });
+
+        if (resetBtn) {
+          resetBtn.addEventListener('click', () => {
+            isSlugOverridden = false;
+            if (slugBadge) slugBadge.style.display = 'inline-block';
+            updateSlug();
+          });
+        }
+      }
+
+      // Initialize members page TagWidget with initial data
+      initTagWidget('tag-widget-members', ['software architecture', 'semantic web', 'agile']);
+    });
+  </script>
+
+</body>
+</html>

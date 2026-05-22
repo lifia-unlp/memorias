@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports & Statistics | Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    function generateReport() {
+      var entity = document.getElementById('report_entity').value;
+      var tableContainer = document.getElementById('generated-table-container');
+      var resultsTitle = document.getElementById('results-title');
+      
+      // Clear previous styles/content
+      tableContainer.style.display = 'block';
+      resultsTitle.innerText = "Generated Report: Active " + entity.charAt(0).toUpperCase() + entity.slice(1);
+      
+      var tableBody = document.getElementById('generated-table-body');
+      var tableHeaders = document.getElementById('generated-table-headers');
+      
+      if (entity === 'members') {
+        tableHeaders.innerHTML = "<tr><th>Name</th><th>Position</th><th>Agency</th><th>Active Projects</th><th>Theses Directed</th></tr>";
+        tableBody.innerHTML = "<tr><td><b>John Smith</b></td><td>Researcher Class A</td><td>CONICET</td><td>3</td><td>2</td></tr>" +
+                             "<tr><td><b>Maria Garcia</b></td><td>Researcher Class B</td><td>CIC</td><td>2</td><td>1</td></tr>" +
+                             "<tr><td><b>Alice Williams</b></td><td>PhD Fellow</td><td>CONICET</td><td>1</td><td>0</td></tr>";
+      } else if (entity === 'projects') {
+        tableHeaders.innerHTML = "<tr><th>Project ID</th><th>Title</th><th>Director</th><th>Funding Agency</th><th>Status</th></tr>";
+        tableBody.innerHTML = "<tr><td><b>PICT-2023-010</b></td><td>Distributed IIoT and Edge Ledgers</td><td>John Smith</td><td>Agencia I+D+i</td><td><span class='mui-chip mui-chip-success'>Active</span></td></tr>" +
+                             "<tr><td><b>UNLP-E120</b></td><td>Semantic Interoperability in Web Services</td><td>Maria Garcia</td><td>UNLP</td><td><span class='mui-chip mui-chip-success'>Active</span></td></tr>";
+      } else if (entity === 'theses') {
+        tableHeaders.innerHTML = "<tr><th>Thesis Title</th><th>Student</th><th>Advisor</th><th>Type</th><th>Completion</th></tr>";
+        tableBody.innerHTML = "<tr><td><b>Decentralized Identity Verification Systems</b></td><td>Alice Williams</td><td>John Smith</td><td>Doctoral</td><td>85%</td></tr>" +
+                             "<tr><td><b>Micro-Frontend Performance Auditing</b></td><td>Robert Miller</td><td>Maria Garcia</td><td>Undergrad</td><td>100%</td></tr>";
+      } else {
+        tableHeaders.innerHTML = "<tr><th>Agency</th><th>Sponsor</th><th>Fellow</th><th>Type</th><th>Years</th></tr>";
+        tableBody.innerHTML = "<tr><td><b>CONICET Doctoral Fellowship</b></td><td>CONICET</td><td>Alice Williams</td><td>PhD</td><td>2022 - 2027</td></tr>" +
+                             "<tr><td><b>CIC Training Scholarship</b></td><td>CIC</td><td>David Brown</td><td>Postdoc</td><td>2024 - 2026</td></tr>";
+      }
+      
+      // Smooth scroll to results
+      resultsTitle.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        <div class="mui-flex-gap-sm">
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"></a>
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link">Members</a>
+            <a href="projects.html" class="mui-nav-link">Projects</a>
+            <a href="theses.html" class="mui-nav-link">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link">Publications</a>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger active">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+          </nav>
+          
+          <!-- Mobile Menu Dropdown -->
+          <div class="mui-menu-parent mui-mobile-menu">
+            <button class="mui-menu-trigger" style="font-weight: 700; gap: 4px;">Menu ☰</button>
+            <div class="mui-dropdown">
+              <a href="members.html" class="mui-dropdown-link">Members</a>
+              <a href="projects.html" class="mui-dropdown-link">Projects</a>
+              <a href="theses.html" class="mui-dropdown-link">Theses</a>
+              <a href="scholarships.html" class="mui-dropdown-link">Scholarships</a>
+              <a href="publications.html" class="mui-dropdown-link">Publications</a>
+              <div class="mui-dropdown-divider"></div>
+              <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+              <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+            </div>
+          </div>
+        </div>
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="mui-hero" style="background: linear-gradient(135deg, var(--secondary), var(--secondary-hover));">
+      <div class="mui-container">
+        <div class="mui-hero-content">
+          <h1 class="mui-hero-title">Analytical Reports & Portal Metrics</h1>
+          <p class="mui-hero-subtitle">
+            Assess laboratory research performance, evaluate active funding status, track academic degree progress, and export administrative data tables.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="mui-container mui-section" style="display: flex; flex-direction: column; gap: var(--spacing-xl);">
+      
+      <!-- Metrics Card Grid -->
+      <section class="mui-grid-3">
+        
+        <!-- Metric 1 -->
+        <div class="mui-card" style="align-items: center; text-align: center; gap: var(--spacing-xs);">
+          <span style="font-size: 36px;">📚</span>
+          <h3 style="font-size: 28px; font-weight: 800; font-family: var(--font-display);">124</h3>
+          <span style="color: var(--text-secondary); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Total Publications</span>
+          <span class="mui-chip mui-chip-success" style="margin-top: var(--spacing-sm);">+12 this year</span>
+        </div>
+
+        <!-- Metric 2 -->
+        <div class="mui-card" style="align-items: center; text-align: center; gap: var(--spacing-xs);">
+          <span style="font-size: 36px;">💼</span>
+          <h3 style="font-size: 28px; font-weight: 800; font-family: var(--font-display);">8</h3>
+          <span style="color: var(--text-secondary); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Active R&D Projects</span>
+          <span class="mui-chip mui-chip-primary" style="margin-top: var(--spacing-sm); font-size: 9px;">$15.2M ARS Funded</span>
+        </div>
+
+        <!-- Metric 3 -->
+        <div class="mui-card" style="align-items: center; text-align: center; gap: var(--spacing-xs);">
+          <span style="font-size: 36px;">🎓</span>
+          <h3 style="font-size: 28px; font-weight: 800; font-family: var(--font-display);">15</h3>
+          <span style="color: var(--text-secondary); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Theses & Scholarships</span>
+          <span class="mui-chip mui-chip-secondary" style="margin-top: var(--spacing-sm);">4 Defending soon</span>
+        </div>
+
+      </section>
+
+      <!-- Graphical breakdowns using visual elements -->
+      <section class="mui-grid-2">
+        
+        <!-- Breakdown: Publications by Category -->
+        <div class="mui-card" style="gap: var(--spacing-md);">
+          <h3 class="mui-card-title" style="border-bottom: 1px solid var(--border); padding-bottom: var(--spacing-xs); font-size: 15px;">
+            Publications Breakdown by Type
+          </h3>
+          
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 600; margin-bottom: 2px;">
+                <span>Journal Articles (Q1/Q2)</span>
+                <span>54% (67 papers)</span>
+              </div>
+              <div class="mui-linear-progress">
+                <div class="mui-linear-progress-bar" style="width: 54%;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 600; margin-bottom: 2px;">
+                <span>Conference Proceedings</span>
+                <span>36% (45 papers)</span>
+              </div>
+              <div class="mui-linear-progress">
+                <div class="mui-linear-progress-bar mui-linear-progress-bar-secondary" style="width: 36%;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 600; margin-bottom: 2px;">
+                <span>Book Chapters & Reports</span>
+                <span>10% (12 items)</span>
+              </div>
+              <div class="mui-linear-progress">
+                <div class="mui-linear-progress-bar" style="width: 10%; background-color: var(--warning);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Breakdown: Project Funding Breakdown -->
+        <div class="mui-card" style="gap: var(--spacing-md);">
+          <h3 class="mui-card-title" style="border-bottom: 1px solid var(--border); padding-bottom: var(--spacing-xs); font-size: 15px;">
+            Funding Distribution by Sponsor
+          </h3>
+          
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 600; margin-bottom: 2px;">
+                <span>Agencia I+D+i (PICT Grants)</span>
+                <span>65% ($9.8M ARS)</span>
+              </div>
+              <div class="mui-linear-progress">
+                <div class="mui-linear-progress-bar" style="width: 65%;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 600; margin-bottom: 2px;">
+                <span>UNLP Projects</span>
+                <span>20% ($3.0M ARS)</span>
+              </div>
+              <div class="mui-linear-progress">
+                <div class="mui-linear-progress-bar mui-linear-progress-bar-secondary" style="width: 20%;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 600; margin-bottom: 2px;">
+                <span>CIC & Direct Commissions</span>
+                <span>15% ($2.4M ARS)</span>
+              </div>
+              <div class="mui-linear-progress">
+                <div class="mui-linear-progress-bar" style="width: 15%; background-color: var(--success);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Advanced Report Builder (Interactive Interface) -->
+      <section class="mui-card" style="gap: var(--spacing-lg);">
+        <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 18px;">
+          <span>⚡ Dynamic Report Builder</span>
+        </h2>
+        
+        <form onsubmit="event.preventDefault(); generateReport();" style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+          <div class="mui-grid-3" style="gap: 20px;">
+            
+            <!-- Entity Selector -->
+            <div class="mui-form-group" style="margin: 0;">
+              <select id="report_entity" class="mui-input mui-select">
+                <option value="members">Active Members & Academics</option>
+                <option value="projects">R&D Projects & Funding</option>
+                <option value="theses">Theses & Undergrad Defence</option>
+                <option value="scholarships">Scholarship Allocations</option>
+              </select>
+              <label class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Select Resource Model</label>
+            </div>
+
+            <!-- Format Selector -->
+            <div class="mui-form-group" style="margin: 0;">
+              <select id="report_format" class="mui-input mui-select">
+                <option value="csv">Comma-Separated Values (CSV)</option>
+                <option value="json">Structured JSON Data</option>
+                <option value="pdf">Printable Document Format (PDF)</option>
+              </select>
+              <label class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Export Format</label>
+            </div>
+
+            <!-- Date range limit -->
+            <div class="mui-form-group" style="margin: 0;">
+              <select class="mui-input mui-select">
+                <option value="all">Full Historical Record</option>
+                <option value="5y">Last 5 Years</option>
+                <option value="2y">Last 2 Years</option>
+                <option value="1y">Current Academic Cycle</option>
+              </select>
+              <label class="mui-label" style="top: 0; font-size: 12px; color: var(--primary); font-weight: 500;">Time Window</label>
+            </div>
+
+          </div>
+
+          <!-- Fields to include multiselect check -->
+          <div style="border: 1px solid var(--border); border-radius: var(--radius-xs); padding: var(--spacing-md);">
+            <span style="font-size: 12px; font-weight: 700; color: var(--primary); display: block; margin-bottom: var(--spacing-sm);">Configure Report Columns</span>
+            <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-md);">
+              <label style="font-size: 13px; display: inline-flex; align-items: center; gap: var(--spacing-xs);">
+                <input type="checkbox" checked> Main Identifiers & Full Names
+              </label>
+              <label style="font-size: 13px; display: inline-flex; align-items: center; gap: var(--spacing-xs);">
+                <input type="checkbox" checked> Academic Categories & Affiliation
+              </label>
+              <label style="font-size: 13px; display: inline-flex; align-items: center; gap: var(--spacing-xs);">
+                <input type="checkbox" checked> Funding status & Financial Sums
+              </label>
+              <label style="font-size: 13px; display: inline-flex; align-items: center; gap: var(--spacing-xs);">
+                <input type="checkbox" checked> Date fields & Time Stamps
+              </label>
+            </div>
+          </div>
+
+          <!-- Action buttons -->
+          <div style="display: flex; gap: var(--spacing-md); justify-content: flex-end; align-items: center; margin-top: var(--spacing-xs);">
+            <button type="submit" class="mui-btn mui-btn-contained" style="min-width: 200px;">
+              🔍 Generate Interactive Preview
+            </button>
+          </div>
+        </form>
+        
+        <!-- Resulting table preview -->
+        <div id="generated-table-container" style="display: none; margin-top: var(--spacing-md); border-top: 1px solid var(--border); padding-top: var(--spacing-lg);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+            <h3 id="results-title" style="font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--text-primary);">
+              Generated Report Preview
+            </h3>
+            <button class="mui-btn mui-btn-outlined" onclick="alert('Successfully downloaded exported file to your downloads directory!')" style="font-size: 11px; padding: 6px 12px; font-weight: 700;">
+              📥 Export Download file
+            </button>
+          </div>
+          
+          <div class="mui-table-container">
+            <table class="mui-table">
+              <thead id="generated-table-headers">
+                <!-- Injected via JavaScript -->
+              </thead>
+              <tbody id="generated-table-body">
+                <!-- Injected via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

@@ -1,10 +1,21 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Pagination } from "@/components/Pagination";
+import { ScholarshipFilters } from "./ScholarshipFilters";
+import {
+  Container,
+  Box,
+  Typography,
+  Button,
+  Grid,
+  Card,
+  Chip,
+} from "@mui/material";
 
 type Params = Promise<{}>;
 type SearchParams = Promise<{ q?: string; type?: string; status?: string; limit?: string; page?: string }>;
@@ -94,226 +105,354 @@ export default async function ScholarshipsPage(props: {
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header activeTab="scholarships" />
 
-      {/* Title Banner */}
-      <section className="bg-gradient-to-br from-primary to-primary-hover text-white py-12 px-6 shadow-inner relative overflow-hidden border-b border-blue-700/20">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+      {/* Hero Banner Section */}
+      <Box data-component-semantics="Hero banner"
+        sx={{
+          background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
+          color: "common.white",
+          py: 8,
+          px: 3,
+          boxShadow: "inset 0px -4px 10px rgba(0, 0, 0, 0.1)",
+          position: "relative",
+          overflow: "hidden",
+          borderBottom: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        {/* Wave background element */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0.08,
+            pointerEvents: "none",
+            "& svg": { width: "100%", height: "100%" },
+          }}
+        >
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none">
             <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
           </svg>
-        </div>
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-extrabold tracking-tight">Academic Scholarships</h1>
-            <p className="text-blue-100 max-w-xl text-sm leading-relaxed">
-              Explore professional fellowships, doctoral, and training scholarships funded by scientific agencies.
-            </p>
-          </div>
-          {isEditorOrAdmin && (
-            <Link
-              href="/scholarships/new"
-              className="bg-white hover:bg-slate-100 text-primary font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all text-center flex items-center gap-2 whitespace-nowrap self-start sm:self-center"
+        </Box>
+
+        <Container maxWidth="xl" sx={{ position: "relative", zIndex: 10 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              alignItems: { xs: "flex-start", md: "center" },
+              justifyContent: "space-between",
+              gap: 3,
+            }}
+          >
+            <Box sx={{ zIndex: 1, maxWidth: 600 }}>
+              <Typography data-component-semantics="Hero title" variant="h1" sx={{ color: "common.white", mb: 1, fontSize: { xs: "2rem", md: "2.5rem" } }}>
+                Academic Scholarships
+              </Typography>
+              <Typography data-component-semantics="Hero subtitle" variant="body1" sx={{ color: "rgba(255,255,255,0.85)" }}>
+                Explore professional fellowships, doctoral, and training scholarships funded by scientific agencies.
+              </Typography>
+            </Box>
+
+            {isEditorOrAdmin && (
+              <LinkButton 
+                href="/scholarships/new"
+                variant="contained"
+                sx={{
+                  bgcolor: "common.white",
+                  color: "primary.main",
+                  fontWeight: "bold",
+                  borderRadius: 3,
+                  boxShadow: 2,
+                  px: 3,
+                  py: 1.5,
+                  zIndex: 1,
+                  "&:hover": {
+                    bgcolor: "rgba(255, 255, 255, 0.9)",
+                    boxShadow: 3,
+                  },
+                }}
+              >
+                Add Scholarship
+              </LinkButton>
+            )}
+          </Box>
+        </Container>
+      </Box>
+
+      {/* Main Layout Container */}
+      <Container maxWidth="xl" sx={{ py: 4, flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+
+        {/* Filters and Grid Section */}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <ScholarshipFilters types={types} />
+
+          {filteredScholarships.length === 0 ? (
+            <Card
+              sx={{
+                textAlign: "center",
+                py: 8,
+                px: 3,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 1,
+              }}
             >
-              Add Scholarship
-            </Link>
-          )}
-        </div>
-      </section>
+              <Typography variant="h3">No scholarships found</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Try adjusting your search criteria or clearing filter fields.
+              </Typography>
+            </Card>
+          ) : (
+            <Box>
+              <Grid container spacing={3}>
+                {paginatedScholarships.map((s) => {
+                  const startStr = s.startDate
+                    ? new Date(s.startDate).getFullYear()
+                    : "N/D";
+                  const isCompleted = s.endDate && new Date(s.endDate) < now;
+                  const endStr = s.endDate
+                    ? new Date(s.endDate).getFullYear()
+                    : "Ongoing";
 
-      {/* Main Search and Grid Section */}
-      <main className="max-w-7xl w-full mx-auto px-6 py-8 flex-1 space-y-6">
-        
-        {/* Advanced Filters Panel */}
-        <div className="bg-white dark:bg-slate-900 border border-border p-4 rounded-2xl shadow-sm">
-          <form method="GET" className="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
-            <div className="relative md:col-span-4">
-            <input
-                type="text"
-                name="q"
-                defaultValue={q}
-                placeholder="Search scholarships by student, advisors, agency or keywords..."
-                className="w-full border border-border pl-10 pr-4 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs"
-              />
-            </div>
-
-            <div className="md:col-span-2 flex items-center gap-2">
-              <select
-                name="type"
-                defaultValue={type}
-                className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs font-semibold"
-              >
-                <option value="">All Types</option>
-                {types.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="md:col-span-2 flex items-center gap-2">
-              <select
-                name="status"
-                defaultValue={status}
-                className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs font-semibold"
-              >
-                <option value="">All Statuses</option>
-                <option value="ongoing">Ongoing</option>
-                <option value="completed">Completed</option>
-              </select>
-            </div>
-
-            <div className="md:col-span-2 flex items-center gap-2">
-              <select
-                name="limit"
-                defaultValue={limit.toString()}
-                className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs font-semibold"
-              >
-                <option value="10">10 per page</option>
-                <option value="20">20 per page</option>
-                <option value="30">30 per page</option>
-                <option value="100">100 per page</option>
-              </select>
-            </div>
-
-            <div className="md:col-span-2 flex items-center gap-3">
-              <button
-                type="submit"
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-3 rounded-xl transition-all cursor-pointer text-center"
-              >
-                Filter
-              </button>
-              {(q || type || status || limit !== 10) && (
-                <Link
-                  href="/scholarships"
-                  className="text-xs font-bold text-slate-500 hover:underline px-1 shrink-0"
-                >
-                  Clear
-                </Link>
-              )}
-            </div>
-          </form>
-        </div>
-
-        {/* Scholarships Grid */}
-        {filteredScholarships.length === 0 ? (
-          <div className="text-center py-16 bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm space-y-3">
-            <h3 className="font-extrabold text-slate-800 dark:text-slate-200">No Scholarships Found</h3>
-            <p className="text-xs text-muted max-w-xs mx-auto">
-              We couldn&apos;t find any scholarships matching your search filters. Try broadening your keywords.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {paginatedScholarships.map((s) => {
-                const startStr = s.startDate
-                  ? new Date(s.startDate).getFullYear()
-                  : "N/D";
-                const isCompleted = s.endDate && new Date(s.endDate) < now;
-                const endStr = s.endDate
-                  ? new Date(s.endDate).getFullYear()
-                  : "Ongoing";
-
-                return (
-                  <div
-                    key={s.id}
-                    className="bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col p-6 space-y-4"
-                  >
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between gap-2 flex-wrap">
-                        {s.type && (
-                          <span className="text-[9px] uppercase tracking-wider font-black text-primary bg-primary/5 border border-primary/10 px-2 py-0.5 rounded">
-                            {s.type}
-                          </span>
-                        )}
-                        <span className={`text-[9px] uppercase font-black px-2 py-0.5 rounded border ${
-                          isCompleted
-                            ? "bg-green-50 text-green-600 border-green-200 dark:bg-green-950/20 dark:text-green-500 dark:border-green-950/40"
-                            : "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-950/20 dark:text-amber-500 dark:border-amber-950/40"
-                        }`}>
-                          {isCompleted ? "Completed" : "Ongoing"}
-                        </span>
-                      </div>
+                  return (
+                    <Grid size={{ xs: 12, md: 6 }} key={s.id}>
                       <Link
                         href={`/scholarships/${s.slug}`}
-                        className="font-extrabold text-base text-slate-800 dark:text-slate-100 hover:text-primary transition-all block leading-snug hover:underline"
+                        style={{ textDecoration: "none", color: "inherit" }}
                       >
-                        {s.title}
-                      </Link>
-                    </div>
+                        <Card
+                          data-component-semantics="Scholarship directory card"
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            height: "100%",
+                            p: 3,
+                            position: "relative",
+                            overflow: "hidden",
+                            "&::before": {
+                              content: '""',
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              width: "100%",
+                              height: "4px",
+                              background: "linear-gradient(90deg, var(--mui-palette-secondary-main), var(--mui-palette-primary-main) 40%)",
+                              transform: "scaleX(0)",
+                              transformOrigin: "left",
+                              transition: "transform 0.3s ease",
+                            },
+                            "&:hover::before": {
+                              transform: "scaleX(1)",
+                            },
+                          }}
+                        >
+                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, mb: 1.5 }}>
+                          {s.type && (
+                            <Chip
+                              label={s.type}
+                              size="small"
+                              sx={{
+                                fontSize: "0.625rem",
+                                fontWeight: "bold",
+                                border: "1px solid",
+                                borderColor: "divider",
+                                bgcolor: "action.hover",
+                                color: "text.secondary",
+                                textTransform: "uppercase",
+                                height: 18,
+                                borderRadius: 1,
+                              }}
+                              data-component-semantics="Metadata badge"
+                            />
+                          )}
+                          <Chip
+                            label={isCompleted ? "Completed" : "Ongoing"}
+                            size="small"
+                            sx={{
+                              fontSize: "0.625rem",
+                              fontWeight: "bold",
+                              border: "1px solid",
+                              borderColor: isCompleted ? "success.main" : "warning.main",
+                              bgcolor: isCompleted ? "success.light" : "warning.light",
+                              color: isCompleted ? "success.dark" : "warning.dark",
+                              height: 18,
+                              borderRadius: 1,
+                            }}
+                            data-component-semantics="Status badge"
+                          />
+                        </Box>
 
-                    {/* Details Block */}
-                    <div className="space-y-1.5 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-border/80 text-xs">
-                      <div className="flex items-center gap-1.5 text-slate-500 font-semibold mb-1">
-                        <span>Timeline:</span>
-                        <span>{startStr} – {endStr}</span>
-                      </div>
+                        <Typography
+                          variant="h3"
+                          sx={{
+                            fontSize: "1.15rem",
+                            fontWeight: "bold",
+                            lineHeight: 1.3,
+                            mb: 2,
+                            color: "text.primary",
+                            "&:hover": { color: "primary.main" },
+                            transition: "color 0.2s",
+                          }}
+                        >
+                          {s.title}
+                        </Typography>
 
-                      {s.student && (
-                        <div className="text-slate-700 dark:text-slate-300">
-                          <strong>Student:</strong> {s.student}
-                        </div>
-                      )}
+                        {/* Details Grid */}
+                        <Box
+                          sx={{
+                            fontSize: "0.75rem",
+                            bgcolor: "action.hover",
+                            border: "1px solid",
+                            borderColor: "divider",
+                            borderRadius: 2.5,
+                            p: 2,
+                            mb: 2,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 1,
+                          }}
+                        >
+                          <Box sx={{ display: "flex", gap: 0.5 }}>
+                            <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                              Timeline:
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: "text.primary" }}>
+                              {startStr} – {endStr}
+                            </Typography>
+                          </Box>
 
-                      {s.fundingAgency && (
-                        <div className="text-slate-700 dark:text-slate-300">
-                          <strong>Funding Agency:</strong> {s.fundingAgency}
-                        </div>
-                      )}
+                          {s.student && (
+                            <Box sx={{ display: "flex", gap: 0.5 }}>
+                              <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                Student:
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                {s.student}
+                              </Typography>
+                            </Box>
+                          )}
 
-                      {(s.director || s.coDirector) && (
-                        <div className="space-y-0.5 pt-1.5 border-t border-border mt-1.5">
+                          {s.fundingAgency && (
+                            <Box sx={{ display: "flex", gap: 0.5 }}>
+                              <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                Funding Agency:
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                {s.fundingAgency}
+                              </Typography>
+                            </Box>
+                          )}
+
                           {s.director && (
-                            <div className="text-slate-700 dark:text-slate-300">
-                              <strong>Director:</strong> {s.director}
-                            </div>
+                            <Box sx={{ display: "flex", gap: 0.5 }}>
+                              <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                Director:
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                {s.director}
+                              </Typography>
+                            </Box>
                           )}
+
                           {s.coDirector && (
-                            <div className="text-slate-700 dark:text-slate-300">
-                              <strong>Co-Director:</strong> {s.coDirector}
-                            </div>
+                            <Box sx={{ display: "flex", gap: 0.5 }}>
+                              <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                Co-Director:
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                {s.coDirector}
+                              </Typography>
+                            </Box>
                           )}
-                        </div>
-                      )}
-                    </div>
+                        </Box>
 
-                    {/* Summary Snippet */}
-                    {s.summary && (
-                      <p className="text-xs text-muted leading-relaxed line-clamp-3">
-                        {s.summary}
-                      </p>
-                    )}
-
-                    {/* Tags */}
-                    {s.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 pt-2">
-                        {s.tags.slice(0, 4).map((tag) => (
-                          <span
-                            key={tag}
-                            className="bg-slate-100 dark:bg-slate-800 text-slate-650 dark:text-slate-400 px-2 py-0.5 rounded text-[10px] font-semibold"
+                        {s.summary && (
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{
+                              display: "-webkit-box",
+                              WebkitLineClamp: 3,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              lineHeight: 1.5,
+                              mb: 2,
+                            }}
                           >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-            <Pagination
-              currentPage={page}
-              totalPages={totalPages}
-              currentSearchParams={{ q, type, status, limit }}
-              baseUrl="/scholarships"
-            />
-          </div>
-        )}
-      </main>
+                            {s.summary}
+                          </Typography>
+                        )}
+
+                        {/* Tags */}
+                        {s.tags.length > 0 && (
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: 0.5,
+                              mt: "auto",
+                              pt: 2,
+                              borderTop: "1px solid",
+                              borderColor: "divider",
+                            }}
+                          >
+                            {s.tags.slice(0, 4).map((tag, idx) => (
+                              <Chip
+                                key={idx}
+                                label={`#${tag}`}
+                                size="small"
+                                sx={{
+                                  fontSize: "0.625rem",
+                                  height: 18,
+                                  borderRadius: 1,
+                                  border: "1px solid",
+                                  borderColor: "primary.light",
+                                  bgcolor: "primary.light",
+                                  color: "primary.main",
+                                  fontWeight: "bold",
+                                }}
+                                data-component-semantics="Tag badge"
+                              />
+                            ))}
+                            {s.tags.length > 4 && (
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  fontSize: "0.625rem",
+                                  fontWeight: "bold",
+                                  color: "text.secondary",
+                                  alignSelf: "center",
+                                  ml: 0.5,
+                                }}
+                              >
+                                +{s.tags.length - 4} more
+                              </Typography>
+                            )}
+                          </Box>
+                        )}
+                        </Card>
+                      </Link>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                currentSearchParams={{ q, type, status, limit }}
+                baseUrl="/scholarships"
+              />
+            </Box>
+          )}
+        </Box>
+      </Container>
       <Footer />
-    </div>
+    </Box>
   );
 }

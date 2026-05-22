@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About the Portal | Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        <div class="mui-flex-gap-sm">
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"></a>
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link">Members</a>
+            <a href="projects.html" class="mui-nav-link">Projects</a>
+            <a href="theses.html" class="mui-nav-link">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link">Publications</a>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+          </nav>
+          
+          <!-- Mobile Menu Dropdown -->
+          <div class="mui-menu-parent mui-mobile-menu">
+            <button class="mui-menu-trigger" style="font-weight: 700; gap: 4px;">Menu ☰</button>
+            <div class="mui-dropdown">
+              <a href="members.html" class="mui-dropdown-link">Members</a>
+              <a href="projects.html" class="mui-dropdown-link">Projects</a>
+              <a href="theses.html" class="mui-dropdown-link">Theses</a>
+              <a href="scholarships.html" class="mui-dropdown-link">Scholarships</a>
+              <a href="publications.html" class="mui-dropdown-link">Publications</a>
+              <div class="mui-dropdown-divider"></div>
+              <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+              <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+            </div>
+          </div>
+        </div>
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="mui-container mui-section" style="max-width: 800px; display: flex; flex-direction: column; gap: var(--spacing-xl);">
+      
+      <!-- Editorial Section -->
+      <section class="mui-card" style="padding: var(--spacing-xl); gap: var(--spacing-md); position: relative;">
+        <!-- Top Accent Bar -->
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--primary), var(--secondary));"></div>
+        
+        <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--secondary); letter-spacing: 0.8px;">Editorial & Background</span>
+        <h1 style="font-family: var(--font-display); font-weight: 800; font-size: 32px; color: var(--text-primary); margin-top: 4px; line-height: 1.2;">
+          About the Memorias Portal
+        </h1>
+        
+        <div style="font-size: 14.5px; line-height: 1.8; color: var(--text-primary); text-align: justify; display: flex; flex-direction: column; gap: var(--spacing-md);">
+          <p>
+            The <b>Memorias Portal</b> is an academic and administrative platform designed specifically to document, curate, and showcase the scientific production of research laboratories. Originally developed for <b>LIFIA</b> (Laboratorio de Investigación y Formación en Informática Avanzada), the portal integrates all active research parameters to create a unified public ledger of academic milestones.
+          </p>
+          <p>
+            By mapping the co-dependent relations between researchers, active funding grants, academic theses, doctoral scholarships, and peer-reviewed publications, the portal allows students, investigators, and external evaluators to audit scientific efficiency in real-time.
+          </p>
+        </div>
+      </section>
+
+      <!-- Tailwind to MUI migration explanation -->
+      <section class="mui-card" style="gap: var(--spacing-md);">
+        <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 20px;">
+          <span>The Transition: Dropping Tailwind in favor of MUI</span>
+        </h2>
+        
+        <div style="font-size: 13.5px; line-height: 1.7; color: var(--text-secondary); display: flex; flex-direction: column; gap: var(--spacing-sm);">
+          <p>
+            While Tailwind CSS is excellent for highly custom, utility-first interfaces, scientific and enterprise portals often benefit from high-level standardization. The migration of the Memorias codebase from Tailwind to Material-UI (MUI) was driven by several key factors:
+          </p>
+          <ul style="margin-left: var(--spacing-lg); display: flex; flex-direction: column; gap: 6px;">
+            <li><b>Design Consistency:</b> MUI implements strict Material Design guidelines, ensuring that dense academic views, forms, and statistics tables share uniform margins, colors, and elevations.</li>
+            <li><b>Form Curation Speed:</b> Built-in MUI fields, auto-fills, and selectors decrease boilerplate code for complex creation/edit forms.</li>
+            <li><b>Accessiblity Standards:</b> Native MUI elements inherit WAI-ARIA compliance, raising accessibility for external evaluators using assistive tech.</li>
+            <li><b>Maintained Aesthetics:</b> Pre-configured light/dark color tokens allow developers to concentrate on domain features rather than custom CSS styling overrides.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Portal Domain Schemas -->
+      <section class="mui-card" style="gap: var(--spacing-md);">
+        <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 20px;">
+          <span>Domain Entity Schemas</span>
+        </h2>
+        <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: var(--spacing-xs);">
+          Memorias revolves around five central entity models. Their relationships are visually defined as follows:
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+          
+          <div style="display: flex; gap: var(--spacing-md); align-items: flex-start;">
+            <span style="font-size: 24px; padding: 8px; background-color: var(--primary-light); border-radius: var(--radius-sm);">👥</span>
+            <div>
+              <h4 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary);">Members (Investigadores)</h4>
+              <p style="font-size: 12.5px; color: var(--text-secondary);">The laboratory researchers (directors, co-directors, fellows, students) affiliated with CONICET, CIC, UNLP, or other agencies.</p>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: var(--spacing-md); align-items: flex-start;">
+            <span style="font-size: 24px; padding: 8px; background-color: var(--secondary-light); border-radius: var(--radius-sm);">💼</span>
+            <div>
+              <h4 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary);">Projects (Proyectos de Investigación)</h4>
+              <p style="font-size: 12.5px; color: var(--text-secondary);">Active R&D grants sponsored by national agencies (PICT, UNLP, CIC). They link researchers to specific roles (Director, Team Member).</p>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: var(--spacing-md); align-items: flex-start;">
+            <span style="font-size: 24px; padding: 8px; background-color: var(--success-light); border-radius: var(--radius-sm);">🎓</span>
+            <div>
+              <h4 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary);">Theses (Tesis Académicas)</h4>
+              <p style="font-size: 12.5px; color: var(--text-secondary);">Doctoral or undergraduate dissertations conducted in the lab. Tracks completion progress (0-100%) and supervisory relationships.</p>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: var(--spacing-md); align-items: flex-start;">
+            <span style="font-size: 24px; padding: 8px; background-color: var(--warning-light); border-radius: var(--radius-sm);">🎟️</span>
+            <div>
+              <h4 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary);">Scholarships (Becas)</h4>
+              <p style="font-size: 12.5px; color: var(--text-secondary);">Doctoral or postdoc training fellowships funded by CONICET/CIC. Maps fellow supervisors and agency start/end periods.</p>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: var(--spacing-md); align-items: flex-start;">
+            <span style="font-size: 24px; padding: 8px; background-color: rgba(217, 119, 6, 0.08); border-radius: var(--radius-sm);">📚</span>
+            <div>
+              <h4 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary);">Publications (Bibliografía)</h4>
+              <p style="font-size: 12.5px; color: var(--text-secondary);">Peer-reviewed journals, conference papers, or book chapters written by lab members. Includes copyable citations and BibTeX records.</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

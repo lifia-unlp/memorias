@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Publications | Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    function changeStyle(styleName) {
+      document.querySelectorAll('.pub-citation').forEach(function(el) {
+        if(styleName === 'apa') {
+          el.innerHTML = el.getAttribute('data-apa');
+        } else if (styleName === 'ieee') {
+          el.innerHTML = el.getAttribute('data-ieee');
+        } else {
+          el.innerHTML = el.getAttribute('data-bibtex');
+        }
+      });
+      document.querySelectorAll('.tab-style').forEach(function(btn) {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+    }
+  </script>
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        <div class="mui-flex-gap-sm">
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"></a>
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link">Members</a>
+            <a href="projects.html" class="mui-nav-link">Projects</a>
+            <a href="theses.html" class="mui-nav-link">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link active">Publications</a>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+          </nav>
+          
+          <!-- Mobile Menu Dropdown -->
+          <div class="mui-menu-parent mui-mobile-menu">
+            <button class="mui-menu-trigger" style="font-weight: 700; gap: 4px;">Menu ☰</button>
+            <div class="mui-dropdown">
+              <a href="members.html" class="mui-dropdown-link">Members</a>
+              <a href="projects.html" class="mui-dropdown-link">Projects</a>
+              <a href="theses.html" class="mui-dropdown-link">Theses</a>
+              <a href="scholarships.html" class="mui-dropdown-link">Scholarships</a>
+              <a href="publications.html" class="mui-dropdown-link">Publications</a>
+              <div class="mui-dropdown-divider"></div>
+              <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+              <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+            </div>
+          </div>
+        </div>
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="mui-hero">
+      <div class="mui-container" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="mui-hero-content">
+          <h1 class="mui-hero-title">Scientific Bibliography</h1>
+          <p class="mui-hero-subtitle">
+            Browse, copy, and export peer-reviewed publications, journals, and conference papers authored by our laboratory members.
+          </p>
+        </div>
+        <a href="publication-form.html" class="mui-btn mui-btn-contained" style="background-color: var(--surface); color: var(--primary);">
+          Add Publication
+        </a>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="mui-container mui-section" style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+      
+      <!-- Filters and citation style selector -->
+      <section class="mui-filters-card" style="justify-content: space-between;">
+        <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap; flex-grow: 1; align-items: center;">
+          <div class="mui-filters-item" style="min-width: 250px;">
+            <input type="text" class="mui-filters-input" placeholder="Search by title, authors, venue, or year...">
+          </div>
+          <div class="mui-filters-item" style="max-width: 150px;">
+            <select class="mui-filters-input mui-select">
+              <option value="">All Years</option>
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Citation Style selector mock -->
+        <div style="display: flex; gap: 4px; border: 1px solid var(--border); padding: 2px; border-radius: var(--radius-sm); background-color: var(--background);">
+          <button class="mui-btn tab-style active" onclick="changeStyle('apa')" style="padding: 6px 12px; font-size: 11px; text-transform: uppercase;">APA</button>
+          <button class="mui-btn tab-style" onclick="changeStyle('ieee')" style="padding: 6px 12px; font-size: 11px; text-transform: uppercase;">IEEE</button>
+          <button class="mui-btn tab-style" onclick="changeStyle('bibtex')" style="padding: 6px 12px; font-size: 11px; text-transform: uppercase;">BibTeX</button>
+        </div>
+      </section>
+
+      <!-- Publications List Grid -->
+      <section style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+        
+        <!-- Pub 1 -->
+        <div class="mui-card" style="gap: var(--spacing-sm);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span class="mui-chip mui-chip-amber">Journal Article</span>
+            <span class="mui-chip">Year 2025</span>
+          </div>
+          <a href="publication-detail.html" class="mui-card-title" style="font-size: 16px;">
+            Architecting Micro-Frontends on Modern Web Frameworks: A Case Study on Scalability
+          </a>
+          
+          <!-- Citation display area -->
+          <div class="pub-citation" style="font-size: 13px; font-style: italic; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--background); border-radius: var(--radius-sm); border: 1px solid var(--border); color: var(--text-primary);"
+               data-apa="Smith, J., Doe, R., & Garcia, M. (2025). Architecting Micro-Frontends on Modern Web Frameworks: A Case Study on Scalability. IEEE Transactions on Software Engineering, 51(3), 142-156."
+               data-ieee="[1] J. Smith, R. Doe, and M. Garcia, &quot;Architecting Micro-Frontends on Modern Web Frameworks: A Case Study on Scalability,&quot; IEEE Transactions on Software Engineering, vol. 51, no. 3, pp. 142-156, Mar. 2025."
+               data-bibtex="@article{smith2025microfrontends, author={Smith, John and Doe, Richard and Garcia, Maria}, journal={IEEE Transactions on Software Engineering}, title={Architecting Micro-Frontends on Modern Web Frameworks: A Case Study on Scalability}, year={2025}, volume={51}, number={3}, pages={142-156}}">
+            Smith, J., Doe, R., & Garcia, M. (2025). Architecting Micro-Frontends on Modern Web Frameworks: A Case Study on Scalability. IEEE Transactions on Software Engineering, 51(3), 142-156.
+          </div>
+
+          <div style="display: flex; gap: var(--spacing-md); font-size: 12px; font-weight: 700; margin-top: var(--spacing-xs);">
+            <a href="publication-detail.html" style="color: var(--secondary);">Details</a>
+            <a href="#" style="color: var(--primary);">Copy Citation</a>
+            <a href="#" style="color: var(--secondary);">Download BibTeX</a>
+            <a href="#" style="color: var(--secondary);">PDF Link</a>
+          </div>
+        </div>
+
+        <!-- Pub 2 -->
+        <div class="mui-card" style="gap: var(--spacing-sm);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span class="mui-chip mui-chip-amber">Conference Proceeding</span>
+            <span class="mui-chip">Year 2024</span>
+          </div>
+          <a href="publication-detail.html" class="mui-card-title" style="font-size: 16px;">
+            Deep Learning Architectures for Real-time Computer Vision in Autonomous Drones
+          </a>
+          
+          <!-- Citation display area -->
+          <div class="pub-citation" style="font-size: 13px; font-style: italic; padding: var(--spacing-sm) var(--spacing-md); background-color: var(--background); border-radius: var(--radius-sm); border: 1px solid var(--border); color: var(--text-primary);"
+               data-apa="Garcia, M., & Smith, J. (2024). Deep Learning Architectures for Real-time Computer Vision in Autonomous Drones. Proceedings of the 2024 International Conference on Robotics (ICR), 210-224."
+               data-ieee="[2] M. Garcia and J. Smith, &quot;Deep Learning Architectures for Real-time Computer Vision in Autonomous Drones,&quot; in Proceedings of the 2024 International Conference on Robotics (ICR), 2024, pp. 210-224."
+               data-bibtex="@inproceedings{garcia2024drones, author={Garcia, Maria and Smith, John}, booktitle={Proceedings of the 2024 International Conference on Robotics (ICR)}, title={Deep Learning Architectures for Real-time Computer Vision in Autonomous Drones}, year={2024}, pages={210-224}}">
+            Garcia, M., & Smith, J. (2024). Deep Learning Architectures for Real-time Computer Vision in Autonomous Drones. Proceedings of the 2024 International Conference on Robotics (ICR), 210-224.
+          </div>
+
+          <div style="display: flex; gap: var(--spacing-md); font-size: 12px; font-weight: 700; margin-top: var(--spacing-xs);">
+            <a href="publication-detail.html" style="color: var(--secondary);">Details</a>
+            <a href="#" style="color: var(--primary);">Copy Citation</a>
+            <a href="#" style="color: var(--secondary);">Download BibTeX</a>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Pagination -->
+      <div class="mui-pagination">
+        <button class="mui-pagination-btn" disabled>«</button>
+        <button class="mui-pagination-btn active">1</button>
+        <button class="mui-pagination-btn">»</button>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

@@ -1,12 +1,26 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { DeleteThesisButton } from "./DeleteThesisButton";
 import { Header } from "@/components/Header";
-import { jsonToBibtex } from "@/lib/bibtex";
-import { formatCitation } from "@/lib/citations";
+import { Footer } from "@/components/Footer";
+import { RelatedMembers } from "@/components/reusable/RelatedMembers";
+import { RelatedProjects } from "@/components/reusable/RelatedProjects";
+import { RelatedPublications } from "@/components/reusable/RelatedPublications";
+import {
+  Container,
+  Box,
+  Typography,
+  Button,
+  Grid,
+  Card,
+  CardContent,
+  Chip,
+  LinearProgress,
+} from "@mui/material";
 
 type Params = Promise<{ slug: string }>;
 
@@ -37,6 +51,10 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
           id: true,
           title: true,
           slug: true,
+          code: true,
+          fundingAgency: true,
+          startDate: true,
+          endDate: true,
         },
       },
       publications: {
@@ -61,335 +79,414 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
     : "Ongoing";
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header activeTab="theses" />
 
-      {/* Title Banner */}
-      <section className="bg-gradient-to-br from-primary to-primary-hover text-white py-12 px-6 shadow-inner relative overflow-hidden border-b border-blue-700/20">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+      {/* Hero Header Banner */}
+      <Box data-component-semantics="Hero banner"
+        sx={{
+          background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
+          color: "common.white",
+          py: 8,
+          px: 3,
+          boxShadow: "inset 0px -4px 10px rgba(0, 0, 0, 0.1)",
+          position: "relative",
+          overflow: "hidden",
+          borderBottom: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        {/* Decorative Wave Background */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0.08,
+            pointerEvents: "none",
+            "& svg": { width: "100%", height: "100%" },
+          }}
+        >
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none">
             <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
           </svg>
-        </div>
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-3">
-            {thesis.level && (
-              <span className="text-[10px] font-extrabold uppercase tracking-widest bg-white/20 text-white px-3 py-1 rounded-full">
-                Level: {thesis.level}
-              </span>
-            )}
-            <h1 className="text-4xl font-extrabold tracking-tight max-w-4xl leading-tight">
-              {thesis.title}
-            </h1>
-            <div className="flex items-center gap-1 text-blue-100 text-xs font-semibold">
-              <span>Timeline:</span>
-              <span>{startStr} – {endStr}</span>
-              {thesis.progress !== null && (
-                <>
-                  <span className="mx-2">•</span>
-                  <span className="bg-white/20 text-white px-2 py-0.5 rounded text-[10px] font-bold">
-                    {thesis.progress}% Progress
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
+        </Box>
 
-          {isEditorOrAdmin && (
-            <div className="flex items-center gap-3">
-              <Link
-                href={`/theses/${thesis.slug}/edit`}
-                className="bg-white hover:bg-slate-100 text-primary font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all text-center"
+        <Container maxWidth="xl" sx={{ position: "relative", zIndex: 10 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              alignItems: { xs: "flex-start", md: "center" },
+              justifyContent: "space-between",
+              gap: 3,
+            }}
+          >
+            <Box sx={{ spaceY: 2, maxWidth: 800 }}>
+              {thesis.level && (
+                <Chip
+                  label={`Level: ${thesis.level}`}
+                  size="small"
+                  sx={{
+                    fontSize: "0.675rem",
+                    fontWeight: "extrabold",
+                    bgcolor: "rgba(255, 255, 255, 0.2)",
+                    color: "common.white",
+                    textTransform: "uppercase",
+                    mb: 2,
+                  }}
+                />
+              )}
+              <Typography data-component-semantics="Hero title"
+                variant="h1"
+                sx={{
+                  color: "common.white",
+                  fontSize: { xs: "1.75rem", sm: "2.25rem", md: "2.75rem" },
+                  fontWeight: 900,
+                  lineHeight: 1.25,
+                  mb: 2,
+                }}
               >
-                Edit Thesis
-              </Link>
-              <DeleteThesisButton thesisId={thesis.id} thesisTitle={thesis.title} />
-            </div>
-          )}
-        </div>
-      </section>
+                {thesis.title}
+              </Typography>
 
-      {/* Main content grid */}
-      <main className="max-w-7xl w-full mx-auto px-6 py-10 flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Left Column: Abstract, Projects, and Publications */}
-        <div className="lg:col-span-2 space-y-8">
-          
-          {/* Abstract summary */}
-          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-            <h2 className="text-lg font-extrabold text-primary border-b border-border pb-3 flex items-center gap-2">
-              Thesis Abstract
-            </h2>
-            {thesis.summary ? (
-              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
-                {thesis.summary}
-              </p>
-            ) : (
-              <div className="text-xs text-muted italic font-medium py-4 text-center">
-                No description or abstract summary has been set for this thesis.
-              </div>
+              <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5, fontSize: "0.85rem", fontWeight: 600 }}>
+                <Typography data-component-semantics="Hero subtitle" variant="body2" sx={{ color: "rgba(255, 255, 255, 0.85)", fontWeight: "bold" }}>
+                  Timeline: {startStr} – {endStr}
+                </Typography>
+                {thesis.progress !== null && (
+                  <>
+                    <Typography variant="body2" sx={{ color: "rgba(255, 255, 255, 0.5)" }}>
+                      •
+                    </Typography>
+                    <Chip
+                      label={`${thesis.progress}% Progress`}
+                      size="small"
+                      sx={{
+                        fontSize: "0.625rem",
+                        fontWeight: "extrabold",
+                        bgcolor: "rgba(255, 255, 255, 0.2)",
+                        color: "common.white",
+                        height: 20,
+                      }}
+                    />
+                  </>
+                )}
+              </Box>
+            </Box>
+
+            {isEditorOrAdmin && (
+              <Box sx={{ display: "flex", gap: 1.5, flexShrink: 0, mt: { xs: 2, md: 0 } }}>
+                <LinkButton 
+                  href={`/theses/${thesis.slug}/edit`}
+                  variant="contained"
+                  sx={{
+                    bgcolor: "common.white",
+                    color: "primary.main",
+                    fontWeight: "bold",
+                    borderRadius: 3,
+                    boxShadow: 2,
+                    "&:hover": {
+                      bgcolor: "rgba(255, 255, 255, 0.9)",
+                      boxShadow: 3,
+                    },
+                  }}
+                >
+                  Edit Thesis
+                </LinkButton>
+                <DeleteThesisButton thesisId={thesis.id} thesisTitle={thesis.title} />
+              </Box>
             )}
-          </div>
+          </Box>
+        </Container>
+      </Box>
 
-          {/* Connected Projects */}
-          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-            <h2 className="text-lg font-extrabold text-primary border-b border-border pb-3 flex items-center gap-2">
-              Associated Research Projects ({thesis.projects.length})
-            </h2>
-            {thesis.projects.length === 0 ? (
-              <div className="text-xs text-muted italic font-medium py-4 text-center">
-                No associated research projects linked to this thesis.
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {thesis.projects.map((proj) => (
-                  <Link
-                    key={proj.id}
-                    href={`/projects/${proj.slug}`}
-                    className="block p-4 rounded-xl border border-border hover:border-slate-350 dark:hover:border-slate-750 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all"
+      {/* Main Content Grid */}
+      <Container maxWidth="xl" sx={{ py: 6, flex: 1 }}>
+        <Grid container spacing={4}>
+          {/* Left Column: Summary, Projects, and Publications */}
+          <Grid size={{ xs: 12, lg: 8 }} sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            
+            {/* Thesis Abstract */}
+            <Card sx={{ p: 1 }}>
+              <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <Typography
+                  variant="h2"
+                  sx={{
+                    fontSize: "1.15rem",
+                    fontWeight: 700,
+                    color: "primary.main",
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                    pb: 1.5,
+                  }}
+                >
+                  Thesis Abstract
+                </Typography>
+                {thesis.summary ? (
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      fontSize: "0.925rem",
+                      lineHeight: 1.7,
+                      color: "text.primary",
+                      whiteSpace: "pre-line",
+                    }}
                   >
-                    <span className="font-bold text-sm text-slate-800 dark:text-slate-100 block">
-                      {proj.title}
-                    </span>
-                    <span className="text-[10px] text-muted block mt-1.5 leading-none">
-                      Go to Project Space →
-                    </span>
-                  </Link>
-                ))}
-              </div>
+                    {thesis.summary}
+                  </Typography>
+                ) : (
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ fontStyle: "italic", textAlign: "center", py: 3 }}
+                  >
+                    No description or abstract summary has been set for this thesis.
+                  </Typography>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Connected Projects */}
+            {thesis.projects.length > 0 && (
+              <Box>
+                <RelatedProjects projects={thesis.projects} />
+              </Box>
             )}
-          </div>
 
-          {/* Connected Publications in APA */}
-          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-            <h2 className="text-lg font-extrabold text-primary border-b border-border pb-3 flex items-center gap-2">
-              Associated Scientific Papers ({thesis.publications.length})
-            </h2>
-            {thesis.publications.length === 0 ? (
-              <div className="text-xs text-muted italic font-medium py-4 text-center">
-                No associated publications linked to this thesis.
-              </div>
-            ) : (
-              <div className="divide-y divide-border/60">
-                {thesis.publications.map((pb) => {
-                  const hasBibtex = pb.bibtexData && typeof pb.bibtexData === "object" && Object.keys(pb.bibtexData).length > 0;
-                  const bibString = jsonToBibtex(pb);
-                  const bibDownloadUrl = bibString ? `data:text/plain;charset=utf-8,${encodeURIComponent(bibString)}` : "";
-                  const citation = formatCitation(pb, "apa");
-                  return (
-                    <div key={pb.id} className="py-3.5 first:pt-0 last:pb-0 space-y-2">
-                      <Link href={`/publications/${pb.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors block leading-tight">
-                        {pb.title}
-                      </Link>
-                      <div
-                        className="text-xs text-slate-650 dark:text-slate-350 leading-relaxed bg-slate-50/50 dark:bg-slate-800/20 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80"
-                        dangerouslySetInnerHTML={{ __html: citation.html }}
-                      />
-                      
-                      <div className="flex items-center gap-4 text-xs font-semibold">
-                        <Link
-                          href={`/publications/${pb.slug}`}
-                          className="text-secondary hover:text-secondary-hover flex items-center gap-1 transition-all"
-                        >
-                          Details
-                        </Link>
-                        {hasBibtex && bibDownloadUrl && (
-                          <a
-                            href={bibDownloadUrl}
-                            download={`${pb.slug}.bib`}
-                            className="text-primary hover:text-primary-hover flex items-center gap-1 cursor-pointer"
-                          >
-                            Download BibTeX
-                          </a>
-                        )}
-                        {pb.selfArchivingUrl && (
-                          <a
-                            href={pb.selfArchivingUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-secondary hover:text-secondary-hover flex items-center gap-1 cursor-pointer"
-                          >
-                            Self-Archived PDF
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+            {/* Connected Publications */}
+            {thesis.publications.length > 0 && (
+              <Box>
+                <RelatedPublications publications={thesis.publications} />
+              </Box>
             )}
-          </div>
-        </div>
+          </Grid>
 
-        {/* Right Column: Metadata Detail Sidebar */}
-        <div className="space-y-6">
-          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-5">
-            <h3 className="font-extrabold text-xs text-primary uppercase tracking-wider border-b border-border pb-3">
-              Thesis Profile
-            </h3>
+          {/* Right Column: Metadata Sidebar */}
+          <Grid size={{ xs: 12, lg: 4 }} sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            
+            {/* Thesis Profile details */}
+            <Card sx={{ p: 1 }}>
+              <CardContent sx={{ display: "flex", flexDirection: "column", gap: 3.5 }}>
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontSize: "0.75rem",
+                    fontWeight: "extrabold",
+                    color: "primary.main",
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                    pb: 1.5,
+                    mb: -1,
+                  }}
+                >
+                  Thesis Profile
+                </Typography>
 
-            <div className="space-y-4 text-xs">
-              {thesis.student && (
-                <div>
-                  <span className="text-slate-500 font-semibold block">Student</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block mt-0.5">
-                    {thesis.student}
-                  </span>
-                </div>
-              )}
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+                  {thesis.student && (
+                    <Box>
+                      <Typography variant="caption" sx={{ fontWeight: 650, color: "text.secondary" }}>
+                        Student
+                      </Typography>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary", fontSize: "0.9rem", mt: 0.25 }}>
+                        {thesis.student}
+                      </Typography>
+                    </Box>
+                  )}
 
-              {thesis.career && (
-                <div>
-                  <span className="text-slate-500 font-semibold block">Career / Program</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 block mt-0.5">
-                    {thesis.career}
-                  </span>
-                </div>
-              )}
+                  {thesis.career && (
+                    <Box>
+                      <Typography variant="caption" sx={{ fontWeight: 650, color: "text.secondary" }}>
+                        Career / Program
+                      </Typography>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary", fontSize: "0.85rem", mt: 0.25 }}>
+                        {thesis.career}
+                      </Typography>
+                    </Box>
+                  )}
 
-              {thesis.director && (
-                <div>
-                  <span className="text-slate-500 font-semibold block">Director</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block mt-0.5">
-                    {thesis.director}
-                  </span>
-                </div>
-              )}
+                  {thesis.director && (
+                    <Box>
+                      <Typography variant="caption" sx={{ fontWeight: 650, color: "text.secondary" }}>
+                        Director
+                      </Typography>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary", fontSize: "0.9rem", mt: 0.25 }}>
+                        {thesis.director}
+                      </Typography>
+                    </Box>
+                  )}
 
-              {thesis.coDirector && (
-                <div>
-                  <span className="text-slate-500 font-semibold block">Co-Director</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block mt-0.5">
-                    {thesis.coDirector}
-                  </span>
-                </div>
-              )}
+                  {thesis.coDirector && (
+                    <Box>
+                      <Typography variant="caption" sx={{ fontWeight: 650, color: "text.secondary" }}>
+                        Co-Director
+                      </Typography>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary", fontSize: "0.9rem", mt: 0.25 }}>
+                        {thesis.coDirector}
+                      </Typography>
+                    </Box>
+                  )}
 
-              {thesis.otherAdvisors && (
-                <div>
-                  <span className="text-slate-500 font-semibold block">Thesis Committee Advisors</span>
-                  <span className="font-medium text-slate-700 dark:text-slate-300 block mt-0.5">
-                    {thesis.otherAdvisors}
-                  </span>
-                </div>
-              )}
+                  {thesis.otherAdvisors && (
+                    <Box>
+                      <Typography variant="caption" sx={{ fontWeight: 650, color: "text.secondary" }}>
+                        Thesis Committee Advisors
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 500, color: "text.primary", mt: 0.25 }}>
+                        {thesis.otherAdvisors}
+                      </Typography>
+                    </Box>
+                  )}
 
-              {thesis.progress !== null && (
-                <div className="space-y-1.5 pt-1">
-                  <span className="text-slate-500 font-semibold block">Thesis Completion Milestone</span>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 border border-border rounded-full overflow-hidden">
-                      <div className="bg-secondary h-full transition-all duration-300" style={{ width: `${thesis.progress}%` }}></div>
-                    </div>
-                    <span className="font-extrabold text-[10px] leading-none shrink-0 bg-slate-100 dark:bg-slate-800 border border-border px-2 py-1 rounded">
-                      {thesis.progress}%
-                    </span>
-                  </div>
-                </div>
-              )}
+                  {thesis.progress !== null && (
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                      <Typography variant="caption" sx={{ fontWeight: 650, color: "text.secondary" }}>
+                        Thesis Completion Milestone
+                      </Typography>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                        <Box sx={{ flex: 1 }}>
+                          <LinearProgress
+                            variant="determinate"
+                            value={thesis.progress}
+                            color="secondary"
+                            sx={{ height: 6, borderRadius: 2 }}
+                          />
+                        </Box>
+                        <Chip
+                          label={`${thesis.progress}%`}
+                          size="small"
+                          sx={{
+                            fontSize: "0.625rem",
+                            fontWeight: "bold",
+                            bgcolor: "action.hover",
+                            height: 20,
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                  )}
 
-              {thesis.reportUrl && (
-                <div className="pt-2">
-                  <a
-                    href={thesis.reportUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="bg-primary hover:bg-primary-hover text-white text-center py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow block cursor-pointer"
-                  >
-                    Download Thesis Manuscript
-                  </a>
-                </div>
-              )}
-
-              {thesis.website && (
-                <div>
-                  <span className="text-slate-500 font-semibold block">Thesis Web Link</span>
-                  <a
-                    href={thesis.website}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="font-bold text-primary hover:underline block mt-0.5 truncate"
-                  >
-                    Visit Website
-                  </a>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Associated Lab Researchers */}
-          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-            <h3 className="font-extrabold text-xs text-primary uppercase tracking-wider border-b border-border pb-3">
-              Associated Members ({thesis.members.length})
-            </h3>
-            {thesis.members.length === 0 ? (
-              <div className="text-xs text-muted italic font-medium py-2 text-center">
-                No connected researchers.
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {thesis.members.map((member) => (
-                  <Link
-                    key={member.id}
-                    href={`/members/${member.slug}`}
-                    className="flex items-center gap-3 p-2.5 rounded-xl border border-border/80 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all block"
-                  >
-                    {member.avatarUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={member.avatarUrl}
-                        alt={`${member.firstName} ${member.lastName}`}
-                        className="h-8 w-8 rounded-full object-cover border border-border bg-slate-100 shrink-0"
-                      />
-                    ) : (
-                      <div className="h-8 w-8 rounded-full bg-primary/10 text-primary border border-border flex items-center justify-center text-[10px] font-bold font-mono shrink-0">
-                        {member.firstName[0]}
-                        {member.lastName[0]}
-                      </div>
-                    )}
-                    <div className="min-w-0">
-                      <span className="font-bold text-xs text-slate-800 dark:text-slate-200 block truncate leading-tight">
-                        {member.firstName} {member.lastName}
-                      </span>
-                      <span className="text-[10px] text-muted block truncate mt-0.5">
-                        {member.positionAtLab || "Researcher"}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Keywords & Tags cloud */}
-          {(thesis.tags.length > 0 || thesis.keywords) && (
-            <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-              <h3 className="font-extrabold text-xs text-primary uppercase tracking-wider border-b border-border pb-2.5">
-                Scientific Keywords
-              </h3>
-              
-              {thesis.keywords && (
-                <div className="text-[11px] leading-relaxed text-slate-700 dark:text-slate-350">
-                  <span className="font-semibold text-slate-850 dark:text-slate-100">Keywords:</span> {thesis.keywords}
-                </div>
-              )}
-
-              {thesis.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {thesis.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="bg-slate-100 dark:bg-slate-800 text-slate-650 dark:text-slate-400 px-3 py-1 rounded-xl text-xs font-semibold"
+                  {thesis.reportUrl && (
+                    <Button
+                      component="a"
+                      href={thesis.reportUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                      sx={{ borderRadius: 3, fontWeight: "bold", py: 1, mt: 1 }}
                     >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </main>
-    </div>
+                      Download Thesis Manuscript
+                    </Button>
+                  )}
+
+                  {thesis.website && (
+                    <Box>
+                      <Typography variant="caption" sx={{ fontWeight: 650, color: "text.secondary" }}>
+                        Thesis Web Link
+                      </Typography>
+                      <Button
+                        component="a"
+                        href={thesis.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        variant="text"
+                        color="primary"
+                        sx={{
+                          p: 0,
+                          mt: 0.25,
+                          fontSize: "0.825rem",
+                          fontWeight: "bold",
+                          textTransform: "none",
+                          justifyContent: "flex-start",
+                          minWidth: 0,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          width: "100%",
+                          display: "block",
+                          textAlign: "left",
+                        }}
+                      >
+                        Visit Website
+                      </Button>
+                    </Box>
+                  )}
+                </Box>
+              </CardContent>
+            </Card>
+
+            {/* Associated Members/Participants */}
+            {thesis.members.length > 0 && (
+              <Box>
+                <RelatedMembers members={thesis.members} />
+              </Box>
+            )}
+
+            {/* Keywords & Tags cloud */}
+            {(thesis.tags.length > 0 || thesis.keywords) && (
+              <Card sx={{ p: 1 }}>
+                <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      fontSize: "0.75rem",
+                      fontWeight: "extrabold",
+                      color: "primary.main",
+                      textTransform: "uppercase",
+                      letterSpacing: 1,
+                      borderBottom: "1px solid",
+                      borderColor: "divider",
+                      pb: 1.5,
+                      mb: -0.5,
+                    }}
+                  >
+                    Scientific Keywords
+                  </Typography>
+
+                  {thesis.keywords && (
+                    <Box>
+                      <Typography variant="caption" sx={{ fontWeight: 600, color: "text.secondary" }}>
+                        Keywords:
+                      </Typography>
+                      <Typography variant="body2" sx={{ mt: 0.25, color: "text.primary" }}>
+                        {thesis.keywords}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {thesis.tags.length > 0 && (
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, pt: thesis.keywords ? 1 : 0 }}>
+                      {thesis.tags.map((tag) => (
+                        <Chip
+                          key={tag}
+                          label={`#${tag}`}
+                          size="small"
+                          sx={{
+                            fontSize: "0.625rem",
+                            height: 18,
+                            borderRadius: 1,
+                            border: "1px solid",
+                            borderColor: "primary.light",
+                            bgcolor: "primary.light",
+                            color: "primary.main",
+                            fontWeight: "bold",
+                          }}
+                          data-component-semantics="Tag badge"
+                        />
+                      ))}
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </Grid>
+        </Grid>
+      </Container>
+      <Footer />
+    </Box>
   );
 }

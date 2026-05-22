@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects | Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        <div class="mui-flex-gap-sm">
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"></a>
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link">Members</a>
+            <a href="projects.html" class="mui-nav-link active">Projects</a>
+            <a href="theses.html" class="mui-nav-link">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link">Publications</a>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+          </nav>
+          
+          <!-- Mobile Menu Dropdown -->
+          <div class="mui-menu-parent mui-mobile-menu">
+            <button class="mui-menu-trigger" style="font-weight: 700; gap: 4px;">Menu ☰</button>
+            <div class="mui-dropdown">
+              <a href="members.html" class="mui-dropdown-link">Members</a>
+              <a href="projects.html" class="mui-dropdown-link">Projects</a>
+              <a href="theses.html" class="mui-dropdown-link">Theses</a>
+              <a href="scholarships.html" class="mui-dropdown-link">Scholarships</a>
+              <a href="publications.html" class="mui-dropdown-link">Publications</a>
+              <div class="mui-dropdown-divider"></div>
+              <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+              <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+            </div>
+          </div>
+        </div>
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="mui-hero">
+      <div class="mui-container" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="mui-hero-content">
+          <h1 class="mui-hero-title">Research Projects</h1>
+          <p class="mui-hero-subtitle">
+            Explore our active and completed R&D projects funded by national and international scientific agencies.
+          </p>
+        </div>
+        <a href="project-form.html" class="mui-btn mui-btn-contained" style="background-color: var(--surface); color: var(--primary);">
+          Add Project
+        </a>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="mui-container mui-section" style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+      
+      <!-- Filters -->
+      <section class="mui-filters-card">
+        <div class="mui-filters-item" style="flex-grow: 2;">
+          <input type="text" class="mui-filters-input" placeholder="Search by project code, title, or tags...">
+        </div>
+        <div class="mui-filters-item">
+          <select class="mui-filters-input mui-select">
+            <option value="">All Funding Agencies</option>
+            <option value="Agencia I+D+i">Agencia I+D+i</option>
+            <option value="UNLP">UNLP</option>
+            <option value="CONICET">CONICET</option>
+          </select>
+        </div>
+        <button class="mui-btn mui-btn-contained" style="padding: 10px 20px;">Filter</button>
+      </section>
+
+      <!-- Projects Grid -->
+      <section class="mui-grid-2">
+        
+        <!-- Project 1 -->
+        <div class="mui-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
+            <span class="mui-chip mui-chip-secondary">PICT-2023-010</span>
+            <span class="mui-chip mui-chip-success">Active</span>
+          </div>
+          <a href="project-detail.html" class="mui-card-title">
+            Distributed Ledgers and Edge Analytics for Secured Industrial Internet of Things
+          </a>
+          <p class="mui-card-content" style="margin-top: var(--spacing-sm);">
+            Developing decentralized trust frameworks and optimized machine learning inference engines at the boundary of smart manufacturing environments.
+          </p>
+          <div class="mui-card-meta">
+            <strong>Director:</strong> <a href="member-detail.html">John Smith</a><br>
+            <strong>Funding Agency:</strong> Agencia I+D+i<br>
+            <strong>Duration:</strong> Jan 2023 — Dec 2026
+          </div>
+          <div class="mui-card-actions" style="justify-content: space-between; align-items: center;">
+            <div style="display: flex; gap: 4px;">
+              <span class="mui-chip">#IoT</span>
+              <span class="mui-chip">#Blockchain</span>
+            </div>
+            <a href="project-detail.html" class="mui-btn mui-btn-text">Details →</a>
+          </div>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="mui-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
+            <span class="mui-chip mui-chip-secondary">11/F945</span>
+            <span class="mui-chip mui-chip-success">Active</span>
+          </div>
+          <a href="project-detail.html" class="mui-card-title">
+            Augmented Intelligence and Immersive Interfaces for Digital Laboratories
+          </a>
+          <p class="mui-card-content" style="margin-top: var(--spacing-sm);">
+            Researching virtual reality overlays, advanced visual layouts, and spatial computing setups to enhance laboratory researcher performance and teaching.
+          </p>
+          <div class="mui-card-meta">
+            <strong>Director:</strong> <a href="member-detail.html">Maria Garcia</a><br>
+            <strong>Funding Agency:</strong> Universidad Nacional de La Plata<br>
+            <strong>Duration:</strong> Jan 2022 — Dec 2025
+          </div>
+          <div class="mui-card-actions" style="justify-content: space-between; align-items: center;">
+            <div style="display: flex; gap: 4px;">
+              <span class="mui-chip">#Virtual Reality</span>
+              <span class="mui-chip">#HCI</span>
+            </div>
+            <a href="project-detail.html" class="mui-btn mui-btn-text">Details →</a>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Pagination -->
+      <div class="mui-pagination">
+        <button class="mui-pagination-btn" disabled>«</button>
+        <button class="mui-pagination-btn active">1</button>
+        <button class="mui-pagination-btn">»</button>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

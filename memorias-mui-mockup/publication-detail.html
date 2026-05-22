@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architecting Micro-Frontends | Publication Detail - Memorias Mockup</title>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    function copyToClipboard(elementId, buttonId) {
+      var copyText = document.getElementById(elementId).innerText || document.getElementById(elementId).value;
+      var dummy = document.createElement("textarea");
+      document.body.appendChild(dummy);
+      dummy.value = copyText;
+      dummy.select();
+      document.execCommand("copy");
+      document.body.removeChild(dummy);
+      
+      var btn = document.getElementById(buttonId);
+      var originalText = btn.innerText;
+      btn.innerText = "✓ Copied!";
+      btn.style.backgroundColor = "var(--success)";
+      btn.style.color = "var(--surface)";
+      
+      setTimeout(function() {
+        btn.innerText = originalText;
+        btn.style.backgroundColor = "";
+        btn.style.color = "";
+      }, 2000);
+    }
+
+    function switchDetailCitation(styleName) {
+      document.querySelectorAll('.citation-pane').forEach(function(pane) {
+        pane.style.display = 'none';
+      });
+      document.getElementById('pane-' + styleName).style.display = 'block';
+      
+      document.querySelectorAll('.tab-detail-style').forEach(function(btn) {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+    }
+  </script>
+</head>
+<body>
+
+  <div class="mui-layout">
+    
+    <!-- App Shell Header -->
+    <header class="mui-appbar">
+      <div class="mui-container mui-toolbar">
+        <div class="mui-flex-gap-sm">
+          <a href="index.html" class="mui-brand" style="display: flex; align-items: center;"><img src="lifia-logo.png" alt="LIFIA Logo" style="height: 32px; width: auto; object-fit: contain;"></a>
+          <nav class="mui-nav">
+            <a href="members.html" class="mui-nav-link">Members</a>
+            <a href="projects.html" class="mui-nav-link">Projects</a>
+            <a href="theses.html" class="mui-nav-link">Theses</a>
+            <a href="scholarships.html" class="mui-nav-link">Scholarships</a>
+            <a href="publications.html" class="mui-nav-link active">Publications</a>
+            <div class="mui-menu-parent">
+              <button class="mui-menu-trigger">Reports</button>
+              <div class="mui-dropdown">
+                <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+                <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+              </div>
+            </div>
+          </nav>
+          
+          <!-- Mobile Menu Dropdown -->
+          <div class="mui-menu-parent mui-mobile-menu">
+            <button class="mui-menu-trigger" style="font-weight: 700; gap: 4px;">Menu ☰</button>
+            <div class="mui-dropdown">
+              <a href="members.html" class="mui-dropdown-link">Members</a>
+              <a href="projects.html" class="mui-dropdown-link">Projects</a>
+              <a href="theses.html" class="mui-dropdown-link">Theses</a>
+              <a href="scholarships.html" class="mui-dropdown-link">Scholarships</a>
+              <a href="publications.html" class="mui-dropdown-link">Publications</a>
+              <div class="mui-dropdown-divider"></div>
+              <a href="reports.html" class="mui-dropdown-link">Statistics</a>
+              <a href="reports.html" class="mui-dropdown-link">Report Builder</a>
+            </div>
+          </div>
+        </div>
+        <div class="mui-menu-parent">
+          <button class="mui-user-menu">
+            <div class="mui-avatar">JS</div>
+            <div class="mui-user-info">
+              <span class="mui-user-name">John Smith</span>
+              <span class="mui-user-role">ADMIN</span>
+            </div>
+          </button>
+          <div class="mui-dropdown mui-dropdown-right">
+            <a href="preferences.html" class="mui-dropdown-link">Preferences</a>
+            <div class="mui-dropdown-divider"></div>
+            <a href="auth.html" class="mui-dropdown-link" style="color: var(--error);">Sign Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <!-- Main Content Layout -->
+    <main class="mui-container mui-detail-layout mui-section">
+      
+      <!-- Left Column Sidebar: Publication details -->
+      <section class="mui-detail-sidebar">
+        <div class="mui-card" style="padding: var(--spacing-lg); gap: var(--spacing-md);">
+          <!-- Top Accent Bar -->
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background-color: var(--secondary);"></div>
+          
+          <div style="margin-top: var(--spacing-xs);">
+            <span class="mui-chip mui-chip-secondary" style="font-size: 11px;">Journal Article</span>
+            <h1 class="mui-card-title" style="font-size: 16px; font-weight: 800; margin-top: 8px;">About the publication</h1>
+          </div>
+
+          <!-- Publication Title, Authors, Abstract -->
+          <div style="margin-top: var(--spacing-sm); border-top: 1px solid var(--border); padding-top: var(--spacing-md);">
+            <h2 class="mui-card-title" style="font-size: 15px; font-weight: 800; margin-bottom: var(--spacing-sm); line-height: 1.4;">
+              Architecting Micro-Frontends on Modern Web Frameworks: A Case Study on Scalability
+            </h2>
+            <div style="margin-bottom: var(--spacing-md);">
+              <span style="font-size: 11px; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 4px; text-transform: uppercase;">Authors</span>
+              <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-xs); align-items: center; font-size: 12px; color: var(--text-primary);">
+                <span style="font-weight: 600;">John Smith</span>
+                <span style="color: var(--text-secondary);">•</span>
+                <span>Richard Doe (External)</span>
+                <span style="color: var(--text-secondary);">•</span>
+                <span style="font-weight: 600;">Maria Garcia</span>
+              </div>
+            </div>
+            <div style="font-size: 12.5px; line-height: 1.6; color: var(--text-secondary); text-align: justify; display: flex; flex-direction: column; gap: var(--spacing-xs);">
+              <p>Modern enterprise web applications suffer from massive architectural complexity as codebases grow. The micro-frontend architecture decomposes monolithic frontend projects into smaller, autonomous applications that can be developed, tested, and deployed independently. However, implementing micro-frontends introduces significant challenges regarding shared state management, CSS conflicts, common dependency sizes, and runtime orchestration. This paper explores various architectural patterns for orchestrating micro-frontends using modern web frameworks. We present a detailed empirical case study analyzing scalability factors such as bundle sizing, load times, development speed, and memory consumption. Our findings highlight key design trade-offs, demonstrating that standardizing runtime container parameters while maintaining independent deployment workflows provides optimal scalability for large-scale engineering groups.</p>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid var(--border); padding-top: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            
+            <div style="font-size: 13px;">
+              <span style="font-weight: 600; display: block;">Publication Year</span>
+              <span style="color: var(--text-secondary); font-size: 12px;">2025</span>
+            </div>
+
+            <div style="font-size: 13px;">
+              <span style="font-weight: 600; display: block;">Journal / Venue</span>
+              <span style="color: var(--text-secondary); font-size: 12px; font-style: italic;">IEEE Transactions on Software Engineering</span>
+            </div>
+
+            <div style="font-size: 13px;">
+              <span style="font-weight: 600; display: block;">Volume, Issue & Pages</span>
+              <span style="color: var(--text-secondary); font-size: 12px;">Volume 51, Issue 3, pp. 142-156</span>
+            </div>
+
+            <div style="font-size: 13px;">
+              <span style="font-weight: 600; display: block;">DOI / Identifiers</span>
+              <a href="https://doi.org/10.1109/TSE.2025.1234567" target="_blank" style="font-size: 12px; word-break: break-all;">10.1109/TSE.2025.1234567</a>
+            </div>
+
+            <div style="font-size: 13px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: var(--spacing-sm);">
+              <span style="font-weight: 600; display: block;">File Downloads</span>
+              <a href="#" class="mui-btn mui-btn-outlined" style="margin-top: 8px; width: 100%; font-size: 11px; padding: 6px 12px; gap: 4px;">
+                📄 Download PDF
+              </a>
+            </div>
+          </div>
+
+          <!-- Editor Actions -->
+          <div style="border-top: 1px solid var(--border); padding-top: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            <a href="publication-form.html" class="mui-btn mui-btn-contained" style="width: 100%;">Edit Publication</a>
+            <button class="mui-btn mui-btn-outlined mui-btn-danger" style="width: 100%;">Delete Publication</button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Right Column: Abstract & Core Info -->
+      <section class="mui-detail-main">
+        
+        <!-- Copyable format container -->
+        <div class="mui-card">
+          <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 16px; margin-bottom: var(--spacing-md);">
+            <span>Copy Citation or Export BibTeX</span>
+          </h2>
+
+          <!-- Citation Selector Tabs -->
+          <div style="display: flex; gap: 4px; border: 1px solid var(--border); padding: 2px; border-radius: var(--radius-sm); background-color: var(--background); margin-bottom: var(--spacing-md); max-width: 250px;">
+            <button class="mui-btn tab-detail-style active" onclick="switchDetailCitation('apa')" style="padding: 6px 12px; font-size: 11px; text-transform: uppercase; flex-grow: 1;">APA</button>
+            <button class="mui-btn tab-detail-style" onclick="switchDetailCitation('ieee')" style="padding: 6px 12px; font-size: 11px; text-transform: uppercase; flex-grow: 1;">IEEE</button>
+            <button class="mui-btn tab-detail-style" onclick="switchDetailCitation('bibtex')" style="padding: 6px 12px; font-size: 11px; text-transform: uppercase; flex-grow: 1;">BibTeX</button>
+          </div>
+
+          <!-- APA Pane -->
+          <div id="pane-apa" class="citation-pane">
+            <div id="text-apa" style="font-size: 13.5px; font-style: italic; padding: var(--spacing-md); background-color: var(--background); border-radius: var(--radius-sm); border: 1px solid var(--border); color: var(--text-primary); margin-bottom: var(--spacing-md); line-height: 1.6;">
+              Smith, J., Doe, R., & Garcia, M. (2025). Architecting Micro-Frontends on Modern Web Frameworks: A Case Study on Scalability. IEEE Transactions on Software Engineering, 51(3), 142-156.
+            </div>
+            <button class="mui-btn mui-btn-contained" id="btn-copy-apa" onclick="copyToClipboard('text-apa', 'btn-copy-apa')" style="font-size: 11px; padding: 6px 12px;">
+              Copy APA Citation
+            </button>
+          </div>
+
+          <!-- IEEE Pane -->
+          <div id="pane-ieee" class="citation-pane" style="display: none;">
+            <div id="text-ieee" style="font-size: 13.5px; font-style: italic; padding: var(--spacing-md); background-color: var(--background); border-radius: var(--radius-sm); border: 1px solid var(--border); color: var(--text-primary); margin-bottom: var(--spacing-md); line-height: 1.6;">
+              [1] J. Smith, R. Doe, and M. Garcia, "Architecting Micro-Frontends on Modern Web Frameworks: A Case Study on Scalability," IEEE Transactions on Software Engineering, vol. 51, no. 3, pp. 142-156, Mar. 2025.
+            </div>
+            <button class="mui-btn mui-btn-contained" id="btn-copy-ieee" onclick="copyToClipboard('text-ieee', 'btn-copy-ieee')" style="font-size: 11px; padding: 6px 12px;">
+              Copy IEEE Citation
+            </button>
+          </div>
+
+          <!-- BibTeX Pane -->
+          <div id="pane-bibtex" class="citation-pane" style="display: none;">
+            <textarea id="text-bibtex" readonly style="font-family: monospace; font-size: 12px; width: 100%; height: 160px; padding: var(--spacing-md); background-color: var(--background); border-radius: var(--radius-sm); border: 1px solid var(--border); color: var(--text-primary); margin-bottom: var(--spacing-md); resize: none; line-height: 1.5;">@article{smith2025microfrontends,
+  author={Smith, John and Doe, Richard and Garcia, Maria},
+  journal={IEEE Transactions on Software Engineering},
+  title={Architecting Micro-Frontends on Modern Web Frameworks: A Case Study on Scalability},
+  year={2025},
+  volume={51},
+  number={3},
+  pages={142-156},
+  doi={10.1109/TSE.2025.1234567}
+}</textarea>
+            <button class="mui-btn mui-btn-contained" id="btn-copy-bibtex" onclick="copyToClipboard('text-bibtex', 'btn-copy-bibtex')" style="font-size: 11px; padding: 6px 12px;">
+              Copy BibTeX Source
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Associated Projects -->
+        <div class="mui-card">
+          <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 18px; margin-bottom: var(--spacing-md);">
+            <span>Associated Projects</span>
+          </h2>
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            
+            <!-- Project 1 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: var(--spacing-sm); border-bottom: 1px solid rgba(0,0,0,0.05);">
+              <div>
+                <a href="project-detail.html" style="font-weight: 700; font-size: 14px;">Distributed Ledgers and Edge Analytics for Secured Industrial Internet of Things</a>
+                <span style="display: block; font-size: 11px; color: var(--text-secondary); margin-top: 2px;">2023 — Present | Director: John Smith</span>
+              </div>
+              <span class="mui-chip mui-chip-secondary">Active</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Associated Theses -->
+        <div class="mui-card">
+          <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 18px; margin-bottom: var(--spacing-md);">
+            <span>Associated Theses</span>
+          </h2>
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            
+            <!-- Thesis 1 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: var(--spacing-sm); border-bottom: 1px solid rgba(0,0,0,0.05);">
+              <div>
+                <a href="thesis-detail.html" style="font-weight: 700; font-size: 14px;">Semantic Curation Frameworks for Heterogeneous Academic Publications</a>
+                <span style="display: block; font-size: 11px; color: var(--text-secondary); margin-top: 2px;">
+                  Student: Alice Williams | Degree: PhD Thesis | 2021 — 2025
+                </span>
+              </div>
+              <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                <div class="mui-linear-progress" style="width: 80px;">
+                  <div class="mui-linear-progress-bar" style="width: 100%;"></div>
+                </div>
+                <span class="mui-chip mui-chip-success">Completed</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Associated Scholarships -->
+        <div class="mui-card">
+          <h2 class="mui-section-title" style="border: none; padding: 0 0 var(--spacing-sm) 0; border-bottom: 1px solid var(--border); font-size: 18px; margin-bottom: var(--spacing-md);">
+            <span>Associated Scholarships</span>
+          </h2>
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            
+            <!-- Scholarship 1 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: var(--spacing-sm); border-bottom: 1px solid rgba(0,0,0,0.05);">
+              <div>
+                <a href="scholarship-detail.html" style="font-weight: 700; font-size: 14px;">CONICET Doctoral Fellowship on Semantic Web & Knowledge Graphs</a>
+                <span style="display: block; font-size: 11px; color: var(--text-secondary); margin-top: 2px;">
+                  Funding: CONICET | Scholar: Alice Williams | 2021 — 2026
+                </span>
+              </div>
+              <span class="mui-chip mui-chip-secondary">Active</span>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mui-footer">
+      <div class="mui-container mui-footer-content">
+        <p>© 2026 <a href="https://lifia.info.unlp.edu.ar" target="_blank" style="font-weight: 600; text-decoration: underline;">LIFIA</a>. All rights reserved. Powered by Memorias.</p>
+        <div class="mui-flex-gap-sm">
+          <a href="about.html" class="mui-nav-link" style="padding: 4px 8px; font-weight: 700;">About the Portal</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

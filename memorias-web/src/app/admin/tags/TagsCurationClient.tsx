@@ -11,6 +11,40 @@ import {
   getTagsWithCountsAdmin,
   addSystemTag,
 } from "./actions";
+import {
+  Box,
+  Typography,
+  Button,
+  Grid,
+  Card,
+  CardContent,
+  TextField,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Snackbar,
+  Alert,
+  Checkbox,
+  Chip,
+  FormControlLabel,
+  RadioGroup,
+  Radio,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  LinearProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  CircularProgress,
+} from "@mui/material";
 
 interface TagInfo {
   tag: string;
@@ -53,7 +87,7 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
   // Active modal / action states
   const [activeRenameTag, setActiveRenameTag] = useState<TagInfo | null>(null);
   const [renameValue, setRenameValue] = useState("");
-  
+
   const [activeMergeTag, setActiveMergeTag] = useState<TagInfo | null>(null);
   const [mergeTargetValue, setMergeTargetValue] = useState("");
 
@@ -69,7 +103,6 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
 
   const showNotification = (type: "success" | "error", message: string) => {
     setNotification({ type, message });
-    setTimeout(() => setNotification(null), 5000);
   };
 
   // Filtered tags based on search
@@ -104,9 +137,11 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
         const res = await addSystemTag(newTag);
         if (res.success) {
           setTags((prev) => {
-            const exists = prev.find(t => t.tag === newTag);
+            const exists = prev.find((t) => t.tag === newTag);
             if (exists) return prev;
-            return [...prev, { tag: newTag, count: 0 }].sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+            return [...prev, { tag: newTag, count: 0 }].sort(
+              (a, b) => b.count - a.count || a.tag.localeCompare(b.tag)
+            );
           });
           showNotification("success", `Successfully added tag "${newTag}".`);
           setActiveAddTag(false);
@@ -230,7 +265,7 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
 
       for (let i = 0; i < queue.length; i += batchSize) {
         const batch = queue.slice(i, i + batchSize);
-        
+
         const res = await executeAutoTagBatchAction({
           model: selectedModel,
           mode: selectedMode,
@@ -262,110 +297,204 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
       {/* Notifications */}
-      {notification && (
-        <div
-          className={`fixed bottom-6 right-6 z-50 p-4 rounded-2xl shadow-xl border flex items-center gap-3 animate-in fade-in slide-in-from-bottom-5 duration-300 ${
-            notification.type === "success"
-              ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900 text-emerald-800 dark:text-emerald-355"
-              : "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900 text-red-800 dark:text-red-355"
-          }`}
-        >
-          <span className="text-lg">{notification.type === "success" ? "✅" : "⚠️"}</span>
-          <span className="text-xs font-bold">{notification.message}</span>
-        </div>
-      )}
+      <Snackbar
+        open={!!notification}
+        autoHideDuration={5000}
+        onClose={() => setNotification(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        {notification ? (
+          <Alert
+            onClose={() => setNotification(null)}
+            severity={notification.type}
+            icon={false}
+            sx={{ width: "100%", borderRadius: 3, fontWeight: "bold" }}
+          >
+            {notification.message}
+          </Alert>
+        ) : undefined}
+      </Snackbar>
 
       {/* Header Info */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">🛠️</span>
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-850 dark:text-white">
-              Taxonomy Curation Tools
-            </h1>
-          </div>
-          <p className="text-xs text-muted">
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          justifyContent: "space-between",
+          alignItems: { xs: "flex-start", md: "center" },
+          gap: 2,
+          pb: 3,
+          borderBottom: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        <Box sx={{ spaceY: 1 }}>
+          <Typography variant="h1" sx={{ fontSize: "1.75rem", fontWeight: 800, color: "text.primary" }}>
+            Taxonomy Curation Tools
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
             Global management portal to rename, merge synonyms, or remove classification tags.
-          </p>
-        </div>
-        <Link
+          </Typography>
+        </Box>
+        <Button
+          component={Link}
           href="/"
-          className="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-350 bg-white dark:bg-slate-900 border border-border rounded-xl shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all cursor-pointer inline-flex items-center gap-1.5 self-start md:self-center"
+          variant="outlined"
+          color="inherit"
+          sx={{
+            textTransform: "none",
+            borderRadius: 3,
+            fontWeight: "bold",
+            fontSize: "0.8125rem",
+          }}
         >
-          ← Home Dashboard
-        </Link>
-      </div>
+          Home Dashboard
+        </Button>
+      </Box>
 
       {/* Stats Counter Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <div className="bg-white dark:bg-slate-900 border border-border p-5 rounded-2xl shadow-sm">
-          <span className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-            Unique Keywords
-          </span>
-          <span className="text-3xl font-black text-primary mt-1.5 block">
-            {tags.length}
-          </span>
-        </div>
-        <div className="bg-white dark:bg-slate-900 border border-border p-5 rounded-2xl shadow-sm">
-          <span className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-            Total Classifications
-          </span>
-          <span className="text-3xl font-black text-indigo-600 mt-1.5 block">
-            {tags.reduce((sum, t) => sum + t.count, 0)}
-          </span>
-        </div>
-        <div className="bg-white dark:bg-slate-900 border border-border p-5 rounded-2xl shadow-sm">
-          <span className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
-            Highly Popular (5+ uses)
-          </span>
-          <span className="text-3xl font-black text-emerald-600 mt-1.5 block">
-            {tags.filter((t) => t.count >= 5).length}
-          </span>
-        </div>
-      </div>
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <Card variant="outlined" sx={{ borderRadius: 4 }}>
+            <CardContent>
+              <Typography variant="caption" sx={{ fontWeight: "extrabold", color: "text.secondary", textTransform: "uppercase", tracking: "wider" }}>
+                Unique Keywords
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 900, color: "primary.main", mt: 1 }}>
+                {tags.length}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <Card variant="outlined" sx={{ borderRadius: 4 }}>
+            <CardContent>
+              <Typography variant="caption" sx={{ fontWeight: "extrabold", color: "text.secondary", textTransform: "uppercase", tracking: "wider" }}>
+                Total Classifications
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 900, color: "text.primary", mt: 1 }}>
+                {tags.reduce((sum, t) => sum + t.count, 0)}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <Card variant="outlined" sx={{ borderRadius: 4 }}>
+            <CardContent>
+              <Typography variant="caption" sx={{ fontWeight: "extrabold", color: "text.secondary", textTransform: "uppercase", tracking: "wider" }}>
+                Highly Popular (5+ uses)
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 900, color: "success.main", mt: 1 }}>
+                {tags.filter((t) => t.count >= 5).length}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
       {/* OpenAI Auto-Tagger Control Card */}
-      <div className="bg-gradient-to-br from-indigo-50/40 via-white to-white dark:from-slate-900/50 dark:via-slate-900 dark:to-slate-900 border border-border rounded-3xl p-6 shadow-sm space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/80 pb-4">
-          <div className="space-y-1">
-            <h2 className="font-extrabold text-slate-800 dark:text-white text-base">
+      <Paper variant="outlined" sx={{ borderRadius: 5, p: 4 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            justifyContent: "space-between",
+            alignItems: { xs: "flex-start", md: "center" },
+            gap: 2,
+            pb: 3,
+            mb: 3,
+            borderBottom: "1px solid",
+            borderColor: "divider",
+          }}
+        >
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: "extrabold", color: "text.primary" }}>
               Global AI Auto-Tagger Suite
-            </h2>
-            <p className="text-[11px] text-muted leading-relaxed">
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
               Batch seed or update taxonomy classifications across the entire laboratory database.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 bg-indigo-50/50 dark:bg-slate-800/50 border border-indigo-100 dark:border-slate-800 px-3 py-1 rounded-xl">
-            <div className={`w-2 h-2 rounded-full ${isAutoTagging ? "bg-amber-500 animate-pulse" : checkingConfig ? "bg-slate-400" : isOpenAIEnabled ? "bg-emerald-500" : "bg-red-500"}`} />
-            <span className="text-[10px] font-black text-slate-650 dark:text-slate-350 uppercase tracking-wider">
-              {isAutoTagging ? "Processing..." : checkingConfig ? "Checking Status..." : isOpenAIEnabled ? "OpenAI Connected" : "OpenAI Offline"}
-            </span>
-          </div>
-        </div>
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+              px: 2,
+              py: 0.5,
+              borderRadius: 3,
+              bgcolor: "action.hover",
+              border: "1px solid",
+              borderColor: "divider",
+            }}
+          >
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                bgcolor: isAutoTagging
+                  ? "warning.main"
+                  : checkingConfig
+                  ? "text.disabled"
+                  : isOpenAIEnabled
+                  ? "success.main"
+                  : "error.main",
+              }}
+            />
+            <Typography variant="caption" sx={{ fontWeight: "black", textTransform: "uppercase", tracking: "wider" }}>
+              {isAutoTagging
+                ? "Processing..."
+                : checkingConfig
+                ? "Checking Status..."
+                : isOpenAIEnabled
+                ? "OpenAI Connected"
+                : "OpenAI Offline"}
+            </Typography>
+          </Box>
+        </Box>
 
         {checkingConfig ? (
-          <div className="py-6 text-center text-xs text-muted font-bold animate-pulse">Checking taxonomy tagger configuration...</div>
+          <Box sx={{ py: 4, display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <CircularProgress size={24} sx={{ mr: 2 }} />
+            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: "bold" }}>
+              Checking taxonomy tagger configuration...
+            </Typography>
+          </Box>
         ) : !isOpenAIEnabled && selectedTargets.some((t) => t !== "member") ? (
-          <div className="bg-amber-50/50 dark:bg-amber-950/10 border border-amber-250 dark:border-amber-900/40 rounded-2xl p-5 text-left space-y-2.5">
-            <h3 className="text-xs font-black text-amber-800 dark:text-amber-400 uppercase tracking-wider">AI Classification Disabled</h3>
-            <p className="text-xs text-slate-600 dark:text-slate-350 leading-relaxed max-w-2xl">
+          <Alert severity="warning" icon={false} sx={{ borderRadius: 4, mb: 4 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: "black", textTransform: "uppercase", tracking: "wider", mb: 0.5 }}>
+              AI Classification Disabled
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 1 }}>
               To unlock database-wide OpenAI semantic tagging for Publications, Projects, Theses, and Scholarships, please configure the <strong>OPENAI_API_KEY</strong> environment variable in your local <code>.env</code> file and restart the development server.
-            </p>
-            <div className="pt-1.5 flex items-center gap-3">
-              <span className="text-[10px] font-extrabold text-slate-450 dark:text-slate-500">Note: You can still run local mathematical derivation for Members without an API key.</span>
-            </div>
-          </div>
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Note: You can still run local mathematical derivation for Members without an API key.
+            </Typography>
+          </Alert>
         ) : null}
 
-        <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 ${isAutoTagging ? "opacity-50 pointer-events-none" : ""}`}>
+        <Grid container spacing={4} sx={{ opacity: isAutoTagging ? 0.5 : 1, pointerEvents: isAutoTagging ? "none" : "auto" }}>
           {/* Column 1: Targets Choice */}
-          <div className="space-y-3">
-            <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 block">
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Typography variant="caption" sx={{ fontWeight: "extrabold", textTransform: "uppercase", color: "text.secondary", mb: 2, display: "block" }}>
               1. Target Collections
-            </label>
-            <div className="bg-slate-50/50 dark:bg-slate-950/20 border border-border rounded-2xl p-4 space-y-3">
+            </Typography>
+            <Box
+              sx={{
+                bgcolor: "action.hover",
+                border: "1px solid",
+                borderColor: "divider",
+                borderRadius: 4,
+                p: 2.5,
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+              }}
+            >
               {[
                 { key: "publication", label: "Publications", desc: "Scientific abstract taxonomy" },
                 { key: "project", label: "Projects", desc: "Grant summary fields" },
@@ -375,463 +504,527 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
               ].map((item) => {
                 const isSelected = selectedTargets.includes(item.key);
                 return (
-                  <label
+                  <FormControlLabel
                     key={item.key}
-                    className="flex items-start gap-3 cursor-pointer group select-none"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      disabled={isAutoTagging}
-                      onChange={() => {
-                        setSelectedTargets((prev) =>
-                          isSelected ? prev.filter((t) => t !== item.key) : [...prev, item.key]
-                        );
-                      }}
-                      className="mt-1 rounded border-border text-primary focus:ring-primary/45 cursor-pointer"
-                    />
-                    <div className="-mt-0.5">
-                      <span className="text-xs font-bold text-slate-750 dark:text-slate-200 group-hover:text-primary transition-colors">
-                        {item.label}
-                      </span>
-                      <span className="text-[10px] text-muted block leading-tight">
-                        {item.desc}
-                      </span>
-                    </div>
-                  </label>
+                    control={
+                      <Checkbox
+                        size="small"
+                        checked={isSelected}
+                        disabled={isAutoTagging}
+                        onChange={() => {
+                          setSelectedTargets((prev) =>
+                            isSelected ? prev.filter((t) => t !== item.key) : [...prev, item.key]
+                          );
+                        }}
+                      />
+                    }
+                    label={
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                          {item.label}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: "block", lineHeight: 1.1 }}>
+                          {item.desc}
+                        </Typography>
+                      </Box>
+                    }
+                    sx={{ alignItems: "flex-start", m: 0 }}
+                  />
                 );
               })}
-            </div>
-          </div>
+            </Box>
+          </Grid>
 
           {/* Column 2: Parameters Choice */}
-          <div className="space-y-5">
-            <div className="space-y-3">
-              <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 block">
+          <Grid size={{ xs: 12, md: 4 }} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            <Box>
+              <Typography variant="caption" sx={{ fontWeight: "extrabold", textTransform: "uppercase", color: "text.secondary", mb: 1, display: "block" }}>
                 2. OpenAI Model
-              </label>
-              <select
-                value={selectedModel}
-                disabled={isAutoTagging || (!isOpenAIEnabled && selectedTargets.some((t) => t !== "member"))}
-                onChange={(e) => setSelectedModel(e.target.value)}
-                className="w-full border border-border px-3.5 py-2.5 rounded-2xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs font-semibold cursor-pointer"
-              >
-                <option value="gpt-4o-mini">gpt-4o-mini (Fast & Cheap - Default)</option>
-                <option value="gpt-4o">gpt-4o (High Quality)</option>
-                <option value="gpt-3.5-turbo">gpt-3.5-turbo (Legacy)</option>
-              </select>
-            </div>
+              </Typography>
+              <FormControl size="small" fullWidth>
+                <Select
+                  value={selectedModel}
+                  disabled={isAutoTagging || (!isOpenAIEnabled && selectedTargets.some((t) => t !== "member"))}
+                  onChange={(e) => setSelectedModel(e.target.value as string)}
+                  sx={{ borderRadius: 3 }}
+                >
+                  <MenuItem value="gpt-4o-mini">gpt-4o-mini (Fast & Cheap)</MenuItem>
+                  <MenuItem value="gpt-4o">gpt-4o (High Quality)</MenuItem>
+                  <MenuItem value="gpt-3.5-turbo">gpt-3.5-turbo (Legacy)</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
 
-            <div className="space-y-3">
-              <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 block">
+            <Box>
+              <Typography variant="caption" sx={{ fontWeight: "extrabold", textTransform: "uppercase", color: "text.secondary", mb: 1, display: "block" }}>
                 3. Update Strategy
-              </label>
-              <div className="bg-slate-50/50 dark:bg-slate-950/20 border border-border rounded-2xl p-4 space-y-3">
-                {[
-                  { key: "skip", label: "Skip existing", desc: "Only auto-tag records currently without tags." },
-                  { key: "merge", label: "Merge recommendations", desc: "Keep current tags and append AI suggestions." },
-                  { key: "replace", label: "Clean & Replace", desc: "Discard current tags and rewrite from scratch." },
-                ].map((item) => (
-                  <label
-                    key={item.key}
-                    className="flex items-start gap-3 cursor-pointer group select-none"
-                  >
-                    <input
-                      type="radio"
-                      name="strategy"
-                      checked={selectedMode === item.key}
-                      disabled={isAutoTagging}
-                      onChange={() => setSelectedMode(item.key as any)}
-                      className="mt-0.5 border-border text-primary focus:ring-primary/45 cursor-pointer"
+              </Typography>
+              <Box
+                sx={{
+                  bgcolor: "action.hover",
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderRadius: 4,
+                  p: 2.5,
+                }}
+              >
+                <RadioGroup value={selectedMode} onChange={(e) => setSelectedMode(e.target.value as any)}>
+                  {[
+                    { key: "skip", label: "Skip existing", desc: "Only tag records currently without tags." },
+                    { key: "merge", label: "Merge recommendations", desc: "Keep current tags and append suggestions." },
+                    { key: "replace", label: "Clean & Replace", desc: "Discard current tags and rewrite." },
+                  ].map((item) => (
+                    <FormControlLabel
+                      key={item.key}
+                      value={item.key}
+                      control={<Radio size="small" />}
+                      label={
+                        <Box>
+                          <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                            {item.label}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: "block", lineHeight: 1.1 }}>
+                            {item.desc}
+                          </Typography>
+                        </Box>
+                      }
+                      sx={{ alignItems: "flex-start", m: 0, mb: 1.5, "&:last-child": { mb: 0 } }}
                     />
-                    <div className="-mt-0.5">
-                      <span className="text-xs font-bold text-slate-750 dark:text-slate-200 group-hover:text-primary transition-colors">
-                        {item.label}
-                      </span>
-                      <span className="text-[10px] text-muted block leading-tight">
-                        {item.desc}
-                      </span>
-                    </div>
-                  </label>
-                ))}
-              </div>
-            </div>
-          </div>
+                  ))}
+                </RadioGroup>
+              </Box>
+            </Box>
+          </Grid>
 
           {/* Column 3: Summary / Trigger */}
-          <div className="bg-indigo-50/15 dark:bg-slate-950/10 border border-indigo-100/50 dark:border-slate-800 rounded-3xl p-5 flex flex-col justify-between">
-            <div className="space-y-4">
-              <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 block">
-                Tagger Summary
-              </label>
-              <div className="space-y-2.5 text-xs text-slate-650 dark:text-slate-350">
-                <p className="leading-relaxed">
-                  Executing batch run using model <strong className="text-slate-800 dark:text-white font-mono">{selectedModel}</strong>.
-                </p>
-                <p className="leading-relaxed">
-                  Target collections: <strong className="text-slate-800 dark:text-white font-bold">{selectedTargets.length} selected</strong>.
-                </p>
-                <p className="leading-relaxed">
-                  Strategy: <strong className="text-slate-800 dark:text-white font-bold">{selectedMode === "skip" ? "Skip tagged items" : selectedMode === "merge" ? "Merge suggestions" : "Rewrite all"}</strong>.
-                </p>
-                <div className="pt-1.5 border-t border-border/60">
-                  <p className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold leading-normal">
-                    💡 OpenAI requests are batched in groups of 15 items to minimize API calls, prompt tokens, and costs.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {taggingProgress && (
-              <div className="mt-4 space-y-2">
-                <div className="flex justify-between text-[10px] font-extrabold text-indigo-650 dark:text-indigo-400 uppercase tracking-wider">
-                  <span>Progress</span>
-                  <span>{taggingProgress.current} / {taggingProgress.total}</span>
-                </div>
-                <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden border border-border/40">
-                  <div
-                    className="bg-indigo-600 h-full rounded-full transition-all duration-300"
-                    style={{ width: `${(taggingProgress.current / taggingProgress.total) * 100}%` }}
-                  />
-                </div>
-              </div>
-            )}
-
-            <button
-              onClick={handleRunAutoTagger}
-              disabled={
-                isAutoTagging ||
-                selectedTargets.length === 0 ||
-                (!isOpenAIEnabled && selectedTargets.some((t) => t !== "member"))
-              }
-              className={`w-full mt-6 py-3 px-4 bg-primary hover:bg-primary-hover text-white text-xs font-black uppercase tracking-wider rounded-2xl shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer flex items-center justify-center gap-2`}
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Box
+              sx={{
+                bgcolor: "action.hover",
+                border: "1px solid",
+                borderColor: "divider",
+                borderRadius: 5,
+                p: 3,
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
             >
-              {isAutoTagging ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  Running AI Tagger...
-                </>
-              ) : (
-                "Execute Auto-Tagger"
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <Typography variant="caption" sx={{ fontWeight: "extrabold", textTransform: "uppercase", color: "text.secondary", display: "block" }}>
+                  Tagger Summary
+                </Typography>
+                <Typography variant="body2">
+                  Model: <strong>{selectedModel}</strong>
+                </Typography>
+                <Typography variant="body2">
+                  Collections: <strong>{selectedTargets.length} selected</strong>
+                </Typography>
+                <Typography variant="body2">
+                  Strategy: <strong>{selectedMode === "skip" ? "Skip tagged items" : selectedMode === "merge" ? "Merge suggestions" : "Rewrite all"}</strong>
+                </Typography>
+
+                <Alert severity="info" icon={false} sx={{ borderRadius: 3, mt: 1 }}>
+                  OpenAI requests are batched in groups of 15 items to minimize API calls, prompt tokens, and costs.
+                </Alert>
+              </Box>
+
+              <Box>
+                {taggingProgress && (
+                  <Box sx={{ mt: 3, mb: 2 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+                      <Typography variant="caption" sx={{ fontWeight: "bold" }}>
+                        Progress
+                      </Typography>
+                      <Typography variant="caption" sx={{ fontWeight: "bold" }}>
+                        {taggingProgress.current} / {taggingProgress.total}
+                      </Typography>
+                    </Box>
+                    <LinearProgress
+                      variant="determinate"
+                      value={(taggingProgress.current / taggingProgress.total) * 100}
+                      sx={{ height: 6, borderRadius: 3 }}
+                    />
+                  </Box>
+                )}
+
+                <Button
+                  fullWidth
+                  variant="contained"
+                  disabled={
+                    isAutoTagging ||
+                    selectedTargets.length === 0 ||
+                    (!isOpenAIEnabled && selectedTargets.some((t) => t !== "member"))
+                  }
+                  onClick={handleRunAutoTagger}
+                  sx={{
+                    mt: 3,
+                    py: 1.5,
+                    borderRadius: 3,
+                    fontWeight: "black",
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                  }}
+                >
+                  {isAutoTagging ? (
+                    <>
+                      <CircularProgress size={16} color="inherit" sx={{ mr: 1 }} />
+                      Running AI Tagger...
+                    </>
+                  ) : (
+                    "Execute Auto-Tagger"
+                  )}
+                </Button>
+              </Box>
+            </Box>
+          </Grid>
+        </Grid>
+      </Paper>
 
       {/* Main Grid: Control Table */}
-      <div className="bg-white dark:bg-slate-900 border border-border rounded-3xl shadow-sm overflow-hidden space-y-4 p-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-border/80 pb-4">
-          <h2 className="font-extrabold text-slate-800 dark:text-white text-base self-start sm:self-center">
+      <Paper variant="outlined" sx={{ borderRadius: 5, p: 4 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            justifyContent: "space-between",
+            alignItems: { xs: "flex-start", sm: "center" },
+            gap: 2,
+            pb: 3,
+            mb: 3,
+            borderBottom: "1px solid",
+            borderColor: "divider",
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: "extrabold", color: "text.primary" }}>
             Active Taxonomy Register
-          </h2>
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <input
-              type="text"
+          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, width: { xs: "100%", sm: "auto" } }}>
+            <TextField
+              size="small"
               placeholder="Search tags..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full sm:w-72 border border-border px-3.5 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs"
+              sx={{
+                width: { xs: "100%", sm: 240 },
+                "& .MuiOutlinedInput-root": { borderRadius: 3 },
+              }}
             />
-            <button
+            <Button
+              variant="contained"
               onClick={() => {
                 setActiveAddTag(true);
                 setAddTagValue("");
               }}
-              className="whitespace-nowrap px-4 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-xl shadow-sm transition-colors"
+              sx={{ borderRadius: 3, fontWeight: "bold", textTransform: "none", whitespace: "nowrap" }}
             >
-              + Add Tag
-            </button>
-          </div>
-        </div>
+              Add Tag
+            </Button>
+          </Box>
+        </Box>
 
         {filteredTags.length === 0 ? (
-          <div className="text-center py-16 text-xs text-muted font-medium">
-            No classifications found matching search filter.
-          </div>
+          <Box sx={{ py: 8, textAlign: "center" }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: "medium" }}>
+              No classifications found matching search filter.
+            </Typography>
+          </Box>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left">
-              <thead>
-                <tr className="border-b border-border/60 text-[10px] font-extrabold uppercase text-slate-450 tracking-wider">
-                  <th className="py-3 px-4">Tag Reference</th>
-                  <th className="py-3 px-4">Frequency</th>
-                  <th className="py-3 px-4 text-right">Curation Operations</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/50 text-xs font-semibold">
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: "extrabold", textTransform: "uppercase", fontSize: "0.6875rem", color: "text.secondary" }}>
+                    Tag Reference
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: "extrabold", textTransform: "uppercase", fontSize: "0.6875rem", color: "text.secondary" }}>
+                    Frequency
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: "extrabold", textTransform: "uppercase", fontSize: "0.6875rem", color: "text.secondary" }}>
+                    Curation Operations
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
                 {filteredTags.map((tagInfo) => (
-                  <tr
-                    key={tagInfo.tag}
-                    className="hover:bg-slate-50/45 dark:hover:bg-slate-800/15 transition-colors"
-                  >
-                    <td className="py-3.5 px-4 font-bold text-slate-800 dark:text-slate-100">
-                      <span className="inline-block px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg border border-border text-[11px] font-mono">
-                        {tagInfo.tag}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/5 text-primary text-[11px] font-black">
-                        {tagInfo.count} times
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-right space-x-2">
-                      <button
-                        onClick={() => {
-                          setActiveRenameTag(tagInfo);
-                          setRenameValue(tagInfo.tag);
+                  <TableRow key={tagInfo.tag} hover>
+                    <TableCell sx={{ py: 1.5 }}>
+                      <Chip
+                        label={tagInfo.tag}
+                        variant="outlined"
+                        sx={{
+                          borderRadius: 2,
+                          fontFamily: "monospace",
+                          fontSize: "0.8125rem",
+                          fontWeight: "bold",
                         }}
-                        disabled={isPending}
-                        className="px-3 py-1.5 border border-border text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary hover:border-primary/50 hover:bg-primary/5 rounded-xl cursor-pointer disabled:opacity-50 transition-colors"
-                      >
-                        ✏️ Rename
-                      </button>
-                      <button
-                        onClick={() => {
-                          setActiveMergeTag(tagInfo);
-                          setMergeTargetValue("");
+                      />
+                    </TableCell>
+                    <TableCell sx={{ py: 1.5 }}>
+                      <Chip
+                        label={`${tagInfo.count} times`}
+                        color="primary"
+                        variant="filled"
+                        size="small"
+                        sx={{
+                          fontWeight: "black",
+                          fontSize: "0.75rem",
+                          bgcolor: "primary.light",
+                          color: "primary.contrastText",
                         }}
-                        disabled={isPending}
-                        className="px-3 py-1.5 border border-border text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-500/50 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 rounded-xl cursor-pointer disabled:opacity-50 transition-colors"
-                      >
-                        🧬 Merge
-                      </button>
-                      <button
-                        onClick={() => setActiveDeleteTag(tagInfo)}
-                        disabled={isPending}
-                        className="px-3 py-1.5 border border-border text-[10px] font-extrabold uppercase text-slate-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 hover:border-red-500/50 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl cursor-pointer disabled:opacity-50 transition-colors"
-                      >
-                        🗑️ Delete
-                      </button>
-                    </td>
-                  </tr>
+                      />
+                    </TableCell>
+                    <TableCell align="right" sx={{ py: 1.5 }}>
+                      <Box sx={{ display: "inline-flex", gap: 1 }}>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          disabled={isPending}
+                          onClick={() => {
+                            setActiveRenameTag(tagInfo);
+                            setRenameValue(tagInfo.tag);
+                          }}
+                          sx={{ textTransform: "none", borderRadius: 2, fontWeight: "bold" }}
+                        >
+                          Rename
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          color="info"
+                          disabled={isPending}
+                          onClick={() => {
+                            setActiveMergeTag(tagInfo);
+                            setMergeTargetValue("");
+                          }}
+                          sx={{ textTransform: "none", borderRadius: 2, fontWeight: "bold" }}
+                        >
+                          Merge
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          color="error"
+                          disabled={isPending}
+                          onClick={() => setActiveDeleteTag(tagInfo)}
+                          sx={{ textTransform: "none", borderRadius: 2, fontWeight: "bold" }}
+                        >
+                          Delete
+                        </Button>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
-      </div>
+      </Paper>
 
       {/* ========================================================== */}
       {/* Curative Action Overlays (Modals) */}
       {/* ========================================================== */}
 
-      {/* 1. Rename Modal */}
-      {activeRenameTag && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <form
-            onSubmit={handleRenameSubmit}
-            className="w-full max-w-md bg-white dark:bg-slate-900 border border-border rounded-3xl shadow-2xl p-6 space-y-6 animate-in zoom-in-95 duration-200"
+      {/* 1. Rename Dialog */}
+      <Dialog
+        open={!!activeRenameTag}
+        onClose={() => {
+          setActiveRenameTag(null);
+          setRenameValue("");
+        }}
+        maxWidth="xs"
+        fullWidth
+        slotProps={{ paper: { sx: { borderRadius: 4, p: 1 } } }}
+      >
+        <DialogTitle sx={{ fontWeight: "black" }}>Rename Classification Tag</DialogTitle>
+        <DialogContent>
+          <DialogContentText variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            This renames <code>{activeRenameTag?.tag}</code> globally across all models.
+          </DialogContentText>
+          <TextField
+            fullWidth
+            required
+            label="New Identifier"
+            value={renameValue}
+            onChange={(e) => setRenameValue(e.target.value)}
+            placeholder="e.g. artificial intelligence"
+            variant="outlined"
+            size="small"
+            sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
+          />
+          <Typography variant="caption" color="warning.main" sx={{ display: "block", mt: 2, fontWeight: "bold" }}>
+            Note: If the target name already exists, the tags will be merged and counts aggregated automatically.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={() => {
+              setActiveRenameTag(null);
+              setRenameValue("");
+            }}
+            disabled={isPending}
+            sx={{ textTransform: "none", fontWeight: "bold" }}
           >
-            <div className="space-y-1">
-              <h3 className="text-lg font-black text-slate-800 dark:text-white">
-                Rename Classification Tag
-              </h3>
-              <p className="text-xs text-slate-400 leading-normal">
-                This renames <code className="font-bold text-slate-700 dark:text-slate-350">{activeRenameTag.tag}</code> globally across all models.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
-                New Identifier
-              </label>
-              <input
-                type="text"
-                required
-                value={renameValue}
-                onChange={(e) => setRenameValue(e.target.value)}
-                placeholder="e.g. artificial intelligence"
-                className="w-full border border-border px-3.5 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm font-semibold"
-              />
-              <p className="text-[10px] text-amber-600 font-bold leading-tight">
-                ⚠️ Note: If the target name already exists, the tags will be merged and counts aggregated automatically.
-              </p>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-border/80">
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveRenameTag(null);
-                  setRenameValue("");
-                }}
-                disabled={isPending}
-                className="px-5 py-2.5 rounded-xl border border-border text-xs font-bold text-slate-650 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isPending || !renameValue.trim() || renameValue.trim().toLowerCase() === activeRenameTag.tag}
-                className="bg-primary hover:bg-primary-hover disabled:opacity-50 text-white px-6 py-2.5 rounded-xl text-xs font-bold shadow cursor-pointer transition-colors"
-              >
-                {isPending ? "Renaming..." : "Save Rename"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* 2. Merge Modal */}
-      {activeMergeTag && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <form
-            onSubmit={handleMergeSubmit}
-            className="w-full max-w-md bg-white dark:bg-slate-900 border border-border rounded-3xl shadow-2xl p-6 space-y-6 animate-in zoom-in-95 duration-200"
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            disabled={isPending || !renameValue.trim() || renameValue.trim().toLowerCase() === activeRenameTag?.tag}
+            onClick={handleRenameSubmit}
+            sx={{ textTransform: "none", borderRadius: 3, fontWeight: "bold" }}
           >
-            <div className="space-y-1">
-              <h3 className="text-lg font-black text-slate-800 dark:text-white">
-                Merge Taxonomy Tag
-              </h3>
-              <p className="text-xs text-slate-400 leading-normal">
-                This collapses all instances of <code className="font-bold text-slate-700 dark:text-slate-350">{activeMergeTag.tag}</code> into another existing or custom tag name globally.
-              </p>
-            </div>
+            {isPending ? "Renaming..." : "Save Rename"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
-                Target Tag Name
-              </label>
-              <select
-                required
-                value={mergeTargetValue}
-                onChange={(e) => setMergeTargetValue(e.target.value)}
-                className="w-full border border-border px-3.5 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm font-semibold"
-              >
-                <option value="">Select Merge Destination...</option>
-                {tags
-                  .filter((t) => t.tag !== activeMergeTag.tag)
-                  .map((t) => (
-                    <option key={t.tag} value={t.tag}>
-                      {t.tag} ({t.count} items)
-                    </option>
-                  ))}
-              </select>
-              <p className="text-[10px] text-slate-400">
-                All records matching &ldquo;{activeMergeTag.tag}&rdquo; will be updated to point to the selected tag instead. Duplicate array allocations will be cleaned automatically.
-              </p>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-border/80">
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveMergeTag(null);
-                  setMergeTargetValue("");
-                }}
-                disabled={isPending}
-                className="px-5 py-2.5 rounded-xl border border-border text-xs font-bold text-slate-650 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isPending || !mergeTargetValue}
-                className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-6 py-2.5 rounded-xl text-xs font-bold shadow cursor-pointer transition-colors"
-              >
-                {isPending ? "Merging..." : "Complete Merge"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* 3. Delete Confirmation Modal */}
-      {activeDeleteTag && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-border rounded-3xl shadow-2xl p-6 space-y-6 animate-in zoom-in-95 duration-200">
-            <div className="space-y-2">
-              <span className="text-3xl block">🚨</span>
-              <h3 className="text-lg font-black text-slate-800 dark:text-white">
-                Delete Tag Globally?
-              </h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Are you sure you want to delete <code className="font-mono text-red-600 dark:text-red-400 font-bold bg-red-50 dark:bg-red-950/20 px-2 py-0.5 rounded">{activeDeleteTag.tag}</code>?
-              </p>
-              <p className="text-[11px] text-slate-400 leading-normal">
-                This tag will be stripped from all <strong>{activeDeleteTag.count}</strong> record(s) where it is currently used. <strong>This action is permanent and cannot be undone.</strong>
-              </p>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-border/80">
-              <button
-                type="button"
-                onClick={() => setActiveDeleteTag(null)}
-                disabled={isPending}
-                className="px-5 py-2.5 rounded-xl border border-border text-xs font-bold text-slate-650 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDelete(activeDeleteTag.tag)}
-                disabled={isPending}
-                className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-6 py-2.5 rounded-xl text-xs font-bold shadow cursor-pointer transition-colors"
-              >
-                {isPending ? "Deleting..." : "Permanently Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 4. Add Modal */}
-      {activeAddTag && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <form
-            onSubmit={handleAddSubmit}
-            className="w-full max-w-md bg-white dark:bg-slate-900 border border-border rounded-3xl shadow-2xl p-6 space-y-6 animate-in zoom-in-95 duration-200"
+      {/* 2. Merge Dialog */}
+      <Dialog
+        open={!!activeMergeTag}
+        onClose={() => {
+          setActiveMergeTag(null);
+          setMergeTargetValue("");
+        }}
+        maxWidth="xs"
+        fullWidth
+        slotProps={{ paper: { sx: { borderRadius: 4, p: 1 } } }}
+      >
+        <DialogTitle sx={{ fontWeight: "black" }}>Merge Taxonomy Tag</DialogTitle>
+        <DialogContent>
+          <DialogContentText variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            This collapses all instances of <code>{activeMergeTag?.tag}</code> into another existing tag globally.
+          </DialogContentText>
+          <FormControl size="small" fullWidth required>
+            <InputLabel id="merge-target-label">Target Tag Name</InputLabel>
+            <Select
+              labelId="merge-target-label"
+              value={mergeTargetValue}
+              onChange={(e) => setMergeTargetValue(e.target.value as string)}
+              label="Target Tag Name"
+              sx={{ borderRadius: 3 }}
+            >
+              <MenuItem value="">
+                <em>Select Merge Destination...</em>
+              </MenuItem>
+              {tags
+                .filter((t) => t.tag !== activeMergeTag?.tag)
+                .map((t) => (
+                  <MenuItem key={t.tag} value={t.tag}>
+                    {t.tag} ({t.count} items)
+                  </MenuItem>
+                ))}
+            </Select>
+          </FormControl>
+          <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 2 }}>
+            All records matching &ldquo;{activeMergeTag?.tag}&rdquo; will be updated to point to the selected tag instead. Duplicate allocations will be cleaned automatically.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={() => {
+              setActiveMergeTag(null);
+              setMergeTargetValue("");
+            }}
+            disabled={isPending}
+            sx={{ textTransform: "none", fontWeight: "bold" }}
           >
-            <div className="space-y-1">
-              <h3 className="text-lg font-black text-slate-800 dark:text-white">
-                Add New Tag
-              </h3>
-              <p className="text-xs text-slate-400 leading-normal">
-                Create a new empty tag in the system taxonomy.
-              </p>
-            </div>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="info"
+            disabled={isPending || !mergeTargetValue}
+            onClick={handleMergeSubmit}
+            sx={{ textTransform: "none", borderRadius: 3, fontWeight: "bold" }}
+          >
+            {isPending ? "Merging..." : "Complete Merge"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
-                Tag Name
-              </label>
-              <input
-                type="text"
-                required
-                value={addTagValue}
-                onChange={(e) => setAddTagValue(e.target.value)}
-                placeholder="e.g. quantum computing"
-                className="w-full border border-border px-3.5 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm font-semibold"
-              />
-            </div>
+      {/* 3. Delete Confirmation Dialog */}
+      <Dialog
+        open={!!activeDeleteTag}
+        onClose={() => setActiveDeleteTag(null)}
+        maxWidth="xs"
+        fullWidth
+        slotProps={{ paper: { sx: { borderRadius: 4, p: 1 } } }}
+      >
+        <DialogTitle sx={{ fontWeight: "black" }}>Delete Tag Globally?</DialogTitle>
+        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <DialogContentText variant="body2" color="text.secondary">
+            Are you sure you want to delete <strong>{activeDeleteTag?.tag}</strong>?
+          </DialogContentText>
+          <Alert severity="error" icon={false} sx={{ borderRadius: 3 }}>
+            This tag will be stripped from all <strong>{activeDeleteTag?.count}</strong> record(s) where it is currently used. <strong>This action is permanent and cannot be undone.</strong>
+          </Alert>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={() => setActiveDeleteTag(null)} disabled={isPending} sx={{ textTransform: "none", fontWeight: "bold" }}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            disabled={isPending}
+            onClick={() => activeDeleteTag && handleDelete(activeDeleteTag.tag)}
+            sx={{ textTransform: "none", borderRadius: 3, fontWeight: "bold" }}
+          >
+            {isPending ? "Deleting..." : "Permanently Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-border/80">
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveAddTag(false);
-                  setAddTagValue("");
-                }}
-                disabled={isPending}
-                className="px-5 py-2.5 rounded-xl border border-border text-xs font-bold text-slate-650 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isPending || !addTagValue.trim()}
-                className="bg-primary hover:bg-primary-hover disabled:opacity-50 text-white px-6 py-2.5 rounded-xl text-xs font-bold shadow cursor-pointer transition-colors"
-              >
-                {isPending ? "Adding..." : "Add Tag"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-    </div>
+      {/* 4. Add Dialog */}
+      <Dialog
+        open={activeAddTag}
+        onClose={() => {
+          setActiveAddTag(false);
+          setAddTagValue("");
+        }}
+        maxWidth="xs"
+        fullWidth
+        slotProps={{ paper: { sx: { borderRadius: 4, p: 1 } } }}
+      >
+        <DialogTitle sx={{ fontWeight: "black" }}>Add New Tag</DialogTitle>
+        <DialogContent>
+          <DialogContentText variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            Create a new empty tag in the system taxonomy.
+          </DialogContentText>
+          <TextField
+            fullWidth
+            required
+            label="Tag Name"
+            value={addTagValue}
+            onChange={(e) => setAddTagValue(e.target.value)}
+            placeholder="e.g. quantum computing"
+            variant="outlined"
+            size="small"
+            sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={() => {
+              setActiveAddTag(false);
+              setAddTagValue("");
+            }}
+            disabled={isPending}
+            sx={{ textTransform: "none", fontWeight: "bold" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            disabled={isPending || !addTagValue.trim()}
+            onClick={handleAddSubmit}
+            sx={{ textTransform: "none", borderRadius: 3, fontWeight: "bold" }}
+          >
+            {isPending ? "Adding..." : "Add Tag"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 }

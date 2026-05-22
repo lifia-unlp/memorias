@@ -1,10 +1,32 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { Pagination } from "@/components/Pagination";
 import { Logo } from "@/components/Logo";
+import {
+  Box,
+  Container,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  Button,
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Paper,
+  Chip,
+} from "@mui/material";
 
 interface PageProps {
   searchParams: Promise<{
@@ -69,235 +91,347 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
   const deletesCount = await prisma.auditLog.count({ where: { action: "DELETE" } });
 
   return (
-    <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-900/50 min-h-screen">
+    <Box sx={{ display: "flex", flexDirection: "column", bgcolor: "background.default", minHeight: "100vh" }}>
       {/* Premium Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-surface/90 border-b border-border shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <Box
+        component="header"
+        sx={{
+          position: "sticky",
+          top: 0,
+          zIndex: 1100,
+          backdropFilter: "blur(8px)",
+          bgcolor: "background.paper",
+          opacity: 0.95,
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          boxShadow: "0 1px 3px 0 rgba(0,0,0,0.05)",
+        }}
+      >
+        <Container
+          maxWidth="lg"
+          sx={{
+            py: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <Logo />
           
-          <nav className="flex items-center gap-4 text-sm font-medium">
-            <Link href="/admin/config" className="hover:text-primary transition-colors text-muted">
+          <Box component="nav" sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+            <LinkButton 
+              href="/admin/config"
+              variant="text"
+              color="inherit"
+              sx={{ textTransform: "none", fontWeight: 500, fontSize: "0.875rem" }}
+            >
               System Settings
-            </Link>
-            <Link href="/admin/users" className="hover:text-primary transition-colors text-muted border-l border-border pl-4">
+            </LinkButton>
+            <LinkButton 
+              href="/admin/users"
+              variant="text"
+              color="inherit"
+              sx={{
+                textTransform: "none",
+                fontWeight: 500,
+                fontSize: "0.875rem",
+                borderLeft: "1px solid",
+                borderColor: "divider",
+                pl: 3,
+                borderRadius: 0,
+              }}
+            >
               Users Panel
-            </Link>
-            <Link href="/" className="hover:text-primary transition-colors text-muted border-l border-border pl-4">
+            </LinkButton>
+            <LinkButton 
+              href="/"
+              variant="text"
+              color="inherit"
+              sx={{
+                textTransform: "none",
+                fontWeight: 500,
+                fontSize: "0.875rem",
+                borderLeft: "1px solid",
+                borderColor: "divider",
+                pl: 3,
+                borderRadius: 0,
+              }}
+            >
               Back to Portal
-            </Link>
-          </nav>
-        </div>
-      </header>
+            </LinkButton>
+          </Box>
+        </Container>
+      </Box>
 
-      {/* Main Grid */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-10 space-y-8 animate-fadeIn">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-850 dark:text-white">System Auditing Logs</h1>
-            <p className="text-sm text-muted">
+      {/* Main Container */}
+      <Container maxWidth="lg" sx={{ py: 6, flexGrow: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+        <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", md: "center" }, gap: 2 }}>
+          <Box>
+            <Typography variant="h1" sx={{ fontSize: "1.75rem", fontWeight: 800, color: "text.primary", mb: 0.5 }}>
+              System Auditing Logs
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
               Real-time administrative feed tracking creation, edits, and deletions across all scientific lab records.
-            </p>
-          </div>
-          <div className="bg-primary/10 text-primary border border-primary/20 px-4 py-2 rounded-xl text-xs font-bold self-start">
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              bgcolor: "primary.light",
+              color: "primary.contrastText",
+              px: 2,
+              py: 1,
+              borderRadius: 3,
+              fontSize: "0.75rem",
+              fontWeight: "bold",
+            }}
+          >
             Authorized Session: {session.user?.name}
-          </div>
-        </div>
+          </Box>
+        </Box>
 
         {/* Dynamic Metric Statistics Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white dark:bg-slate-900 border border-border p-5 rounded-2xl shadow-sm flex flex-col justify-between">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Operations</span>
-            <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-3xl font-black">{totalLogs}</span>
-              <span className="text-xs font-bold text-primary">actions</span>
-            </div>
-          </div>
-          <div className="bg-white dark:bg-slate-900 border border-border p-5 rounded-2xl shadow-sm flex flex-col justify-between">
-            <span className="text-xs font-bold text-green-500 uppercase tracking-wider block">Creations</span>
-            <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-3xl font-black text-green-600 dark:text-green-400">{createsCount}</span>
-              <span className="text-xs font-bold text-muted">items</span>
-            </div>
-          </div>
-          <div className="bg-white dark:bg-slate-900 border border-border p-5 rounded-2xl shadow-sm flex flex-col justify-between">
-            <span className="text-xs font-bold text-blue-500 uppercase tracking-wider block">Edits / Updates</span>
-            <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-3xl font-black text-blue-600 dark:text-blue-400">{updatesCount}</span>
-              <span className="text-xs font-bold text-muted">updates</span>
-            </div>
-          </div>
-          <div className="bg-white dark:bg-slate-900 border border-border p-5 rounded-2xl shadow-sm flex flex-col justify-between">
-            <span className="text-xs font-bold text-red-500 uppercase tracking-wider block">Deletions</span>
-            <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-3xl font-black text-red-600 dark:text-red-400">{deletesCount}</span>
-              <span className="text-xs font-bold text-muted">purged</span>
-            </div>
-          </div>
-        </div>
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Card sx={{ height: "100%", borderRadius: 4, border: "1px solid", borderColor: "divider" }} elevation={0}>
+              <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between" }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  Total Operations
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mt: 2 }}>
+                  <Typography variant="h3" sx={{ fontWeight: 900 }}>
+                    {totalLogs}
+                  </Typography>
+                  <Typography variant="caption" color="primary" sx={{ fontWeight: "bold" }}>
+                    actions
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Card sx={{ height: "100%", borderRadius: 4, border: "1px solid", borderColor: "divider" }} elevation={0}>
+              <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between" }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: "success.main", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  Creations
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mt: 2 }}>
+                  <Typography variant="h3" sx={{ fontWeight: 900, color: "success.main" }}>
+                    {createsCount}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold" }}>
+                    items
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Card sx={{ height: "100%", borderRadius: 4, border: "1px solid", borderColor: "divider" }} elevation={0}>
+              <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between" }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: "info.main", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  Edits / Updates
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mt: 2 }}>
+                  <Typography variant="h3" sx={{ fontWeight: 900, color: "info.main" }}>
+                    {updatesCount}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold" }}>
+                    updates
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Card sx={{ height: "100%", borderRadius: 4, border: "1px solid", borderColor: "divider" }} elevation={0}>
+              <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between" }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: "error.main", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  Deletions
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mt: 2 }}>
+                  <Typography variant="h3" sx={{ fontWeight: 900, color: "error.main" }}>
+                    {deletesCount}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold" }}>
+                    purged
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
 
         {/* Interactive Log Filters */}
-        <div className="bg-white dark:bg-slate-900 border border-border p-5 rounded-2xl shadow-sm">
-          <form method="GET" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-            <div className="space-y-1.5 md:col-span-2">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Search Details / Users</label>
-              <input
-                type="text"
-                name="search"
-                defaultValue={search || ""}
-                placeholder="Search by email, name, description..."
-                className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-              />
-            </div>
+        <Paper sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider" }} elevation={0}>
+          <Box component="form" method="GET">
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", mb: 0.5, display: "block" }}>
+                  Search Details / Users
+                </Typography>
+                <TextField
+                  fullWidth
+                  name="search"
+                  defaultValue={search || ""}
+                  placeholder="Search by email, name, description..."
+                  size="small"
+                />
+              </Grid>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Operation Action</label>
-              <select
-                name="action"
-                defaultValue={action || ""}
-                className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-              >
-                <option value="">All Operations</option>
-                <option value="CREATE">CREATE</option>
-                <option value="UPDATE">UPDATE</option>
-                <option value="DELETE">DELETE</option>
-              </select>
-            </div>
+              <Grid size={{ xs: 6, sm: 4, md: 2.5 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", mb: 0.5, display: "block" }}>
+                  Operation Action
+                </Typography>
+                <FormControl fullWidth size="small">
+                  <Select name="action" defaultValue={action || ""}>
+                    <MenuItem value="">All Operations</MenuItem>
+                    <MenuItem value="CREATE">CREATE</MenuItem>
+                    <MenuItem value="UPDATE">UPDATE</MenuItem>
+                    <MenuItem value="DELETE">DELETE</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Entity Model</label>
-              <select
-                name="entityType"
-                defaultValue={entityType || ""}
-                className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-              >
-                <option value="">All Entities</option>
-                <option value="Member">Members</option>
-                <option value="Project">Projects</option>
-                <option value="Thesis">Theses</option>
-                <option value="Scholarship">Scholarships</option>
-                <option value="Publication">Publications</option>
-              </select>
-            </div>
+              <Grid size={{ xs: 6, sm: 4, md: 2.5 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", mb: 0.5, display: "block" }}>
+                  Entity Model
+                </Typography>
+                <FormControl fullWidth size="small">
+                  <Select name="entityType" defaultValue={entityType || ""}>
+                    <MenuItem value="">All Entities</MenuItem>
+                    <MenuItem value="Member">Members</MenuItem>
+                    <MenuItem value="Project">Projects</MenuItem>
+                    <MenuItem value="Thesis">Theses</MenuItem>
+                    <MenuItem value="Scholarship">Scholarships</MenuItem>
+                    <MenuItem value="Publication">Publications</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Items Per Page</label>
-              <select
-                name="limit"
-                defaultValue={limit.toString()}
-                className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm font-semibold"
-              >
-                <option value="10">10 per page</option>
-                <option value="20">20 per page</option>
-                <option value="30">30 per page</option>
-                <option value="100">100 per page</option>
-              </select>
-            </div>
+              <Grid size={{ xs: 12, sm: 4, md: 3 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", mb: 0.5, display: "block" }}>
+                  Items Per Page
+                </Typography>
+                <FormControl fullWidth size="small">
+                  <Select name="limit" defaultValue={limit.toString()}>
+                    <MenuItem value="10">10 per page</MenuItem>
+                    <MenuItem value="20">20 per page</MenuItem>
+                    <MenuItem value="30">30 per page</MenuItem>
+                    <MenuItem value="100">100 per page</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
 
-            <div className="md:col-span-5 flex justify-end gap-3 pt-2">
-              <Link
-                href="/admin/audit"
-                className="px-4 py-2 rounded-xl border border-border text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-bold text-xs cursor-pointer flex items-center justify-center"
-              >
-                Clear Filters
-              </Link>
-              <button
-                type="submit"
-                className="bg-primary hover:bg-primary-hover text-white px-6 py-2 rounded-xl font-bold text-xs shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center"
-              >
-                Apply Filters
-              </button>
-            </div>
-          </form>
-        </div>
+              <Grid size={{ xs: 12 }} sx={{ display: "flex", justifyContent: "flex-end", gap: 2, pt: 1 }}>
+                <LinkButton 
+                  href="/admin/audit"
+                  variant="outlined"
+                  size="small"
+                  sx={{ textTransform: "none", fontWeight: "bold" }}
+                >
+                  Clear Filters
+                </LinkButton>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                  sx={{ textTransform: "none", fontWeight: "bold" }}
+                >
+                  Apply Filters
+                </Button>
+              </Grid>
+            </Grid>
+          </Box>
+        </Paper>
 
         {/* Logs Feed Container */}
-        <div className="bg-white dark:bg-slate-900 border border-border p-0 rounded-2xl shadow-sm overflow-hidden">
+        <TableContainer component={Paper} sx={{ borderRadius: 4, border: "1px solid", borderColor: "divider", overflow: "hidden" }} elevation={0}>
           {logs.length === 0 ? (
-            <div className="text-center py-16 text-slate-400 font-medium space-y-2">
-              <p className="text-sm font-semibold">No audit logs found matching selected parameters.</p>
-              <p className="text-xs text-muted">Try modifying the search term or clear the filter forms.</p>
-            </div>
+            <Box sx={{ textAlign: "center", py: 8, px: 2 }}>
+              <Typography variant="body2" sx={{ fontWeight: "semibold", color: "text.secondary", mb: 1 }}>
+                No audit logs found matching selected parameters.
+              </Typography>
+              <Typography variant="caption" color="text.disabled">
+                Try modifying the search term or clear the filter forms.
+              </Typography>
+            </Box>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-border bg-slate-100/50 dark:bg-slate-800/50">
-                    <th className="p-4 text-xs font-bold uppercase tracking-wider text-muted">Date & Time</th>
-                    <th className="p-4 text-xs font-bold uppercase tracking-wider text-muted">User Profile</th>
-                    <th className="p-4 text-xs font-bold uppercase tracking-wider text-muted">Action</th>
-                    <th className="p-4 text-xs font-bold uppercase tracking-wider text-muted">Model & Type</th>
-                    <th className="p-4 text-xs font-bold uppercase tracking-wider text-muted">Change Details</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border text-xs">
+            <Box>
+              <Table sx={{ minWidth: 650 }}>
+                <TableHead>
+                  <TableRow sx={{ bgcolor: "action.hover" }}>
+                    <TableCell sx={{ fontSize: "0.75rem", fontWeight: "bold", textTransform: "uppercase", color: "text.secondary" }}>Date & Time</TableCell>
+                    <TableCell sx={{ fontSize: "0.75rem", fontWeight: "bold", textTransform: "uppercase", color: "text.secondary" }}>User Profile</TableCell>
+                    <TableCell sx={{ fontSize: "0.75rem", fontWeight: "bold", textTransform: "uppercase", color: "text.secondary" }}>Action</TableCell>
+                    <TableCell sx={{ fontSize: "0.75rem", fontWeight: "bold", textTransform: "uppercase", color: "text.secondary" }}>Model & Type</TableCell>
+                    <TableCell sx={{ fontSize: "0.75rem", fontWeight: "bold", textTransform: "uppercase", color: "text.secondary" }}>Change Details</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
                   {logs.map((log) => {
-                    // Action styling
-                    let actionBadge = "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-350 dark:border-slate-700";
-                    if (log.action === "CREATE") {
-                      actionBadge = "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-900/50";
-                    } else if (log.action === "UPDATE") {
-                      actionBadge = "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/50";
-                    } else if (log.action === "DELETE") {
-                      actionBadge = "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/50";
-                    }
-
-                    // Entity Type styling
-                    const typeBadge = "bg-primary/5 text-primary border border-primary/10 px-2 py-0.5 rounded text-[10px] font-bold";
+                    let badgeColor: "default" | "success" | "info" | "error" = "default";
+                    if (log.action === "CREATE") badgeColor = "success";
+                    else if (log.action === "UPDATE") badgeColor = "info";
+                    else if (log.action === "DELETE") badgeColor = "error";
 
                     return (
-                      <tr
-                        key={log.id}
-                        className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors font-medium"
-                      >
-                        <td className="p-4 text-slate-500 font-mono whitespace-nowrap">
+                      <TableRow key={log.id} hover>
+                        <TableCell sx={{ fontFamily: "monospace", fontSize: "0.75rem", whiteSpace: "nowrap" }}>
                           {new Date(log.createdAt).toLocaleString("en-US", {
                             dateStyle: "medium",
                             timeStyle: "short",
                           })}
-                        </td>
-                        <td className="p-4">
-                          <span className="font-bold block text-slate-800 dark:text-slate-200">
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" sx={{ fontWeight: "bold", fontSize: "0.8rem" }}>
                             {log.userEmail || "System/Anonymous"}
-                          </span>
-                          <span className="text-[10px] text-muted block font-mono">
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontFamily: "monospace", fontSize: "0.65rem" }}>
                             ID: {log.userId || "N/A"}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <span className={`inline-block px-2.5 py-1 rounded-full border text-[10px] font-black tracking-wider ${actionBadge}`}>
-                            {log.action}
-                          </span>
-                        </td>
-                        <td className="p-4 whitespace-nowrap">
-                          <span className={typeBadge}>
-                            {log.entityType}
-                          </span>
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={log.action}
+                            color={badgeColor}
+                            size="small"
+                            variant="outlined"
+                            sx={{ fontWeight: "black", fontSize: "0.65rem", height: 20 }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={log.entityType}
+                            size="small"
+                            sx={{ fontWeight: "bold", fontSize: "0.65rem", height: 20, bgcolor: "action.selected" }}
+                          />
                           {log.entitySlug && (
-                            <span className="block text-[10px] text-muted font-mono mt-0.5 truncate max-w-[150px]">
+                            <Typography variant="caption" color="text.secondary" sx={{ fontFamily: "monospace", fontSize: "0.65rem", display: "block", mt: 0.5, maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis" }}>
                               slug: {log.entitySlug}
-                            </span>
+                            </Typography>
                           )}
-                        </td>
-                        <td className="p-4 text-slate-700 dark:text-slate-300 font-normal leading-relaxed">
+                        </TableCell>
+                        <TableCell sx={{ fontSize: "0.75rem", color: "text.primary" }}>
                           {log.details || "No changes description provided."}
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     );
                   })}
-                </tbody>
-              </table>
-              <div className="p-4 bg-slate-55/20 dark:bg-slate-900/20 border-t border-border">
+                </TableBody>
+              </Table>
+              <Box sx={{ p: 2, bgcolor: "action.hover", borderTop: "1px solid", borderColor: "divider" }}>
                 <Pagination
                   currentPage={page}
                   totalPages={totalPages}
                   currentSearchParams={{ search, action, entityType, limit }}
                   baseUrl="/admin/audit"
                 />
-              </div>
-            </div>
+              </Box>
+            </Box>
           )}
-        </div>
-      </main>
-    </div>
+        </TableContainer>
+      </Container>
+    </Box>
   );
 }

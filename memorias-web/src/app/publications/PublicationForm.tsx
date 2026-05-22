@@ -4,6 +4,24 @@ import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { resolveDoiAction, parseBibtex, createPublication, updatePublication } from "./actions";
 import { TagWidget } from "@/components/TagWidget";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  TextField,
+  Button,
+  Alert,
+  Chip,
+  FormControlLabel,
+  Checkbox,
+  MenuItem,
+  CircularProgress,
+  List,
+  ListItemButton,
+  ListItemText,
+} from "@mui/material";
 
 export const BIBTEX_FIELDS_MAP: Record<string, { label: string; required: string[]; optional: string[] }> = {
   article: {
@@ -87,7 +105,7 @@ interface ThesisOption {
 }
 
 interface PublicationFormProps {
-  publication?: any; // If editing
+  publication?: any;
   members: MemberOption[];
   projects: ProjectOption[];
   theses: ThesisOption[];
@@ -156,10 +174,6 @@ export function PublicationForm({
 
   const [formError, setFormError] = useState("");
 
-  // ---------------------------------------------------------
-  // Ingestion Triggers
-  // ---------------------------------------------------------
-
   // 1. Resolve DOI
   const handleDoiImport = () => {
     setIngestionError("");
@@ -214,9 +228,6 @@ export function PublicationForm({
     });
   };
 
-  // ---------------------------------------------------------
-  // Form Submit
-  // ---------------------------------------------------------
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setFormError("");
@@ -236,8 +247,6 @@ export function PublicationForm({
         }
       }
     }
-
-
 
     // Filter customEntryTags to only save fields belonging to the active type
     const filteredCustomTags: Record<string, string> = {};
@@ -312,450 +321,462 @@ export function PublicationForm({
     `${t.title} ${t.student || ""}`.toLowerCase().includes(thesisFilter.toLowerCase())
   );
 
-  // ---------------------------------------------------------
-  // Step 1: Select Wizard UI
-  // ---------------------------------------------------------
+  // 1. Select Wizard UI
   if (ingestionMethod === "select") {
     return (
-      <div className="max-w-4xl mx-auto space-y-8 animate-fadeIn">
-        <div className="text-center space-y-2">
-          <h2 className="text-3xl font-extrabold text-slate-800 dark:text-slate-100">
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 4, py: 4 }}>
+        <Box sx={{ textAlign: "center", mb: 2 }}>
+          <Typography variant="h4" component="h2" sx={{ fontWeight: 800, mb: 1, color: "text.primary" }}>
             How would you like to add the publication?
-          </h2>
-          <p className="text-sm text-slate-500 max-w-lg mx-auto">
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 500, mx: "auto" }}>
             Choose an ingestion path to instantly resolve, populate, and pre-fill publication metadata.
-          </p>
-        </div>
+          </Typography>
+        </Box>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Grid container spacing={4} sx={{ justifyContent: "center" }}>
           {/* Card 1: DOI */}
-          <button
-            onClick={() => setIngestionMethod("doi")}
-            className="flex flex-col items-center justify-between text-center p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl hover:border-primary hover:shadow-xl transition-all duration-350 cursor-pointer group"
-          >
-            <div className="space-y-4">
-              <span className="text-4xl block group-hover:scale-110 transition-transform">🔗</span>
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Import with DOI</h3>
-              <p className="text-xs text-slate-500">
-                Paste a Digital Object Identifier (DOI) and query research metadata directly from CrossRef.
-              </p>
-            </div>
-            <span className="mt-6 text-xs font-bold text-primary dark:text-blue-400 group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
-              Select DOI Import ➔
-            </span>
-          </button>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Card
+              variant="outlined"
+              onClick={() => setIngestionMethod("doi")}
+              sx={{
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "between",
+                textAlign: "center",
+                p: 3,
+                borderRadius: 4,
+                cursor: "pointer",
+                transition: "all 0.3s",
+                "&:hover": {
+                  borderColor: "primary.main",
+                  boxShadow: 3,
+                  transform: "translateY(-4px)",
+                },
+              }}
+            >
+              <CardContent sx={{ p: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold", mt: 2 }}>
+                  Import with DOI
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
+                  Paste a Digital Object Identifier (DOI) and query research metadata directly from CrossRef.
+                </Typography>
+                <Button variant="text" size="small" color="primary" sx={{ mt: 3, fontWeight: "bold" }}>
+                  Select DOI Import
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
 
           {/* Card 2: BibTeX */}
-          <button
-            onClick={() => setIngestionMethod("bibtex")}
-            className="flex flex-col items-center justify-between text-center p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl hover:border-primary hover:shadow-xl transition-all duration-350 cursor-pointer group"
-          >
-            <div className="space-y-4">
-              <span className="text-4xl block group-hover:scale-110 transition-transform">📄</span>
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Parse from BibTeX</h3>
-              <p className="text-xs text-slate-500">
-                Paste a raw BibTeX citation entry. We will automatically parse, clean, and populate the attributes.
-              </p>
-            </div>
-            <span className="mt-6 text-xs font-bold text-primary dark:text-blue-400 group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
-              Select BibTeX Ingest ➔
-            </span>
-          </button>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Card
+              variant="outlined"
+              onClick={() => setIngestionMethod("bibtex")}
+              sx={{
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "between",
+                textAlign: "center",
+                p: 3,
+                borderRadius: 4,
+                cursor: "pointer",
+                transition: "all 0.3s",
+                "&:hover": {
+                  borderColor: "primary.main",
+                  boxShadow: 3,
+                  transform: "translateY(-4px)",
+                },
+              }}
+            >
+              <CardContent sx={{ p: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold", mt: 2 }}>
+                  Parse from BibTeX
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
+                  Paste a raw BibTeX citation entry. We will automatically parse, clean, and populate the attributes.
+                </Typography>
+                <Button variant="text" size="small" color="primary" sx={{ mt: 3, fontWeight: "bold" }}>
+                  Select BibTeX Ingest
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
 
           {/* Card 3: Manual */}
-          <button
-            onClick={() => setIngestionMethod("form")}
-            className="flex flex-col items-center justify-between text-center p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl hover:border-primary hover:shadow-xl transition-all duration-350 cursor-pointer group"
-          >
-            <div className="space-y-4">
-              <span className="text-4xl block group-hover:scale-110 transition-transform">✍️</span>
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Add Manually</h3>
-              <p className="text-xs text-slate-500">
-                Skip the auto-ingestion path and jump straight to building an empty manual bibliography.
-              </p>
-            </div>
-            <span className="mt-6 text-xs font-bold text-primary dark:text-blue-400 group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
-              Start Manually ➔
-            </span>
-          </button>
-        </div>
-      </div>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Card
+              variant="outlined"
+              onClick={() => setIngestionMethod("form")}
+              sx={{
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "between",
+                textAlign: "center",
+                p: 3,
+                borderRadius: 4,
+                cursor: "pointer",
+                transition: "all 0.3s",
+                "&:hover": {
+                  borderColor: "primary.main",
+                  boxShadow: 3,
+                  transform: "translateY(-4px)",
+                },
+              }}
+            >
+              <CardContent sx={{ p: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold", mt: 2 }}>
+                  Add Manually
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
+                  Skip the auto-ingestion path and jump straight to building an empty manual bibliography.
+                </Typography>
+                <Button variant="text" size="small" color="primary" sx={{ mt: 3, fontWeight: "bold" }}>
+                  Start Manually
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      </Box>
     );
   }
 
-  // ---------------------------------------------------------
-  // DOI Wizard View
-  // ---------------------------------------------------------
+  // 2. DOI Wizard View
   if (ingestionMethod === "doi") {
     return (
-      <div className="max-w-xl mx-auto bg-white dark:bg-slate-900 border border-border p-8 rounded-3xl shadow-lg space-y-6 animate-fadeIn">
-        <div className="space-y-2">
-          <button
-            onClick={() => setIngestionMethod("select")}
-            className="text-xs text-primary dark:text-blue-400 font-bold hover:underline mb-2 cursor-pointer block"
-          >
-            ← Back to options
-          </button>
-          <h3 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">
-            Import via DOI
-          </h3>
-          <p className="text-xs text-slate-500">
-            Provide a DOI identifier (e.g. <code>10.1007/978-3-030-30796-7_4</code>).
-          </p>
-        </div>
+      <Card variant="outlined" sx={{ maxWidth: 500, mx: "auto", borderRadius: 4, p: 3, boxShadow: 2 }}>
+        <CardContent sx={{ p: 0, display: "flex", flexDirection: "column", gap: 3 }}>
+          <Box>
+            <Button
+              onClick={() => setIngestionMethod("select")}
+              variant="text"
+              size="small"
+              sx={{ fontWeight: "bold", mb: 1, p: 0 }}
+            >
+              Back to options
+            </Button>
+            <Typography variant="h5" sx={{ fontWeight: 800, mb: 0.5 }}>
+              Import via DOI
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Provide a DOI identifier (e.g. 10.1007/978-3-030-30796-7_4).
+            </Typography>
+          </Box>
 
-        <div className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-              DOI Reference
-            </label>
-            <input
-              type="text"
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <TextField
+              fullWidth
+              label="DOI Reference"
               placeholder="e.g. 10.1007/..."
               value={doiInput}
               onChange={(e) => setDoiInput(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm font-mono"
+              size="small"
+              slotProps={{
+                htmlInput: { style: { fontFamily: "monospace" } }
+              }}
             />
-          </div>
 
-          {ingestionError && (
-            <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 text-xs rounded-xl font-medium">
-              ⚠️ {ingestionError}
-            </div>
-          )}
-
-          <button
-            onClick={handleDoiImport}
-            disabled={isPending}
-            className="w-full bg-primary hover:bg-primary-hover disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 text-sm uppercase tracking-wider"
-          >
-            {isPending ? (
-              <>
-                <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                Resolving DOI...
-              </>
-            ) : (
-              "⚡ Resolve & Pre-fill Form"
+            {ingestionError && (
+              <Alert severity="error" sx={{ borderRadius: 2 }}>
+                {ingestionError}
+              </Alert>
             )}
-          </button>
-        </div>
-      </div>
+
+            <Button
+              variant="contained"
+              onClick={handleDoiImport}
+              disabled={isPending}
+              fullWidth
+              sx={{ py: 1.2, fontWeight: "bold", borderRadius: 2 }}
+            >
+              {isPending ? (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                  <CircularProgress size={16} color="inherit" />
+                  <Typography variant="button">Resolving DOI...</Typography>
+                </Box>
+              ) : (
+                "Resolve and Pre-fill Form"
+              )}
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
     );
   }
 
-  // ---------------------------------------------------------
-  // BibTeX Wizard View
-  // ---------------------------------------------------------
+  // 3. BibTeX Wizard View
   if (ingestionMethod === "bibtex") {
     return (
-      <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900 border border-border p-8 rounded-3xl shadow-lg space-y-6 animate-fadeIn">
-        <div className="space-y-2">
-          <button
-            onClick={() => setIngestionMethod("select")}
-            className="text-xs text-primary dark:text-blue-400 font-bold hover:underline mb-2 cursor-pointer block"
-          >
-            ← Back to options
-          </button>
-          <h3 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">
-            Parse from BibTeX
-          </h3>
-          <p className="text-xs text-slate-500">
-            Paste the raw BibTeX entry source.
-          </p>
-        </div>
+      <Card variant="outlined" sx={{ maxWidth: 600, mx: "auto", borderRadius: 4, p: 3, boxShadow: 2 }}>
+        <CardContent sx={{ p: 0, display: "flex", flexDirection: "column", gap: 3 }}>
+          <Box>
+            <Button
+              onClick={() => setIngestionMethod("select")}
+              variant="text"
+              size="small"
+              sx={{ fontWeight: "bold", mb: 1, p: 0 }}
+            >
+              Back to options
+            </Button>
+            <Typography variant="h5" sx={{ fontWeight: 800, mb: 0.5 }}>
+              Parse from BibTeX
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Paste the raw BibTeX entry source.
+            </Typography>
+          </Box>
 
-        <div className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-              BibTeX Source Code
-            </label>
-            <textarea
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <TextField
+              fullWidth
+              multiline
               rows={8}
+              label="BibTeX Source Code"
               placeholder="@article{silva2025, ...}"
               value={bibInput}
               onChange={(e) => setBibInput(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-xs font-mono"
+              slotProps={{
+                htmlInput: { style: { fontFamily: "monospace", fontSize: "0.75rem" } }
+              }}
             />
-          </div>
 
-          {ingestionError && (
-            <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 text-xs rounded-xl font-medium">
-              ⚠️ {ingestionError}
-            </div>
-          )}
-
-          <button
-            onClick={handleBibtexParse}
-            disabled={isPending}
-            className="w-full bg-primary hover:bg-primary-hover disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 text-sm uppercase tracking-wider"
-          >
-            {isPending ? (
-              <>
-                <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                Parsing BibTeX...
-              </>
-            ) : (
-              "⚡ Parse & Pre-fill Form"
+            {ingestionError && (
+              <Alert severity="error" sx={{ borderRadius: 2 }}>
+                {ingestionError}
+              </Alert>
             )}
-          </button>
-        </div>
-      </div>
+
+            <Button
+              variant="contained"
+              onClick={handleBibtexParse}
+              disabled={isPending}
+              fullWidth
+              sx={{ py: 1.2, fontWeight: "bold", borderRadius: 2 }}
+            >
+              {isPending ? (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                  <CircularProgress size={16} color="inherit" />
+                  <Typography variant="button">Parsing BibTeX...</Typography>
+                </Box>
+              ) : (
+                "Parse and Pre-fill Form"
+              )}
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
     );
   }
 
-  // ---------------------------------------------------------
-  // Final Ingestion / Meta-Data Edit Form View
-  // ---------------------------------------------------------
+  // 4. Main Metadata Form View
+  const config = BIBTEX_FIELDS_MAP[type];
+
   return (
-    <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-10 animate-fadeIn">
+    <Box component="form" onSubmit={handleSubmit} sx={{ pb: 8 }}>
       {/* Visual Ingested Banner Alert */}
       {!publication && (
-        <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900 p-4 rounded-2xl flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🎉</span>
-            <div>
-              <span className="block text-sm font-bold text-emerald-800 dark:text-emerald-300">
-                Metadata populated successfully!
-              </span>
-              <span className="block text-[11px] text-emerald-600 dark:text-emerald-500">
-                You can now edit, complete relation tags, or save this publication record below.
-              </span>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setIngestionMethod("select")}
-            className="text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white underline cursor-pointer"
-          >
-            Start over
-          </button>
-        </div>
+        <Alert
+          severity="success"
+          action={
+            <Button
+              color="inherit"
+              size="small"
+              onClick={() => setIngestionMethod("select")}
+              sx={{ fontWeight: "bold" }}
+            >
+              Start over
+            </Button>
+          }
+          sx={{ borderRadius: 3, mb: 4 }}
+        >
+          Metadata populated successfully! You can now edit, complete relation tags, or save this publication record below.
+        </Alert>
       )}
+      <Grid container spacing={4}>
+        {/* Left Column: Core Fields */}
+        <Grid size={{ xs: 12, lg: 8 }}>
+          <Card variant="outlined" sx={{ borderRadius: 3 }}>
+            <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", gap: 3 }}>
+              <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 1 }}>
+                Publication Parameters
+              </Typography>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Left Column: Form Details (2 columns wide) */}
-        <div className="lg:col-span-2 space-y-6 bg-white dark:bg-slate-900 border border-border p-8 rounded-3xl shadow-sm">
-          <h3 className="text-xl font-extrabold border-b border-border pb-3 mb-4 text-slate-800 dark:text-slate-100">
-            Publication Parameters
-          </h3>
-
-          {/* Form Fields */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                Publication Title <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
+              <TextField
+                fullWidth
+                label="Publication Title"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. A Semantic Web Architecture for Open Research Repositories"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm"
+                size="small"
               />
-            </div>
 
-            <div>
-              <label className="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                Authors <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
+              <TextField
+                fullWidth
+                label="Authors"
                 required
                 value={authors}
                 onChange={(e) => setAuthors(e.target.value)}
                 placeholder="e.g. Silva, Alejandro and Mendoza, Carlos"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm font-mono"
+                size="small"
+                helperText="Separate author names using the keyword 'and' (BibTeX standard format)."
+                slotProps={{
+                  htmlInput: { style: { fontFamily: "monospace" } }
+                }}
               />
-              <span className="block text-[10px] text-slate-400 mt-1">
-                Separate author names using the keyword <code>and</code> (BibTeX standard format).
-              </span>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                  Publication Year <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  required
-                  value={year || ""}
-                  onChange={(e) => setYear(Number(e.target.value))}
-                  placeholder="e.g. 2025"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm"
-                />
-              </div>
+              <Grid container spacing={3}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    label="Publication Year"
+                    required
+                    value={year || ""}
+                    onChange={(e) => setYear(Number(e.target.value))}
+                    placeholder="e.g. 2025"
+                    size="small"
+                  />
+                </Grid>
 
-              <div>
-                <label className="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                  Type <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm"
-                >
-                  {Object.entries(BIBTEX_FIELDS_MAP).map(([key, config]) => (
-                    <option key={key} value={key}>
-                      {config.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    select
+                    fullWidth
+                    label="Type"
+                    value={type}
+                    onChange={(e) => setType(e.target.value)}
+                    size="small"
+                  >
+                    {Object.entries(BIBTEX_FIELDS_MAP).map(([key, config]) => (
+                      <MenuItem key={key} value={key}>
+                        {config.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <div className="max-w-md">
-                  <label className="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                    Ranking (Optional)
-                  </label>
-                  <input
-                    type="text"
+                <Grid size={{ xs: 12 }}>
+                  <TextField
+                    fullWidth
+                    label="Ranking (Optional)"
                     value={ranking}
                     onChange={(e) => setRanking(e.target.value)}
                     placeholder="e.g. CORE A, Q1, Scopus"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm"
+                    size="small"
                   />
-                </div>
-              </div>
+                </Grid>
 
-              <div>
-                <label className="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                  Self-Archiving PDF URL (Optional)
-                </label>
-                <input
-                  type="url"
-                  value={selfArchivingUrl}
-                  onChange={(e) => setSelfArchivingUrl(e.target.value)}
-                  placeholder="e.g. https://docs.domain.com/...pdf"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm"
-                />
-              </div>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    type="url"
+                    label="Self-Archiving PDF URL (Optional)"
+                    value={selfArchivingUrl}
+                    onChange={(e) => setSelfArchivingUrl(e.target.value)}
+                    placeholder="e.g. https://docs.domain.com/...pdf"
+                    size="small"
+                  />
+                </Grid>
 
-              <div>
-                <label className="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                  DOI (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={doi}
-                  onChange={(e) => setDoi(e.target.value)}
-                  placeholder="e.g. 10.1007/..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm font-mono"
-                />
-              </div>
-            </div>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    label="DOI (Optional)"
+                    value={doi}
+                    onChange={(e) => setDoi(e.target.value)}
+                    placeholder="e.g. 10.1007/..."
+                    size="small"
+                    slotProps={{
+                      htmlInput: { style: { fontFamily: "monospace" } }
+                    }}
+                  />
+                </Grid>
+              </Grid>
 
-            <div className="border border-border p-6 rounded-2xl bg-slate-50/50 dark:bg-slate-950/20 space-y-4">
-              <div>
-                <h4 className="text-xs font-extrabold text-slate-850 dark:text-slate-200 uppercase tracking-wider">
+              <Box sx={{ border: "1px solid", borderColor: "divider", p: 2.5, borderRadius: 3, bgcolor: "action.hover", my: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
                   Research Classification Tags
-                </h4>
-                <p className="text-[10px] text-slate-400 mt-1">
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 2 }}>
                   Add custom keywords and research classifications to tag this publication globally.
-                </p>
-              </div>
-              <TagWidget
-                initialTags={publication?.tags || []}
-                placeholder="Add custom tags or keywords..."
-                onChange={(newTags) => setTags(newTags)}
-              />
-            </div>
+                </Typography>
+                <TagWidget
+                  initialTags={tags}
+                  placeholder="Add custom tags or keywords..."
+                  onChange={(newTags) => setTags(newTags)}
+                />
+              </Box>
 
-            <div>
-              <label className="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                Abstract (Optional)
-              </label>
-              <textarea
+              <TextField
+                fullWidth
+                multiline
                 rows={4}
+                label="Abstract (Optional)"
                 value={abstract}
                 onChange={(e) => setAbstract(e.target.value)}
                 placeholder="Provide a detailed abstract summary of the publication scope, methodology, and key contributions..."
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm leading-relaxed"
               />
-            </div>
 
-            <div>
-              <label className="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                Citation Key Reference (Optional)
-              </label>
-              <input
-                type="text"
+              <TextField
+                fullWidth
+                label="Citation Key Reference (Optional)"
                 value={citationKey}
                 onChange={(e) => setCitationKey(e.target.value)}
                 placeholder="e.g. silva2025semantic"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm font-mono"
+                size="small"
+                slotProps={{
+                  htmlInput: { style: { fontFamily: "monospace" } }
+                }}
               />
-            </div>
 
-            {/* Featured Paper Switcher */}
-            <div className="flex items-center gap-3 bg-primary/5 dark:bg-primary/10 border border-primary/10 p-4 rounded-xl">
-              <input
-                type="checkbox"
-                id="featured"
-                checked={featured}
-                onChange={(e) => setFeatured(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
-              />
-              <div>
-                <label htmlFor="featured" className="block text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer">
-                  Featured Publication
-                </label>
-                <span className="block text-[10px] text-muted leading-tight mt-0.5">
-                  Highlight this paper on the home page as part of the selected scientific bibliography feed.
-                </span>
-              </div>
-            </div>
-
-            {/* Dynamic Type-Specific Fields */}
-            <div className="border-t border-slate-100 dark:border-slate-800/50 pt-6 mt-6 space-y-4">
-              <div>
-                <h4 className="text-sm font-bold text-slate-850 dark:text-white flex items-center gap-1.5">
-                  Type-Specific Metadata: {BIBTEX_FIELDS_MAP[type]?.label || type}
-                </h4>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  Provide additional metadata specific to the selected publication type. Required fields are marked with a red asterisk (<span className="text-red-500">*</span>).
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Render Required Fields */}
-                {BIBTEX_FIELDS_MAP[type]?.required.map((field) => (
-                  <div key={field}>
-                    <label className="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                      {field} <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={customEntryTags[field] || ""}
-                      onChange={(e) => {
-                        setCustomEntryTags({
-                          ...customEntryTags,
-                          [field]: e.target.value,
-                        });
-                      }}
-                      placeholder={`e.g. enter ${field}`}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm"
+              <Box sx={{ p: 2, borderRadius: 2, bgcolor: "action.hover", border: "1px dashed", borderColor: "divider" }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={featured}
+                      onChange={(e) => setFeatured(e.target.checked)}
                     />
-                  </div>
-                ))}
+                  }
+                  label={
+                    <Box>
+                      <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
+                        Featured Publication
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
+                        Highlight this paper on the home page as part of the selected scientific bibliography feed.
+                      </Typography>
+                    </Box>
+                  }
+                />
+              </Box>
 
-                {/* Render Optional Fields */}
-                {BIBTEX_FIELDS_MAP[type]?.optional.map((field) => {
-                  // Skip standard core fields already in the top section
-                  if (["author", "title", "year", "doi", "key"].includes(field)) return null;
+              {/* Dynamic Type-Specific Fields */}
+              <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 3, mt: 2 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                  Type-Specific Metadata: {config?.label || type}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 3 }}>
+                  Provide additional metadata specific to the selected publication type. Required fields are marked with an asterisk (*).
+                </Typography>
 
-                  return (
-                    <div key={field}>
-                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-                        {field} (Optional)
-                      </label>
-                      <input
-                        type="text"
+                <Grid container spacing={3}>
+                  {/* Render Required Fields */}
+                  {config?.required.map((field) => (
+                    <Grid size={{ xs: 12, sm: 6 }} key={field}>
+                      <TextField
+                        fullWidth
+                        required
+                        label={`${field} *`}
                         value={customEntryTags[field] || ""}
                         onChange={(e) => {
                           setCustomEntryTags({
@@ -764,184 +785,237 @@ export function PublicationForm({
                           });
                         }}
                         placeholder={`e.g. enter ${field}`}
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-slate-950 dark:text-white transition-all text-sm"
+                        size="small"
                       />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+                    </Grid>
+                  ))}
 
-          {formError && (
-            <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 text-xs rounded-xl font-medium">
-              ⚠️ {formError}
-            </div>
-          )}
+                  {/* Render Optional Fields */}
+                  {config?.optional.map((field) => {
+                    if (["author", "title", "year", "doi", "key"].includes(field)) return null;
 
-          <div className="flex items-center gap-4 pt-4 border-t border-border mt-6">
-            <button
-              type="submit"
-              disabled={isPending}
-              className="bg-primary hover:bg-primary-hover disabled:opacity-50 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer text-xs uppercase tracking-wider"
-            >
-              {isPending ? "Saving..." : "Save Publication"}
-            </button>
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold px-6 py-3 rounded-xl transition-all border border-border cursor-pointer text-xs uppercase tracking-wider"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
+                    return (
+                      <Grid size={{ xs: 12, sm: 6 }} key={field}>
+                        <TextField
+                          fullWidth
+                          label={`${field} (Optional)`}
+                          value={customEntryTags[field] || ""}
+                          onChange={(e) => {
+                            setCustomEntryTags({
+                              ...customEntryTags,
+                              [field]: e.target.value,
+                            });
+                          }}
+                          placeholder={`e.g. enter ${field}`}
+                          size="small"
+                        />
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              </Box>
 
-        {/* Right Column: Relational Checklists (1 column wide) */}
-        <div className="space-y-6">
-          
-          {/* Members checklist */}
-          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-3xl shadow-sm space-y-4">
-            <h4 className="text-sm font-extrabold border-b border-border pb-2 text-slate-800 dark:text-slate-100">
-              Associated Members
-            </h4>
-            <input
-              type="text"
-              placeholder="Search researchers..."
-              value={memberFilter}
-              onChange={(e) => setMemberFilter(e.target.value)}
-              className="w-full px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-1 focus:ring-primary/20 dark:bg-slate-950 dark:text-white text-xs"
-            />
-            <div className="max-h-48 overflow-y-auto space-y-2 border border-border/50 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/20">
-              {filteredMembers.map((m) => {
-                const checked = selectedMembers.includes(m.id);
-                return (
-                  <label
-                    key={m.id}
-                    className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50 p-1.5 rounded-lg cursor-pointer transition-all"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => {
-                        if (checked) {
-                          setSelectedMembers(selectedMembers.filter((id) => id !== m.id));
-                        } else {
-                          setSelectedMembers([...selectedMembers, m.id]);
-                        }
-                      }}
-                      className="mt-0.5"
-                    />
-                    <span>
-                      {m.firstName} {m.lastName}
-                    </span>
-                  </label>
-                );
-              })}
-              {filteredMembers.length === 0 && (
-                <span className="text-[10px] text-slate-400 block text-center py-4">
-                  No members found
-                </span>
+              {formError && (
+                <Alert severity="error" sx={{ borderRadius: 2, mt: 2 }}>
+                  {formError}
+                </Alert>
               )}
-            </div>
-          </div>
+
+              <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={isPending}
+                  sx={{ px: 4, py: 1.2, fontWeight: "bold", borderRadius: 2 }}
+                >
+                  {isPending ? "Saving..." : "Save Publication"}
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => router.back()}
+                  sx={{ px: 4, py: 1.2, fontWeight: "bold", borderRadius: 2 }}
+                >
+                  Cancel
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Right Column: Connection lists */}
+        <Grid size={{ xs: 12, lg: 4 }} sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {/* Members checklist */}
+          <Card variant="outlined" sx={{ borderRadius: 3 }}>
+            <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: "bold", borderBottom: "1px solid", borderColor: "divider", pb: 1 }}>
+                Associated Members
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Search researchers..."
+                value={memberFilter}
+                onChange={(e) => setMemberFilter(e.target.value)}
+              />
+              <Box sx={{ maxHeight: 200, overflowY: "auto", border: "1px solid", borderColor: "divider", borderRadius: 2, p: 1, bgcolor: "background.paper" }}>
+                <List dense disablePadding>
+                  {filteredMembers.map((m) => {
+                    const checked = selectedMembers.includes(m.id);
+                    return (
+                      <ListItemButton
+                        key={m.id}
+                        dense
+                        onClick={() => {
+                          if (checked) {
+                            setSelectedMembers(selectedMembers.filter((id) => id !== m.id));
+                          } else {
+                            setSelectedMembers([...selectedMembers, m.id]);
+                          }
+                        }}
+                        sx={{ borderRadius: 1, mb: 0.5 }}
+                      >
+                        <Checkbox
+                          edge="start"
+                          checked={checked}
+                          tabIndex={-1}
+                          disableRipple
+                          size="small"
+                          sx={{ p: 0.5 }}
+                        />
+                        <ListItemText
+                          primary={`${m.firstName} ${m.lastName}`}
+                          slotProps={{
+                            primary: { sx: { fontSize: "0.75rem", fontWeight: checked ? "bold" : "normal" } }
+                          }}
+                        />
+                      </ListItemButton>
+                    );
+                  })}
+                  {filteredMembers.length === 0 && (
+                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", textAlign: "center", py: 2 }}>
+                      No members found
+                    </Typography>
+                  )}
+                </List>
+              </Box>
+            </CardContent>
+          </Card>
 
           {/* Projects checklist */}
-          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-3xl shadow-sm space-y-4">
-            <h4 className="text-sm font-extrabold border-b border-border pb-2 text-slate-800 dark:text-slate-100">
-              Connected Projects
-            </h4>
-            <input
-              type="text"
-              placeholder="Search projects..."
-              value={projectFilter}
-              onChange={(e) => setProjectFilter(e.target.value)}
-              className="w-full px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-1 focus:ring-primary/20 dark:bg-slate-950 dark:text-white text-xs"
-            />
-            <div className="max-h-48 overflow-y-auto space-y-2 border border-border/50 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/20">
-              {filteredProjects.map((p) => {
-                const checked = selectedProjects.includes(p.id);
-                return (
-                  <label
-                    key={p.id}
-                    className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50 p-1.5 rounded-lg cursor-pointer transition-all"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => {
-                        if (checked) {
-                          setSelectedProjects(selectedProjects.filter((id) => id !== p.id));
-                        } else {
-                          setSelectedProjects([...selectedProjects, p.id]);
-                        }
-                      }}
-                      className="mt-0.5"
-                    />
-                    <span>
-                      {p.code ? `[${p.code}] ` : ""}
-                      {p.title}
-                    </span>
-                  </label>
-                );
-              })}
-              {filteredProjects.length === 0 && (
-                <span className="text-[10px] text-slate-400 block text-center py-4">
-                  No projects found
-                </span>
-              )}
-            </div>
-          </div>
+          <Card variant="outlined" sx={{ borderRadius: 3 }}>
+            <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: "bold", borderBottom: "1px solid", borderColor: "divider", pb: 1 }}>
+                Connected Projects
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Search projects..."
+                value={projectFilter}
+                onChange={(e) => setProjectFilter(e.target.value)}
+              />
+              <Box sx={{ maxHeight: 200, overflowY: "auto", border: "1px solid", borderColor: "divider", borderRadius: 2, p: 1, bgcolor: "background.paper" }}>
+                <List dense disablePadding>
+                  {filteredProjects.map((p) => {
+                    const checked = selectedProjects.includes(p.id);
+                    return (
+                      <ListItemButton
+                        key={p.id}
+                        dense
+                        onClick={() => {
+                          if (checked) {
+                            setSelectedProjects(selectedProjects.filter((id) => id !== p.id));
+                          } else {
+                            setSelectedProjects([...selectedProjects, p.id]);
+                          }
+                        }}
+                        sx={{ borderRadius: 1, mb: 0.5 }}
+                      >
+                        <Checkbox
+                          edge="start"
+                          checked={checked}
+                          tabIndex={-1}
+                          disableRipple
+                          size="small"
+                          sx={{ p: 0.5 }}
+                        />
+                        <ListItemText
+                          primary={(p.code ? `[${p.code}] ` : "") + p.title}
+                          slotProps={{
+                            primary: { sx: { fontSize: "0.75rem", fontWeight: checked ? "bold" : "normal" } }
+                          }}
+                        />
+                      </ListItemButton>
+                    );
+                  })}
+                  {filteredProjects.length === 0 && (
+                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", textAlign: "center", py: 2 }}>
+                      No projects found
+                    </Typography>
+                  )}
+                </List>
+              </Box>
+            </CardContent>
+          </Card>
 
           {/* Theses checklist */}
-          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-3xl shadow-sm space-y-4">
-            <h4 className="text-sm font-extrabold border-b border-border pb-2 text-slate-800 dark:text-slate-100">
-              Related Theses
-            </h4>
-            <input
-              type="text"
-              placeholder="Search theses..."
-              value={thesisFilter}
-              onChange={(e) => setThesisFilter(e.target.value)}
-              className="w-full px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-1 focus:ring-primary/20 dark:bg-slate-950 dark:text-white text-xs"
-            />
-            <div className="max-h-48 overflow-y-auto space-y-2 border border-border/50 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/20">
-              {filteredTheses.map((t) => {
-                const checked = selectedTheses.includes(t.id);
-                return (
-                  <label
-                    key={t.id}
-                    className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50 p-1.5 rounded-lg cursor-pointer transition-all"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => {
-                        if (checked) {
-                          setSelectedTheses(selectedTheses.filter((id) => id !== t.id));
-                        } else {
-                          setSelectedTheses([...selectedTheses, t.id]);
-                        }
-                      }}
-                      className="mt-0.5"
-                    />
-                    <span>
-                      {t.title}
-                      {t.student ? ` (${t.student})` : ""}
-                    </span>
-                  </label>
-                );
-              })}
-              {filteredTheses.length === 0 && (
-                <span className="text-[10px] text-slate-400 block text-center py-4">
-                  No theses found
-                </span>
-              )}
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </form>
+          <Card variant="outlined" sx={{ borderRadius: 3 }}>
+            <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: "bold", borderBottom: "1px solid", borderColor: "divider", pb: 1 }}>
+                Related Theses
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Search theses..."
+                value={thesisFilter}
+                onChange={(e) => setThesisFilter(e.target.value)}
+              />
+              <Box sx={{ maxHeight: 200, overflowY: "auto", border: "1px solid", borderColor: "divider", borderRadius: 2, p: 1, bgcolor: "background.paper" }}>
+                <List dense disablePadding>
+                  {filteredTheses.map((t) => {
+                    const checked = selectedTheses.includes(t.id);
+                    return (
+                      <ListItemButton
+                        key={t.id}
+                        dense
+                        onClick={() => {
+                          if (checked) {
+                            setSelectedTheses(selectedTheses.filter((id) => id !== t.id));
+                          } else {
+                            setSelectedTheses([...selectedTheses, t.id]);
+                          }
+                        }}
+                        sx={{ borderRadius: 1, mb: 0.5 }}
+                      >
+                        <Checkbox
+                          edge="start"
+                          checked={checked}
+                          tabIndex={-1}
+                          disableRipple
+                          size="small"
+                          sx={{ p: 0.5 }}
+                        />
+                        <ListItemText
+                          primary={t.title + (t.student ? ` (${t.student})` : "")}
+                          slotProps={{
+                            primary: { sx: { fontSize: "0.75rem", fontWeight: checked ? "bold" : "normal" } }
+                          }}
+                        />
+                      </ListItemButton>
+                    );
+                  })}
+                  {filteredTheses.length === 0 && (
+                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", textAlign: "center", py: 2 }}>
+                      No theses found
+                    </Typography>
+                  )}
+                </List>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }

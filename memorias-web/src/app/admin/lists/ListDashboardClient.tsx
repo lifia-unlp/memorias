@@ -2,6 +2,25 @@
 
 import React, { useState } from "react";
 import { createOption, checkOptionUsage, deleteOptionSafe } from "./actions";
+import {
+  Box,
+  Typography,
+  Paper,
+  Button,
+  TextField,
+  Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  Select,
+  MenuItem,
+  FormControl,
+  Alert,
+} from "@mui/material";
 
 interface SystemOption {
   id: string;
@@ -121,235 +140,247 @@ export default function ListDashboardClient({
   };
 
   return (
-    <div className="space-y-6">
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
       {/* 1. Category Switcher Tabs */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-4 rounded-2xl shadow-sm">
-        <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-3">Select List Category</span>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+      <Paper sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider" }} elevation={0}>
+        <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.5px", display: "block", mb: 2 }}>
+          Select List Category
+        </Typography>
+        <Grid container spacing={1.5}>
           {LISTS.map((list) => {
             const isActive = activeTab === list.id;
             return (
-              <button
-                key={list.id}
-                onClick={() => {
-                  setActiveTab(list.id);
-                  setSearchQuery("");
-                  setFormError("");
-                  setNewValue("");
-                }}
-                className={`flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all ${
-                  isActive
-                    ? "bg-primary border-primary text-white shadow-md shadow-primary/10"
-                    : "bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/40 dark:hover:bg-slate-800 border-border text-foreground"
-                }`}
-              >
-                <div className="min-w-0">
-                  <span className="text-xs font-bold block truncate leading-tight">{list.title}</span>
-                  <span className={`text-[9px] block truncate mt-0.5 ${isActive ? "text-white/80" : "text-muted"}`}>
-                    {list.desc}
-                  </span>
-                </div>
-              </button>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={list.id}>
+                <Button
+                  onClick={() => {
+                    setActiveTab(list.id);
+                    setSearchQuery("");
+                    setFormError("");
+                    setNewValue("");
+                  }}
+                  variant={isActive ? "contained" : "outlined"}
+                  color={isActive ? "primary" : "inherit"}
+                  fullWidth
+                  sx={{
+                    justifyContent: "flex-start",
+                    textAlign: "left",
+                    p: 2,
+                    borderRadius: 3,
+                    textTransform: "none",
+                    height: "100%",
+                  }}
+                >
+                  <Box sx={{ width: "100%", overflow: "hidden" }}>
+                    <Typography variant="body2" sx={{ fontWeight: "bold", display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1.2 }}>
+                      {list.title}
+                    </Typography>
+                    <Typography variant="caption" sx={{ display: "block", color: isActive ? "rgba(255,255,255,0.8)" : "text.secondary", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", mt: 0.5, fontSize: "0.65rem" }}>
+                      {list.desc}
+                    </Typography>
+                  </Box>
+                </Button>
+              </Grid>
             );
           })}
-        </div>
-      </div>
+        </Grid>
+      </Paper>
 
       {/* 2. List Control Area */}
-      <div className="bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm overflow-hidden">
+      <Paper sx={{ borderRadius: 4, border: "1px solid", borderColor: "divider", overflow: "hidden" }} elevation={0}>
         {/* Top Active Bar */}
-        <div className="bg-slate-50/50 dark:bg-slate-800/20 px-6 py-5 border-b border-border/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <h2 className="font-extrabold text-lg text-primary flex items-center gap-2">
+        <Box sx={{ bgcolor: "action.hover", p: 3, borderBottom: "1px solid", borderColor: "divider", display: "flex", flexDirection: { xs: "column", md: "row" }, justifyContent: "space-between", alignItems: { xs: "flex-start", md: "center" }, gap: 2 }}>
+          <Box>
+            <Typography variant="h3" sx={{ fontSize: "1.15rem", fontWeight: 800, color: "primary.main", mb: 0.5 }}>
               {activeMetadata.title}
-            </h2>
-            <p className="text-xs text-muted leading-relaxed">
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
               {activeMetadata.desc}
-            </p>
-          </div>
+            </Typography>
+          </Box>
 
           {/* Quick Search */}
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search options..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-4 py-2 text-xs bg-white dark:bg-slate-800 border border-border rounded-xl w-full md:w-56 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground"
-            />
-            <span className="absolute left-3 top-3 text-slate-400">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </span>
-          </div>
-        </div>
+          <TextField
+            placeholder="Search options..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            size="small"
+            sx={{ width: { xs: "100%", md: 240 }, bgcolor: "background.paper" }}
+          />
+        </Box>
 
         {/* Option Creation Form */}
-        <form onSubmit={handleAdd} className="p-6 border-b border-border/60 bg-slate-50/20 dark:bg-slate-800/5 space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                placeholder={`Add new option to ${activeMetadata.title}...`}
-                value={newValue}
-                onChange={(e) => setNewValue(e.target.value)}
-                disabled={isSubmitting}
-                className="w-full px-4 py-2.5 text-sm border border-border rounded-xl bg-white dark:bg-slate-850 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all text-foreground placeholder-slate-400"
-              />
-            </div>
-            <button
+        <Box component="form" onSubmit={handleAdd} sx={{ p: 3, borderBottom: "1px solid", borderColor: "divider", bgcolor: "action.selected", display: "flex", flexDirection: "column", gap: 2 }}>
+          <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
+            <TextField
+              fullWidth
+              placeholder={`Add new option to ${activeMetadata.title}...`}
+              value={newValue}
+              onChange={(e) => setNewValue(e.target.value)}
+              disabled={isSubmitting}
+              size="small"
+              sx={{ bgcolor: "background.paper" }}
+            />
+            <Button
               type="submit"
+              variant="contained"
+              color="secondary"
               disabled={isSubmitting || !newValue.trim()}
-              className="px-5 py-2.5 bg-secondary text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-secondary-hover shadow-sm transition-all disabled:opacity-50 shrink-0"
+              size="small"
+              sx={{ textTransform: "none", fontWeight: "bold", px: 3, borderRadius: 2, shrink: 0, height: 40 }}
             >
               {isSubmitting ? "Adding..." : "Add Option"}
-            </button>
-          </div>
+            </Button>
+          </Box>
           {formError && (
-            <p className="text-xs text-red-500 font-medium flex items-center gap-1.5 animate-pulse">
-              <span>Error:</span> {formError}
-            </p>
+            <Alert severity="error" icon={false} sx={{ py: 0.5 }}>
+              {formError}
+            </Alert>
           )}
-        </form>
+        </Box>
 
-        {/* Options Grid */}
-        <div className="p-6">
+        {/* Options List */}
+        <Box sx={{ p: 3 }}>
           {activeOptions.length === 0 ? (
-            <div className="text-center py-10 space-y-2">
-              <span className="text-3xl font-bold text-slate-300"></span>
-              <p className="text-xs text-muted font-medium">
-                {searchQuery ? "No matching options found." : "No options defined yet in this category."}
-              </p>
-            </div>
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center", py: 4, fontWeight: "medium" }}>
+              {searchQuery ? "No matching options found." : "No options defined yet in this category."}
+            </Typography>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Grid container spacing={1.5}>
               {activeOptions.map((opt) => (
-                <div
-                  key={opt.id}
-                  className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/40 dark:hover:bg-slate-800 border border-border/60 rounded-xl hover:shadow-sm transition-all group"
-                >
-                  <span className="text-sm font-semibold text-slate-850 dark:text-slate-200">
-                    {opt.value}
-                  </span>
-                  <button
-                    onClick={() => handleDeleteClick(opt)}
-                    disabled={isCheckingUsage}
-                    className="text-xs text-slate-400 hover:text-red-500 p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors"
-                    title="Delete Option"
+                <Grid size={{ xs: 12, sm: 6 }} key={opt.id}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      px: 2,
+                      py: 1,
+                      bgcolor: "background.paper",
+                      border: "1px solid",
+                      borderColor: "divider",
+                      borderRadius: 2,
+                      "&:hover": {
+                        bgcolor: "action.hover",
+                        boxShadow: "0 1px 3px 0 rgba(0,0,0,0.05)",
+                      },
+                      transition: "all 0.2s",
+                    }}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </div>
+                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                      {opt.value}
+                    </Typography>
+                    <Button
+                      onClick={() => handleDeleteClick(opt)}
+                      disabled={isCheckingUsage}
+                      color="error"
+                      size="small"
+                      variant="text"
+                      sx={{ textTransform: "none", fontWeight: "bold", fontSize: "0.75rem", py: 0.25 }}
+                    >
+                      Delete
+                    </Button>
+                  </Box>
+                </Grid>
               ))}
-            </div>
+            </Grid>
           )}
-        </div>
-      </div>
+        </Box>
+      </Paper>
 
-      {/* 3. Reassignment & Deletion Modal */}
-      {showModal && deletingOption && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/60 transition-opacity animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 border border-border rounded-3xl shadow-2xl p-7 max-w-md w-full scale-100 transform transition-all space-y-6">
-            {/* Warning Header */}
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 flex items-center justify-center bg-amber-500/10 text-amber-500 rounded-2xl shrink-0">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-lg font-black text-slate-800 dark:text-white leading-tight">
-                  High Usage Warning
-                </h3>
-                <p className="text-[11px] text-slate-400">
-                  Safe relational checks active.
-                </p>
-              </div>
-            </div>
+      {/* 3. Reassignment & Deletion Modal (Dialog) */}
+      <Dialog
+        open={showModal}
+        onClose={() => {
+          if (!isDeleting) {
+            setShowModal(false);
+            setDeletingOption(null);
+          }
+        }}
+        maxWidth="xs"
+        fullWidth
+        slotProps={{ paper: { sx: { borderRadius: 4, p: 2 } } }}
+      >
+        <DialogTitle sx={{ fontWeight: 900, pb: 1 }}>
+          High Usage Warning
+        </DialogTitle>
+        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 1 }}>
+          <Typography variant="body2" sx={{ p: 2, bgcolor: "warning.light", color: "warning.contrastText", borderRadius: 3, fontSize: "0.775rem", lineHeight: 1.5 }}>
+            The option <strong>"{deletingOption?.value}"</strong> is currently used by <strong>{usageCount}</strong> database records. Deleting it directly would orphan these fields. Please specify how to update these records:
+          </Typography>
 
-            {/* Warning Message */}
-            <p className="text-xs text-slate-650 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-border/80">
-              The option <strong className="text-amber-500 font-bold">"{deletingOption.value}"</strong> is currently used by <strong className="text-slate-850 dark:text-white font-extrabold">{usageCount}</strong> database records. Deleting it directly would orphan these fields. Please specify how to update these records:
-            </p>
-
-            {/* Selection Form */}
-            <div className="space-y-4">
-              {/* Replace Usage option */}
-              {availableReplacements.length > 0 && (
-                <label className="flex items-start gap-3 cursor-pointer group">
-                  <input
-                    type="radio"
-                    name="replacement_option"
-                    checked={replacementValue !== "clear_value"}
-                    onChange={() => setReplacementValue(availableReplacements[0])}
-                    className="mt-1 focus:ring-primary accent-primary"
-                  />
-                  <div className="flex-1 space-y-2">
-                    <span className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+          <RadioGroup
+            value={replacementValue}
+            onChange={(e) => setReplacementValue(e.target.value)}
+          >
+            {availableReplacements.length > 0 && (
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 2 }}>
+                <FormControlLabel
+                  value="replace"
+                  control={<Radio size="small" checked={replacementValue !== "clear_value"} onChange={() => setReplacementValue(availableReplacements[0])} />}
+                  label={
+                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>
                       Reassign and replace usages with another option:
-                    </span>
-                    <select
-                      value={replacementValue === "clear_value" ? availableReplacements[0] : replacementValue}
+                    </Typography>
+                  }
+                />
+                {replacementValue !== "clear_value" && (
+                  <FormControl fullWidth size="small" sx={{ pl: 4, mt: 0.5 }}>
+                    <Select
+                      value={replacementValue}
                       onChange={(e) => setReplacementValue(e.target.value)}
-                      disabled={replacementValue === "clear_value"}
-                      className="w-full text-xs bg-slate-50 dark:bg-slate-800 border border-border rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 text-foreground"
                     >
                       {availableReplacements.map((val) => (
-                        <option key={val} value={val}>
+                        <MenuItem key={val} value={val}>
                           {val}
-                        </option>
+                        </MenuItem>
                       ))}
-                    </select>
-                  </div>
-                </label>
-              )}
+                    </Select>
+                  </FormControl>
+                )}
+              </Box>
+            )}
 
-              {/* Clear Usage option */}
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="radio"
-                  name="replacement_option"
-                  checked={replacementValue === "clear_value"}
-                  onChange={() => setReplacementValue("clear_value")}
-                  className="mt-1 focus:ring-primary accent-primary"
-                />
-                <div className="flex-1">
-                  <span className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+            <FormControlLabel
+              value="clear_value"
+              control={<Radio size="small" />}
+              label={
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
                     Clear and set all usages to empty/null
-                  </span>
-                  <p className="text-[10px] text-muted mt-0.5 leading-normal">
-                    This leaves the position/level field empty on the {usageCount} referencing records.
-                  </p>
-                </div>
-              </label>
-            </div>
-
-            {/* Actions Footer */}
-            <div className="flex flex-col sm:flex-row gap-2 pt-2">
-              <button
-                onClick={() => {
-                  setShowModal(false);
-                  setDeletingOption(null);
-                }}
-                disabled={isDeleting}
-                className="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-colors border border-border"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmDelete}
-                disabled={isDeleting}
-                className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-xl transition-all shadow-md shadow-red-500/10 hover:shadow-red-500/20"
-              >
-                {isDeleting ? "Updating..." : "Apply & Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: "block", fontSize: "0.7rem", mt: 0.25 }}>
+                    This leaves the field empty on the {usageCount} referencing records.
+                  </Typography>
+                </Box>
+              }
+            />
+          </RadioGroup>
+        </DialogContent>
+        <DialogActions sx={{ gap: 1.5, px: 3, pb: 2 }}>
+          <Button
+            onClick={() => {
+              setShowModal(false);
+              setDeletingOption(null);
+            }}
+            disabled={isDeleting}
+            variant="outlined"
+            size="small"
+            sx={{ textTransform: "none", borderRadius: 3, fontWeight: "bold", px: 3 }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmDelete}
+            disabled={isDeleting}
+            variant="contained"
+            color="error"
+            size="small"
+            sx={{ textTransform: "none", borderRadius: 3, fontWeight: "bold", px: 3 }}
+          >
+            {isDeleting ? "Updating..." : "Apply & Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 }

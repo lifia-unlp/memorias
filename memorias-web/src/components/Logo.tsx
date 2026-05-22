@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { Box, Typography } from "@mui/material";
 
 export async function Logo() {
   const logoSetting = await (prisma as any).systemSetting
@@ -9,19 +10,46 @@ export async function Logo() {
   const logoUrl = logoSetting?.value || "";
 
   return (
-    <Link href="/" className="hover:opacity-90 transition-all duration-200 flex items-center shrink-0">
-      {logoUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={logoUrl}
-          alt="Logo"
-          className="h-10 w-auto object-contain"
-        />
-      ) : (
-        <span className="text-sm font-semibold text-slate-400 italic">
-          (your logo here)
-        </span>
-      )}
+    <Link
+      href="/"
+      style={{ textDecoration: "none", color: "inherit", display: "inline-flex", alignItems: "center" }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          flexShrink: 0,
+          "&:hover": {
+            opacity: 0.9,
+          },
+          transition: "opacity 0.2s ease-in-out",
+        }}
+      >
+        {logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          (<Box
+            component="img"
+            src={logoUrl}
+            alt="Logo"
+            sx={{
+              height: 45,
+              width: "auto",
+              objectFit: "contain",
+            }}
+          />)
+        ) : (
+          <Typography
+            variant="body2"
+            sx={{
+              fontStyle: "italic",
+              color: "text.disabled",
+              fontWeight: 600,
+            }}
+          >
+            (your logo here)
+          </Typography>
+        )}
+      </Box>
     </Link>
   );
 }
