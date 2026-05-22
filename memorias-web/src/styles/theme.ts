@@ -157,6 +157,16 @@ export function buildAppTheme(mode: ThemeMode, customColors?: CustomColors): The
           dark: "#cc521d",
           light: "rgba(229, 98, 38, 0.08)",
         },
+        success: {
+          main: "#2e7d32",
+          dark: "#1b5e20",
+          light: "rgba(46, 125, 50, 0.08)", // 8% opacity success green
+        },
+        warning: {
+          main: "#E56226",
+          dark: "#cc521d",
+          light: "rgba(229, 98, 38, 0.08)", // 8% opacity warning orange
+        },
         background: {
           default: "#f8fafc",
           paper: "#ffffff",

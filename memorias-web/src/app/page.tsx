@@ -185,20 +185,24 @@ export default async function Home() {
                         <Chip
                           label="Featured Publication"
                           size="small"
+                          className="memorias-badge-featured"
+                          data-badge="featured"
                           sx={{
                             fontWeight: "bold",
                             fontSize: "0.625rem",
                             height: 18,
                             borderRadius: 1,
-                            bgcolor: "warning.light",
-                            color: "warning.main",
+                            bgcolor: "secondary.light",
+                            color: "secondary.dark",
                             border: "1px solid",
-                            borderColor: "warning.main",
+                            borderColor: "secondary.main",
                           }}
                         />
                         <Chip
                           label={`Year ${pub.year}`}
                           size="small"
+                          className="memorias-badge-metadata"
+                          data-badge="metadata"
                           sx={{
                             fontWeight: "bold",
                             fontSize: "0.625rem",
@@ -206,6 +210,8 @@ export default async function Home() {
                             borderRadius: 1,
                             bgcolor: "action.hover",
                             color: "text.secondary",
+                            border: "1px solid",
+                            borderColor: "divider",
                           }}
                         />
                       </Box>
@@ -338,13 +344,17 @@ export default async function Home() {
                             <Chip
                               label={thesis.level}
                               size="small"
-                              color="primary"
-                              variant="outlined"
+                              className="memorias-badge-metadata"
+                              data-badge="metadata"
                               sx={{
                                 fontWeight: "bold",
                                 fontSize: "0.625rem",
                                 height: 18,
                                 borderRadius: 1,
+                                bgcolor: "action.hover",
+                                color: "text.secondary",
+                                border: "1px solid",
+                                borderColor: "divider",
                               }}
                             />
                           )}
@@ -352,12 +362,17 @@ export default async function Home() {
                             <Chip
                               label={thesis.progress === 100 ? "Completed" : `${thesis.progress}%`}
                               size="small"
-                              color={thesis.progress === 100 ? "success" : "warning"}
+                              className="memorias-badge-status"
+                              data-badge="status"
                               sx={{
                                 fontWeight: "black",
                                 fontSize: "0.625rem",
                                 height: 18,
                                 borderRadius: 1,
+                                bgcolor: thesis.progress === 100 ? "success.light" : "warning.light",
+                                color: thesis.progress === 100 ? "success.dark" : "warning.dark",
+                                border: "1px solid",
+                                borderColor: thesis.progress === 100 ? "success.main" : "warning.main",
                               }}
                             />
                           )}
@@ -482,14 +497,18 @@ export default async function Home() {
                           <Chip
                             label={project.code}
                             size="small"
-                            color="secondary"
-                            variant="outlined"
+                            className="memorias-badge-metadata"
+                            data-badge="metadata"
                             sx={{
                               fontWeight: "bold",
                               fontSize: "0.625rem",
                               height: 18,
                               borderRadius: 1,
                               mb: 0.5,
+                              bgcolor: "action.hover",
+                              color: "text.secondary",
+                              border: "1px solid",
+                              borderColor: "divider",
                             }}
                           />
                         )}
