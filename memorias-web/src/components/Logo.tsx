@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { Box, Typography } from "@mui/material";
 
 export async function Logo() {
   const logoSetting = await (prisma as any).systemSetting
@@ -9,19 +10,44 @@ export async function Logo() {
   const logoUrl = logoSetting?.value || "";
 
   return (
-    <Link href="/" className="hover:opacity-90 transition-all duration-200 flex items-center shrink-0">
+    <Box
+      component={Link}
+      href="/"
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        flexShrink: 0,
+        textDecoration: "none",
+        "&:hover": {
+          opacity: 0.9,
+        },
+        transition: "opacity 0.2s ease-in-out",
+      }}
+    >
       {logoUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img
+        (<Box
+          component="img"
           src={logoUrl}
           alt="Logo"
-          className="h-10 w-auto object-contain"
-        />
+          sx={{
+            height: 40,
+            width: "auto",
+            objectFit: "contain",
+          }}
+        />)
       ) : (
-        <span className="text-sm font-semibold text-slate-400 italic">
+        <Typography
+          variant="body2"
+          sx={{
+            fontStyle: "italic",
+            color: "text.disabled",
+            fontWeight: 600,
+          }}
+        >
           (your logo here)
-        </span>
+        </Typography>
       )}
-    </Link>
+    </Box>
   );
 }

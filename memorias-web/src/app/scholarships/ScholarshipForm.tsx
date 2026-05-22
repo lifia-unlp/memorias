@@ -5,6 +5,21 @@ import { createScholarship, updateScholarship } from "./actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TagWidget } from "@/components/TagWidget";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  TextField,
+  Button,
+  Alert,
+  Chip,
+  InputAdornment,
+  Checkbox,
+  Avatar,
+  MenuItem,
+} from "@mui/material";
 
 interface Member {
   id: string;
@@ -43,6 +58,7 @@ export function ScholarshipForm({
   const [isSlugOverridden, setIsSlugOverridden] = useState(
     initialData ? true : false
   );
+  const [type, setType] = useState(initialData?.type || "");
 
   // Multi-selection states
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(
@@ -146,46 +162,37 @@ export function ScholarshipForm({
   );
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto pb-16">
+    <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 4, pb: 8 }}>
       {errorMsg && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
-          <span>🚫</span>
-          <span>{errorMsg}</span>
-        </div>
+        <Alert severity="error" sx={{ borderRadius: 3 }}>
+          {errorMsg}
+        </Alert>
       )}
-
       {/* 1. Core Profile Details Card */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Core Scholarship Details
-        </h3>
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Core Scholarship Details
+          </Typography>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="space-y-1.5 md:col-span-2">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Scholarship Title *</label>
-            <input
-              type="text"
-              name="title"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. CONICET Doctoral Scholarship in Information Systems"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="Scholarship Title"
+                name="title"
+                required
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. CONICET Doctoral Scholarship in Information Systems"
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5 md:col-span-2">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-              <span>SEO Slug *</span>
-              {!isSlugOverridden && (
-                <span className="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded">
-                  ✨ Auto-Generated
-                </span>
-              )}
-            </label>
-            <div className="relative">
-              <input
-                type="text"
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="SEO Slug"
                 name="slug"
                 required
                 value={slug}
@@ -193,303 +200,360 @@ export function ScholarshipForm({
                   setIsSlugOverridden(true);
                   setSlug(e.target.value);
                 }}
-                placeholder="e.g. conicet-doctoral-scholarship-information-systems"
-                className="w-full border border-border pl-3 pr-24 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm font-semibold"
+                placeholder="e.g. conicet-doctoral-scholarship"
+                size="small"
+                helperText="Generates the URL /scholarships/[slug] for this scholarship. Custom slugs are maintained unless reset."
+                slotProps={{ input: {
+                  endAdornment: (
+                    <InputAdornment position="end" sx={{ gap: 1 }}>
+                      {!isSlugOverridden ? (
+                        <Chip
+                          label="Auto-Generated"
+                          color="success"
+                          size="small"
+                          sx={{ fontWeight: "bold", borderRadius: 1 }}
+                        />
+                      ) : (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() => {
+                            setIsSlugOverridden(false);
+                            const generated = title
+                              .toLowerCase()
+                              .trim()
+                              .normalize("NFD")
+                              .replace(/[\u0300-\u036f]/g, "")
+                              .replace(/[^a-z0-9]+/g, "-")
+                              .replace(/(^-|-$)/g, "");
+                            setSlug(generated);
+                          }}
+                        >
+                          Reset Auto
+                        </Button>
+                      )}
+                    </InputAdornment>
+                  ),
+                } }}
               />
-              <button
-                type="button"
-                onClick={() => {
-                  setIsSlugOverridden(false);
-                  const generated = title
-                    .toLowerCase()
-                    .trim()
-                    .normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .replace(/[^a-z0-9]+/g, "-")
-                    .replace(/(^-|-$)/g, "");
-                  setSlug(generated);
-                }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] uppercase font-bold text-primary hover:bg-slate-100 dark:hover:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-border cursor-pointer transition-all"
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Student Name"
+                name="student"
+                defaultValue={initialData?.student || ""}
+                placeholder="e.g. Laura G. Rossi"
+                size="small"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                select
+                fullWidth
+                label="Scholarship Type"
+                name="type"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                size="small"
               >
-                Reset Auto
-              </button>
-            </div>
-            <p className="text-[10px] text-muted leading-relaxed">
-              Generates the URL `/scholarships/[slug]` for this scholarship. Custom slugs are maintained unless reset.
-            </p>
-          </div>
+                <MenuItem value="">Select Type</MenuItem>
+                {types.map((t) => (
+                  <MenuItem key={t} value={t}>
+                    {t}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Student Name</label>
-            <input
-              type="text"
-              name="student"
-              defaultValue={initialData?.student || ""}
-              placeholder="e.g. Laura G. Rossi"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Scholarship Type</label>
-            <select
-              name="type"
-              defaultValue={initialData?.type || ""}
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            >
-              <option value="">Select Type</option>
-              {types.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Funding Agency</label>
-            <input
-              type="text"
-              name="fundingAgency"
-              defaultValue={initialData?.fundingAgency || ""}
-              placeholder="e.g. CONICET, ANPCyT, UNLP"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-        </div>
-      </div>
-
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="Funding Agency"
+                name="fundingAgency"
+                defaultValue={initialData?.fundingAgency || ""}
+                placeholder="e.g. CONICET, ANPCyT, UNLP"
+                size="small"
+              />
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
       {/* 2. Supervisors Info */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Directors & Committee
-        </h3>
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Directors & Committee
+          </Typography>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Director Name</label>
-            <input
-              type="text"
-              name="director"
-              defaultValue={initialData?.director || ""}
-              placeholder="e.g. Alejandro Fernandez"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Director Name"
+                name="director"
+                defaultValue={initialData?.director || ""}
+                placeholder="e.g. Alejandro Fernandez"
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Co-Director Name</label>
-            <input
-              type="text"
-              name="coDirector"
-              defaultValue={initialData?.coDirector || ""}
-              placeholder="e.g. Jose Delle Ville"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-        </div>
-      </div>
-
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Co-Director Name"
+                name="coDirector"
+                defaultValue={initialData?.coDirector || ""}
+                placeholder="e.g. Jose Delle Ville"
+                size="small"
+              />
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
       {/* 3. Timelines */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Timeline & Duration
-        </h3>
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Timeline & Duration
+          </Typography>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Start Date</label>
-            <input
-              type="date"
-              name="startDate"
-              defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                type="date"
+                label="Start Date"
+                name="startDate"
+                defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
+                size="small"
+                slotProps={{ inputLabel: { shrink: true } }}
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">End Date (Expected)</label>
-            <input
-              type="date"
-              name="endDate"
-              defaultValue={initialData?.endDate ? new Date(initialData.endDate).toISOString().split("T")[0] : ""}
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-        </div>
-      </div>
-
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                type="date"
+                label="End Date (Expected)"
+                name="endDate"
+                defaultValue={initialData?.endDate ? new Date(initialData.endDate).toISOString().split("T")[0] : ""}
+                size="small"
+                slotProps={{ inputLabel: { shrink: true } }}
+              />
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
       {/* 4. Associate Members Multi-Selection */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <div className="border-b border-border pb-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div>
-            <h3 className="font-extrabold text-lg text-primary">Associate Lab Members</h3>
-            <p className="text-[10px] text-muted">Select researchers associated with this scholarship.</p>
-          </div>
-          
-          <input
-            type="text"
-            placeholder="Search members..."
-            value={memberSearch}
-            onChange={(e) => setMemberSearch(e.target.value)}
-            className="border border-border px-3 py-1.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs w-full md:w-64"
-          />
-        </div>
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyItems: "center", justifyContent: "between", alignItems: { xs: "stretch", md: "center" }, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3, gap: 2 }}>
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>
+                Associate Lab Members
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Select researchers associated with this scholarship.
+              </Typography>
+            </Box>
+            <TextField
+              size="small"
+              placeholder="Search members..."
+              value={memberSearch}
+              onChange={(e) => setMemberSearch(e.target.value)}
+              sx={{ width: { xs: "100%", md: 260 } }}
+            />
+          </Box>
 
-        {filteredMembers.length === 0 ? (
-          <div className="text-center py-6 text-xs text-muted font-medium bg-slate-50 dark:bg-slate-950 rounded-xl border border-border">
-            No researchers found.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 max-h-56 overflow-y-auto pr-2">
-            {filteredMembers.map((member) => {
-              const isChecked = selectedMemberIds.includes(member.id);
-              return (
-                <div
-                  key={member.id}
-                  onClick={() => handleToggleMember(member.id)}
-                  className={`flex items-center gap-3 p-2.5 rounded-xl border cursor-pointer select-none transition-all ${
-                    isChecked
-                      ? "bg-primary/5 border-primary ring-1 ring-primary"
-                      : "bg-surface border-border hover:bg-slate-50 dark:hover:bg-slate-800"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    readOnly
-                    className="h-4 w-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
-                  />
-                  {member.avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={member.avatarUrl}
-                      alt={`${member.firstName} ${member.lastName}`}
-                      className="h-8 w-8 rounded-full object-cover border border-border bg-slate-100"
-                    />
-                  ) : (
-                    <div className="h-8 w-8 rounded-full bg-primary/10 text-primary border border-border flex items-center justify-center text-xs font-bold font-mono">
-                      {member.firstName[0]}
-                      {member.lastName[0]}
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <span className="font-bold text-xs text-slate-800 dark:text-slate-200 block truncate">
-                      {member.firstName} {member.lastName}
-                    </span>
-                    <span className="text-[10px] text-muted block truncate">
-                      {member.positionAtLab || "Researcher"}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
+          {filteredMembers.length === 0 ? (
+            <Typography variant="body2" sx={{ color: "text.secondary", fontStyle: "italic", py: 2 }}>
+              No researchers found.
+            </Typography>
+          ) : (
+            <Box sx={{ maxHeight: 240, overflowY: "auto", pr: 1 }}>
+              <Grid container spacing={2}>
+                {filteredMembers.map((member) => {
+                  const isChecked = selectedMemberIds.includes(member.id);
+                  return (
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={member.id}>
+                      <Box
+                        onClick={() => handleToggleMember(member.id)}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.5,
+                          p: 1.5,
+                          borderRadius: 2,
+                          border: "1px solid",
+                          borderColor: isChecked ? "primary.main" : "divider",
+                          bgcolor: isChecked ? "action.selected" : "background.paper",
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                          "&:hover": {
+                            bgcolor: "action.hover",
+                          },
+                        }}
+                      >
+                        <Checkbox
+                          checked={isChecked}
+                          size="small"
+                          sx={{ p: 0.5 }}
+                        />
+                        {member.avatarUrl ? (
+                          <Avatar
+                            src={member.avatarUrl}
+                            alt={`${member.firstName} ${member.lastName}`}
+                            sx={{ width: 32, height: 32 }}
+                          />
+                        ) : (
+                          <Avatar sx={{ width: 32, height: 32, fontSize: "0.8rem", fontWeight: "bold" }}>
+                            {member.firstName[0]}
+                            {member.lastName[0]}
+                          </Avatar>
+                        )}
+                        <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                          <Typography variant="subtitle2" noWrap sx={{ fontWeight: "bold", fontSize: "0.75rem" }}>
+                            {member.firstName} {member.lastName}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", fontSize: "0.65rem" }}>
+                            {member.positionAtLab || "Researcher"}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
       {/* 5. Linked Projects Multi-Selection */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <div className="border-b border-border pb-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div>
-            <h3 className="font-extrabold text-lg text-primary">Linked Projects</h3>
-            <p className="text-[10px] text-muted">Select research projects connected to this scholarship.</p>
-          </div>
-          
-          <input
-            type="text"
-            placeholder="Search projects..."
-            value={projectSearch}
-            onChange={(e) => setProjectSearch(e.target.value)}
-            className="border border-border px-3 py-1.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs w-full md:w-64"
-          />
-        </div>
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyItems: "center", justifyContent: "between", alignItems: { xs: "stretch", md: "center" }, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3, gap: 2 }}>
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>
+                Linked Projects
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Select research projects connected to this scholarship.
+              </Typography>
+            </Box>
+            <TextField
+              size="small"
+              placeholder="Search projects..."
+              value={projectSearch}
+              onChange={(e) => setProjectSearch(e.target.value)}
+              sx={{ width: { xs: "100%", md: 260 } }}
+            />
+          </Box>
 
-        {filteredProjects.length === 0 ? (
-          <div className="text-center py-6 text-xs text-muted font-medium bg-slate-50 dark:bg-slate-950 rounded-xl border border-border">
-            No projects found.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-56 overflow-y-auto pr-2">
-            {filteredProjects.map((proj) => {
-              const isChecked = selectedProjectIds.includes(proj.id);
-              return (
-                <div
-                  key={proj.id}
-                  onClick={() => handleToggleProject(proj.id)}
-                  className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer select-none transition-all ${
-                    isChecked
-                      ? "bg-primary/5 border-primary ring-1 ring-primary"
-                      : "bg-surface border-border hover:bg-slate-50 dark:hover:bg-slate-800"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    readOnly
-                    className="h-4 w-4 rounded border-border text-primary focus:ring-primary cursor-pointer shrink-0"
-                  />
-                  <div className="min-w-0">
-                    <span className="font-bold text-xs text-slate-800 dark:text-slate-200 block truncate">
-                      {proj.title}
-                    </span>
-                    <span className="text-[10px] text-muted block truncate mt-0.5">
-                      Slug: {proj.slug}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
+          {filteredProjects.length === 0 ? (
+            <Typography variant="body2" sx={{ color: "text.secondary", fontStyle: "italic", py: 2 }}>
+              No projects found.
+            </Typography>
+          ) : (
+            <Box sx={{ maxHeight: 240, overflowY: "auto", pr: 1 }}>
+              <Grid container spacing={2}>
+                {filteredProjects.map((proj) => {
+                  const isChecked = selectedProjectIds.includes(proj.id);
+                  return (
+                    <Grid size={{ xs: 12, sm: 6 }} key={proj.id}>
+                      <Box
+                        onClick={() => handleToggleProject(proj.id)}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.5,
+                          p: 1.5,
+                          borderRadius: 2,
+                          border: "1px solid",
+                          borderColor: isChecked ? "primary.main" : "divider",
+                          bgcolor: isChecked ? "action.selected" : "background.paper",
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                          "&:hover": {
+                            bgcolor: "action.hover",
+                          },
+                        }}
+                      >
+                        <Checkbox
+                          checked={isChecked}
+                          size="small"
+                          sx={{ p: 0.5 }}
+                        />
+                        <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                          <Typography variant="subtitle2" noWrap sx={{ fontWeight: "bold", fontSize: "0.75rem" }}>
+                            {proj.title}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", fontSize: "0.65rem" }}>
+                            Slug: {proj.slug}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
       {/* 6. Summary */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Scholarship Summary
-        </h3>
-        <div className="space-y-1.5">
-          <textarea
-            name="summary"
-            defaultValue={initialData?.summary || ""}
-            placeholder="Provide a detailed overview of the scholarship objectives, scope, research topic, and milestones..."
-            className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm h-48"
-          />
-        </div>
-      </div>
-
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Scholarship Summary
+          </Typography>
+          <Box sx={{ mt: 1 }}>
+            <TextField
+              fullWidth
+              multiline
+              rows={6}
+              name="summary"
+              defaultValue={initialData?.summary || ""}
+              placeholder="Provide a detailed overview of the scholarship objectives, scope, research topic, and milestones..."
+            />
+          </Box>
+        </CardContent>
+      </Card>
       {/* Dynamic Classification Tags */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Research Classification Tags
-        </h3>
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Classification Tags</label>
-          <TagWidget
-            initialTags={initialData?.tags || []}
-            placeholder="Add scholarship fields and keywords..."
-          />
-        </div>
-      </div>
-
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Research Classification Tags
+          </Typography>
+          <Box sx={{ mt: 1 }}>
+            <TagWidget
+              initialTags={initialData?.tags || []}
+              placeholder="Add scholarship fields and keywords..."
+            />
+          </Box>
+        </CardContent>
+      </Card>
       {/* Form Actions */}
-      <div className="flex items-center justify-end gap-4">
-        <Link
+      <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}>
+        <Button
+          variant="outlined"
+          component={Link}
           href={initialData ? `/scholarships/${initialData.slug}` : "/scholarships"}
-          className="px-6 py-3 rounded-xl border border-border text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-bold text-sm cursor-pointer"
+          sx={{ borderRadius: 2, px: 4, py: 1.5, fontWeight: "bold" }}
         >
           Cancel
-        </Link>
-        
-        <button
+        </Button>
+        <Button
           type="submit"
+          variant="contained"
           disabled={isSubmitting}
-          className="bg-primary hover:bg-primary-hover text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+          sx={{ borderRadius: 2, px: 4, py: 1.5, fontWeight: "bold" }}
         >
           {isSubmitting ? "Saving Scholarship..." : initialData ? "Save Changes" : "Create Scholarship"}
-        </button>
-      </div>
-    </form>
+        </Button>
+      </Box>
+    </Box>
   );
 }

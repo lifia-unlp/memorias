@@ -6,6 +6,16 @@ import { Footer } from "@/components/Footer";
 import { Pagination } from "@/components/Pagination";
 import Link from "next/link";
 import { auth } from "@/auth";
+import {
+  Container,
+  Box,
+  Typography,
+  Button,
+  Grid,
+  Card,
+  Avatar,
+  Chip,
+} from "@mui/material";
 
 type SearchParams = Promise<{ query?: string; position?: string; limit?: string; page?: string }>;
 
@@ -62,140 +72,288 @@ export default async function MembersPage({
   const paginatedMembers = filteredMembers.slice((page - 1) * limit, page * limit);
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
+    <Box sx={{ flex1: 1, display: "flex", flexDirection: "column", minHeight: "screen" }}>
       {/* Unified Header */}
       <Header activeTab="members" />
 
-      {/* Hero Banner Section */}
-      <section className="bg-gradient-to-br from-primary to-primary-hover text-white py-12 px-6 shadow-inner relative overflow-hidden border-b border-blue-700/20">
-        {/* Dynamic Abstract Wave */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
-          </svg>
-        </div>
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-extrabold tracking-tight">Our Researchers</h1>
-            <p className="text-blue-100 max-w-xl text-sm md:text-base">
+      {/* Main Layout Container */}
+      <Container maxWidth="lg" sx={{ py: 4, flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+        
+        {/* Hero Banner Section */}
+        <Box
+          sx={{
+            background: (theme) =>
+              `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark || theme.palette.primary.main} 100%)`,
+            color: "common.white",
+            py: 6,
+            px: { xs: 3, md: 6 },
+            borderRadius: 4,
+            boxShadow: "inset 0 0 40px rgba(0,0,0,0.1)",
+            position: "relative",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: { xs: "flex-start", md: "center" },
+            justifyContent: "space-between",
+            gap: 3,
+          }}
+        >
+          {/* Wave background element */}
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              opacity: 0.08,
+              pointerEvents: "none",
+            }}
+          >
+            <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
+            </svg>
+          </Box>
+
+          <Box sx={{ zIndex: 1, maxWidth: 600 }}>
+            <Typography variant="h1" sx={{ color: "common.white", mb: 1, fontSize: { xs: "2rem", md: "2.5rem" } }}>
+              Our Researchers
+            </Typography>
+            <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.85)" }}>
               Meet the academics, PhD scholars, and scientific collaborators conducting pioneering research at our Lab.
-            </p>
-          </div>
+            </Typography>
+          </Box>
+
           {isEditorOrAdmin && (
-            <Link
+            <Button
+              component={Link}
               href="/members/new"
-              className="bg-white hover:bg-slate-100 text-primary font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all text-center flex items-center gap-2 whitespace-nowrap self-start sm:self-center"
+              variant="contained"
+              sx={{
+                bgcolor: "common.white",
+                color: "primary.main",
+                fontWeight: "bold",
+                borderRadius: 3,
+                boxShadow: 2,
+                px: 3,
+                py: 1.5,
+                zIndex: 1,
+                "&:hover": {
+                  bgcolor: "rgba(255, 255, 255, 0.9)",
+                  boxShadow: 3,
+                },
+              }}
             >
               Add Researcher
-            </Link>
+            </Button>
           )}
-        </div>
-      </section>
+        </Box>
 
-      {/* Filter and Members Grid */}
-      <main className="max-w-7xl w-full mx-auto px-6 py-10 space-y-8 flex-1">
-        <MemberFilters positions={positions} />
+        {/* Filters and Members Grid */}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <MemberFilters positions={positions} />
 
-        {filteredMembers.length === 0 ? (
-          <div className="text-center py-16 bg-white dark:bg-slate-900 border border-border rounded-2xl p-8 space-y-2">
-            <h3 className="text-lg font-bold">No researchers found</h3>
-            <p className="text-sm text-muted">
-              Try adjusting your keywords or clearing the position filters.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {paginatedMembers.map((m) => (
-                <Link
-                  key={m.id}
-                  href={`/members/${m.slug}`}
-                  className="group bg-white dark:bg-slate-900 border border-border hover:border-primary/30 rounded-2xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden"
-                >
-                  {/* Secondary Color accent bar */}
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-secondary to-primary/30 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
-                  
-                  <div className="space-y-4">
-                    {/* Photo & Identity */}
-                    <div className="flex items-center gap-4">
-                      {m.avatarUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={m.avatarUrl}
-                          alt={`${m.firstName} avatar`}
-                          className="w-14 h-14 rounded-full border border-border object-cover object-top shrink-0"
-                        />
-                      ) : (
-                        <div className="w-14 h-14 flex items-center justify-center bg-primary/10 text-primary border border-border/10 rounded-full text-lg font-black shrink-0">
-                          {m.firstName[0]}{m.lastName[0]}
-                        </div>
-                      )}
-                      <div>
-                        <h3 className="font-bold text-base text-foreground leading-tight group-hover:text-primary transition-colors">
-                          {m.firstName} {m.lastName}
-                        </h3>
-                        {m.positionAtLab && (
-                          <span className="text-xs font-semibold text-secondary block mt-0.5">
-                            {m.positionAtLab}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Scientific Roles / Info */}
-                    <div className="text-xs text-muted space-y-1.5 pt-2 border-t border-border/60">
-                      {m.highestDegree && (
-                        <div className="flex items-center gap-1">
-                          <span className="font-semibold text-slate-500">Degree:</span>
-                          <span className="truncate">{m.highestDegree}</span>
-                        </div>
-                      )}
-                      {m.positionAtCONICET && (
-                        <div className="flex items-center gap-1">
-                          <span className="font-semibold text-slate-500">CONICET:</span>
-                          <span>{m.positionAtCONICET}</span>
-                        </div>
-                      )}
-                      {m.institutionalEmail && (
-                        <div className="flex items-center gap-1">
-                          <span className="font-semibold text-slate-500">Email:</span>
-                          <span className="truncate">{m.institutionalEmail}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Tags */}
-                  {m.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-4 pt-3 border-t border-border/40">
-                      {m.tags.slice(0, 3).map((tag, idx) => (
-                        <span
-                          key={idx}
-                          className="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-650 dark:text-slate-350 font-semibold px-2 py-0.5 rounded"
+          {filteredMembers.length === 0 ? (
+            <Card
+              sx={{
+                textAlign: "center",
+                py: 8,
+                px: 3,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Typography variant="h3">No researchers found</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Try adjusting your keywords or clearing the position filters.
+              </Typography>
+            </Card>
+          ) : (
+            <Box>
+              <Grid container spacing={3}>
+                {paginatedMembers.map((m) => (
+                  <Grid size={{ xs: 12, sm: 6, md: 4 }} key={m.id}>
+                    <Card
+                      component={Link}
+                      href={`/members/${m.slug}`}
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        height: "100%",
+                        textDecoration: "none",
+                        color: "inherit",
+                        p: 3,
+                        position: "relative",
+                        overflow: "hidden",
+                        "&::before": {
+                          content: '""',
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "4px",
+                          background: (theme) =>
+                            `linear-gradient(90deg, ${theme.palette.secondary.main}, ${theme.palette.primary.main} 40%)`,
+                          transform: "scaleX(0)",
+                          transformOrigin: "left",
+                          transition: "transform 0.3s ease",
+                        },
+                        "&:hover::before": {
+                          transform: "scaleX(1)",
+                        },
+                      }}
+                    >
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                        <Avatar
+                          src={m.avatarUrl || undefined}
+                          alt={`${m.firstName} ${m.lastName}`}
+                          sx={{
+                            width: 56,
+                            height: 56,
+                            bgcolor: "primary.light",
+                            color: "primary.main",
+                            fontWeight: "bold",
+                            border: "1px solid",
+                            borderColor: "divider",
+                          }}
                         >
-                          #{tag}
-                        </span>
-                      ))}
-                      {m.tags.length > 3 && (
-                        <span className="text-[9px] text-muted font-bold px-1.5 py-0.5">
-                          +{m.tags.length - 3} more
-                        </span>
+                          {!m.avatarUrl && `${m.firstName[0]}${m.lastName[0]}`}
+                        </Avatar>
+                        <Box sx={{ overflow: "hidden" }}>
+                          <Typography
+                            variant="h3"
+                            sx={{
+                              fontSize: "1.05rem",
+                              fontWeight: "bold",
+                              mb: 0.5,
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              "&:hover": { color: "primary.main" },
+                              transition: "color 0.2s",
+                            }}
+                          >
+                            {m.firstName} {m.lastName}
+                          </Typography>
+                          {m.positionAtLab && (
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                fontWeight: "bold",
+                                color: "secondary.main",
+                                textTransform: "uppercase",
+                                tracking: 1,
+                                display: "block",
+                              }}
+                            >
+                              {m.positionAtLab}
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
+
+                      {/* Scientific Roles / Info */}
+                      <Box
+                        sx={{
+                          fontSize: "0.75rem",
+                          borderTop: "1px solid",
+                          borderColor: "divider",
+                          pt: 2,
+                          mb: 2,
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 0.75,
+                        }}
+                      >
+                        {m.highestDegree && (
+                          <Box sx={{ display: "flex", gap: 0.5, overflow: "hidden" }}>
+                            <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                              Degree:
+                            </Typography>
+                            <Typography variant="caption" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {m.highestDegree}
+                            </Typography>
+                          </Box>
+                        )}
+                        {m.positionAtCONICET && (
+                          <Box sx={{ display: "flex", gap: 0.5, overflow: "hidden" }}>
+                            <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                              CONICET:
+                            </Typography>
+                            <Typography variant="caption" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {m.positionAtCONICET}
+                            </Typography>
+                          </Box>
+                        )}
+                        {m.institutionalEmail && (
+                          <Box sx={{ display: "flex", gap: 0.5, overflow: "hidden" }}>
+                            <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                              Email:
+                            </Typography>
+                            <Typography variant="caption" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "primary.main" }}>
+                              {m.institutionalEmail}
+                            </Typography>
+                          </Box>
+                        )}
+                      </Box>
+
+                      {/* Tags */}
+                      {m.tags.length > 0 && (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: 0.5,
+                            mt: "auto",
+                            pt: 2,
+                            borderTop: "1px solid",
+                            borderColor: "divider",
+                          }}
+                        >
+                          {m.tags.slice(0, 3).map((tag, idx) => (
+                            <Chip
+                              key={idx}
+                              label={`#${tag}`}
+                              size="small"
+                              sx={{
+                                fontSize: "0.625rem",
+                                height: 20,
+                                bgcolor: "action.hover",
+                                fontWeight: 500,
+                              }}
+                            />
+                          ))}
+                          {m.tags.length > 3 && (
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                fontSize: "0.625rem",
+                                fontWeight: "bold",
+                                color: "text.secondary",
+                                alignSelf: "center",
+                                ml: 0.5,
+                              }}
+                            >
+                              +{m.tags.length - 3} more
+                            </Typography>
+                          )}
+                        </Box>
                       )}
-                    </div>
-                  )}
-                </Link>
-              ))}
-            </div>
-            <Pagination
-              currentPage={page}
-              totalPages={totalPages}
-              currentSearchParams={{ query, position, limit }}
-              baseUrl="/members"
-            />
-          </div>
-        )}
-      </main>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                currentSearchParams={{ query, position, limit }}
+                baseUrl="/members"
+              />
+            </Box>
+          )}
+        </Box>
+      </Container>
       <Footer />
-    </div>
+    </Box>
   );
 }

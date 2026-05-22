@@ -3,6 +3,16 @@
 import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { deletePublication } from "../actions";
+import {
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Typography,
+  Box,
+} from "@mui/material";
 
 export function DeletePublicationButton({
   id,
@@ -31,55 +41,77 @@ export function DeletePublicationButton({
 
   return (
     <>
-      <button
+      <Button
+        variant="outlined"
+        color="error"
         onClick={() => setIsOpen(true)}
-        className="bg-red-50 hover:bg-red-100 text-red-600 dark:text-red-500 border border-red-200 dark:border-red-950 px-4 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md hover:shadow-lg"
+        sx={{
+          borderRadius: 3,
+          fontWeight: "bold",
+          bgcolor: "rgba(211, 47, 47, 0.05)",
+          borderColor: "rgba(211, 47, 47, 0.3)",
+          "&:hover": {
+            bgcolor: "rgba(211, 47, 47, 0.1)",
+            borderColor: "error.main",
+          },
+        }}
       >
-        🗑️ Delete Publication
-      </button>
+        Delete Publication
+      </Button>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fadeIn">
-          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-3xl max-w-md w-full shadow-2xl space-y-6">
-            <div className="text-center space-y-2">
-              <span className="text-4xl block">⚠️</span>
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-                Confirm Deletion
-              </h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Are you sure you want to permanently delete the publication{" "}
-                <strong className="text-slate-800 dark:text-slate-200">
-                  &ldquo;{title}&rdquo;
-                </strong>
-                ? This action cannot be undone.
-              </p>
-            </div>
+      {/* Confirmation Dialog */}
+      <Dialog
+        open={isOpen}
+        onClose={() => !isPending && setIsOpen(false)}
+        aria-labelledby="confirm-delete-dialog-title"
+        slotProps={{ paper: { sx: { borderRadius: 3, p: 1 } } }}
+      >
+        <DialogTitle id="confirm-delete-dialog-title" sx={{ fontWeight: "bold", color: "error.main" }}>
+          Delete Publication?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ color: "text.primary", mb: 2 }}>
+            Are you sure you want to permanently delete the publication <strong>{title}</strong>? This action is permanent and cannot be undone.
+          </DialogContentText>
 
-            {error && (
-              <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 text-xs rounded-xl font-medium">
-                ⚠️ {error}
-              </div>
-            )}
-
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleDelete}
-                disabled={isPending}
-                className="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer text-center"
-              >
-                {isPending ? "Deleting..." : "Yes, Delete"}
-              </button>
-              <button
-                onClick={() => setIsOpen(false)}
-                disabled={isPending}
-                className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all border border-border cursor-pointer text-center"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          {error && (
+            <Box
+              sx={{
+                p: 1.5,
+                bgcolor: "rgba(211, 47, 47, 0.05)",
+                border: "1px solid",
+                borderColor: "error.light",
+                color: "error.main",
+                borderRadius: 2,
+                fontSize: "0.75rem",
+                fontWeight: "bold",
+              }}
+            >
+              {error}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={() => setIsOpen(false)}
+            disabled={isPending}
+            variant="outlined"
+            color="inherit"
+            sx={{ borderRadius: 2 }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDelete}
+            disabled={isPending}
+            variant="contained"
+            color="error"
+            sx={{ borderRadius: 2 }}
+          >
+            {isPending ? "Deleting..." : "Confirm Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

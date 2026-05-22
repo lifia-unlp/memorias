@@ -4,6 +4,19 @@ import React, { useState } from "react";
 import { deleteMember } from "../actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Box,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+} from "@mui/material";
 
 interface RefObj {
   title: string;
@@ -51,155 +64,206 @@ export function DeleteMemberButton({
 
   return (
     <>
-      <button
+      <Button
+        variant="outlined"
+        color="error"
         onClick={() => setShowConfirm(true)}
-        className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm"
+        sx={{ borderRadius: 3, fontWeight: "bold" }}
       >
-        🗑️ Delete Member
-      </button>
+        Delete Member
+      </Button>
 
-      {/* Confirmation Modal */}
-      {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 border border-border rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center gap-3 text-red-600">
-              <span className="text-2xl">⚠️</span>
-              <h3 className="text-lg font-bold">Delete Researcher?</h3>
-            </div>
-            <p className="text-sm text-muted leading-relaxed">
-              Are you sure you want to delete <strong>{memberName}</strong>? This action is permanent and cannot be undone.
-            </p>
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                onClick={() => setShowConfirm(false)}
-                disabled={isDeleting}
-                className="px-4 py-2 rounded-xl border border-border text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all cursor-pointer disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
-              >
-                {isDeleting ? "Deleting..." : "Confirm Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Confirmation Dialog */}
+      <Dialog
+        open={showConfirm}
+        onClose={() => !isDeleting && setShowConfirm(false)}
+        aria-labelledby="confirm-delete-dialog-title"
+        slotProps={{ paper: { sx: { borderRadius: 3, p: 1 } } }}
+      >
+        <DialogTitle id="confirm-delete-dialog-title" sx={{ fontWeight: "bold", color: "error.main" }}>
+          Delete Researcher?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ color: "text.primary" }}>
+            Are you sure you want to delete <strong>{memberName}</strong>? This action is permanent and cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={() => setShowConfirm(false)}
+            disabled={isDeleting}
+            variant="outlined"
+            color="inherit"
+            sx={{ borderRadius: 2 }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDelete}
+            disabled={isDeleting}
+            variant="contained"
+            color="error"
+            sx={{ borderRadius: 2 }}
+          >
+            {isDeleting ? "Deleting..." : "Confirm Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-      {/* Referral Block Modal */}
-      {refBlock && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 border border-red-100 dark:border-red-950 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200 max-h-[85vh] overflow-y-auto">
-            <div className="flex items-center gap-3 text-red-600 border-b border-red-100 pb-3">
-              <span className="text-3xl">🚫</span>
-              <div>
-                <h3 className="text-lg font-extrabold leading-none">Cannot Delete Researcher</h3>
-                <span className="text-xs text-red-500 font-semibold block mt-1">
-                  Active database references detected
-                </span>
-              </div>
-            </div>
+      {/* Referral Block Dialog */}
+      <Dialog
+        open={Boolean(refBlock)}
+        onClose={() => setRefBlock(null)}
+        aria-labelledby="ref-block-dialog-title"
+        maxWidth="sm"
+        fullWidth
+        slotProps={{ paper: { sx: { borderRadius: 3, p: 1 } } }}
+      >
+        <DialogTitle id="ref-block-dialog-title" sx={{ fontWeight: "bold", color: "error.main" }}>
+          Cannot Delete Researcher
+        </DialogTitle>
+        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <DialogContentText sx={{ color: "text.primary", fontWeight: 500, fontSize: "0.875rem" }}>
+            Active database references detected. Before deleting <strong>{memberName}</strong>, you must manually remove or update their association in the following objects. Click the links below to navigate directly to each object and resolve:
+          </DialogContentText>
 
-            <p className="text-xs text-muted leading-relaxed">
-              Before deleting <strong>{memberName}</strong>, you must manually remove or update their association in the following objects. Click the links below to navigate directly to each object and resolve:
-            </p>
-
-            <div className="space-y-4 pt-2">
-              {/* Projects */}
-              {refBlock.projects.length > 0 && (
-                <div className="space-y-1.5">
-                  <span className="text-xs font-bold text-primary uppercase tracking-wider block">
-                    📁 Referenced Projects ({refBlock.projects.length})
-                  </span>
-                  <div className="bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-border space-y-1 text-xs">
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {/* Projects */}
+            {refBlock && refBlock.projects.length > 0 && (
+              <Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "primary.main", mb: 1 }}>
+                  Referenced Projects ({refBlock.projects.length})
+                </Typography>
+                <Box sx={{ bgcolor: "action.hover", border: "1px solid", borderColor: "divider", borderRadius: 2, p: 1 }}>
+                  <List dense disablePadding>
                     {refBlock.projects.map((p, i) => (
-                      <Link
-                        key={i}
-                        href={`/projects/${p.slug}`}
-                        className="text-primary hover:underline font-semibold block truncate"
-                      >
-                        🔗 {p.title}
-                      </Link>
+                      <ListItem key={i} disablePadding>
+                        <Button
+                          component={Link}
+                          href={`/projects/${p.slug}`}
+                          sx={{
+                            justifyContent: "flex-start",
+                            textTransform: "none",
+                            width: "100%",
+                            py: 0.5,
+                            textAlign: "left",
+                            color: "primary.main",
+                          }}
+                        >
+                          {p.title}
+                        </Button>
+                      </ListItem>
                     ))}
-                  </div>
-                </div>
-              )}
+                  </List>
+                </Box>
+              </Box>
+            )}
 
-              {/* Theses */}
-              {refBlock.theses.length > 0 && (
-                <div className="space-y-1.5">
-                  <span className="text-xs font-bold text-primary uppercase tracking-wider block">
-                    🎓 Referenced Theses ({refBlock.theses.length})
-                  </span>
-                  <div className="bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-border space-y-1 text-xs">
+            {/* Theses */}
+            {refBlock && refBlock.theses.length > 0 && (
+              <Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "primary.main", mb: 1 }}>
+                  Referenced Theses ({refBlock.theses.length})
+                </Typography>
+                <Box sx={{ bgcolor: "action.hover", border: "1px solid", borderColor: "divider", borderRadius: 2, p: 1 }}>
+                  <List dense disablePadding>
                     {refBlock.theses.map((t, i) => (
-                      <Link
-                        key={i}
-                        href={`/theses/${t.slug}`}
-                        className="text-primary hover:underline font-semibold block truncate"
-                      >
-                        🔗 {t.title}
-                      </Link>
+                      <ListItem key={i} disablePadding>
+                        <Button
+                          component={Link}
+                          href={`/theses/${t.slug}`}
+                          sx={{
+                            justifyContent: "flex-start",
+                            textTransform: "none",
+                            width: "100%",
+                            py: 0.5,
+                            textAlign: "left",
+                            color: "primary.main",
+                          }}
+                        >
+                          {t.title}
+                        </Button>
+                      </ListItem>
                     ))}
-                  </div>
-                </div>
-              )}
+                  </List>
+                </Box>
+              </Box>
+            )}
 
-              {/* Scholarships */}
-              {refBlock.scholarships.length > 0 && (
-                <div className="space-y-1.5">
-                  <span className="text-xs font-bold text-primary uppercase tracking-wider block">
-                    🎫 Referenced Scholarships ({refBlock.scholarships.length})
-                  </span>
-                  <div className="bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-border space-y-1 text-xs">
+            {/* Scholarships */}
+            {refBlock && refBlock.scholarships.length > 0 && (
+              <Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "primary.main", mb: 1 }}>
+                  Referenced Scholarships ({refBlock.scholarships.length})
+                </Typography>
+                <Box sx={{ bgcolor: "action.hover", border: "1px solid", borderColor: "divider", borderRadius: 2, p: 1 }}>
+                  <List dense disablePadding>
                     {refBlock.scholarships.map((s, i) => (
-                      <Link
-                        key={i}
-                        href={`/scholarships/${s.slug}`}
-                        className="text-primary hover:underline font-semibold block truncate"
-                      >
-                        🔗 {s.title}
-                      </Link>
+                      <ListItem key={i} disablePadding>
+                        <Button
+                          component={Link}
+                          href={`/scholarships/${s.slug}`}
+                          sx={{
+                            justifyContent: "flex-start",
+                            textTransform: "none",
+                            width: "100%",
+                            py: 0.5,
+                            textAlign: "left",
+                            color: "primary.main",
+                          }}
+                        >
+                          {s.title}
+                        </Button>
+                      </ListItem>
                     ))}
-                  </div>
-                </div>
-              )}
+                  </List>
+                </Box>
+              </Box>
+            )}
 
-              {/* Publications */}
-              {refBlock.publications.length > 0 && (
-                <div className="space-y-1.5">
-                  <span className="text-xs font-bold text-primary uppercase tracking-wider block">
-                    📚 Referenced Publications ({refBlock.publications.length})
-                  </span>
-                  <div className="bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-border space-y-1 text-xs">
+            {/* Publications */}
+            {refBlock && refBlock.publications.length > 0 && (
+              <Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "primary.main", mb: 1 }}>
+                  Referenced Publications ({refBlock.publications.length})
+                </Typography>
+                <Box sx={{ bgcolor: "action.hover", border: "1px solid", borderColor: "divider", borderRadius: 2, p: 1 }}>
+                  <List dense disablePadding>
                     {refBlock.publications.map((pb, i) => (
-                      <Link
-                        key={i}
-                        href={`/publications/${pb.slug}`}
-                        className="text-primary hover:underline font-semibold block truncate"
-                      >
-                        🔗 {pb.title}
-                      </Link>
+                      <ListItem key={i} disablePadding>
+                        <Button
+                          component={Link}
+                          href={`/publications/${pb.slug}`}
+                          sx={{
+                            justifyContent: "flex-start",
+                            textTransform: "none",
+                            width: "100%",
+                            py: 0.5,
+                            textAlign: "left",
+                            color: "primary.main",
+                          }}
+                        >
+                          {pb.title}
+                        </Button>
+                      </ListItem>
                     ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="flex justify-end pt-3 border-t border-border">
-              <button
-                onClick={() => setRefBlock(null)}
-                className="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all cursor-pointer"
-              >
-                Dismiss Warning
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+                  </List>
+                </Box>
+              </Box>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={() => setRefBlock(null)}
+            variant="contained"
+            color="inherit"
+            sx={{ borderRadius: 2 }}
+          >
+            Dismiss Warning
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

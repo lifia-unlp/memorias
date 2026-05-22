@@ -2,6 +2,14 @@
 
 import React, { useTransition } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import {
+  Box,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  Typography,
+} from "@mui/material";
 
 export function MemberFilters({ positions }: { positions: string[] }) {
   const router = useRouter();
@@ -49,52 +57,84 @@ export function MemberFilters({ positions }: { positions: string[] }) {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-4 items-center w-full bg-white dark:bg-slate-900 border border-border p-4 rounded-2xl shadow-sm">
-      <div className="relative flex-1 w-full">
-        <input
-          type="text"
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: { xs: "column", sm: "row" },
+        gap: 2,
+        alignItems: "center",
+        width: "100%",
+        bgcolor: "background.paper",
+        border: "1px solid",
+        borderColor: "divider",
+        p: 2,
+        borderRadius: 3,
+        boxShadow: 1,
+      }}
+    >
+      <Box sx={{ flex: 1, width: "100%" }}>
+        <TextField
+          fullWidth
+          size="small"
           defaultValue={searchParams.get("query") || ""}
           onChange={(e) => handleSearch(e.target.value)}
           placeholder="Search members by name, position, or tags..."
-          className="w-full px-4 py-2 border border-border rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
+          variant="outlined"
         />
-      </div>
-      
-      <div className="w-full sm:w-auto flex flex-col sm:flex-row items-center gap-3">
-        <div className="w-full sm:w-48">
-          <select
-            defaultValue={searchParams.get("position") || ""}
-            onChange={(e) => handlePositionChange(e.target.value)}
-            className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm cursor-pointer"
-          >
-            <option value="">All Positions</option>
-            {positions.map((pos) => (
-              <option key={pos} value={pos}>
-                {pos}
-              </option>
-            ))}
-          </select>
-        </div>
+      </Box>
 
-        <div className="w-full sm:w-40">
-          <select
-            defaultValue={searchParams.get("limit") || "10"}
-            onChange={(e) => handleLimitChange(e.target.value)}
-            className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm cursor-pointer font-medium"
+      <Box
+        sx={{
+          width: { xs: "100%", sm: "auto" },
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          alignItems: "center",
+          gap: 2,
+        }}
+      >
+        <FormControl fullWidth sx={{ width: { sm: 180 } }} size="small">
+          <Select
+            value={searchParams.get("position") || ""}
+            onChange={(e) => handlePositionChange(e.target.value as string)}
+            displayEmpty
+            inputProps={{ "aria-label": "Position at Lab" }}
           >
-            <option value="10">10 per page</option>
-            <option value="20">20 per page</option>
-            <option value="30">30 per page</option>
-            <option value="100">100 per page</option>
-          </select>
-        </div>
-        
+            <MenuItem value="">All Positions</MenuItem>
+            {positions.map((pos) => (
+              <MenuItem key={pos} value={pos}>
+                {pos}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl fullWidth sx={{ width: { sm: 160 } }} size="small">
+          <Select
+            value={searchParams.get("limit") || "10"}
+            onChange={(e) => handleLimitChange(e.target.value as string)}
+            inputProps={{ "aria-label": "Items per page" }}
+          >
+            <MenuItem value="10">10 per page</MenuItem>
+            <MenuItem value="20">20 per page</MenuItem>
+            <MenuItem value="30">30 per page</MenuItem>
+            <MenuItem value="100">100 per page</MenuItem>
+          </Select>
+        </FormControl>
+
         {isPending && (
-          <span className="text-xs text-primary font-bold animate-pulse shrink-0">
+          <Typography
+            variant="caption"
+            sx={{
+              color: "primary.main",
+              fontWeight: "bold",
+              flexShrink: 0,
+              whiteSpace: "nowrap",
+            }}
+          >
             Loading...
-          </span>
+          </Typography>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }

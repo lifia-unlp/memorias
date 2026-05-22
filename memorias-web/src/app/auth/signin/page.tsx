@@ -1,6 +1,11 @@
 import React from "react";
 import { signIn } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Alert from "@mui/material/Alert";
+import Divider from "@mui/material/Divider";
+import Paper from "@mui/material/Paper";
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -20,49 +25,89 @@ export default async function SignInPage({ searchParams }: PageProps) {
   const requireUserActivation = requireActivationSetting?.value === "true";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="material-card w-full max-w-md space-y-8 py-10 px-8">
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "background.default",
+        px: 2,
+      }}
+    >
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: 448,
+          py: 5,
+          px: 4,
+          bgcolor: "background.paper",
+          borderRadius: 2,
+          boxShadow: 3,
+        }}
+      >
         {/* Brand Header */}
-        <div className="text-center space-y-3 flex flex-col items-center justify-center">
+        <Box
+          sx={{
+            textAlign: "center",
+            mb: 4,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 1.5,
+          }}
+        >
           {logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
+            (<img
               src={logoUrl}
               alt="Logo"
-              className="h-12 w-auto object-contain"
-            />
+              style={{ height: 48, width: "auto", objectFit: "contain" }}
+            />)
           ) : (
-            <span className="text-sm font-semibold text-slate-400 italic">
+            <Typography
+              variant="caption"
+              sx={{
+                fontSize: "0.875rem",
+                fontWeight: 600,
+                color: "text.disabled",
+                fontStyle: "italic",
+              }}
+            >
               (your logo here)
-            </span>
+            </Typography>
           )}
-        </div>
+        </Box>
 
-        <div className="space-y-4">
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {error === "OAuthAccountNotLinked" && (
-            <div className="p-4 bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 rounded-lg text-xs leading-relaxed space-y-1">
-              <p className="font-bold">Account exists under another method</p>
-              <p className="text-muted-foreground leading-normal">
-                An account with this email address is already registered using a different provider (such as Google or Microsoft). Please sign in using your original method.
-              </p>
-            </div>
+            <Alert severity="error" sx={{ fontSize: "0.75rem" }}>
+              <Typography component="span" sx={{ fontWeight: "bold", display: "block", mb: 0.5 }}>
+                Account exists under another method
+              </Typography>
+              An account with this email address is already registered using a different provider (such as Google or Microsoft). Please sign in using your original method.
+            </Alert>
           )}
 
           {error && error !== "OAuthAccountNotLinked" && (
-            <div className="p-4 bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 rounded-lg text-xs leading-relaxed space-y-1">
-              <p className="font-bold">Authentication Error</p>
-              <p className="text-muted-foreground leading-normal">
-                An error occurred during authentication. Please try again or contact support if the problem persists.
-              </p>
-            </div>
+            <Alert severity="error" sx={{ fontSize: "0.75rem" }}>
+              <Typography component="span" sx={{ fontWeight: "bold", display: "block", mb: 0.5 }}>
+                Authentication Error
+              </Typography>
+              An error occurred during authentication. Please try again or contact support if the problem persists.
+            </Alert>
           )}
 
-          <p className="text-sm text-center text-muted">
+          <Typography
+            variant="body2"
+            sx={{ textAlign: "center", color: "text.secondary" }}
+          >
             Sign in to manage your profile, publications, theses, and scholarships.
-          </p>
+          </Typography>
 
           {/* Social Sign-In buttons (using Server Actions) */}
-          <div className="space-y-3 pt-4">
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, pt: 2 }}>
             {(() => {
               const isGitHubConfigured = !!(process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET);
               const isGoogleConfigured = !!(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET);
@@ -72,25 +117,46 @@ export default async function SignInPage({ searchParams }: PageProps) {
 
               if (!hasAnyProvider) {
                 return (
-                  <div className="text-center p-4 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-lg text-xs font-medium space-y-1">
-                    <span className="text-lg">⚠️</span>
-                    <p className="font-semibold">No Login Providers Configured</p>
-                    <p className="text-[11px] text-muted-foreground leading-normal">
+                  <Alert severity="warning" sx={{ fontSize: "0.75rem" }}>
+                    <Typography component="span" sx={{ fontWeight: 600, display: "block", mb: 0.5 }}>
+                      No Login Providers Configured
+                    </Typography>
+                    <Typography component="span" sx={{ fontSize: "0.6875rem", color: "text.secondary" }}>
                       Please check that your `.env` configuration file contains a valid `AUTH_SECRET` and at least one enabled OAuth provider (Google, GitHub, or Microsoft).
-                    </p>
-                  </div>
+                    </Typography>
+                  </Alert>
                 );
               }
 
               return (
-                <div className="space-y-3">
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                   {isOrcidConfigured && (
-                    <div className="border border-[#A6CE39]/35 bg-[#A6CE39]/5 dark:bg-[#A6CE39]/10 rounded-xl p-3.5 relative overflow-hidden shadow-sm space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-[#A6CE39] uppercase tracking-wider">
-                          Recommended Option
-                        </span>
-                      </div>
+                    <Box
+                      sx={{
+                        border: "1px solid",
+                        borderColor: "rgba(166,206,57,0.35)",
+                        bgcolor: "rgba(166,206,57,0.05)",
+                        borderRadius: 2,
+                        p: 1.75,
+                        position: "relative",
+                        overflow: "hidden",
+                        boxShadow: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 1,
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontSize: "0.625rem",
+                          fontWeight: "bold",
+                          color: "#A6CE39",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.08em",
+                        }}
+                      >
+                        Recommended Option
+                      </Typography>
                       <form
                         action={async () => {
                           "use server";
@@ -99,26 +165,50 @@ export default async function SignInPage({ searchParams }: PageProps) {
                       >
                         <button
                           type="submit"
-                          className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-lg bg-[#A6CE39] hover:bg-[#96bd33] text-sm font-bold text-white transition-all cursor-pointer shadow-sm hover:shadow"
+                          style={{
+                            width: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 12,
+                            padding: "12px 16px",
+                            borderRadius: 8,
+                            background: "#A6CE39",
+                            border: "none",
+                            fontSize: "0.875rem",
+                            fontWeight: 700,
+                            color: "#fff",
+                            cursor: "pointer",
+                            boxShadow: "0 1px 2px rgba(0,0,0,0.08)",
+                            transition: "background 0.2s",
+                          }}
+                          onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#96bd33"; }}
+                          onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#A6CE39"; }}
                         >
-                          <svg viewBox="0 0 256 256" className="w-5 h-5 flex-shrink-0">
+                          <svg viewBox="0 0 256 256" style={{ width: 20, height: 20, flexShrink: 0 }}>
                             <path fill="#FFF" d="M256 128c0 70.7-57.3 128-128 128S0 198.7 0 128 57.3 0 128 0s128 57.3 128 128z"/>
                             <path fill="#A6CE39" d="M86.3 186.2H70.9V79.1h15.4v107.1zm-7.7-121c-5.7 0-10.4-4.7-10.4-10.4 0-5.7 4.7-10.4 10.4-10.4 5.8 0 10.4 4.7 10.4 10.4-.1 5.7-4.7 10.4-10.4 10.4zM189.4 133c0 30.6-21.6 54.4-53.9 54.4H101V79.1h35.3c31.4 0 53.1 22.1 53.1 53.9zm-73 40.5h18.2c22.1 0 37.7-14.7 37.7-40.5s-15.6-40.5-37.7-40.5h-18.2v81z"/>
                           </svg>
                           Continue with ORCID
                         </button>
                       </form>
-                    </div>
+                    </Box>
                   )}
 
                   {isOrcidConfigured && (isGitHubConfigured || isGoogleConfigured || isMicrosoftConfigured) && (
-                    <div className="relative flex py-2 items-center">
-                      <div className="flex-grow border-t border-border"></div>
-                      <span className="flex-shrink mx-4 text-slate-400 dark:text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                    <Divider sx={{ my: 0.5 }}>
+                      <Typography
+                        sx={{
+                          fontSize: "0.625rem",
+                          fontWeight: "bold",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.1em",
+                          color: "text.disabled",
+                        }}
+                      >
                         Or Continue With
-                      </span>
-                      <div className="flex-grow border-t border-border"></div>
-                    </div>
+                      </Typography>
+                    </Divider>
                   )}
 
                   {isGitHubConfigured && (
@@ -130,10 +220,27 @@ export default async function SignInPage({ searchParams }: PageProps) {
                     >
                       <button
                         type="submit"
-                        className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-border rounded-lg bg-surface hover:bg-surface-hover text-sm font-semibold text-foreground transition-all cursor-pointer shadow-sm hover:shadow"
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 12,
+                          padding: "12px 16px",
+                          borderRadius: 8,
+                          border: "1px solid",
+                          borderColor: "rgba(0,0,0,0.15)",
+                          background: "transparent",
+                          fontSize: "0.875rem",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
+                          transition: "background 0.2s",
+                          color: "inherit",
+                        }}
                       >
                         {/* Simple SVG GitHub Icon */}
-                        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+                        <svg viewBox="0 0 24 24" style={{ width: 20, height: 20, fill: "currentColor" }}>
                           <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
                         </svg>
                         Continue with GitHub
@@ -150,10 +257,27 @@ export default async function SignInPage({ searchParams }: PageProps) {
                     >
                       <button
                         type="submit"
-                        className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-border rounded-lg bg-surface hover:bg-surface-hover text-sm font-semibold text-foreground transition-all cursor-pointer shadow-sm hover:shadow"
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 12,
+                          padding: "12px 16px",
+                          borderRadius: 8,
+                          border: "1px solid",
+                          borderColor: "rgba(0,0,0,0.15)",
+                          background: "transparent",
+                          fontSize: "0.875rem",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
+                          transition: "background 0.2s",
+                          color: "inherit",
+                        }}
                       >
                         {/* Simple SVG Google Icon */}
-                        <svg viewBox="0 0 24 24" className="w-5 h-5">
+                        <svg viewBox="0 0 24 24" style={{ width: 20, height: 20 }}>
                           <path
                             fill="#4285F4"
                             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -185,10 +309,27 @@ export default async function SignInPage({ searchParams }: PageProps) {
                     >
                       <button
                         type="submit"
-                        className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-border rounded-lg bg-surface hover:bg-surface-hover text-sm font-semibold text-foreground transition-all cursor-pointer shadow-sm hover:shadow"
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 12,
+                          padding: "12px 16px",
+                          borderRadius: 8,
+                          border: "1px solid",
+                          borderColor: "rgba(0,0,0,0.15)",
+                          background: "transparent",
+                          fontSize: "0.875rem",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
+                          transition: "background 0.2s",
+                          color: "inherit",
+                        }}
                       >
                         {/* Microsoft SVG Icon */}
-                        <svg viewBox="0 0 23 23" className="w-5 h-5 flex-shrink-0">
+                        <svg viewBox="0 0 23 23" style={{ width: 20, height: 20, flexShrink: 0 }}>
                           <rect x="0" y="0" width="10" height="10" fill="#f25022" />
                           <rect x="11" y="0" width="10" height="10" fill="#7fba00" />
                           <rect x="0" y="11" width="10" height="10" fill="#00a4ef" />
@@ -198,19 +339,37 @@ export default async function SignInPage({ searchParams }: PageProps) {
                       </button>
                     </form>
                   )}
-                </div>
+                </Box>
               );
             })()}
-          </div>
+          </Box>
 
           {process.env.NODE_ENV === "development" && (
-            <div className="mt-6 pt-6 border-t border-dashed border-border/85 space-y-4">
-              <div className="flex items-center justify-center gap-2">
-                <span className="text-base animate-pulse">🚧</span>
-                <span className="text-[10px] uppercase font-bold text-amber-500 tracking-widest block text-center">
+            <Box
+              sx={{
+                mt: 3,
+                pt: 3,
+                borderTop: "1px dashed",
+                borderColor: "divider",
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1 }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.625rem",
+                    textTransform: "uppercase",
+                    fontWeight: "bold",
+                    color: "warning.main",
+                    letterSpacing: "0.15em",
+                    textAlign: "center",
+                  }}
+                >
                   Local Dev Backdoor
-                </span>
-              </div>
+                </Typography>
+              </Box>
               <form
                 action={async (formData: FormData) => {
                   "use server";
@@ -218,27 +377,61 @@ export default async function SignInPage({ searchParams }: PageProps) {
                   const role = (formData.get("role") as string) || "ADMIN";
                   await signIn("credentials", { email, role, redirectTo: "/" });
                 }}
-                className="space-y-3"
+                style={{ display: "flex", flexDirection: "column", gap: 12 }}
               >
-                <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-slate-400 block uppercase tracking-wider">
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  <label
+                    style={{
+                      fontSize: "0.5625rem",
+                      fontWeight: 700,
+                      color: "#94a3b8",
+                      display: "block",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.1em",
+                    }}
+                  >
                     Dev Email
                   </label>
                   <input
                     type="email"
                     name="email"
                     defaultValue="admin@example.com"
-                    className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-border rounded-lg text-foreground focus:outline-none focus:ring-1 focus:ring-primary/20"
+                    style={{
+                      width: "100%",
+                      padding: "8px 12px",
+                      fontSize: "0.75rem",
+                      border: "1px solid rgba(0,0,0,0.15)",
+                      borderRadius: 8,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-slate-400 block uppercase tracking-wider">
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  <label
+                    style={{
+                      fontSize: "0.5625rem",
+                      fontWeight: 700,
+                      color: "#94a3b8",
+                      display: "block",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.1em",
+                    }}
+                  >
                     Dev Role
                   </label>
                   <select
                     name="role"
                     defaultValue="ADMIN"
-                    className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-border rounded-lg text-foreground focus:outline-none focus:ring-1 focus:ring-primary/20"
+                    style={{
+                      width: "100%",
+                      padding: "8px 12px",
+                      fontSize: "0.75rem",
+                      border: "1px solid rgba(0,0,0,0.15)",
+                      borderRadius: 8,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
                   >
                     <option value="ADMIN">ADMIN</option>
                     <option value="EDITOR">EDITOR</option>
@@ -247,33 +440,73 @@ export default async function SignInPage({ searchParams }: PageProps) {
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors cursor-pointer shadow-sm hover:shadow"
+                  style={{
+                    width: "100%",
+                    padding: "10px 16px",
+                    background: "#f59e0b",
+                    border: "none",
+                    borderRadius: 8,
+                    color: "#fff",
+                    fontWeight: 700,
+                    fontSize: "0.75rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.1em",
+                    cursor: "pointer",
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.08)",
+                    transition: "background 0.2s",
+                  }}
                 >
                   Dev Backdoor Login
                 </button>
               </form>
-            </div>
+            </Box>
           )}
-        </div>
+        </Box>
 
         {/* Security / Approval Warning Notice */}
-        <div className="pt-6 border-t border-border bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg flex gap-3 text-xs text-muted leading-relaxed">
-          <span className="text-lg">🛡️</span>
-          <div>
+        <Paper
+          variant="outlined"
+          sx={{
+            mt: 4,
+            pt: 2,
+            px: 2,
+            pb: 2,
+            borderRadius: 2,
+            bgcolor: (theme) =>
+              theme.palette.mode === "dark" ? "rgba(15,23,42,0.5)" : "grey.50",
+            display: "flex",
+            gap: 1.5,
+            alignItems: "flex-start",
+          }}
+        >
+          {/* Shield SVG icon */}
+          <Box
+            component="svg"
+            viewBox="0 0 24 24"
+            sx={{ width: 20, height: 20, flexShrink: 0, mt: 0.25, color: "text.secondary" }}
+            fill="currentColor"
+          >
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
+          </Box>
+          <Typography variant="caption" sx={{ color: "text.secondary", lineHeight: 1.6 }}>
             {requireUserActivation ? (
               <>
-                <span className="font-bold text-foreground block mb-0.5">Admin Approval Required</span>
+                <Typography component="span" sx={{ fontWeight: "bold", color: "text.primary", display: "block", mb: 0.5 }}>
+                  Admin Approval Required
+                </Typography>
                 To protect lab confidentiality, first-time sign-ins are held in a pending queue. A system administrator must review and activate your account before you can edit data.
               </>
             ) : (
               <>
-                <span className="font-bold text-foreground block mb-0.5">Instant Account Activation</span>
+                <Typography component="span" sx={{ fontWeight: "bold", color: "text.primary", display: "block", mb: 0.5 }}>
+                  Instant Account Activation
+                </Typography>
                 New accounts are automatically activated. You will receive immediate access with standard permissions upon signing in.
               </>
             )}
-          </div>
-        </div>
-      </div>
-    </div>
+          </Typography>
+        </Paper>
+      </Box>
+    </Box>
   );
 }

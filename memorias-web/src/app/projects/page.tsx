@@ -5,6 +5,19 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Pagination } from "@/components/Pagination";
+import {
+  Container,
+  Box,
+  Typography,
+  Button,
+  Grid,
+  Card,
+  Chip,
+  TextField,
+  FormControl,
+  Select,
+  MenuItem,
+} from "@mui/material";
 
 type Params = Promise<{}>;
 type SearchParams = Promise<{ q?: string; limit?: string; page?: string }>;
@@ -60,196 +73,368 @@ export default async function ProjectsPage(props: {
   const paginatedProjects = filteredProjects.slice((page - 1) * limit, page * limit);
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {/* Unified Navigation Header */}
       <Header activeTab="projects" />
 
       {/* Title Banner (Gradient aligned with Members page) */}
-      <section className="bg-gradient-to-br from-primary to-primary-hover text-white py-12 px-6 shadow-inner relative overflow-hidden border-b border-blue-700/20">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
-          </svg>
-        </div>
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-extrabold tracking-tight">Research Projects</h1>
-            <p className="text-blue-100 max-w-xl text-sm leading-relaxed">
+      <Container maxWidth="lg" sx={{ py: 4, flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+        
+        <Box
+          sx={{
+            background: (theme) =>
+              `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark || theme.palette.primary.main} 100%)`,
+            color: "common.white",
+            py: 6,
+            px: { xs: 3, md: 6 },
+            borderRadius: 4,
+            boxShadow: "inset 0 0 40px rgba(0,0,0,0.1)",
+            position: "relative",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: { xs: "flex-start", md: "center" },
+            justifyContent: "space-between",
+            gap: 3,
+          }}
+        >
+          {/* Wave background element */}
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              opacity: 0.08,
+              pointerEvents: "none",
+            }}
+          >
+            <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
+            </svg>
+          </Box>
+
+          <Box sx={{ zIndex: 1, maxWidth: 600 }}>
+            <Typography variant="h1" sx={{ color: "common.white", mb: 1, fontSize: { xs: "2rem", md: "2.5rem" } }}>
+              Research Projects
+            </Typography>
+            <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.85)" }}>
               Explore scientific investigations, research initiatives, and technology transfers engineered by our lab.
-            </p>
-          </div>
+            </Typography>
+          </Box>
+
           {isEditorOrAdmin && (
-            <Link
+            <Button
+              component={Link}
               href="/projects/new"
-              className="bg-white hover:bg-slate-100 text-primary font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all text-center flex items-center gap-2 whitespace-nowrap self-start sm:self-center"
+              variant="contained"
+              sx={{
+                bgcolor: "common.white",
+                color: "primary.main",
+                fontWeight: "bold",
+                borderRadius: 3,
+                boxShadow: 2,
+                px: 3,
+                py: 1.5,
+                zIndex: 1,
+                "&:hover": {
+                  bgcolor: "rgba(255, 255, 255, 0.9)",
+                  boxShadow: 3,
+                },
+              }}
             >
               Add Project
-            </Link>
+            </Button>
           )}
-        </div>
-      </section>
+        </Box>
 
-      {/* Main Search and Grid Section */}
-      <main className="max-w-7xl w-full mx-auto px-6 py-8 flex-1 space-y-6">
-        {/* Inline Search Bar Form */}
-        <div className="bg-white dark:bg-slate-900 border border-border p-4 rounded-2xl shadow-sm flex flex-col md:flex-row items-center gap-4">
-          <form method="GET" className="w-full flex flex-col md:flex-row items-center gap-3">
-            <div className="relative flex-1 w-full">
-              <input
-                type="text"
+        {/* Main Search and Grid Section */}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {/* Inline Search Bar Form */}
+          <Card sx={{ p: 2, boxShadow: 1 }}>
+            <Box
+              component="form"
+              method="GET"
+              sx={{
+                width: "100%",
+                display: "flex",
+                flexDirection: { xs: "column", md: "row" },
+                alignItems: "center",
+                gap: 2,
+              }}
+            >
+              <TextField
+                fullWidth
+                size="small"
                 name="q"
                 defaultValue={q}
                 placeholder="Search projects by title, code, summary, funding agency..."
-                className="w-full border border-border px-4 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs"
+                variant="outlined"
               />
-            </div>
-            <div className="w-full md:w-40 shrink-0">
-              <select
-                name="limit"
-                defaultValue={limit.toString()}
-                className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs font-semibold"
-              >
-                <option value="10">10 per page</option>
-                <option value="20">20 per page</option>
-                <option value="30">30 per page</option>
-                <option value="100">100 per page</option>
-              </select>
-            </div>
-            <button
-              type="submit"
-              className="w-full md:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all cursor-pointer whitespace-nowrap"
-            >
-              Filter
-            </button>
-            {(q || limit !== 10) && (
-              <Link
-                href="/projects"
-                className="text-xs font-bold text-slate-500 hover:underline px-2 whitespace-nowrap"
-              >
-                Clear
-              </Link>
-            )}
-          </form>
-        </div>
 
-        {/* Projects Grid */}
-        {filteredProjects.length === 0 ? (
-          <div className="text-center py-16 bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm space-y-3">
-            <h3 className="font-extrabold text-slate-800 dark:text-slate-200">No Projects Found</h3>
-            <p className="text-xs text-muted max-w-xs mx-auto">
-              We couldn&apos;t find any projects matching your search query. Try broadening your keywords.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {paginatedProjects.map((project) => {
-                const startStr = project.startDate
-                  ? new Date(project.startDate).toLocaleDateString("en-US", { year: "numeric", month: "short" })
-                  : "N/D";
-                const endStr = project.endDate
-                  ? new Date(project.endDate).toLocaleDateString("en-US", { year: "numeric", month: "short" })
-                  : "Ongoing";
+              <FormControl size="small" sx={{ width: { xs: "100%", md: 160 }, shrink: 0 }}>
+                <Select name="limit" defaultValue={limit.toString()}>
+                  <MenuItem value="10">10 per page</MenuItem>
+                  <MenuItem value="20">20 per page</MenuItem>
+                  <MenuItem value="30">30 per page</MenuItem>
+                  <MenuItem value="100">100 per page</MenuItem>
+                </Select>
+              </FormControl>
 
-                return (
-                  <div
-                    key={project.id}
-                    className="bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col p-6 space-y-4"
+              <Box sx={{ display: "flex", gap: 1, width: { xs: "100%", md: "auto" } }}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={{
+                    borderRadius: 2,
+                    fontWeight: "bold",
+                    flexGrow: { xs: 1, md: 0 },
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Filter
+                </Button>
+
+                {(q || limit !== 10) && (
+                  <Button
+                    component={Link}
+                    href="/projects"
+                    variant="text"
+                    color="inherit"
+                    sx={{
+                      fontWeight: "bold",
+                      borderRadius: 2,
+                      whiteSpace: "nowrap",
+                    }}
                   >
-                    <div className="flex items-start justify-between gap-3 min-w-0">
-                      <div className="min-w-0">
-                        <Link
-                          href={`/projects/${project.slug}`}
-                          className="font-extrabold text-base text-slate-800 dark:text-slate-100 hover:text-primary transition-all block leading-snug hover:underline"
-                        >
-                          {project.title}
-                        </Link>
-                        {project.code && (
-                          <span className="text-[10px] uppercase tracking-wider font-extrabold text-primary bg-primary/5 px-2 py-0.5 rounded mt-1.5 inline-block">
-                            Code: {project.code}
-                          </span>
-                        )}
-                      </div>
-                    </div>
+                    Clear
+                  </Button>
+                )}
+              </Box>
+            </Box>
+          </Card>
 
-                    {/* Dates & Directors Block */}
-                    <div className="space-y-1 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-border/80 text-xs">
-                      <div className="flex items-center gap-1.5 text-slate-500 font-medium">
-                        <span>Timeline:</span>
-                        <span>{startStr} – {endStr}</span>
-                      </div>
-                      {(project.director || project.coDirector) && (
-                        <div className="space-y-0.5 pt-1.5 border-t border-border mt-1.5">
-                          {project.director && (
-                            <div className="text-slate-700 dark:text-slate-300">
-                              <strong>Director:</strong> {project.director}
-                            </div>
-                          )}
-                          {project.coDirector && (
-                            <div className="text-slate-700 dark:text-slate-300">
-                              <strong>Co-Director:</strong> {project.coDirector}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
+          {/* Projects Grid */}
+          {filteredProjects.length === 0 ? (
+            <Card
+              sx={{
+                textAlign: "center",
+                py: 8,
+                px: 3,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 1.5,
+              }}
+            >
+              <Typography variant="h3">No Projects Found</Typography>
+              <Typography variant="body2" color="text.secondary">
+                We could not find any projects matching your search query. Try broadening your keywords.
+              </Typography>
+            </Card>
+          ) : (
+            <Box>
+              <Grid container spacing={3}>
+                {paginatedProjects.map((project) => {
+                  const startStr = project.startDate
+                    ? new Date(project.startDate).toLocaleDateString("en-US", { year: "numeric", month: "short" })
+                    : "N/D";
+                  const endStr = project.endDate
+                    ? new Date(project.endDate).toLocaleDateString("en-US", { year: "numeric", month: "short" })
+                    : "Ongoing";
 
-                    {/* Summary Snippet */}
-                    {project.summary && (
-                      <p className="text-xs text-muted leading-relaxed line-clamp-3">
-                        {project.summary}
-                      </p>
-                    )}
-
-                    {/* Associated Members as links */}
-                    {project.members.length > 0 && (
-                      <div className="text-xs border-t border-border pt-3.5 space-y-1">
-                        <span className="font-bold text-slate-700 dark:text-slate-300 block">
-                          Associated Members:
-                        </span>
-                        <div className="flex flex-wrap gap-x-1.5 gap-y-0.5 text-primary">
-                          {project.members.map((member, i) => (
-                            <React.Fragment key={member.slug}>
-                              <Link
-                                href={`/members/${member.slug}`}
-                                className="font-semibold hover:underline"
-                              >
-                                {member.firstName} {member.lastName}
-                              </Link>
-                              {i < project.members.length - 1 && <span className="text-slate-400">,</span>}
-                            </React.Fragment>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Tags */}
-                    {project.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 pt-2">
-                        {project.tags.slice(0, 4).map((tag) => (
-                          <span
-                            key={tag}
-                            className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded text-[10px] font-semibold"
+                  return (
+                    <Grid size={{ xs: 12, md: 6 }} key={project.id}>
+                      <Card
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          height: "100%",
+                          p: 3,
+                          position: "relative",
+                          overflow: "hidden",
+                          "&::before": {
+                            content: '""',
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "4px",
+                            background: (theme) =>
+                              `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                            transform: "scaleX(0)",
+                            transformOrigin: "left",
+                            transition: "transform 0.3s ease",
+                          },
+                          "&:hover::before": {
+                            transform: "scaleX(1)",
+                          },
+                        }}
+                      >
+                        <Box sx={{ mb: 2 }}>
+                          <Typography
+                            variant="h3"
+                            component={Link}
+                            href={`/projects/${project.slug}`}
+                            sx={{
+                              fontSize: "1.1rem",
+                              fontWeight: "bold",
+                              textDecoration: "none",
+                              color: "text.primary",
+                              lineHeight: 1.4,
+                              "&:hover": { color: "primary.main", textDecoration: "underline" },
+                              transition: "color 0.2s",
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                            }}
                           >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-            <Pagination
-              currentPage={page}
-              totalPages={totalPages}
-              currentSearchParams={{ q, limit }}
-              baseUrl="/projects"
-            />
-          </div>
-        )}
-      </main>
+                            {project.title}
+                          </Typography>
+                          {project.code && (
+                            <Chip
+                              label={`Code: ${project.code}`}
+                              size="small"
+                              color="primary"
+                              variant="outlined"
+                              sx={{
+                                fontWeight: "bold",
+                                fontSize: "0.625rem",
+                                height: 20,
+                                borderRadius: 1,
+                                mt: 1.5,
+                              }}
+                            />
+                          )}
+                        </Box>
+
+                        {/* Dates & Directors Block */}
+                        <Box
+                          sx={{
+                            bgcolor: "action.hover",
+                            p: 2,
+                            borderRadius: 2.5,
+                            border: "1px solid",
+                            borderColor: "divider",
+                            fontSize: "0.75rem",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 1,
+                            mb: 2,
+                          }}
+                        >
+                          <Box sx={{ display: "flex", gap: 0.5, color: "text.secondary" }}>
+                            <Typography variant="caption" sx={{ fontWeight: "bold" }}>
+                              Timeline:
+                            </Typography>
+                            <Typography variant="caption">
+                              {startStr} - {endStr}
+                            </Typography>
+                          </Box>
+
+                          {(project.director || project.coDirector) && (
+                            <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 1, display: "flex", flexDirection: "column", gap: 0.5 }}>
+                              {project.director && (
+                                <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                  <strong>Director:</strong> {project.director}
+                                </Typography>
+                              )}
+                              {project.coDirector && (
+                                <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                  <strong>Co-Director:</strong> {project.coDirector}
+                                </Typography>
+                              )}
+                            </Box>
+                          )}
+                        </Box>
+
+                        {/* Summary Snippet */}
+                        {project.summary && (
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{
+                              mb: 3,
+                              lineHeight: 1.6,
+                              fontSize: "0.8rem",
+                              display: "-webkit-box",
+                              WebkitLineClamp: 3,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                            }}
+                          >
+                            {project.summary}
+                          </Typography>
+                        )}
+
+                        {/* Associated Members as links */}
+                        {project.members.length > 0 && (
+                          <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 2, mt: "auto", mb: project.tags.length > 0 ? 2 : 0 }}>
+                            <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", display: "block", mb: 0.5 }}>
+                              Associated Members:
+                            </Typography>
+                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, alignItems: "center" }}>
+                              {project.members.map((member, i) => (
+                                <React.Fragment key={member.slug}>
+                                  <Typography
+                                    component={Link}
+                                    href={`/members/${member.slug}`}
+                                    variant="caption"
+                                    sx={{
+                                      fontWeight: "bold",
+                                      color: "primary.main",
+                                      textDecoration: "none",
+                                      "&:hover": { textDecoration: "underline" },
+                                    }}
+                                  >
+                                    {member.firstName} {member.lastName}
+                                  </Typography>
+                                  {i < project.members.length - 1 && (
+                                    <Typography variant="caption" color="text.secondary" sx={{ mr: 0.5 }}>
+                                      ,
+                                    </Typography>
+                                  )}
+                                </React.Fragment>
+                              ))}
+                            </Box>
+                          </Box>
+                        )}
+
+                        {/* Tags */}
+                        {project.tags.length > 0 && (
+                          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, pt: project.members.length > 0 ? 0 : 2, mt: project.members.length > 0 ? 0 : "auto" }}>
+                            {project.tags.slice(0, 4).map((tag) => (
+                              <Chip
+                                key={tag}
+                                label={`#${tag}`}
+                                size="small"
+                                sx={{
+                                  fontSize: "0.625rem",
+                                  height: 20,
+                                  bgcolor: "action.hover",
+                                  color: "text.secondary",
+                                  fontWeight: 500,
+                                }}
+                              />
+                            ))}
+                          </Box>
+                        )}
+                      </Card>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                currentSearchParams={{ q, limit }}
+                baseUrl="/projects"
+              />
+            </Box>
+          )}
+        </Box>
+      </Container>
       <Footer />
-    </div>
+    </Box>
   );
 }

@@ -2,6 +2,24 @@
 
 import React, { useState, useEffect } from "react";
 import {
+  Box,
+  Container,
+  Typography,
+  Card,
+  Button,
+  Grid,
+  Divider,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  FormControlLabel,
+  CircularProgress,
+  Chip,
+} from "@mui/material";
+import {
   getReportInitData,
   queryPublications,
   queryProjects,
@@ -103,8 +121,8 @@ export default function ReportBuilderClient() {
       if (response.duplicate) {
         const choice = confirm(
           `${response.message}\n\n` +
-          `• Click OK to OVERWRITE the existing report.\n` +
-          `• Click CANCEL to save it as a new separate report (renamed automatically to avoid name collisions).`
+          `* Click OK to OVERWRITE the existing report.\n` +
+          `* Click CANCEL to save it as a new separate report (renamed automatically to avoid name collisions).`
         );
         
         if (choice) {
@@ -230,7 +248,7 @@ export default function ReportBuilderClient() {
     const endStr = endDate
       ? new Date(endDate).toLocaleDateString("en-US", { year: "numeric", month: "short" })
       : "Ongoing";
-    return `${startStr} – ${endStr}`;
+    return `${startStr} - ${endStr}`;
   };
 
   // Helper to format Projects as a concatenated sentence with optional/omitted properties
@@ -560,617 +578,573 @@ export default function ReportBuilderClient() {
 
       if (formattedLine.startsWith("# ")) {
         return (
-          <h1 key={index} className="text-3xl font-extrabold mt-6 mb-3 border-b border-slate-200 pb-1 text-slate-900 font-sans">
+          <Typography
+            key={index}
+            variant="h4"
+            sx={{ fontWeight: 800, mt: 3, mb: 1.5, borderBottom: "2px solid", borderColor: "grey.200", pb: 0.5, color: "text.primary" }}
+          >
             {formattedLine.replace("# ", "")}
-          </h1>
+          </Typography>
         );
       } else if (formattedLine.startsWith("## ")) {
         return (
-          <h2 key={index} className="text-2xl font-bold mt-5 mb-2 border-b border-slate-200 pb-1 text-slate-800 font-sans">
+          <Typography
+            key={index}
+            variant="h5"
+            sx={{ fontWeight: 700, mt: 2.5, mb: 1, borderBottom: "1px solid", borderColor: "grey.200", pb: 0.5, color: "text.primary" }}
+          >
             {formattedLine.replace("## ", "")}
-          </h2>
+          </Typography>
         );
       } else if (formattedLine.startsWith("### ")) {
         return (
-          <h3 key={index} className="text-xl font-semibold mt-4 mb-2 text-slate-800 font-sans">
+          <Typography
+            key={index}
+            variant="h6"
+            sx={{ fontWeight: 600, mt: 2, mb: 1, color: "text.primary" }}
+          >
             {formattedLine.replace("### ", "")}
-          </h3>
+          </Typography>
         );
       } else if (formattedLine.startsWith("- ") || formattedLine.startsWith("* ")) {
         return (
-          <li
+          <Typography
             key={index}
-            className="ml-6 list-disc mb-1 text-slate-800"
+            component="li"
+            variant="body2"
+            sx={{ ml: 3, mb: 0.5, listStyleType: "disc", color: "text.primary" }}
             dangerouslySetInnerHTML={{ __html: formattedLine.substring(2) }}
           />
         );
       }
       return formattedLine.trim() ? (
-        <p
+        <Typography
           key={index}
-          className="mb-4 text-slate-800 font-sans text-sm leading-relaxed"
+          variant="body2"
+          sx={{ mb: 1.5, lineHeight: 1.6, color: "text.primary" }}
           dangerouslySetInnerHTML={{ __html: formattedLine }}
         />
       ) : (
-        <div key={index} className="h-2" />
+        <Box key={index} sx={{ height: 8 }} />
       );
     });
   };
 
   const renderA4Canvas = (hidePaperHeaders = false) => {
     return (
-      <div className="relative bg-white border border-slate-200/80 shadow-xl rounded-2xl p-8 min-h-[600px] overflow-y-auto text-black dark:text-black print-content font-sans w-full max-w-4xl">
+      <Card
+        variant="outlined"
+        sx={{
+          position: "relative",
+          bgcolor: "background.paper",
+          borderColor: "divider",
+          boxShadow: 3,
+          borderRadius: 4,
+          p: 4,
+          minHeight: 600,
+          overflowY: "auto",
+          width: "100%",
+          maxWidth: 800,
+          "@media print": {
+            boxShadow: "none",
+            border: "none",
+            p: 0,
+            m: 0,
+          }
+        }}
+      >
         {/* Decorative paper headers - no print */}
         {!hidePaperHeaders && (
-          <div className="border-b-2 border-slate-300 pb-4 mb-6 flex justify-between items-center no-print">
-            <div>
-              <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400 block">Report Preview</span>
-              <span className="text-xs font-semibold text-slate-500">{reportTitle || "Untitled Report"}</span>
-            </div>
-            <div className="text-right">
-              <span className="text-[10px] text-slate-400 font-mono block">
+          <Box sx={{ borderBottom: "2px solid", borderColor: "divider", pb: 2, mb: 3, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <Box>
+              <Typography variant="caption" sx={{ textTransform: "uppercase", fontWeight: "bold", tracking: "0.1em", color: "text.secondary", display: "block" }}>
+                Report Preview
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: "bold", color: "text.primary" }}>
+                {reportTitle || "Untitled Report"}
+              </Typography>
+            </Box>
+            <Box sx={{ textAlign: "right" }}>
+              <Typography variant="caption" sx={{ fontFamily: "monospace", color: "text.secondary" }}>
                 Date: {new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
-              </span>
-            </div>
-          </div>
+              </Typography>
+            </Box>
+          </Box>
         )}
 
         {/* Loader placeholder when compiling */}
         {isCompiling && (
-          <div className="absolute inset-0 bg-white/70 flex flex-col items-center justify-center space-y-3 z-30 no-print rounded-2xl">
-            <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-            <span className="text-xs font-bold text-slate-800">Compiling Report Preview...</span>
-          </div>
+          <Box sx={{ position: "absolute", inset: 0, bgcolor: "rgba(255,255,255,0.7)", display: "flex", flexDirection: "column", items: "center", justify: "center", gap: 1.5, zIndex: 30, borderRadius: 4 }}>
+            <CircularProgress size={32} />
+            <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary" }}>
+              Compiling Report Preview...
+            </Typography>
+          </Box>
         )}
 
         {/* The Actual Plain Page Render */}
-        <div className="space-y-8 max-w-full">
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {blocks.map((block) => {
             if (block.type === "markdown") {
               return (
-                <div key={block.id} className="markdown-preview mb-4 text-black">
+                <Box key={block.id} sx={{ color: "text.primary" }}>
                   {renderMarkdownText(block.content || "")}
-                </div>
+                </Box>
               );
             }
 
             if (block.type === "publications") {
               return (
-                <div key={block.id} className="publications-preview space-y-3 mb-6">
+                <Box key={block.id} sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                   {block.compiledItems.length === 0 ? (
-                    <p className="text-xs text-slate-500 italic">No publications matched your filters.</p>
+                    <Typography variant="body2" sx={{ fontStyle: "italic" }} color="text.secondary">
+                      No publications matched your filters.
+                    </Typography>
                   ) : (
-                    <div className="space-y-2">
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
                       {block.compiledItems.map((pub, i) => (
-                        <p
+                        <Typography
                           key={pub.id || i}
-                          className="text-xs text-slate-800 leading-relaxed"
+                          variant="body2"
+                          sx={{ lineHeight: 1.6, color: "text.primary" }}
                           dangerouslySetInnerHTML={{ __html: pub.citationHtml }}
                         />
                       ))}
-                    </div>
+                    </Box>
                   )}
-                </div>
+                </Box>
               );
             }
 
             if (block.type === "projects") {
               return (
-                <div key={block.id} className="projects-preview space-y-4 mb-6">
+                <Box key={block.id} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                   {block.compiledItems.length === 0 ? (
-                    <p className="text-xs text-slate-500 italic">No projects matched your filters.</p>
+                    <Typography variant="body2" sx={{ fontStyle: "italic" }} color="text.secondary">
+                      No projects matched your filters.
+                    </Typography>
                   ) : (
                     block.compiledItems.map((proj, i) => (
-                      <div key={proj.id || i} className="text-sm space-y-1 text-slate-800">
-                        <p className="font-bold text-slate-900">
+                      <Box key={proj.id || i} sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.primary" }}>
                           {proj.title} {proj.code ? `(Code: ${proj.code})` : ""}
-                        </p>
-                        <p className="text-xs text-slate-700 leading-relaxed">
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
                           {buildProjectSentence(proj)}
-                        </p>
+                        </Typography>
                         {block.filters.showSummary && proj.summary && (
-                          <p className="text-xs text-slate-500 leading-relaxed italic mt-1">
+                          <Typography variant="body2" sx={{ fontStyle: "italic", mt: 0.5 }} color="text.secondary">
                             Summary: {proj.summary}
-                          </p>
+                          </Typography>
                         )}
-                      </div>
+                      </Box>
                     ))
                   )}
-                </div>
+                </Box>
               );
             }
 
             if (block.type === "scholarships") {
               return (
-                <div key={block.id} className="scholarships-preview space-y-4 mb-6">
+                <Box key={block.id} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                   {block.compiledItems.length === 0 ? (
-                    <p className="text-xs text-slate-500 italic">No scholarships matched your filters.</p>
+                    <Typography variant="body2" sx={{ fontStyle: "italic" }} color="text.secondary">
+                      No scholarships matched your filters.
+                    </Typography>
                   ) : (
                     block.compiledItems.map((schol, i) => (
-                      <div key={schol.id || i} className="text-sm space-y-1 text-slate-800">
-                        <p className="font-bold text-slate-900">
+                      <Box key={schol.id || i} sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.primary" }}>
                           {schol.title} {schol.type ? `(${schol.type})` : ""}
-                        </p>
-                        <p className="text-xs text-slate-700 leading-relaxed">
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
                           {buildScholarshipSentence(schol)}
-                        </p>
+                        </Typography>
                         {block.filters.showSummary && schol.summary && (
-                          <p className="text-xs text-slate-500 leading-relaxed italic mt-1">
+                          <Typography variant="body2" sx={{ fontStyle: "italic", mt: 0.5 }} color="text.secondary">
                             Summary: {schol.summary}
-                          </p>
+                          </Typography>
                         )}
-                      </div>
+                      </Box>
                     ))
                   )}
-                </div>
+                </Box>
               );
             }
 
             if (block.type === "theses") {
               return (
-                <div key={block.id} className="theses-preview space-y-4 mb-6">
+                <Box key={block.id} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                   {block.compiledItems.length === 0 ? (
-                    <p className="text-xs text-slate-500 italic">No theses matched your filters.</p>
+                    <Typography variant="body2" sx={{ fontStyle: "italic" }} color="text.secondary">
+                      No theses matched your filters.
+                    </Typography>
                   ) : (
                     block.compiledItems.map((thesis, i) => (
-                      <div key={thesis.id || i} className="text-sm space-y-1 text-slate-800">
-                        <p className="font-bold text-slate-900">
+                      <Box key={thesis.id || i} sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.primary" }}>
                           {thesis.title} {thesis.level ? `(${thesis.level})` : ""}
-                        </p>
-                        <p className="text-xs text-slate-700 leading-relaxed">
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
                           {buildThesisSentence(thesis)}
-                        </p>
+                        </Typography>
                         {block.filters.showSummary && thesis.summary && (
-                          <p className="text-xs text-slate-500 leading-relaxed italic mt-1">
+                          <Typography variant="body2" sx={{ fontStyle: "italic", mt: 0.5 }} color="text.secondary">
                             Summary: {thesis.summary}
-                          </p>
+                          </Typography>
                         )}
-                      </div>
+                      </Box>
                     ))
                   )}
-                </div>
+                </Box>
               );
             }
 
             return null;
           })}
-        </div>
-      </div>
+        </Box>
+      </Card>
     );
   };
 
   // 1. DASHBOARD LIST MODE
   if (viewState === "list") {
     return (
-      <div className="flex-1 flex flex-col space-y-8">
-        <section className="bg-gradient-to-br from-primary to-primary-hover text-white py-8 px-6 rounded-2xl shadow-md relative overflow-hidden border border-primary/10">
-          <div className="absolute inset-0 opacity-10 pointer-events-none">
-            <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
-            </svg>
-          </div>
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-extrabold tracking-tight">Saved Reports</h1>
-              <p className="text-blue-100 max-w-xl text-xs leading-relaxed">
-                View, edit, print, or download configurations of your custom research summaries.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={handleCreateNewReport}
-              className="bg-white hover:bg-slate-100 text-primary font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer"
-            >
-              Create New Report
-            </button>
-          </div>
-        </section>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <Box
+          sx={{
+            background: (theme) =>
+              theme.palette.mode === "dark"
+                ? "linear-gradient(135deg, #052438 0%, #093A54 100%)"
+                : "linear-gradient(135deg, #093A54 0%, #0d4b6e 100%)",
+            color: "white",
+            py: 5,
+            px: 4,
+            borderRadius: 4,
+            boxShadow: "inset 0 -2px 10px rgba(0,0,0,0.1)",
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: { xs: "flex-start", md: "center" },
+            justifyContent: "space-between",
+            gap: 3,
+          }}
+        >
+          <Box>
+            <Typography variant="h4" component="h1" sx={{ fontWeight: 800, mb: 1 }}>
+              Saved Reports
+            </Typography>
+            <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.8)", maxWidth: 500 }}>
+              View, edit, print, or download configurations of your custom research summaries.
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            onClick={handleCreateNewReport}
+            sx={{
+              bgcolor: "white",
+              color: "primary.main",
+              fontWeight: "bold",
+              textTransform: "none",
+              "&:hover": { bgcolor: "grey.100" },
+            }}
+          >
+            Create New Report
+          </Button>
+        </Box>
 
         {isLoadingReports ? (
-          <div className="flex flex-col items-center justify-center py-16 space-y-3">
-            <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-            <span className="text-xs text-slate-500 font-bold">Loading reports...</span>
-          </div>
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", py: 8, gap: 2 }}>
+            <CircularProgress />
+            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: "bold" }}>
+              Loading reports...
+            </Typography>
+          </Box>
         ) : savedReports.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-12 text-center shadow-sm max-w-2xl mx-auto space-y-6">
-            <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto border border-border">
-              <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">No reports found</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
-                You have no saved report configurations yet. Click below to compose your first custom research summary.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={handleCreateNewReport}
-              className="bg-primary hover:bg-primary-hover text-white text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-xl shadow-md transition-all cursor-pointer"
-            >
+          <Card variant="outlined" sx={{ p: 6, textAlign: "center", maxWidth: 500, mx: "auto", borderRadius: 4, bgcolor: "background.paper", borderColor: "divider" }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1, color: "text.primary" }}>
+              No reports found
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              You have no saved report configurations yet. Click below to compose your first custom research summary.
+            </Typography>
+            <Button variant="contained" onClick={handleCreateNewReport} sx={{ textTransform: "none", fontWeight: "bold" }}>
               Compose Report
-            </button>
-          </div>
+            </Button>
+          </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Grid container spacing={3}>
             {savedReports.map((report) => (
-              <div
-                key={report.id}
-                className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all space-y-4 flex flex-col justify-between"
-              >
-                <div className="space-y-2">
-                  <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 hover:text-primary transition-colors cursor-pointer" onClick={() => handleViewReport(report)}>
-                    {report.title}
-                  </h3>
-                  <div className="text-[10px] text-slate-500 font-mono space-y-1">
-                    <p>Created: {new Date(report.createdAt).toLocaleDateString()}</p>
-                    <p>Modified: {new Date(report.updatedAt).toLocaleDateString()}</p>
-                    <p>Blocks: {Array.isArray(report.blocks) ? report.blocks.length : 0}</p>
-                  </div>
-                </div>
-                <div className="flex gap-2 pt-2 border-t border-border">
-                  <button
-                    type="button"
-                    onClick={() => handleViewReport(report)}
-                    className="flex-1 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-white border border-border text-xs font-bold py-2 rounded-lg cursor-pointer text-center"
-                  >
-                    View
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleEditReport(report)}
-                    className="flex-1 bg-primary hover:bg-primary-hover text-white text-xs font-bold py-2 rounded-lg cursor-pointer text-center"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteReport(report.id)}
-                    className="bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer text-center"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={report.id}>
+                <Card sx={{ height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", p: 3, borderRadius: 3, bgcolor: "background.paper", borderColor: "divider" }} variant="outlined">
+                  <Box sx={{ mb: 2 }}>
+                    <Typography
+                      variant="h6"
+                      onClick={() => handleViewReport(report)}
+                      sx={{ fontWeight: "bold", cursor: "pointer", "&:hover": { color: "primary.main" }, mb: 1.5, color: "text.primary", lineHeight: 1.4 }}
+                    >
+                      {report.title}
+                    </Typography>
+                    <Box sx={{ fontFamily: "monospace", display: "flex", flexDirection: "column", gap: 0.5 }}>
+                      <Typography variant="caption" color="text.secondary">
+                        Created: {new Date(report.createdAt).toLocaleDateString()}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Modified: {new Date(report.updatedAt).toLocaleDateString()}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Blocks: {Array.isArray(report.blocks) ? report.blocks.length : 0}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: "flex", gap: 1, pt: 2, borderTop: "1px solid", borderColor: "divider" }}>
+                    <Button size="small" variant="outlined" onClick={() => handleViewReport(report)} sx={{ flex: 1, textTransform: "none", fontWeight: "bold" }}>
+                      View
+                    </Button>
+                    <Button size="small" variant="contained" onClick={() => handleEditReport(report)} sx={{ flex: 1, textTransform: "none", fontWeight: "bold" }}>
+                      Edit
+                    </Button>
+                    <Button size="small" variant="outlined" color="error" onClick={() => handleDeleteReport(report.id)} sx={{ textTransform: "none", fontWeight: "bold" }}>
+                      Delete
+                    </Button>
+                  </Box>
+                </Card>
+              </Grid>
             ))}
-          </div>
+          </Grid>
         )}
-      </div>
+      </Box>
     );
   }
 
   // 2. FULL SCREEN VIEW MODE
   if (viewState === "view") {
     return (
-      <div className="flex-1 flex flex-col space-y-6">
-        {/* Sticky top reader menu */}
-        <div className="sticky top-0 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-4 rounded-2xl shadow-sm z-50 flex flex-col sm:flex-row items-center justify-between gap-4 no-print">
-          <div>
-            <h1 className="text-lg font-bold text-slate-800 dark:text-slate-100">{reportTitle}</h1>
-            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Distraction-Free View Mode</span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => setViewState("list")}
-              className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-border cursor-pointer transition-all"
-            >
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        {/* Reader menu */}
+        <Card sx={{ p: 2.5, borderRadius: 3, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 2, bgcolor: "background.paper", borderColor: "divider" }} variant="outlined">
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: "bold", color: "text.primary" }}>
+              {reportTitle}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              Distraction-Free View Mode
+            </Typography>
+          </Box>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+            <Button variant="outlined" onClick={() => setViewState("list")} sx={{ textTransform: "none", fontWeight: "bold" }}>
               Back to List
-            </button>
-            <button
-              type="button"
-              onClick={() => handleEditReport({ id: reportId, title: reportTitle, blocks })}
-              className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-border cursor-pointer transition-all"
-            >
+            </Button>
+            <Button variant="outlined" onClick={() => handleEditReport({ id: reportId, title: reportTitle, blocks })} sx={{ textTransform: "none", fontWeight: "bold" }}>
               Edit Config
-            </button>
-            <button
-              type="button"
-              onClick={exportMarkdown}
-              className="bg-white hover:bg-slate-100 text-primary border border-primary/20 text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm cursor-pointer transition-all"
-            >
+            </Button>
+            <Button variant="outlined" onClick={exportMarkdown} sx={{ textTransform: "none", fontWeight: "bold" }}>
               Export Markdown
-            </button>
-            <button
-              type="button"
-              onClick={handlePrint}
-              className="bg-secondary hover:bg-secondary-hover text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm cursor-pointer transition-all"
-            >
+            </Button>
+            <Button variant="contained" color="secondary" onClick={handlePrint} sx={{ textTransform: "none", fontWeight: "bold" }}>
               Print to PDF
-            </button>
-          </div>
-        </div>
+            </Button>
+          </Box>
+        </Card>
 
         {/* Centered Document Sheet */}
-        <div className="flex justify-center py-4 bg-slate-50 dark:bg-slate-950/40 rounded-2xl border border-border">
+        <Box sx={{ display: "flex", justifyContent: "center", py: 4, bgcolor: "action.hover", borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
           {renderA4Canvas(true)}
-        </div>
-      </div>
+        </Box>
+      </Box>
     );
   }
 
   // 3. EDITOR CANVA MODE
   return (
-    <div className="flex-1 flex flex-col space-y-6">
-      {/* Dynamic Title Input & Actions Panel */}
-      <section className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 rounded-2xl shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 no-print">
-        <div className="flex-1 w-full space-y-1">
-          <label className="text-[10px] uppercase font-bold tracking-widest text-slate-400">
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      {/* Title Input & Actions Panel */}
+      <Card sx={{ p: 3, borderRadius: 4, display: "flex", flexDirection: { xs: "column", md: "row" }, alignItems: "center", justifyContent: "space-between", gap: 3, bgcolor: "background.paper", borderColor: "divider" }} variant="outlined">
+        <Box sx={{ flex: 1, width: "100%" }}>
+          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", mb: 1, display: "block" }}>
             Report Title Configuration
-          </label>
-          <input
-            type="text"
+          </Typography>
+          <TextField
+            fullWidth
+            size="small"
             value={reportTitle}
             onChange={(e) => setReportTitle(e.target.value)}
-            className="w-full text-sm font-bold text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 border border-slate-200 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 px-3 py-2 rounded-xl"
             placeholder="Report Title"
+            sx={{ bgcolor: "background.default" }}
           />
-        </div>
-        <div className="flex gap-2 w-full md:w-auto justify-end">
-          <button
-            type="button"
-            onClick={() => setViewState("list")}
-            className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-border cursor-pointer transition-all"
-          >
+        </Box>
+        <Box sx={{ display: "flex", gap: 1.5, width: { xs: "100%", md: "auto" }, justifyContent: "flex-end" }}>
+          <Button variant="outlined" onClick={() => setViewState("list")} sx={{ textTransform: "none", fontWeight: "bold" }}>
             Back to List
-          </button>
-          <button
-            type="button"
-            onClick={handleSaveReport}
-            className="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-1.5"
-          >
+          </Button>
+          <Button variant="contained" onClick={handleSaveReport} sx={{ textTransform: "none", fontWeight: "bold" }}>
             Save Report
-          </button>
+          </Button>
           {reportId && (
-            <button
-              type="button"
-              onClick={() => handleViewReport({ id: reportId, title: reportTitle, blocks })}
-              className="bg-secondary hover:bg-secondary-hover text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition-all cursor-pointer"
-            >
+            <Button variant="contained" color="secondary" onClick={() => handleViewReport({ id: reportId, title: reportTitle, blocks })} sx={{ textTransform: "none", fontWeight: "bold" }}>
               View Full Screen
-            </button>
+            </Button>
           )}
-        </div>
-      </section>
-
+        </Box>
+      </Card>
       {/* Builder Workspace Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <Grid container spacing={4} sx={{ alignItems: "start" }}>
         
         {/* LEFT: Builder & Editor (7 Columns) */}
-        <div className="lg:col-span-7 space-y-6 no-print">
+        <Grid size={{ xs: 12, lg: 7 }} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           
           {/* Element Palette */}
-          <div className="bg-white dark:bg-slate-900 border border-border rounded-2xl p-5 shadow-sm sidebar-palette space-y-4">
-            <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-500">
+          <Card sx={{ p: 3, borderRadius: 3, bgcolor: "background.paper", borderColor: "divider" }} variant="outlined">
+            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", mb: 2, display: "block" }}>
               Add Elements to Report
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => addBlock("markdown")}
-                className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold px-3 py-2 rounded-xl border border-border cursor-pointer transition-all hover:-translate-y-0.5"
-              >
-                Markdown Block
-              </button>
-              <button
-                type="button"
-                onClick={() => addBlock("publications")}
-                className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold px-3 py-2 rounded-xl border border-border cursor-pointer transition-all hover:-translate-y-0.5"
-              >
-                Publications Block
-              </button>
-              <button
-                type="button"
-                onClick={() => addBlock("projects")}
-                className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold px-3 py-2 rounded-xl border border-border cursor-pointer transition-all hover:-translate-y-0.5"
-              >
-                Projects Block
-              </button>
-              <button
-                type="button"
-                onClick={() => addBlock("scholarships")}
-                className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold px-3 py-2 rounded-xl border border-border cursor-pointer transition-all hover:-translate-y-0.5"
-              >
-                Scholarships Block
-              </button>
-              <button
-                type="button"
-                onClick={() => addBlock("theses")}
-                className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold px-3 py-2 rounded-xl border border-border cursor-pointer transition-all hover:-translate-y-0.5"
-              >
-                Thesis Block
-              </button>
-            </div>
-          </div>
+            </Typography>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+              {[
+                { label: "Markdown Block", type: "markdown" },
+                { label: "Publications Block", type: "publications" },
+                { label: "Projects Block", type: "projects" },
+                { label: "Scholarships Block", type: "scholarships" },
+                { label: "Thesis Block", type: "theses" },
+              ].map((item) => (
+                <Button
+                  key={item.type}
+                  variant="outlined"
+                  size="small"
+                  onClick={() => addBlock(item.type as any)}
+                  sx={{ textTransform: "none", fontWeight: "bold" }}
+                >
+                  {item.label}
+                </Button>
+              ))}
+            </Box>
+          </Card>
 
           {/* Blocks Configuration Panel */}
-          <div className="space-y-4">
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
             {blocks.length === 0 ? (
-              <div className="bg-slate-50 dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl p-8 text-center text-slate-400">
-                <p className="text-xs font-medium">Your report has no elements. Add an element from the palette above to build your report.</p>
-              </div>
+              <Card variant="outlined" sx={{ p: 6, textAlign: "center", borderStyle: "dashed", borderColor: "divider", bgcolor: "background.paper" }}>
+                <Typography variant="body2" color="text.secondary">
+                  Your report has no elements. Add an element from the palette above to build your report.
+                </Typography>
+              </Card>
             ) : (
               blocks.map((block, index) => (
-                <div
-                  key={block.id}
-                  className="bg-white dark:bg-slate-900 border border-border rounded-2xl p-5 shadow-sm space-y-4 hover:shadow-md transition-shadow relative"
-                >
+                <Card key={block.id} sx={{ p: 3, borderRadius: 3, display: "flex", flexDirection: "column", gap: 2, bgcolor: "background.paper", borderColor: "divider" }} variant="outlined">
                   {/* Block Header */}
-                  <div className="flex items-center justify-between pb-3 border-b border-border">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid", borderColor: "divider", pb: 1.5 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                         Block {index + 1}
-                      </span>
-                      <span className="bg-primary/10 text-primary text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                        {block.type}
-                      </span>
-                    </div>
+                      </Typography>
+                      <Chip
+                        label={block.type}
+                        size="small"
+                        color="primary"
+                        sx={{ fontWeight: "bold", fontSize: "0.625rem", textTransform: "uppercase", height: 18 }}
+                      />
+                    </Box>
 
-                    <div className="flex items-center gap-1">
-                      {/* Move block ordering buttons */}
-                      <button
-                        type="button"
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                      <Button
+                        size="small"
                         onClick={() => moveBlock(index, "up")}
                         disabled={index === 0}
-                        className="p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-slate-500 disabled:opacity-30 cursor-pointer"
+                        sx={{ minWidth: 32, p: 0.5, textTransform: "none", fontWeight: "bold" }}
                       >
-                        ▲
-                      </button>
-                      <button
-                        type="button"
+                        Up
+                      </Button>
+                      <Button
+                        size="small"
                         onClick={() => moveBlock(index, "down")}
                         disabled={index === blocks.length - 1}
-                        className="p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-slate-500 disabled:opacity-30 cursor-pointer"
+                        sx={{ minWidth: 32, p: 0.5, textTransform: "none", fontWeight: "bold" }}
                       >
-                        ▼
-                      </button>
-                      <button
-                        type="button"
+                        Down
+                      </Button>
+                      <Button
+                        size="small"
+                        color="error"
                         onClick={() => removeBlock(block.id)}
-                        className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500 rounded-lg cursor-pointer ml-1"
+                        sx={{ ml: 1, textTransform: "none", fontWeight: "bold" }}
                       >
                         Delete
-                      </button>
-                    </div>
-                  </div>
+                      </Button>
+                    </Box>
+                  </Box>
 
                   {/* Block Specific Editors */}
-                  <div className="space-y-4">
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                     {block.type === "markdown" && (
-                      <div className="space-y-1">
-                        <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block">
+                      <Box>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", mb: 1, display: "block" }}>
                           Markdown text content
-                        </label>
-                        <textarea
+                        </Typography>
+                        <TextField
+                          fullWidth
+                          multiline
                           rows={6}
                           value={block.content || ""}
                           onChange={(e) => updateBlockContent(block.id, e.target.value)}
-                          className="w-full p-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 rounded-xl text-xs font-mono text-slate-800 dark:text-slate-200 leading-relaxed"
                           placeholder="Type markdown syntax here..."
+                          slotProps={{
+                            htmlInput: { style: { fontFamily: "monospace", fontSize: "0.75rem" } }
+                          }}
                         />
-                      </div>
+                      </Box>
                     )}
 
                     {block.type === "publications" && (
-                      <div className="space-y-3.5">
-                        {/* Publications top horizontal grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          <div className="space-y-1">
-                            <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block">
-                              Citation format
-                            </label>
-                            <select
-                              value={block.filters.style}
-                              onChange={(e) => updateBlockFilter(block.id, "style", e.target.value)}
-                              className="text-xs px-2.5 py-1.5 rounded-lg border border-border bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/40 w-full"
-                            >
-                              <option value="apa">APA Style Guide</option>
-                              <option value="vancouver">Vancouver Reference List</option>
-                              <option value="harvard">Harvard Style Manual</option>
-                            </select>
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block">
-                              Start Year
-                            </label>
-                            <input
-                              type="number"
-                              value={block.filters.startYear || ""}
-                              onChange={(e) => updateBlockFilter(block.id, "startYear", e.target.value)}
-                              className="text-xs px-2.5 py-1.5 rounded-lg border border-border bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/40 w-full"
-                              placeholder="Min Year (e.g. 2018)"
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block">
-                              End Year
-                            </label>
-                            <input
-                              type="number"
-                              value={block.filters.endYear || ""}
-                              onChange={(e) => updateBlockFilter(block.id, "endYear", e.target.value)}
-                              className="text-xs px-2.5 py-1.5 rounded-lg border border-border bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/40 w-full"
-                              placeholder="Max Year (e.g. 2024)"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Types filter selection */}
-                        <div className="space-y-1.5 pt-2.5 border-t border-slate-100 dark:border-slate-800">
-                          <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block">
-                            Filter by publication types
-                          </label>
-                          <div className="flex flex-wrap gap-1 p-1.5 bg-slate-50 dark:bg-slate-950 border border-border rounded-lg max-h-24 overflow-y-auto">
-                            {initData?.publicationTypes.map((type) => (
-                              <button
-                                key={type}
-                                type="button"
-                                onClick={() => {
-                                  const curr = block.filters.types || [];
-                                  const next = curr.includes(type)
-                                    ? curr.filter((t) => t !== type)
-                                    : [...curr, type];
-                                  updateBlockFilter(block.id, "types", next);
-                                }}
-                                className={`text-[10px] font-semibold px-2 py-1 rounded-md border transition-all cursor-pointer ${
-                                  block.filters.types.includes(type)
-                                    ? "bg-primary text-white border-primary"
-                                    : "bg-white dark:bg-slate-900 border-border text-slate-600 dark:text-slate-400"
-                                }`}
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                        <Grid container spacing={2}>
+                          <Grid size={{ xs: 12, sm: 4 }}>
+                            <FormControl fullWidth size="small">
+                              <InputLabel>Citation format</InputLabel>
+                              <Select
+                                label="Citation format"
+                                value={block.filters.style}
+                                onChange={(e) => updateBlockFilter(block.id, "style", e.target.value)}
                               >
-                                {type}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {block.type !== "markdown" && block.type !== "publications" && (
-                      <div className="space-y-3.5">
-                        {/* Timeline horizontal range */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-1">
-                            <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block">
-                              Timeline range (from)
-                            </label>
-                            <input
+                                <MenuItem value="apa">APA Style Guide</MenuItem>
+                                <MenuItem value="vancouver">Vancouver Reference List</MenuItem>
+                                <MenuItem value="harvard">Harvard Style Manual</MenuItem>
+                              </Select>
+                            </FormControl>
+                          </Grid>
+                          <Grid size={{ xs: 12, sm: 4 }}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              label="Start Year"
                               type="number"
                               value={block.filters.startYear || ""}
                               onChange={(e) => updateBlockFilter(block.id, "startYear", e.target.value)}
-                              className="text-xs px-2.5 py-1.5 rounded-lg border border-border bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/40 w-full"
-                              placeholder="Start year filter (e.g. 2020)"
+                              placeholder="Min Year"
                             />
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block">
-                              Timeline range (to)
-                            </label>
-                            <input
+                          </Grid>
+                          <Grid size={{ xs: 12, sm: 4 }}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              label="End Year"
                               type="number"
                               value={block.filters.endYear || ""}
                               onChange={(e) => updateBlockFilter(block.id, "endYear", e.target.value)}
-                              className="text-xs px-2.5 py-1.5 rounded-lg border border-border bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/40 w-full"
-                              placeholder="End year filter (e.g. 2025)"
+                              placeholder="Max Year"
                             />
-                          </div>
-                        </div>
+                          </Grid>
+                        </Grid>
 
-                        {/* Level types selector (for scholarship & thesis) */}
-                        {block.type === "scholarships" && (
-                          <div className="space-y-1.5 pt-2.5 border-t border-slate-100 dark:border-slate-800">
-                            <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block">
-                              Scholarship level types
-                            </label>
-                            <div className="flex flex-wrap gap-1 p-1.5 bg-slate-50 dark:bg-slate-950 border border-border rounded-lg max-h-24 overflow-y-auto">
-                              {initData?.scholarshipTypes.map((type) => (
-                                <button
+                        <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 2 }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", mb: 1, display: "block" }}>
+                            Filter by publication types
+                          </Typography>
+                          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, p: 1, border: "1px solid", borderColor: "divider", borderRadius: 2, maxHeight: 96, overflowY: "auto" }}>
+                            {initData?.publicationTypes.map((type) => {
+                              const isSelected = block.filters.types.includes(type);
+                              return (
+                                <Chip
                                   key={type}
-                                  type="button"
+                                  label={type}
+                                  size="small"
                                   onClick={() => {
                                     const curr = block.filters.types || [];
                                     const next = curr.includes(type)
@@ -1178,157 +1152,201 @@ export default function ReportBuilderClient() {
                                       : [...curr, type];
                                     updateBlockFilter(block.id, "types", next);
                                   }}
-                                  className={`text-[10px] font-semibold px-2 py-1 rounded-md border transition-all cursor-pointer ${
-                                    block.filters.types.includes(type)
-                                      ? "bg-primary text-white border-primary"
-                                      : "bg-white dark:bg-slate-900 border-border text-slate-600 dark:text-slate-400"
-                                  }`}
-                                >
-                                  {type}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
+                                  color={isSelected ? "primary" : "default"}
+                                  variant={isSelected ? "filled" : "outlined"}
+                                  sx={{ fontWeight: "bold", fontSize: "0.625rem", borderRadius: 1 }}
+                                />
+                              );
+                            })}
+                          </Box>
+                        </Box>
+                      </Box>
+                    )}
+
+                    {block.type !== "markdown" && block.type !== "publications" && (
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                        <Grid container spacing={2}>
+                          <Grid size={{ xs: 12, sm: 6 }}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              label="Timeline range (from)"
+                              type="number"
+                              value={block.filters.startYear || ""}
+                              onChange={(e) => updateBlockFilter(block.id, "startYear", e.target.value)}
+                              placeholder="Start Year"
+                            />
+                          </Grid>
+                          <Grid size={{ xs: 12, sm: 6 }}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              label="Timeline range (to)"
+                              type="number"
+                              value={block.filters.endYear || ""}
+                              onChange={(e) => updateBlockFilter(block.id, "endYear", e.target.value)}
+                              placeholder="End Year"
+                            />
+                          </Grid>
+                        </Grid>
+
+                        {block.type === "scholarships" && (
+                          <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 2 }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", mb: 1, display: "block" }}>
+                              Scholarship level types
+                            </Typography>
+                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, p: 1, border: "1px solid", borderColor: "divider", borderRadius: 2, maxHeight: 96, overflowY: "auto" }}>
+                              {initData?.scholarshipTypes.map((type) => {
+                                const isSelected = block.filters.types.includes(type);
+                                return (
+                                  <Chip
+                                    key={type}
+                                    label={type}
+                                    size="small"
+                                    onClick={() => {
+                                      const curr = block.filters.types || [];
+                                      const next = curr.includes(type)
+                                        ? curr.filter((t) => t !== type)
+                                        : [...curr, type];
+                                      updateBlockFilter(block.id, "types", next);
+                                    }}
+                                    color={isSelected ? "primary" : "default"}
+                                    variant={isSelected ? "filled" : "outlined"}
+                                    sx={{ fontWeight: "bold", fontSize: "0.625rem", borderRadius: 1 }}
+                                  />
+                                );
+                              })}
+                            </Box>
+                          </Box>
                         )}
 
                         {block.type === "theses" && (
-                          <div className="space-y-1.5 pt-2.5 border-t border-slate-100 dark:border-slate-800">
-                            <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block">
+                          <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 2 }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", mb: 1, display: "block" }}>
                               Thesis academic level filters
-                            </label>
-                            <div className="flex flex-wrap gap-1 p-1.5 bg-slate-50 dark:bg-slate-950 border border-border rounded-lg max-h-24 overflow-y-auto">
-                              {initData?.thesisLevels.map((lvl) => (
-                                <button
-                                  key={lvl}
-                                  type="button"
-                                  onClick={() => {
-                                    const curr = block.filters.types || [];
-                                    const next = curr.includes(lvl)
-                                      ? curr.filter((t) => t !== lvl)
-                                      : [...curr, lvl];
-                                    updateBlockFilter(block.id, "types", next);
-                                  }}
-                                  className={`text-[10px] font-semibold px-2 py-1 rounded-md border transition-all cursor-pointer ${
-                                    block.filters.types.includes(lvl)
-                                      ? "bg-primary text-white border-primary"
-                                      : "bg-white dark:bg-slate-900 border-border text-slate-600 dark:text-slate-400"
-                                  }`}
-                                >
-                                  {lvl}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
+                            </Typography>
+                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, p: 1, border: "1px solid", borderColor: "divider", borderRadius: 2, maxHeight: 96, overflowY: "auto" }}>
+                              {initData?.thesisLevels.map((lvl) => {
+                                const isSelected = block.filters.types.includes(lvl);
+                                return (
+                                  <Chip
+                                    key={lvl}
+                                    label={lvl}
+                                    size="small"
+                                    onClick={() => {
+                                      const curr = block.filters.types || [];
+                                      const next = curr.includes(lvl)
+                                        ? curr.filter((t) => t !== lvl)
+                                        : [...curr, lvl];
+                                      updateBlockFilter(block.id, "types", next);
+                                    }}
+                                    color={isSelected ? "primary" : "default"}
+                                    variant={isSelected ? "filled" : "outlined"}
+                                    sx={{ fontWeight: "bold", fontSize: "0.625rem", borderRadius: 1 }}
+                                  />
+                                );
+                              })}
+                            </Box>
+                          </Box>
                         )}
-                      </div>
+                      </Box>
                     )}
 
-                    {/* Member selection and sort configurations */}
                     {block.type !== "markdown" && (
-                      <div className="space-y-3.5 pt-2.5 border-t border-slate-100 dark:border-slate-800">
-                        {/* Member filtering */}
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block">
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, borderTop: "1px solid", borderColor: "divider", pt: 2 }}>
+                        <Box>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", mb: 1, display: "block" }}>
                             Member relation filter
-                          </label>
-                          <div className="flex flex-wrap gap-1 p-1.5 bg-slate-50 dark:bg-slate-950 border border-border rounded-lg max-h-24 overflow-y-auto">
-                            {initData?.members.map((member) => (
-                              <button
-                                key={member.id}
-                                type="button"
-                                onClick={() => {
-                                  const curr = block.filters.memberIds || [];
-                                  const next = curr.includes(member.id)
-                                    ? curr.filter((id) => id !== member.id)
-                                    : [...curr, member.id];
-                                  updateBlockFilter(block.id, "memberIds", next);
-                                }}
-                                className={`text-[10px] font-semibold px-2 py-1 rounded-md border transition-all cursor-pointer ${
-                                  block.filters.memberIds.includes(member.id)
-                                    ? "bg-primary text-white border-primary"
-                                    : "bg-white dark:bg-slate-900 border-border text-slate-600 dark:text-slate-400"
-                                }`}
+                          </Typography>
+                          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, p: 1, border: "1px solid", borderColor: "divider", borderRadius: 2, maxHeight: 96, overflowY: "auto" }}>
+                            {initData?.members.map((member) => {
+                              const isSelected = block.filters.memberIds.includes(member.id);
+                              return (
+                                <Chip
+                                  key={member.id}
+                                  label={`${member.lastName}, ${member.firstName}`}
+                                  size="small"
+                                  onClick={() => {
+                                    const curr = block.filters.memberIds || [];
+                                    const next = curr.includes(member.id)
+                                      ? curr.filter((id) => id !== member.id)
+                                      : [...curr, member.id];
+                                    updateBlockFilter(block.id, "memberIds", next);
+                                  }}
+                                  color={isSelected ? "primary" : "default"}
+                                  variant={isSelected ? "filled" : "outlined"}
+                                  sx={{ fontWeight: "bold", fontSize: "0.625rem", borderRadius: 1 }}
+                                />
+                              );
+                            })}
+                          </Box>
+                        </Box>
+
+                        <Grid container spacing={2} sx={{ borderTop: "1px solid", borderColor: "divider", pt: 2 }}>
+                          <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControl fullWidth size="small">
+                              <InputLabel>Sort By</InputLabel>
+                              <Select
+                                label="Sort By"
+                                value={block.sort.field}
+                                onChange={(e) => updateBlockSort(block.id, "field", e.target.value as any)}
                               >
-                                {member.lastName}, {member.firstName}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Sort Row */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2.5 border-t border-slate-100 dark:border-slate-800">
-                          <div className="space-y-1">
-                            <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block">
-                              Sort By
-                            </label>
-                            <select
-                              value={block.sort.field}
-                              onChange={(e) => updateBlockSort(block.id, "field", e.target.value as any)}
-                              className="text-xs px-2.5 py-1.5 rounded-lg border border-border bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/40 w-full"
-                            >
-                              <option value="year">Timeline / Year</option>
-                              <option value="title">Title</option>
-                            </select>
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block">
-                              Direction
-                            </label>
-                            <select
-                              value={block.sort.direction}
-                              onChange={(e) => updateBlockSort(block.id, "direction", e.target.value as any)}
-                              className="text-xs px-2.5 py-1.5 rounded-lg border border-border bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/40 w-full"
-                            >
-                              <option value="desc">Descending</option>
-                              <option value="asc">Ascending</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
+                                <MenuItem value="year">Timeline / Year</MenuItem>
+                                <MenuItem value="title">Title</MenuItem>
+                              </Select>
+                            </FormControl>
+                          </Grid>
+                          <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControl fullWidth size="small">
+                              <InputLabel>Direction</InputLabel>
+                              <Select
+                                label="Direction"
+                                value={block.sort.direction}
+                                onChange={(e) => updateBlockSort(block.id, "direction", e.target.value as any)}
+                              >
+                                <MenuItem value="desc">Descending</MenuItem>
+                                <MenuItem value="asc">Ascending</MenuItem>
+                              </Select>
+                            </FormControl>
+                          </Grid>
+                        </Grid>
+                      </Box>
                     )}
 
-                    {/* Block Summary text option toggler */}
                     {block.type !== "markdown" && block.type !== "publications" && (
-                      <div className="flex items-center gap-2 pt-2.5 border-t border-slate-100 dark:border-slate-800">
-                        <input
-                          id={`summary-toggle-${block.id}`}
-                          type="checkbox"
-                          checked={block.filters.showSummary}
-                          onChange={(e) => updateBlockFilter(block.id, "showSummary", e.target.checked)}
-                          className="w-3.5 h-3.5 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+                      <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 1.5 }}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              size="small"
+                              checked={block.filters.showSummary}
+                              onChange={(e) => updateBlockFilter(block.id, "showSummary", e.target.checked)}
+                            />
+                          }
+                          label={<Typography variant="body2" sx={{ fontWeight: "bold" }}>Show Summary Text (if available)</Typography>}
                         />
-                        <label
-                          htmlFor={`summary-toggle-${block.id}`}
-                          className="text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"
-                        >
-                          Show Summary Text (if available)
-                        </label>
-                      </div>
+                      </Box>
                     )}
+                  </Box>
 
-                  </div>
-
-                  {/* Compiled items summary counter */}
                   {block.type !== "markdown" && (
-                    <div className="bg-slate-50 dark:bg-slate-950 px-3 py-1.5 rounded-lg border border-border text-[10px] text-slate-500 font-medium">
+                    <Typography variant="caption" sx={{ bgcolor: "action.hover", px: 1.5, py: 0.5, borderRadius: 1, border: "1px solid", borderColor: "divider", display: "inline-block", alignSelf: "flex-start", fontWeight: 500 }} color="text.secondary">
                       Items in preview: {block.compiledItems.length}
-                    </div>
+                    </Typography>
                   )}
-
-                </div>
+                </Card>
               ))
             )}
-          </div>
+          </Box>
 
-        </div>
+        </Grid>
 
         {/* RIGHT: Live Preview (5 Columns) */}
-        <div className="lg:col-span-5 space-y-6">
+        <Grid size={{ xs: 12, lg: 5 }} sx={{ position: { lg: "sticky" }, top: { lg: 24 } }}>
           {renderA4Canvas()}
-        </div>
+        </Grid>
 
-      </div>
-    </div>
+      </Grid>
+    </Box>
   );
 }

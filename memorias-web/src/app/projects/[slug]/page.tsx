@@ -1,12 +1,23 @@
 import React from "react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { DeleteProjectButton } from "./DeleteProjectButton";
 import { Header } from "@/components/Header";
-import { jsonToBibtex } from "@/lib/bibtex";
-import { formatCitation } from "@/lib/citations";
+import { Footer } from "@/components/Footer";
+import { RelatedTheses } from "@/components/reusable/RelatedTheses";
+import { RelatedPublications } from "@/components/reusable/RelatedPublications";
+import {
+  Container,
+  Box,
+  Typography,
+  Card,
+  Avatar,
+  Chip,
+  Button,
+  Grid,
+} from "@mui/material";
 
 type Params = Promise<{ slug: string }>;
 
@@ -40,6 +51,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
           slug: true,
           student: true,
           level: true,
+          progress: true,
         },
       },
       scholarships: {
@@ -71,320 +83,390 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
     : "Ongoing";
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {/* Unified Navigation Header */}
       <Header activeTab="projects" />
 
       {/* Title Banner (Gradient aligned with Members page) */}
-      <section className="bg-gradient-to-br from-primary to-primary-hover text-white py-12 px-6 shadow-inner relative overflow-hidden border-b border-blue-700/20">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <Box
+        sx={{
+          background: (theme) =>
+            `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark || theme.palette.primary.main} 100%)`,
+          color: "common.white",
+          py: 6,
+          px: { xs: 3, md: 6 },
+          boxShadow: "inset 0 0 40px rgba(0,0,0,0.1)",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Wave background element */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0.08,
+            pointerEvents: "none",
+          }}
+        >
+          <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
             <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
           </svg>
-        </div>
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-3">
+        </Box>
+
+        <Container
+          maxWidth="lg"
+          sx={{
+            position: "relative",
+            zIndex: 1,
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: { xs: "flex-start", md: "center" },
+            justifyContent: "space-between",
+            gap: 3,
+          }}
+        >
+          <Box sx={{ maxWidth: 800, display: "flex", flexDirection: "column", gap: 1.5 }}>
             {project.code && (
-              <span className="text-[10px] font-extrabold uppercase tracking-widest bg-white/20 text-white px-3 py-1 rounded-full">
-                Code: {project.code}
-              </span>
+              <Chip
+                label={`Code: ${project.code}`}
+                size="small"
+                sx={{
+                  color: "common.white",
+                  borderColor: "rgba(255,255,255,0.4)",
+                  border: "1px solid",
+                  bgcolor: "rgba(255,255,255,0.15)",
+                  alignSelf: "flex-start",
+                  fontWeight: "bold",
+                  fontSize: "0.7rem",
+                }}
+              />
             )}
-            <h1 className="text-4xl font-extrabold tracking-tight max-w-4xl leading-tight">
+            <Typography variant="h1" sx={{ color: "common.white", fontSize: { xs: "1.75rem", sm: "2.25rem", md: "2.5rem" } }}>
               {project.title}
-            </h1>
-            <div className="flex items-center gap-1 text-blue-100 text-xs font-semibold">
-              <span>Duration:</span>
-              <span>{startStr} – {endStr}</span>
-            </div>
-          </div>
+            </Typography>
+            <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.85)", fontWeight: "bold" }}>
+              Duration: {startStr} - {endStr}
+            </Typography>
+          </Box>
 
           {isEditorOrAdmin && (
-            <div className="flex items-center gap-3">
-              <Link
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              <Button
+                component={Link}
                 href={`/projects/${project.slug}/edit`}
-                className="bg-white hover:bg-slate-100 text-primary font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all text-center"
+                variant="contained"
+                sx={{
+                  bgcolor: "common.white",
+                  color: "primary.main",
+                  fontWeight: "bold",
+                  borderRadius: 3,
+                  px: 3,
+                  py: 1,
+                  "&:hover": {
+                    bgcolor: "rgba(255,255,255,0.9)",
+                  },
+                }}
               >
                 Edit Project
-              </Link>
+              </Button>
               <DeleteProjectButton projectId={project.id} projectTitle={project.title} />
-            </div>
+            </Box>
           )}
-        </div>
-      </section>
+        </Container>
+      </Box>
 
       {/* Main content split grid */}
-      <main className="max-w-7xl w-full mx-auto px-6 py-10 flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
+      <Container
+        maxWidth="lg"
+        sx={{
+          py: 4,
+          flex: 1,
+          display: "flex",
+          flexDirection: { xs: "column", lg: "row" },
+          gap: 4,
+        }}
+      >
         {/* Left Column: Abstract Summary & Relations */}
-        <div className="lg:col-span-2 space-y-8">
+        <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
           
           {/* Abstract summary */}
-          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-            <h2 className="text-lg font-extrabold text-primary border-b border-border pb-3 flex items-center gap-2">
+          <Card sx={{ p: 4, display: "flex", flexDirection: "column", gap: 2.5 }}>
+            <Typography variant="h3" sx={{ color: "primary.main", fontWeight: "bold", borderBottom: "1px solid", borderColor: "divider", pb: 1.5 }}>
               Project Abstract
-            </h2>
+            </Typography>
             {project.summary ? (
-              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
+              <Typography variant="body1" sx={{ color: "text.primary", whiteSpace: "pre-line" }}>
                 {project.summary}
-              </p>
+              </Typography>
             ) : (
-              <div className="text-xs text-muted italic font-medium py-4 text-center">
+              <Typography variant="body2" sx={{ fontStyle: "italic", color: "text.secondary", py: 2, textAlign: "center" }}>
                 No description or abstract summary has been set for this project.
-              </div>
+              </Typography>
             )}
-          </div>
+          </Card>
 
+          {/* Linked Theses */}
+          {project.theses.length > 0 && <RelatedTheses theses={project.theses} />}
 
-
-          {/* Deep Relations: Theses, Scholarships, Publications */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Theses */}
-            <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-              <h2 className="text-base font-extrabold text-primary border-b border-border pb-3 flex items-center gap-2">
-                Linked Theses ({project.theses.length})
-              </h2>
-              {project.theses.length === 0 ? (
-                <span className="text-xs text-muted block italic text-center py-4">No associated theses.</span>
-              ) : (
-                <div className="space-y-2.5">
-                  {project.theses.map((thesis) => (
-                    <Link
-                      key={thesis.id}
-                      href={`/theses/${thesis.slug}`}
-                      className="block p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-border hover:border-slate-300 dark:hover:border-slate-700 transition-all"
-                    >
-                      <span className="font-bold text-xs text-slate-800 dark:text-slate-200 block line-clamp-1">
-                        {thesis.title}
-                      </span>
-                      <span className="text-[10px] text-muted block mt-1">
-                        Student: {thesis.student || "N/D"} • {thesis.level || "Grade"}
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Scholarships */}
-            <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-              <h2 className="text-base font-extrabold text-primary border-b border-border pb-3 flex items-center gap-2">
-                Linked Scholarships ({project.scholarships.length})
-              </h2>
-              {project.scholarships.length === 0 ? (
-                <span className="text-xs text-muted block italic text-center py-4">No associated scholarships.</span>
-              ) : (
-                <div className="space-y-2.5">
-                  {project.scholarships.map((sch) => (
-                    <Link
-                      key={sch.id}
+          {/* Linked Scholarships */}
+          {project.scholarships.length > 0 && (
+            <Box sx={{ width: "100%" }}>
+              <Typography
+                variant="h3"
+                sx={{
+                  mb: 2.5,
+                  fontSize: "1.15rem",
+                  fontWeight: 700,
+                  borderBottom: "1px solid",
+                  borderColor: "divider",
+                  pb: 1,
+                }}
+              >
+                Linked Scholarships
+              </Typography>
+              <Grid container spacing={2}>
+                {project.scholarships.map((sch) => (
+                  <Grid size={{ xs: 12, sm: 6 }} key={sch.id}>
+                    <Card
+                      sx={{
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        textDecoration: "none",
+                      }}
+                      component={Link}
                       href={`/scholarships/${sch.slug}`}
-                      className="block p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-border hover:border-slate-300 dark:hover:border-slate-700 transition-all"
                     >
-                      <span className="font-bold text-xs text-slate-800 dark:text-slate-200 block line-clamp-1">
-                        {sch.title}
-                      </span>
-                      <span className="text-[10px] text-muted block mt-1">
-                        Student: {sch.student || "N/D"} • {sch.type || "Scholarship"}
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Publications */}
-            <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4 md:col-span-2">
-              <h2 className="text-base font-extrabold text-primary border-b border-border pb-3 flex items-center gap-2">
-                Associated Publications ({project.publications.length})
-              </h2>
-              {project.publications.length === 0 ? (
-                <span className="text-xs text-muted block italic text-center py-4">No associated papers or publications.</span>
-              ) : (
-                <div className="divide-y divide-border/60">
-                  {project.publications.map((pb) => {
-                    const hasBibtex = pb.bibtexData && typeof pb.bibtexData === "object" && Object.keys(pb.bibtexData).length > 0;
-                    const bibString = jsonToBibtex(pb);
-                    const bibDownloadUrl = bibString ? `data:text/plain;charset=utf-8,${encodeURIComponent(bibString)}` : "";
-                    const citation = formatCitation(pb, "apa");
-                    return (
-                      <div key={pb.id} className="py-3.5 first:pt-0 last:pb-0 space-y-2">
-                        <Link href={`/publications/${pb.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors block leading-tight">
-                          {pb.title}
-                        </Link>
-                        <div
-                          className="text-xs text-slate-650 dark:text-slate-350 leading-relaxed bg-slate-50/50 dark:bg-slate-800/20 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80"
-                          dangerouslySetInnerHTML={{ __html: citation.html }}
-                        />
-                        
-                        <div className="flex items-center gap-4 text-xs font-semibold">
-                          <Link
-                            href={`/publications/${pb.slug}`}
-                            className="text-secondary hover:text-secondary-hover flex items-center gap-1 transition-all"
+                      <Box sx={{ p: 2.5, display: "flex", flexDirection: "column", gap: 1 }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 1.5 }}>
+                          <Typography
+                            variant="subtitle2"
+                            sx={{
+                              fontWeight: 800,
+                              fontSize: "0.875rem",
+                              color: "text.primary",
+                              lineHeight: 1.4,
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                            }}
                           >
-                            Details
-                          </Link>
-                          {hasBibtex && bibDownloadUrl && (
-                            <a
-                              href={bibDownloadUrl}
-                              download={`${pb.slug}.bib`}
-                              className="text-primary hover:text-primary-hover flex items-center gap-1 cursor-pointer"
-                            >
-                              Download BibTeX
-                            </a>
+                            {sch.title}
+                          </Typography>
+                          {sch.type && (
+                            <Chip
+                              label={sch.type}
+                              size="small"
+                              color="secondary"
+                              variant="outlined"
+                              sx={{
+                                fontWeight: "bold",
+                                fontSize: "0.625rem",
+                                height: 20,
+                                borderRadius: 1,
+                              }}
+                            />
                           )}
-                          {pb.selfArchivingUrl && (
-                            <a
-                              href={pb.selfArchivingUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-secondary hover:text-secondary-hover flex items-center gap-1 cursor-pointer"
-                            >
-                              Self-Archived PDF
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+                        </Box>
+                        {sch.student && (
+                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
+                            Student: {sch.student}
+                          </Typography>
+                        )}
+                      </Box>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          )}
+
+          {/* Linked Publications */}
+          {project.publications.length > 0 && <RelatedPublications publications={project.publications} />}
+        </Box>
 
         {/* Right Column: Metadata Detail Info Sidebar */}
-        <div className="space-y-6">
-          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-5">
-            <h3 className="font-extrabold text-xs text-primary uppercase tracking-wider border-b border-border pb-3">
+        <Box sx={{ width: { xs: "100%", lg: 320 }, flexShrink: 0, display: "flex", flexDirection: "column", gap: 3 }}>
+          
+          <Card sx={{ p: 3, display: "flex", flexDirection: "column", gap: 3.5 }}>
+            <Typography variant="caption" sx={{ fontWeight: "extrabold", color: "primary.main", textTransform: "uppercase", letterSpacing: 1, borderBottom: "1px solid", borderColor: "divider", pb: 1 }}>
               Project Details
-            </h3>
+            </Typography>
 
-            <div className="space-y-4 text-xs">
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
               {project.director && (
-                <div>
-                  <span className="text-slate-500 font-semibold block">Director</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block mt-0.5">
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary", display: "block" }}>
+                    Director
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: "bold", color: "text.primary", fontSize: "0.9rem" }}>
                     {project.director}
-                  </span>
-                </div>
+                  </Typography>
+                </Box>
               )}
 
               {project.coDirector && (
-                <div>
-                  <span className="text-slate-500 font-semibold block">Co-Director</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 text-sm block mt-0.5">
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary", display: "block" }}>
+                    Co-Director
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: "bold", color: "text.primary", fontSize: "0.9rem" }}>
                     {project.coDirector}
-                  </span>
-                </div>
+                  </Typography>
+                </Box>
               )}
 
               {project.fundingAgency && (
-                <div>
-                  <span className="text-slate-500 font-semibold block">Funding Agency</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 block mt-0.5">
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary", display: "block" }}>
+                    Funding Agency
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: "bold", color: "text.primary" }}>
                     {project.fundingAgency}
-                  </span>
-                </div>
+                  </Typography>
+                </Box>
               )}
 
               {project.amount && (
-                <div>
-                  <span className="text-slate-500 font-semibold block">Funding Amount</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 block mt-0.5">
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary", display: "block" }}>
+                    Funding Amount
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: "bold", color: "text.primary" }}>
                     {project.amount}
-                  </span>
-                </div>
+                  </Typography>
+                </Box>
               )}
 
               {project.responsibleGroup && (
-                <div>
-                  <span className="text-slate-500 font-semibold block">Responsible Group</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 block mt-0.5">
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary", display: "block" }}>
+                    Responsible Group
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: "bold", color: "text.primary" }}>
                     {project.responsibleGroup}
-                  </span>
-                </div>
+                  </Typography>
+                </Box>
               )}
 
               {project.website && (
-                <div>
-                  <span className="text-slate-500 font-semibold block">Project Website</span>
-                  <a
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary", display: "block" }}>
+                    Project Website
+                  </Typography>
+                  <Button
+                    component="a"
                     href={project.website}
                     target="_blank"
                     rel="noreferrer"
-                    className="font-bold text-primary hover:underline block mt-0.5 truncate"
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    sx={{ mt: 0.5, borderRadius: 2, fontWeight: "bold", textTransform: "none" }}
                   >
                     Visit Website
-                  </a>
-                </div>
+                  </Button>
+                </Box>
               )}
-            </div>
-          </div>
+            </Box>
+          </Card>
 
           {/* Associated Members Box */}
-          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-            <h3 className="font-extrabold text-xs text-primary uppercase tracking-wider border-b border-border pb-3">
+          <Card sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2.5 }}>
+            <Typography variant="caption" sx={{ fontWeight: "extrabold", color: "primary.main", textTransform: "uppercase", letterSpacing: 1, borderBottom: "1px solid", borderColor: "divider", pb: 1 }}>
               Associated Members ({project.members.length})
-            </h3>
+            </Typography>
+
             {project.members.length === 0 ? (
-              <div className="text-xs text-muted italic font-medium py-2 text-center">
+              <Typography variant="body2" sx={{ fontStyle: "italic", color: "text.secondary", textAlign: "center", py: 1 }}>
                 No associated researchers.
-              </div>
+              </Typography>
             ) : (
-              <div className="space-y-3">
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 {project.members.map((member) => (
-                  <Link
+                  <Card
                     key={member.id}
+                    component={Link}
                     href={`/members/${member.slug}`}
-                    className="flex items-center gap-3 p-2.5 rounded-xl border border-border/80 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all block"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      p: 1.5,
+                      textDecoration: "none",
+                      color: "inherit",
+                      border: "1px solid",
+                      borderColor: "divider",
+                      borderRadius: 2.5,
+                      boxShadow: "none",
+                      "&:hover": {
+                        borderColor: "primary.main",
+                        bgcolor: "action.hover",
+                        boxShadow: "none",
+                        transform: "none",
+                      },
+                    }}
                   >
-                    {member.avatarUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={member.avatarUrl}
-                        alt={`${member.firstName} ${member.lastName}`}
-                        className="h-8 w-8 rounded-full object-cover border border-border bg-slate-100 shrink-0"
-                      />
-                    ) : (
-                      <div className="h-8 w-8 rounded-full bg-primary/10 text-primary border border-border flex items-center justify-center text-[10px] font-bold font-mono shrink-0">
-                        {member.firstName[0]}
-                        {member.lastName[0]}
-                      </div>
-                    )}
-                    <div className="min-w-0">
-                      <span className="font-bold text-xs text-slate-800 dark:text-slate-200 block truncate leading-tight">
+                    <Avatar
+                      src={member.avatarUrl || undefined}
+                      alt={`${member.firstName} ${member.lastName}`}
+                      sx={{
+                        width: 36,
+                        height: 36,
+                        bgcolor: "primary.light",
+                        color: "primary.main",
+                        fontWeight: "bold",
+                        border: "1px solid",
+                        borderColor: "divider",
+                      }}
+                    >
+                      {!member.avatarUrl && `${member.firstName[0]}${member.lastName[0]}`}
+                    </Avatar>
+                    <Box sx={{ overflow: "hidden" }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", fontSize: "0.8rem", color: "text.primary", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {member.firstName} {member.lastName}
-                      </span>
-                      <span className="text-[10px] text-muted block truncate mt-0.5">
-                        {member.positionAtLab || "Researcher"}
-                      </span>
-                    </div>
-                  </Link>
+                      </Typography>
+                      {member.positionAtLab && (
+                        <Typography variant="caption" color="text.secondary" sx={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "0.7rem" }}>
+                          {member.positionAtLab}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Card>
                 ))}
-              </div>
+              </Box>
             )}
-          </div>
+          </Card>
 
           {/* Tags cloud */}
           {project.tags.length > 0 && (
-            <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-              <h3 className="font-extrabold text-xs text-primary uppercase tracking-wider border-b border-border pb-2.5">
+            <Card sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
+              <Typography variant="caption" sx={{ fontWeight: "extrabold", color: "primary.main", textTransform: "uppercase", letterSpacing: 1, borderBottom: "1px solid", borderColor: "divider", pb: 1 }}>
                 Research Areas
-              </h3>
-              <div className="flex flex-wrap gap-2">
+              </Typography>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                 {project.tags.map((tag) => (
-                  <span
+                  <Chip
                     key={tag}
-                    className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-3 py-1 rounded-xl text-xs font-semibold"
-                  >
-                    #{tag}
-                  </span>
+                    label={`#${tag}`}
+                    size="small"
+                    sx={{
+                      fontSize: "0.625rem",
+                      height: 20,
+                      bgcolor: "action.hover",
+                      color: "text.secondary",
+                      fontWeight: 505,
+                    }}
+                  />
                 ))}
-              </div>
-            </div>
+              </Box>
+            </Card>
           )}
-        </div>
-      </main>
-    </div>
+        </Box>
+      </Container>
+      <Footer />
+    </Box>
   );
 }

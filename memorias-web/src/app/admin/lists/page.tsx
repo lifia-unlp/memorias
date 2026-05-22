@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import ListDashboardClient from "./ListDashboardClient";
 import { Logo } from "@/components/Logo";
+import { Box, Container, Typography, Button, Grid, Paper } from "@mui/material";
 
 export const metadata = {
   title: "Manage Configurable Lists | Admin Dashboard",
@@ -22,52 +23,86 @@ export default async function AdminListsPage() {
   });
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
+    <Box sx={{ display: "flex", flexDirection: "column", bgcolor: "background.default", minHeight: "100vh" }}>
       {/* Premium Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-surface/90 border-b border-border shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <Box
+        component="header"
+        sx={{
+          position: "sticky",
+          top: 0,
+          zIndex: 1100,
+          backdropFilter: "blur(8px)",
+          bgcolor: "background.paper",
+          opacity: 0.95,
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          boxShadow: "0 1px 3px 0 rgba(0,0,0,0.05)",
+        }}
+      >
+        <Container
+          maxWidth="lg"
+          sx={{
+            py: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <Logo />
 
-          <div className="flex items-center gap-4">
-            <Link
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Button
+              component={Link}
               href="/admin/users"
-              className="text-xs font-semibold px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-all border border-border/80 shadow-sm"
+              variant="outlined"
+              size="small"
+              sx={{ textTransform: "none", fontWeight: "bold", borderRadius: 3 }}
             >
               Manage Users
-            </Link>
-            <Link
+            </Button>
+            <Button
+              component={Link}
               href="/"
-              className="text-xs font-semibold px-4 py-2 bg-primary text-white hover:bg-primary-hover rounded-xl shadow-md shadow-primary/10 hover:shadow-primary/20 hover:-translate-y-0.5 transition-all"
+              variant="contained"
+              color="primary"
+              size="small"
+              sx={{ textTransform: "none", fontWeight: "bold", borderRadius: 3 }}
             >
               Portal Home
-            </Link>
-          </div>
-        </div>
-      </header>
+            </Button>
+          </Box>
+        </Container>
+      </Box>
 
       {/* Main Admin Content */}
-      <main className="flex-1 max-w-7xl mx-auto px-6 py-10 w-full grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Left Intro / Stats Panel */}
-        <section className="lg:col-span-1 space-y-6">
-          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-            <h1 className="text-2xl font-black text-primary leading-tight">Configurable Lists</h1>
-            <p className="text-xs text-muted leading-relaxed">
-              Define, configure, and maintain allowed metadata choices used in the database. Only Admins can edit options.
-            </p>
-            <div className="p-3 bg-secondary/5 rounded-xl border border-secondary/15 space-y-1">
-              <span className="text-[10px] uppercase font-bold text-secondary tracking-wider block">Usage Integrity Enabled</span>
-              <p className="text-[11px] text-slate-650 dark:text-slate-350 leading-normal">
-                If an option in use is deleted, the system forces a bulk reassignment or clear action to maintain data integrity.
-              </p>
-            </div>
-          </div>
-        </section>
+      <Container maxWidth="lg" sx={{ py: 6, flexGrow: 1 }}>
+        <Grid container spacing={4}>
+          {/* Left Intro Panel */}
+          <Grid size={{ xs: 12, md: 3.5 }}>
+            <Paper sx={{ p: 3, borderRadius: 4, border: "1px solid", borderColor: "divider", bgcolor: "background.paper" }} elevation={0}>
+              <Typography variant="h2" sx={{ fontSize: "1.5rem", fontWeight: 950, color: "primary.main", mb: 2 }}>
+                Configurable Lists
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                Define, configure, and maintain allowed metadata choices used in the database. Only Admins can edit options.
+              </Typography>
+              <Box sx={{ p: 2, bgcolor: "action.hover", borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: "secondary.main", letterSpacing: "0.5px", display: "block", mb: 0.5 }}>
+                  Usage Integrity Enabled
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
+                  If an option in use is deleted, the system forces a bulk reassignment or clear action to maintain data integrity.
+                </Typography>
+              </Box>
+            </Paper>
+          </Grid>
 
-        {/* Right Dynamic Config Panel */}
-        <section className="lg:col-span-3">
-          <ListDashboardClient initialOptions={allOptions} />
-        </section>
-      </main>
-    </div>
+          {/* Right Dynamic Config Panel */}
+          <Grid size={{ xs: 12, md: 8.5 }}>
+            <ListDashboardClient initialOptions={allOptions} />
+          </Grid>
+        </Grid>
+      </Container>
+    </Box>
   );
 }

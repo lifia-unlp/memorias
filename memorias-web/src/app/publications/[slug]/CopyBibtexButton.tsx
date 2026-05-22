@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { Button } from "@mui/material";
 
 export function CopyBibtexButton({ bibtex }: { bibtex: string }) {
   const [copied, setCopied] = useState(false);
@@ -16,15 +17,27 @@ export function CopyBibtexButton({ bibtex }: { bibtex: string }) {
   };
 
   return (
-    <button
+    <Button
       onClick={handleCopy}
-      className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-all cursor-pointer flex items-center gap-1.5 ${
-        copied
-          ? "bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-950/20 dark:border-emerald-900 dark:text-emerald-400"
-          : "bg-white hover:bg-slate-50 border-border text-slate-700 hover:text-slate-900 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200"
-      }`}
+      variant="outlined"
+      size="small"
+      color={copied ? "success" : "inherit"}
+      sx={{
+        fontSize: "0.675rem",
+        fontWeight: "bold",
+        height: 28,
+        borderRadius: 1.5,
+        textTransform: "none",
+        px: 1.5,
+        borderColor: copied ? "success.light" : "divider",
+        bgcolor: copied ? "rgba(46, 125, 50, 0.05)" : "transparent",
+        "&:hover": {
+          borderColor: copied ? "success.main" : "text.primary",
+          bgcolor: copied ? "rgba(46, 125, 50, 0.1)" : "action.hover",
+        },
+      }}
     >
-      {copied ? "✓ Copied!" : "📋 Copy BibTeX"}
-    </button>
+      {copied ? "Copied" : "Copy BibTeX"}
+    </Button>
   );
 }

@@ -1,188 +1,57 @@
-@import "tailwindcss";
+/* Box-sizing reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
+/* Base page reset */
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+/*
+ * Lab color tokens — kept for reference and for any remaining plain-CSS contexts
+ * (e.g., print media query, SVG colors, or legacy selectors not yet on MUI).
+ * The live theme is managed entirely by MUI ThemeContext (src/context/ThemeContext.tsx).
+ */
 :root {
   /* Lab Official Color Palette */
-  --primary: #093A54;        /* R: 9, G: 58, B: 84 (Navy/Teal) */
+  --primary: #093A54;
   --primary-hover: #072e43;
-  --secondary: #E56226;      /* R: 229, G: 98, B: 38 (Orange/Red) */
+  --secondary: #E56226;
   --secondary-hover: #cc521d;
-  
+
   /* Backgrounds & Text */
-  --background: #f8fafc;     /* Clean, light gray-blue slate-50 */
-  --foreground: #0f172a;     /* Slate-900 */
-  --surface: #ffffff;        /* Pure White for cards/containers */
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --surface: #ffffff;
   --surface-hover: #f1f5f9;
-  
-  --muted: #64748b;          /* Slate-500 */
-  --border: #e2e8f0;         /* Slate-200 */
-  
-  /* Material Shadows */
+
+  --muted: #64748b;
+  --border: #e2e8f0;
+
+  /* Shadows */
   --shadow-sm: 0 1px 3px rgba(9, 58, 84, 0.05), 0 1px 2px rgba(9, 58, 84, 0.1);
   --shadow-md: 0 4px 6px -1px rgba(9, 58, 84, 0.08), 0 2px 4px -1px rgba(9, 58, 84, 0.05);
   --shadow-lg: 0 10px 15px -3px rgba(9, 58, 84, 0.1), 0 4px 6px -2px rgba(9, 58, 84, 0.05);
-  
+
   /* Border Radius */
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 20px;
 }
 
-@theme inline {
-  --color-primary: var(--primary);
-  --color-primary-hover: var(--primary-hover);
-  --color-secondary: var(--secondary);
-  --color-secondary-hover: var(--secondary-hover);
-  
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-surface: var(--surface);
-  
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0b0f19;   /* Premium dark slate */
-    --foreground: #f8fafc;
-    --surface: #141c2f;      /* Darker surface card */
-    --surface-hover: #1e293b;
-    --border: #1e293b;
-    --muted: #94a3b8;
-    
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4), 0 2px 4px -1px rgba(0,0,0,0.2);
-    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5), 0 4px 6px -2px rgba(0,0,0,0.3);
-  }
-}
-
-/* Base styling */
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
-  min-height: 100vh;
-  margin: 0;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Material Layout Components */
-.material-card {
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  padding: 1.5rem;
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
-}
-
-.material-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: rgba(229, 98, 38, 0.3); /* Subtle accent color glow */
-}
-
-/* Premium Buttons */
-.btn-primary {
-  background-color: var(--primary);
-  color: #ffffff;
-  padding: 0.625rem 1.5rem;
-  border-radius: var(--radius-sm);
-  font-weight: 500;
-  font-size: 0.875rem;
-  letter-spacing: 0.025em;
-  transition: all 0.2s ease;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(9, 58, 84, 0.2);
-}
-
-.btn-primary:hover {
-  background-color: var(--primary-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(9, 58, 84, 0.3);
-}
-
-.btn-secondary {
-  background-color: var(--secondary);
-  color: #ffffff;
-  padding: 0.625rem 1.5rem;
-  border-radius: var(--radius-sm);
-  font-weight: 500;
-  font-size: 0.875rem;
-  letter-spacing: 0.025em;
-  transition: all 0.2s ease;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(229, 98, 38, 0.2);
-}
-
-.btn-secondary:hover {
-  background-color: var(--secondary-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(229, 98, 38, 0.3);
-}
-
-/* Inputs & Form Fields */
-.material-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 2px solid var(--border);
-  background-color: var(--surface);
-  border-radius: var(--radius-sm);
-  color: var(--foreground);
-  font-size: 0.925rem;
-  transition: all 0.2s ease;
-}
-
-.material-input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(9, 58, 84, 0.15);
-}
-
-/* Dynamic Interactive List Item */
-.interactive-item {
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  border-radius: var(--radius-sm);
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.interactive-item:hover {
-  background-color: var(--surface-hover);
-  border-color: var(--primary);
-  transform: translateX(4px);
-}
-
-/* Typography styles */
-.text-gradient-primary {
-  background: linear-gradient(135deg, var(--primary) 0%, #1e4f6e 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.text-gradient-accent {
-  background: linear-gradient(135deg, var(--secondary) 0%, #f97316 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
+/* Print Layout — preserved for ReportBuilderClient print functionality */
 @media print {
-  /* Hide every page element on the body */
   body * {
     visibility: hidden;
   }
-  /* Exclusively render the report document sheet canvas and its children */
   .print-content,
   .print-content * {
     visibility: visible;
   }
-  /* Position the print canvas at the absolute top-left of the page with clean full width */
   .print-content {
     position: absolute;
     left: 0;

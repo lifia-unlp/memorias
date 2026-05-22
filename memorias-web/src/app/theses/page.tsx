@@ -5,6 +5,17 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Pagination } from "@/components/Pagination";
+import { ThesisFilters } from "./ThesisFilters";
+import {
+  Container,
+  Box,
+  Typography,
+  Button,
+  Grid,
+  Card,
+  Chip,
+  LinearProgress,
+} from "@mui/material";
 
 type Params = Promise<{}>;
 type SearchParams = Promise<{ q?: string; level?: string; status?: string; limit?: string; page?: string }>;
@@ -91,223 +102,336 @@ export default async function ThesesPage(props: {
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
+    <Box sx={{ flex1: 1, display: "flex", flexDirection: "column", minHeight: "screen" }}>
       <Header activeTab="theses" />
 
-      {/* Title Banner */}
-      <section className="bg-gradient-to-br from-primary to-primary-hover text-white py-12 px-6 shadow-inner relative overflow-hidden border-b border-blue-700/20">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
-          </svg>
-        </div>
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-extrabold tracking-tight">Academic Theses</h1>
-            <p className="text-blue-100 max-w-xl text-sm leading-relaxed">
+      {/* Unified Institutional Banner */}
+      <Container maxWidth="lg" sx={{ py: 4, flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+        <Box
+          sx={{
+            background: (theme) =>
+              `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark || theme.palette.primary.main} 100%)`,
+            color: "common.white",
+            py: 6,
+            px: { xs: 3, md: 6 },
+            borderRadius: 4,
+            boxShadow: "inset 0 0 40px rgba(0,0,0,0.1)",
+            position: "relative",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: { xs: "flex-start", md: "center" },
+            justifyContent: "space-between",
+            gap: 3,
+          }}
+        >
+          {/* Wave background element */}
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              opacity: 0.08,
+              pointerEvents: "none",
+            }}
+          >
+            <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
+            </svg>
+          </Box>
+
+          <Box sx={{ zIndex: 1, maxWidth: 600 }}>
+            <Typography variant="h1" sx={{ color: "common.white", mb: 1, fontSize: { xs: "2rem", md: "2.5rem" } }}>
+              Academic Theses
+            </Typography>
+            <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.85)" }}>
               Explore doctoral, master, and graduation theses developed and directed within our research laboratory.
-            </p>
-          </div>
+            </Typography>
+          </Box>
+
           {isEditorOrAdmin && (
-            <Link
+            <Button
+              component={Link}
               href="/theses/new"
-              className="bg-white hover:bg-slate-100 text-primary font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all text-center flex items-center gap-2 whitespace-nowrap self-start sm:self-center"
+              variant="contained"
+              sx={{
+                bgcolor: "common.white",
+                color: "primary.main",
+                fontWeight: "bold",
+                borderRadius: 3,
+                boxShadow: 2,
+                px: 3,
+                py: 1.5,
+                zIndex: 1,
+                "&:hover": {
+                  bgcolor: "rgba(255, 255, 255, 0.9)",
+                  boxShadow: 3,
+                },
+              }}
             >
               Add Thesis
-            </Link>
+            </Button>
           )}
-        </div>
-      </section>
+        </Box>
 
-      {/* Main Search and Grid Section */}
-      <main className="max-w-7xl w-full mx-auto px-6 py-8 flex-1 space-y-6">
-        
-        {/* Advanced Filters Panel */}
-        <div className="bg-white dark:bg-slate-900 border border-border p-4 rounded-2xl shadow-sm">
-          <form method="GET" className="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
-            <div className="relative md:col-span-4">
-            <input
-                type="text"
-                name="q"
-                defaultValue={q}
-                placeholder="Search theses by title, student, advisor, career..."
-                className="w-full border border-border pl-10 pr-4 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs"
-              />
-            </div>
+        {/* Filters and Grid Section */}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <ThesisFilters levels={levels} />
 
-            <div className="md:col-span-2 flex items-center gap-2">
-              <select
-                name="level"
-                defaultValue={level}
-                className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs font-semibold"
-              >
-                <option value="">All Levels</option>
-                {levels.map((lvl) => (
-                  <option key={lvl} value={lvl}>
-                    {lvl}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {filteredTheses.length === 0 ? (
+            <Card
+              sx={{
+                textAlign: "center",
+                py: 8,
+                px: 3,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Typography variant="h3">No theses found</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Try adjusting your search criteria or clearing filter fields.
+              </Typography>
+            </Card>
+          ) : (
+            <Box>
+              <Grid container spacing={3}>
+                {paginatedTheses.map((ths) => {
+                  const startStr = ths.startDate
+                    ? new Date(ths.startDate).getFullYear()
+                    : "N/D";
+                  const endStr = ths.endDate
+                    ? new Date(ths.endDate).getFullYear()
+                    : ths.progress === 100
+                    ? "Completed"
+                    : "Ongoing";
 
-            <div className="md:col-span-2 flex items-center gap-2">
-              <select
-                name="status"
-                defaultValue={status}
-                className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs font-semibold"
-              >
-                <option value="">All Statuses</option>
-                <option value="ongoing">Ongoing</option>
-                <option value="completed">Completed</option>
-              </select>
-            </div>
-
-            <div className="md:col-span-2 flex items-center gap-2">
-              <select
-                name="limit"
-                defaultValue={limit.toString()}
-                className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs font-semibold"
-              >
-                <option value="10">10 per page</option>
-                <option value="20">20 per page</option>
-                <option value="30">30 per page</option>
-                <option value="100">100 per page</option>
-              </select>
-            </div>
-
-            <div className="md:col-span-2 flex items-center gap-3">
-              <button
-                type="submit"
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-3 rounded-xl transition-all cursor-pointer text-center"
-              >
-                Filter
-              </button>
-              {(q || level || status || limit !== 10) && (
-                <Link
-                  href="/theses"
-                  className="text-xs font-bold text-slate-500 hover:underline px-1 shrink-0"
-                >
-                  Clear
-                </Link>
-              )}
-            </div>
-          </form>
-        </div>
-
-        {/* Theses Grid */}
-        {filteredTheses.length === 0 ? (
-          <div className="text-center py-16 bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm space-y-3">
-            <h3 className="font-extrabold text-slate-800 dark:text-slate-200">No Theses Found</h3>
-            <p className="text-xs text-muted max-w-xs mx-auto">
-              We couldn&apos;t find any theses matching your search filters. Try broadening your keywords.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {paginatedTheses.map((ths) => {
-                const startStr = ths.startDate
-                  ? new Date(ths.startDate).getFullYear()
-                  : "N/D";
-                const endStr = ths.endDate
-                  ? new Date(ths.endDate).getFullYear()
-                  : ths.progress === 100
-                  ? "Completed"
-                  : "Ongoing";
-
-                return (
-                  <div
-                    key={ths.id}
-                    className="bg-white dark:bg-slate-900 border border-border rounded-2xl shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col p-6 space-y-4"
-                  >
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between gap-2 flex-wrap">
-                        {ths.level && (
-                          <span className="text-[9px] uppercase tracking-wider font-black text-primary bg-primary/5 border border-primary/10 px-2 py-0.5 rounded">
-                            {ths.level}
-                          </span>
-                        )}
-                        {ths.progress !== null && (
-                          <span className={`text-[9px] uppercase font-black px-2 py-0.5 rounded border ${
-                            ths.progress === 100
-                              ? "bg-green-50 text-green-600 border-green-200 dark:bg-green-950/20 dark:text-green-500 dark:border-green-950/40"
-                              : "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-950/20 dark:text-amber-500 dark:border-amber-950/40"
-                          }`}>
-                            {ths.progress === 100 ? "Completed" : `${ths.progress}% Progress`}
-                          </span>
-                        )}
-                      </div>
-                      <Link
+                  return (
+                    <Grid size={{ xs: 12, md: 6 }} key={ths.id}>
+                      <Card
+                        component={Link}
                         href={`/theses/${ths.slug}`}
-                        className="font-extrabold text-base text-slate-800 dark:text-slate-100 hover:text-primary transition-all block leading-snug hover:underline"
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          height: "100%",
+                          textDecoration: "none",
+                          color: "inherit",
+                          p: 3,
+                          position: "relative",
+                          overflow: "hidden",
+                          "&::before": {
+                            content: '""',
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "4px",
+                            background: (theme) =>
+                              `linear-gradient(90deg, ${theme.palette.secondary.main}, ${theme.palette.primary.main} 40%)`,
+                            transform: "scaleX(0)",
+                            transformOrigin: "left",
+                            transition: "transform 0.3s ease",
+                          },
+                          "&:hover::before": {
+                            transform: "scaleX(1)",
+                          },
+                        }}
                       >
-                        {ths.title}
-                      </Link>
-                    </div>
+                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, mb: 1.5 }}>
+                          {ths.level && (
+                            <Chip
+                              label={ths.level}
+                              size="small"
+                              sx={{
+                                fontSize: "0.625rem",
+                                fontWeight: "bold",
+                                bgcolor: "primary.light",
+                                color: "primary.main",
+                                textTransform: "uppercase",
+                                tracking: 1,
+                                height: 20,
+                              }}
+                            />
+                          )}
+                          {ths.progress !== null && (
+                            <Chip
+                              label={ths.progress === 100 ? "Completed" : `${ths.progress}% Progress`}
+                              size="small"
+                              sx={{
+                                fontSize: "0.625rem",
+                                fontWeight: "bold",
+                                bgcolor: ths.progress === 100 ? "success.light" : "warning.light",
+                                color: ths.progress === 100 ? "success.dark" : "warning.dark",
+                                height: 20,
+                              }}
+                            />
+                          )}
+                        </Box>
 
-                    {/* Details Block */}
-                    <div className="space-y-1.5 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-border/80 text-xs">
-                      <div className="flex items-center gap-1.5 text-slate-500 font-semibold mb-1">
-                        <span>Timeline:</span>
-                        <span>{startStr} – {endStr}</span>
-                      </div>
+                        <Typography
+                          variant="h3"
+                          sx={{
+                            fontSize: "1.15rem",
+                            fontWeight: "bold",
+                            lineHeight: 1.3,
+                            mb: 2,
+                            color: "text.primary",
+                            "&:hover": { color: "primary.main" },
+                            transition: "color 0.2s",
+                          }}
+                        >
+                          {ths.title}
+                        </Typography>
 
-                      {ths.student && (
-                        <div className="text-slate-700 dark:text-slate-300">
-                          <strong>Student:</strong> {ths.student}
-                        </div>
-                      )}
+                        {/* Details Grid */}
+                        <Box
+                          sx={{
+                            fontSize: "0.75rem",
+                            bgcolor: "action.hover",
+                            border: "1px solid",
+                            borderColor: "divider",
+                            borderRadius: 2.5,
+                            p: 2,
+                            mb: 2,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 1,
+                          }}
+                        >
+                          <Box sx={{ display: "flex", gap: 0.5 }}>
+                            <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                              Timeline:
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: "text.primary" }}>
+                              {startStr} – {endStr}
+                            </Typography>
+                          </Box>
 
-                      {(ths.director || ths.coDirector) && (
-                        <div className="space-y-0.5 pt-1.5 border-t border-border mt-1.5">
+                          {ths.student && (
+                            <Box sx={{ display: "flex", gap: 0.5 }}>
+                              <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                Student:
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                {ths.student}
+                              </Typography>
+                            </Box>
+                          )}
+
                           {ths.director && (
-                            <div className="text-slate-700 dark:text-slate-300">
-                              <strong>Director:</strong> {ths.director}
-                            </div>
+                            <Box sx={{ display: "flex", gap: 0.5 }}>
+                              <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                Director:
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                {ths.director}
+                              </Typography>
+                            </Box>
                           )}
+
                           {ths.coDirector && (
-                            <div className="text-slate-700 dark:text-slate-300">
-                              <strong>Co-Director:</strong> {ths.coDirector}
-                            </div>
+                            <Box sx={{ display: "flex", gap: 0.5 }}>
+                              <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                Co-Director:
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                {ths.coDirector}
+                              </Typography>
+                            </Box>
                           )}
-                        </div>
-                      )}
-                    </div>
+                        </Box>
 
-                    {/* Summary Snippet */}
-                    {ths.summary && (
-                      <p className="text-xs text-muted leading-relaxed line-clamp-3">
-                        {ths.summary}
-                      </p>
-                    )}
-
-                    {/* Tags */}
-                    {ths.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 pt-2">
-                        {ths.tags.slice(0, 4).map((tag) => (
-                          <span
-                            key={tag}
-                            className="bg-slate-100 dark:bg-slate-800 text-slate-650 dark:text-slate-400 px-2 py-0.5 rounded text-[10px] font-semibold"
+                        {ths.summary && (
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{
+                              display: "-webkit-box",
+                              WebkitLineClamp: 3,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              lineHeight: 1.5,
+                              mb: 2,
+                            }}
                           >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-            <Pagination
-              currentPage={page}
-              totalPages={totalPages}
-              currentSearchParams={{ q, level, status, limit }}
-              baseUrl="/theses"
-            />
-          </div>
-        )}
-      </main>
+                            {ths.summary}
+                          </Typography>
+                        )}
+
+                        {/* Progress bar preview if not completed */}
+                        {ths.progress !== null && ths.progress < 100 && (
+                          <Box sx={{ mt: "auto", mb: 2 }}>
+                            <LinearProgress
+                              variant="determinate"
+                              value={ths.progress}
+                              color="secondary"
+                              sx={{ height: 4, borderRadius: 1 }}
+                            />
+                          </Box>
+                        )}
+
+                        {/* Tags */}
+                        {ths.tags.length > 0 && (
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: 0.5,
+                              mt: ths.progress !== null && ths.progress < 100 ? 0 : "auto",
+                              pt: 2,
+                              borderTop: "1px solid",
+                              borderColor: "divider",
+                            }}
+                          >
+                            {ths.tags.slice(0, 4).map((tag, idx) => (
+                              <Chip
+                                key={idx}
+                                label={`#${tag}`}
+                                size="small"
+                                sx={{
+                                  fontSize: "0.625rem",
+                                  height: 20,
+                                  bgcolor: "action.selected",
+                                  fontWeight: 500,
+                                }}
+                              />
+                            ))}
+                            {ths.tags.length > 4 && (
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  fontSize: "0.625rem",
+                                  fontWeight: "bold",
+                                  color: "text.secondary",
+                                  alignSelf: "center",
+                                  ml: 0.5,
+                                }}
+                              >
+                                +{ths.tags.length - 4} more
+                              </Typography>
+                            )}
+                          </Box>
+                        )}
+                      </Card>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                currentSearchParams={{ q, level, status, limit }}
+                baseUrl="/theses"
+              />
+            </Box>
+          )}
+        </Box>
+      </Container>
       <Footer />
-    </div>
+    </Box>
   );
 }

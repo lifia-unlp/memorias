@@ -6,8 +6,20 @@ import { auth } from "@/auth";
 import { CvTabs } from "./CvTabs";
 import { DeleteMemberButton } from "./DeleteMemberButton";
 import { Header } from "@/components/Header";
-import { jsonToBibtex } from "@/lib/bibtex";
-import { formatCitation } from "@/lib/citations";
+import { Footer } from "@/components/Footer";
+import { RelatedProjects } from "@/components/reusable/RelatedProjects";
+import { RelatedTheses } from "@/components/reusable/RelatedTheses";
+import { RelatedPublications } from "@/components/reusable/RelatedPublications";
+import {
+  Container,
+  Box,
+  Typography,
+  Card,
+  Avatar,
+  Chip,
+  Button,
+  Grid,
+} from "@mui/material";
 
 type Params = Promise<{ slug: string }>;
 
@@ -41,13 +53,6 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
     orderBy: { startDate: "desc" },
   });
 
-  // Helper to determine role in project
-  const getProjectRole = (p: any) => {
-    if (p.director === member.id) return "Director";
-    if (p.coDirector === member.id) return "Co-Director";
-    return "Member";
-  };
-
   // 3. Fetch Theses involving this member
   const theses = await prisma.thesis.findMany({
     where: {
@@ -60,13 +65,6 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
     },
     orderBy: { startDate: "desc" },
   });
-
-  const getThesisRole = (t: any) => {
-    if (t.student === member.id) return "Student";
-    if (t.director === member.id) return "Director";
-    if (t.coDirector === member.id) return "Co-Director";
-    return "Member";
-  };
 
   // 4. Fetch Scholarships
   const scholarships = await prisma.scholarship.findMany({
@@ -89,149 +87,251 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
     orderBy: { year: "desc" },
   });
 
-
-
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {/* Unified Navigation Header */}
       <Header activeTab="members" />
 
       {/* Main Layout Container */}
-      <main className="max-w-7xl w-full mx-auto px-6 py-10 flex-1 flex flex-col lg:flex-row gap-8">
-        
+      <Container
+        maxWidth="lg"
+        sx={{
+          py: 4,
+          flex: 1,
+          display: "flex",
+          flexDirection: { xs: "column", lg: "row" },
+          gap: 4,
+        }}
+      >
         {/* Left Column: Profile Card & Contacts */}
-        <section className="w-full lg:w-80 shrink-0 space-y-6">
-          <div className="bg-white dark:bg-slate-900 border border-border rounded-2xl p-6 shadow-sm space-y-6 relative overflow-hidden">
-            {/* Design bar */}
-            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary to-secondary" />
+        <Box sx={{ width: { xs: "100%", lg: 320 }, flexShrink: 0, display: "flex", flexDirection: "column", gap: 3 }}>
+          <Card
+            sx={{
+              p: 3,
+              position: "relative",
+              overflow: "hidden",
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "6px",
+                background: (theme) =>
+                  `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+              },
+            }}
+          >
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, pt: 1, mb: 3 }}>
+              <Avatar
+                src={member.avatarUrl || undefined}
+                alt={`${member.firstName} ${member.lastName}`}
+                sx={{
+                  width: 112,
+                  height: 112,
+                  bgcolor: "primary.light",
+                  color: "primary.main",
+                  fontSize: "2.5rem",
+                  fontWeight: "bold",
+                  border: "2px solid",
+                  borderColor: "primary.light",
+                  boxShadow: 1,
+                }}
+              >
+                {!member.avatarUrl && `${member.firstName[0]}${member.lastName[0]}`}
+              </Avatar>
 
-            <div className="text-center space-y-4 pt-2">
-              {member.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={member.avatarUrl}
-                  alt={`${member.firstName} avatar`}
-                  className="w-28 h-28 rounded-full border-2 border-primary/20 object-cover object-top mx-auto shadow-md"
-                />
-              ) : (
-                <div className="w-28 h-28 flex items-center justify-center bg-primary/10 text-primary border border-primary/10 rounded-full text-3xl font-black mx-auto shadow-sm">
-                  {member.firstName[0]}{member.lastName[0]}
-                </div>
-              )}
-
-              <div>
-                <h1 className="text-xl font-black text-foreground tracking-tight leading-tight">
+              <Box sx={{ textAlign: "center" }}>
+                <Typography variant="h2" sx={{ fontSize: "1.35rem", fontWeight: "bold", mb: 0.5 }}>
                   {member.firstName} {member.lastName}
-                </h1>
+                </Typography>
                 {member.positionAtLab && (
-                  <span className="text-xs font-bold text-secondary uppercase tracking-widest block mt-1">
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontWeight: "bold",
+                      color: "secondary.main",
+                      textTransform: "uppercase",
+                      letterSpacing: 1.2,
+                      display: "block",
+                    }}
+                  >
                     {member.positionAtLab}
-                  </span>
+                  </Typography>
                 )}
-              </div>
-            </div>
+              </Box>
+            </Box>
 
             {/* Scientific Credentials */}
-            <div className="space-y-3 pt-4 border-t border-border/60 text-xs">
-              <span className="text-[10px] font-extrabold text-muted uppercase tracking-wider block">
+            <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 2, mb: 2, display: "flex", flexDirection: "column", gap: 2 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontWeight: "extrabold",
+                  color: "text.secondary",
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                }}
+              >
                 Scientific Accreditations
-              </span>
+              </Typography>
+
               {member.highestDegree && (
-                <div className="flex items-start gap-2">
-                  <div>
-                    <span className="font-semibold block text-foreground leading-none">Degree</span>
-                    <span className="text-muted text-[10px] mt-0.5 block">{member.highestDegree}</span>
-                  </div>
-                </div>
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", display: "block" }}>
+                    Degree
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {member.highestDegree}
+                  </Typography>
+                </Box>
               )}
+
               {member.positionAtCONICET && (
-                <div className="flex items-start gap-2">
-                  <div>
-                    <span className="font-semibold block text-foreground leading-none">CONICET</span>
-                    <span className="text-muted text-[10px] mt-0.5 block">{member.positionAtCONICET}</span>
-                  </div>
-                </div>
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", display: "block" }}>
+                    CONICET
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {member.positionAtCONICET}
+                  </Typography>
+                </Box>
               )}
+
               {member.positionAtCIC && (
-                <div className="flex items-start gap-2">
-                  <div>
-                    <span className="font-semibold block text-foreground leading-none">CIC Position</span>
-                    <span className="text-muted text-[10px] mt-0.5 block">{member.positionAtCIC}</span>
-                  </div>
-                </div>
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", display: "block" }}>
+                    CIC Position
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {member.positionAtCIC}
+                  </Typography>
+                </Box>
               )}
-            </div>
+            </Box>
 
             {/* Communication Details */}
-            <div className="space-y-3 pt-4 border-t border-border/60 text-xs">
-              <span className="text-[10px] font-extrabold text-muted uppercase tracking-wider block">
-                Contact & Profiles
-              </span>
+            <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 2, mb: 2, display: "flex", flexDirection: "column", gap: 1.5 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontWeight: "extrabold",
+                  color: "text.secondary",
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                }}
+              >
+                Contact and Profiles
+              </Typography>
+
               {member.institutionalEmail && (
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-slate-500">Email:</span>
-                  <a href={`mailto:${member.institutionalEmail}`} className="text-primary hover:underline truncate">
+                <Box sx={{ display: "flex", gap: 0.5, flexWrap: "nowrap", overflow: "hidden" }}>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                    Email:
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    component="a"
+                    href={`mailto:${member.institutionalEmail}`}
+                    sx={{ color: "primary.main", textDecoration: "none", "&:hover": { textDecoration: "underline" }, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                  >
                     {member.institutionalEmail}
-                  </a>
-                </div>
+                  </Typography>
+                </Box>
               )}
+
               {member.personalEmail && (
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-slate-500">Personal:</span>
-                  <a href={`mailto:${member.personalEmail}`} className="text-primary hover:underline truncate">
+                <Box sx={{ display: "flex", gap: 0.5, flexWrap: "nowrap", overflow: "hidden" }}>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                    Personal:
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    component="a"
+                    href={`mailto:${member.personalEmail}`}
+                    sx={{ color: "primary.main", textDecoration: "none", "&:hover": { textDecoration: "underline" }, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                  >
                     {member.personalEmail}
-                  </a>
-                </div>
+                  </Typography>
+                </Box>
               )}
+
               {member.webPage && (
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-slate-500">Website:</span>
-                  <a href={member.webPage} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate">
+                <Box sx={{ display: "flex", gap: 0.5 }}>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                    Website:
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    component="a"
+                    href={member.webPage}
+                    target="_blank"
+                    rel="noreferrer"
+                    sx={{ color: "primary.main", textDecoration: "none", "&:hover": { textDecoration: "underline" } }}
+                  >
                     Personal Web Page
-                  </a>
-                </div>
+                  </Typography>
+                </Box>
               )}
+
               {member.orcid && (
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-slate-500">ORCID:</span>
-                  <a href={`https://orcid.org/${member.orcid}`} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate font-semibold">
+                <Box sx={{ display: "flex", gap: 0.5 }}>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                    ORCID:
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    component="a"
+                    href={`https://orcid.org/${member.orcid}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    sx={{ color: "primary.main", textDecoration: "none", fontWeight: "bold", "&:hover": { textDecoration: "underline" } }}
+                  >
                     {member.orcid}
-                  </a>
-                </div>
+                  </Typography>
+                </Box>
               )}
-            </div>
+            </Box>
 
             {/* Tags */}
             {member.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 pt-4 border-t border-border/60">
+              <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 2, mb: 3, display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                 {member.tags.map((tag, idx) => (
-                  <span
+                  <Chip
                     key={idx}
-                    className="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold px-2 py-0.5 rounded"
-                  >
-                    #{tag}
-                  </span>
+                    label={`#${tag}`}
+                    size="small"
+                    sx={{
+                      fontSize: "0.625rem",
+                      height: 20,
+                      bgcolor: "action.hover",
+                      fontWeight: 500,
+                    }}
+                  />
                 ))}
-              </div>
+              </Box>
             )}
 
             {/* Actions Panel */}
             {isEditorOrAdmin && (
-              <div className="flex flex-col gap-2 pt-5 border-t border-border/60">
-                <Link
+              <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 2, display: "flex", flexDirection: "column", gap: 1 }}>
+                <Button
+                  component={Link}
                   href={`/members/${member.slug}/edit`}
-                  className="bg-primary hover:bg-primary-hover text-white text-center py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow"
+                  variant="contained"
+                  fullWidth
+                  sx={{ borderRadius: 3, fontWeight: "bold" }}
                 >
                   Edit Profile
-                </Link>
+                </Button>
                 <DeleteMemberButton memberId={member.id} memberName={`${member.firstName} ${member.lastName}`} />
-              </div>
+              </Box>
             )}
-          </div>
-        </section>
+          </Card>
+        </Box>
 
         {/* Right Column: CV Tabs & Related Database Lists */}
-        <section className="flex-1 space-y-8">
+        <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
           {/* 1. Spanish/English Controlled Tabs */}
           <CvTabs
             cvEs={member.shortCvInSpanish}
@@ -241,208 +341,94 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
           />
 
           {/* 2. Associated Projects */}
-          {projects.length > 0 && (
-            <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-              <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3 flex items-center gap-2">
-                Associated Projects
-              </h3>
-              <div className="divide-y divide-border/60">
-                {projects.map((p) => {
-                  const role = getProjectRole(p);
-                  const dirName = p.director;
-                  const coDirName = p.coDirector;
-                  return (
-                    <div key={p.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
-                      <div>
-                        <Link href={`/projects/${p.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors block">
-                          {p.title}
-                        </Link>
-                        <span className="text-[10px] text-muted block mt-0.5 leading-relaxed">
-                          {p.startDate ? new Date(p.startDate).getFullYear() : "N/A"} — {p.endDate ? new Date(p.endDate).getFullYear() : "Present"}
-                          {(dirName || coDirName) && (
-                            <span className="block mt-1 font-medium text-slate-500">
-                              {dirName && `Director: ${dirName}`}
-                              {dirName && coDirName && " | "}
-                              {coDirName && `Co-Director: ${coDirName}`}
-                            </span>
-                          )}
-                        </span>
-                      </div>
-                      {(role === "Director" || role === "Co-Director") && (
-                        <span className="text-[10px] uppercase font-black px-2.5 py-1 bg-secondary/15 text-secondary border border-secondary/20 rounded-lg shrink-0">
-                          {role}
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          {projects.length > 0 && <RelatedProjects projects={projects} />}
 
           {/* 3. Associated Theses */}
-          {theses.length > 0 && (
-            <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-              <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3 flex items-center gap-2">
-                Associated Theses
-              </h3>
-              <div className="divide-y divide-border/60">
-                {theses.map((t) => {
-                  const tRole = getThesisRole(t);
-                  const tDirName = t.director;
-                  const tCoDirName = t.coDirector;
-                  return (
-                    <div key={t.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
-                      <div>
-                        <Link href={`/theses/${t.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors block">
-                          {t.title}
-                        </Link>
-                        <span className="text-[10px] text-muted block mt-0.5 leading-relaxed">
-                          Student: {t.student || "N/A"}
-                          <span className="block mt-1">
-                            {t.startDate ? new Date(t.startDate).getFullYear() : "N/A"} — {t.endDate ? new Date(t.endDate).getFullYear() : "Present"}
-                            {t.level && (
-                              <span className="ml-2 bg-slate-100 dark:bg-slate-800 text-slate-650 dark:text-slate-300 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
-                                {t.level}
-                              </span>
-                            )}
-                          </span>
-                          {(tDirName || tCoDirName) && (
-                            <span className="block mt-1 font-medium text-slate-500">
-                              {tDirName && `Director: ${tDirName}`}
-                              {tDirName && tCoDirName && " | "}
-                              {tCoDirName && `Co-Director: ${tCoDirName}`}
-                            </span>
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3 shrink-0">
-                        {/* Progress bar indication */}
-                        {t.progress !== undefined && (
-                          <div className="hidden sm:flex items-center gap-2">
-                            <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden border border-border">
-                              <div className="bg-secondary h-full" style={{ width: `${t.progress}%` }}></div>
-                            </div>
-                            <span className="text-[10px] font-bold">{t.progress}%</span>
-                          </div>
-                        )}
-                        {(tRole === "Director" || tRole === "Co-Director") && (
-                          <span className="text-[10px] uppercase font-black px-2.5 py-1 bg-primary/10 text-primary border border-primary/20 rounded-lg">
-                            {tRole}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          {theses.length > 0 && <RelatedTheses theses={theses} />}
 
           {/* 4. Associated Scholarships */}
           {scholarships.length > 0 && (
-            <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-              <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3 flex items-center gap-2">
+            <Box sx={{ width: "100%" }}>
+              <Typography
+                variant="h3"
+                sx={{
+                  mb: 2.5,
+                  fontSize: "1.15rem",
+                  fontWeight: 700,
+                  borderBottom: "1px solid",
+                  borderColor: "divider",
+                  pb: 1,
+                }}
+              >
                 Associated Scholarships
-              </h3>
-              <div className="divide-y divide-border/60">
-                {scholarships.map((s) => {
-                  const sDirName = s.director;
-                  const sCoDirName = s.coDirector;
-                  return (
-                    <div key={s.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
-                      <div>
-                        <Link href={`/scholarships/${s.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors block">
-                          {s.title}
-                        </Link>
-                        <span className="text-[10px] text-muted block mt-0.5 leading-relaxed">
-                          Funding Agency: {s.fundingAgency || "N/A"}
-                          <span className="block mt-1">
-                            {s.startDate ? new Date(s.startDate).getFullYear() : "N/A"} — {s.endDate ? new Date(s.endDate).getFullYear() : "Present"}
-                            {s.type && (
-                              <span className="ml-2 bg-slate-100 dark:bg-slate-800 text-slate-650 dark:text-slate-300 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">
-                                {s.type}
-                              </span>
-                            )}
-                          </span>
-                          {s.student && (
-                            <span className="block mt-1 font-medium text-slate-500">
-                              Student: {s.student}
-                            </span>
+              </Typography>
+              <Grid container spacing={2}>
+                {scholarships.map((s) => (
+                  <Grid size={{ xs: 12, sm: 6 }} key={s.id}>
+                    <Card
+                      sx={{
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        textDecoration: "none",
+                      }}
+                      component={Link}
+                      href={`/scholarships/${s.slug}`}
+                    >
+                      <Box sx={{ p: 2.5, display: "flex", flexDirection: "column", gap: 1 }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 1.5 }}>
+                          <Typography
+                            variant="subtitle2"
+                            sx={{
+                              fontWeight: 800,
+                              fontSize: "0.875rem",
+                              color: "text.primary",
+                              lineHeight: 1.4,
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                            }}
+                          >
+                            {s.title}
+                          </Typography>
+                          {s.type && (
+                            <Chip
+                              label={s.type}
+                              size="small"
+                              color="secondary"
+                              variant="outlined"
+                              sx={{
+                                fontWeight: "bold",
+                                fontSize: "0.625rem",
+                                height: 20,
+                                borderRadius: 1,
+                              }}
+                            />
                           )}
-                          {(sDirName || sCoDirName) && (
-                            <span className="block mt-1 font-medium text-slate-500">
-                              {sDirName && `Director: ${sDirName}`}
-                              {sDirName && sCoDirName && " | "}
-                              {sCoDirName && `Co-Director: ${sCoDirName}`}
-                            </span>
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+                        </Box>
+                        {s.fundingAgency && (
+                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
+                            Funding Agency: {s.fundingAgency}
+                          </Typography>
+                        )}
+                        <Typography variant="caption" sx={{ color: "text.disabled", fontWeight: 600, mt: "auto" }}>
+                          Timeline: {s.startDate ? new Date(s.startDate).getFullYear() : "N/A"} -{" "}
+                          {s.endDate ? new Date(s.endDate).getFullYear() : "Present"}
+                        </Typography>
+                      </Box>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
           )}
 
           {/* 5. Associated Publications */}
-          {publications.length > 0 && (
-            <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-              <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3 flex items-center gap-2">
-                Bibliography / Publications
-              </h3>
-              <div className="divide-y divide-border/60">
-                {publications.map((pb) => {
-                  const hasBibtex = pb.bibtexData && typeof pb.bibtexData === "object" && Object.keys(pb.bibtexData).length > 0;
-                  const bibString = jsonToBibtex(pb);
-                  const bibDownloadUrl = bibString ? `data:text/plain;charset=utf-8,${encodeURIComponent(bibString)}` : "";
-                  const citation = formatCitation(pb, "apa");
-                  return (
-                    <div key={pb.id} className="py-3.5 first:pt-0 last:pb-0 space-y-2">
-                      <Link href={`/publications/${pb.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors block leading-tight">
-                        {pb.title}
-                      </Link>
-                      <div
-                        className="text-xs text-slate-650 dark:text-slate-350 leading-relaxed bg-slate-50/50 dark:bg-slate-800/20 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80"
-                        dangerouslySetInnerHTML={{ __html: citation.html }}
-                      />
-                      
-                      <div className="flex items-center gap-4 text-xs font-semibold">
-                        <Link
-                          href={`/publications/${pb.slug}`}
-                          className="text-secondary hover:text-secondary-hover flex items-center gap-1 transition-all"
-                        >
-                          Details
-                        </Link>
-                        {hasBibtex && bibDownloadUrl && (
-                          <a
-                            href={bibDownloadUrl}
-                            download={`${pb.slug}.bib`}
-                            className="text-primary hover:text-primary-hover flex items-center gap-1 cursor-pointer"
-                          >
-                            Download BibTeX
-                          </a>
-                        )}
-                        {pb.selfArchivingUrl && (
-                          <a
-                            href={pb.selfArchivingUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-secondary hover:text-secondary-hover flex items-center gap-1 cursor-pointer"
-                          >
-                            Self-Archived PDF
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </section>
-      </main>
-    </div>
+          {publications.length > 0 && <RelatedPublications publications={publications} />}
+        </Box>
+      </Container>
+      <Footer />
+    </Box>
   );
 }

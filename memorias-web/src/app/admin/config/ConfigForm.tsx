@@ -2,6 +2,17 @@
 
 import React, { useState, useTransition } from "react";
 import { saveSystemSettings } from "./actions";
+import {
+  Box,
+  Typography,
+  Grid,
+  Paper,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  Button,
+  Alert,
+} from "@mui/material";
 
 interface ConfigFormProps {
   initialTitle: string;
@@ -27,7 +38,6 @@ export function ConfigForm({
   const [labName, setLabName] = useState(initialLabName);
   const [labUrl, setLabUrl] = useState(initialLabUrl);
   const [requireUserActivation, setRequireUserActivation] = useState(initialRequireUserActivation);
-
 
   const [notification, setNotification] = useState<{
     type: "success" | "error";
@@ -57,186 +67,185 @@ export function ConfigForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto pb-16">
+    <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 4, pb: 8 }}>
       {notification && (
-        <div
-          className={`px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-top-2 ${
-            notification.type === "success"
-              ? "bg-green-50 border border-green-200 text-green-700 dark:bg-green-950/20 dark:text-green-400 dark:border-green-900/50"
-              : "bg-red-50 border border-red-200 text-red-700 dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/50"
-          }`}
-        >
-          <span>{notification.type === "success" ? "✓" : "🚫"}</span>
-          <span>{notification.message}</span>
-        </div>
+        <Alert severity={notification.type} icon={false} sx={{ borderRadius: 3, fontWeight: "bold" }}>
+          {notification.message}
+        </Alert>
       )}
-
       {/* 1. Logo & Portal Branding Card */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <div className="border-b border-border pb-4 flex items-center justify-between">
-          <div>
-            <h3 className="font-extrabold text-lg text-primary">Portal Branding & Identity</h3>
-            <p className="text-[10px] text-muted">Configure the logo appearing in the navigation header.</p>
-          </div>
-        </div>
+      <Paper sx={{ p: 4, borderRadius: 4, border: "1px solid", borderColor: "divider" }} elevation={0}>
+        <Box sx={{ borderBottom: "1px solid", borderColor: "divider", pb: 2, mb: 3 }}>
+          <Typography variant="h3" sx={{ fontSize: "1.15rem", fontWeight: 800, color: "primary.main", mb: 0.5 }}>
+            Portal Branding & Identity
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Configure the logo appearing in the navigation header.
+          </Typography>
+        </Box>
 
-        <div className="flex flex-col md:flex-row gap-6 items-start">
-          {/* Logo Live Preview */}
-          <div className="flex flex-col gap-2 shrink-0">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Live Logo Preview</span>
-            <div className="flex items-center">
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", textTransform: "uppercase", tracking: "0.5px", mb: 1, display: "block" }}>
+              Live Logo Preview
+            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", height: 50 }}>
               {logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
+                (<Box
+                  component="img"
                   src={logoUrl}
                   alt="Live Logo Preview"
-                  className="h-10 w-auto object-contain"
-                  onError={(e) => {
-                    // Fallback to text if URL is broken
-                    (e.target as HTMLElement).style.display = "none";
+                  sx={{ height: 40, width: "auto", objectFit: "contain" }}
+                  onError={(e: any) => {
+                    e.target.style.display = "none";
                   }}
-                />
+                />)
               ) : (
-                <span className="text-sm font-semibold text-slate-400 italic">(your logo here)</span>
+                <Typography variant="body2" sx={{ fontStyle: "italic", color: "text.disabled", fontWeight: 600 }}>
+                  (your logo here)
+                </Typography>
               )}
-            </div>
-          </div>
+            </Box>
+          </Grid>
 
-          {/* Logo URL Input */}
-          <div className="flex-1 space-y-2 w-full">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+          <Grid size={{ xs: 12, md: 9 }}>
+            <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", mb: 0.5, display: "block" }}>
               Logo Image URL
-            </label>
-            <input
-              type="text"
+            </Typography>
+            <TextField
+              fullWidth
               name="logoUrl"
               value={logoUrl}
               onChange={(e) => setLogoUrl(e.target.value)}
               placeholder="e.g. /my-lab-logo.png or https://example.com/logo.svg"
-              className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm font-semibold"
+              size="small"
             />
-            <p className="text-[10px] text-muted leading-relaxed">
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1 }}>
               Provide an absolute path relative to the public folder (e.g. `/images/logo.svg`) or an external URL. Leave blank to display the default text legend.
-            </p>
-          </div>
-        </div>
+            </Typography>
+          </Grid>
 
-        {/* Lab Settings Fields */}
-        <div className="border-t border-border pt-6 grid grid-cols-1 md:grid-cols-2 gap-6 w-full animate-fadeIn">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", mb: 0.5, display: "block" }}>
               Laboratory Name *
-            </label>
-            <input
-              type="text"
+            </Typography>
+            <TextField
+              fullWidth
               name="labName"
               required
               value={labName}
               onChange={(e) => setLabName(e.target.value)}
               placeholder="e.g. LIFIA"
-              className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm font-semibold"
+              size="small"
             />
-            <p className="text-[10px] text-muted leading-relaxed">
-              The display name of the laboratory, used in dynamic footers across the site.
-            </p>
-          </div>
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1 }}>
+              The display name of the laboratory, used in footers across the site.
+            </Typography>
+          </Grid>
 
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", mb: 0.5, display: "block" }}>
               Laboratory Official URL *
-            </label>
-            <input
-              type="url"
+            </Typography>
+            <TextField
+              fullWidth
               name="labUrl"
+              type="url"
               required
               value={labUrl}
               onChange={(e) => setLabUrl(e.target.value)}
               placeholder="e.g. https://lifia.info.unlp.edu.ar"
-              className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm font-semibold"
+              size="small"
             />
-            <p className="text-[10px] text-muted leading-relaxed">
-              The official homepage link for the laboratory, referenced in the portal copyright footer.
-            </p>
-          </div>
-        </div>
-      </div>
-
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1 }}>
+              The official homepage link for the laboratory, referenced in copyright footers.
+            </Typography>
+          </Grid>
+        </Grid>
+      </Paper>
       {/* 2. Welcome & Introduction Card */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Landing Page Welcome Area
-        </h3>
+      <Paper sx={{ p: 4, borderRadius: 4, border: "1px solid", borderColor: "divider" }} elevation={0}>
+        <Box sx={{ borderBottom: "1px solid", borderColor: "divider", pb: 2, mb: 3 }}>
+          <Typography variant="h3" sx={{ fontSize: "1.15rem", fontWeight: 800, color: "primary.main", mb: 0.5 }}>
+            Landing Page Welcome Area
+          </Typography>
+        </Box>
 
-        <div className="space-y-5">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12 }}>
+            <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", mb: 0.5, display: "block" }}>
               Welcome Title *
-            </label>
-            <input
-              type="text"
+            </Typography>
+            <TextField
+              fullWidth
               name="welcomeTitle"
               required
               value={welcomeTitle}
               onChange={(e) => setWelcomeTitle(e.target.value)}
               placeholder="Welcome to Memorias"
-              className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm font-bold"
+              size="small"
             />
-          </div>
+          </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+          <Grid size={{ xs: 12 }}>
+            <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", mb: 0.5, display: "block" }}>
               Welcome Subtitle & Description *
-            </label>
-            <textarea
+            </Typography>
+            <TextField
+              fullWidth
               name="welcomeSubtitle"
               required
+              multiline
+              rows={4}
               value={welcomeSubtitle}
               onChange={(e) => setWelcomeSubtitle(e.target.value)}
               placeholder="Provide a detailed introductory bio for the laboratory dashboard..."
-              className="w-full border border-border px-3 py-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm h-36 leading-relaxed"
+              size="small"
             />
-          </div>
-        </div>
-      </div>
-
+          </Grid>
+        </Grid>
+      </Paper>
       {/* 3. User Management & Security Card */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          User Management & Security
-        </h3>
+      <Paper sx={{ p: 4, borderRadius: 4, border: "1px solid", borderColor: "divider" }} elevation={0}>
+        <Box sx={{ borderBottom: "1px solid", borderColor: "divider", pb: 2, mb: 3 }}>
+          <Typography variant="h3" sx={{ fontSize: "1.15rem", fontWeight: 800, color: "primary.main", mb: 0.5 }}>
+            User Management & Security
+          </Typography>
+        </Box>
 
-        <div className="space-y-5">
-          <div className="flex items-start gap-3">
-            <input
-              type="checkbox"
-              id="requireUserActivation"
-              name="requireUserActivation"
-              checked={requireUserActivation}
-              onChange={(e) => setRequireUserActivation(e.target.checked)}
-              className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
-            />
-            <div className="space-y-1">
-              <label htmlFor="requireUserActivation" className="text-xs font-bold text-slate-700 dark:text-slate-300 block cursor-pointer">
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="requireUserActivation"
+                checked={requireUserActivation}
+                onChange={(e) => setRequireUserActivation(e.target.checked)}
+              />
+            }
+            label={
+              <Typography variant="body2" sx={{ fontWeight: "bold", color: "text.primary" }}>
                 Require Administrator Activation for New Users
-              </label>
-              <p className="text-[10px] text-muted leading-relaxed">
-                When enabled, newly registered users are put in a pending state and must be manually activated by an administrator before they can access core repository features. When disabled (default), new accounts are instantly activated with standard USER privileges.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
+              </Typography>
+            }
+          />
+          <Typography variant="caption" color="text.secondary" sx={{ pl: 4 }}>
+            When enabled, newly registered users are put in a pending state and must be manually activated by an administrator before they can access core repository features. When disabled (default), new accounts are instantly activated with standard USER privileges.
+          </Typography>
+        </Box>
+      </Paper>
       {/* Form Action Controls */}
-      <div className="flex items-center justify-end gap-4">
-        <button
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
+        <Button
           type="submit"
+          variant="contained"
+          color="primary"
           disabled={isPending}
-          className="bg-primary hover:bg-primary-hover text-white px-8 py-3.5 rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+          sx={{ minWidth: 200, py: 1.5, borderRadius: 3, fontWeight: "bold", textTransform: "none" }}
         >
           {isPending ? "Saving Settings..." : "Save Configuration"}
-        </button>
-      </div>
-    </form>
+        </Button>
+      </Box>
+    </Box>
   );
 }

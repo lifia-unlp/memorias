@@ -2,6 +2,7 @@ import React from "react";
 import fs from "fs";
 import path from "path";
 import Link from "next/link";
+import { Box, Container, Typography, Divider } from "@mui/material";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
@@ -80,12 +81,13 @@ function parseInline(text: string): React.ReactNode[] {
 
     if (minIdx === boldIdx && boldMatch) {
       parts.push(
-        <strong
+        <Box
+          component="strong"
           key={keyIdx++}
-          className="font-extrabold text-slate-900 dark:text-white"
+          sx={{ fontWeight: 900, color: "text.primary" }}
         >
           {boldMatch[1]}
-        </strong>
+        </Box>
       );
       currentText = currentText.substring(boldIdx + boldMatch[0].length);
     } else if (minIdx === linkIdx && linkMatch) {
@@ -96,7 +98,7 @@ function parseInline(text: string): React.ReactNode[] {
           <Link
             key={keyIdx++}
             href={href}
-            className="text-primary dark:text-amber-500 font-bold hover:underline transition-colors"
+            style={{ color: "inherit", fontWeight: "bold" }}
           >
             {linkMatch[1]}
           </Link>
@@ -106,7 +108,7 @@ function parseInline(text: string): React.ReactNode[] {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-primary dark:text-amber-500 font-bold hover:underline transition-colors underline decoration-dotted underline-offset-4"
+            style={{ color: "inherit", fontWeight: "bold" }}
           >
             {linkMatch[1]}
           </a>
@@ -115,12 +117,23 @@ function parseInline(text: string): React.ReactNode[] {
       currentText = currentText.substring(linkIdx + linkMatch[0].length);
     } else if (minIdx === codeIdx && codeMatch) {
       parts.push(
-        <code
+        <Box
+          component="code"
           key={keyIdx++}
-          className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[11px] font-mono text-pink-600 dark:text-pink-400 border border-slate-200 dark:border-slate-700/50"
+          sx={{
+            px: 0.5,
+            py: 0.25,
+            borderRadius: 1,
+            bgcolor: "action.hover",
+            fontSize: "0.75rem",
+            fontFamily: "monospace",
+            color: "secondary.main",
+            border: "1px solid",
+            borderColor: "divider",
+          }}
         >
           {codeMatch[1]}
-        </code>
+        </Box>
       );
       currentText = currentText.substring(codeIdx + codeMatch[0].length);
     }
@@ -144,55 +157,70 @@ function parseMarkdownToJSX(md: string): React.ReactNode[] {
     const isListItem = trimmed.startsWith("- ") || trimmed.startsWith("* ");
     if (currentList.length > 0 && !isListItem && trimmed !== "") {
       blocks.push(
-        <ul
+        <Box
+          component="ul"
           key={`list-${listKey++}`}
-          className="list-disc pl-6 my-5 space-y-2.5 text-sm text-slate-650 dark:text-slate-350"
+          sx={{ pl: 3, my: 2.5, display: "flex", flexDirection: "column", gap: 1 }}
         >
           {currentList}
-        </ul>
+        </Box>
       );
       currentList = [];
     }
 
     if (trimmed === "---") {
-      blocks.push(
-        <hr key={i} className="border-t border-border/80 my-8 w-full" />
-      );
+      blocks.push(<Divider key={i} sx={{ my: 4 }} />);
       continue;
     }
 
     if (line.startsWith("# ")) {
       blocks.push(
-        <h1
+        <Typography
           key={i}
-          className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-850 dark:text-white border-b border-border pb-4 mb-6 mt-4"
+          variant="h1"
+          sx={{
+            fontSize: { xs: "1.75rem", md: "2.25rem" },
+            fontWeight: 900,
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            pb: 2,
+            mb: 3,
+            mt: 2,
+          }}
         >
           {parseInline(line.slice(2))}
-        </h1>
+        </Typography>
       );
       continue;
     }
 
     if (line.startsWith("## ")) {
       blocks.push(
-        <h2
+        <Typography
           key={i}
-          className="text-lg md:text-xl font-bold tracking-tight text-slate-850 dark:text-white mt-10 mb-4.5 flex items-center gap-2"
+          variant="h2"
+          sx={{
+            fontSize: { xs: "1.1rem", md: "1.25rem" },
+            fontWeight: 700,
+            mt: 5,
+            mb: 2,
+          }}
         >
           {parseInline(line.slice(3))}
-        </h2>
+        </Typography>
       );
       continue;
     }
 
     if (line.startsWith("### ")) {
       blocks.push(
-        <h3
+        <Typography
           key={i}
-          className="text-base font-bold text-slate-800 dark:text-slate-200 mt-8 mb-3"
+          variant="h3"
+          sx={{ fontSize: "1rem", fontWeight: 700, mt: 4, mb: 1.5 }}
         >
           {parseInline(line.slice(4))}
-        </h3>
+        </Typography>
       );
       continue;
     }
@@ -200,9 +228,9 @@ function parseMarkdownToJSX(md: string): React.ReactNode[] {
     if (isListItem) {
       const content = trimmed.slice(2);
       currentList.push(
-        <li key={`li-${i}`} className="leading-relaxed">
+        <Box component="li" key={`li-${i}`} sx={{ lineHeight: 1.7 }}>
           {parseInline(content)}
-        </li>
+        </Box>
       );
       continue;
     }
@@ -213,24 +241,26 @@ function parseMarkdownToJSX(md: string): React.ReactNode[] {
 
     // Default: render line as a styled paragraph
     blocks.push(
-      <p
+      <Typography
         key={i}
-        className="text-sm leading-relaxed text-slate-650 dark:text-slate-350 mb-4"
+        variant="body2"
+        sx={{ mb: 2, lineHeight: 1.7, color: "text.secondary" }}
       >
         {parseInline(line)}
-      </p>
+      </Typography>
     );
   }
 
   // Handle list items that were at the very end of the markdown string
   if (currentList.length > 0) {
     blocks.push(
-      <ul
+      <Box
+        component="ul"
         key={`list-${listKey++}`}
-        className="list-disc pl-6 my-5 space-y-2.5 text-sm text-slate-650 dark:text-slate-350"
+        sx={{ pl: 3, my: 2.5, display: "flex", flexDirection: "column", gap: 1 }}
       >
         {currentList}
-      </ul>
+      </Box>
     );
   }
 
@@ -242,15 +272,46 @@ export default async function AboutPage() {
   const renderedElements = parseMarkdownToJSX(rawContent);
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        bgcolor: "background.default",
+      }}
+    >
       {/* Portal Header */}
       <Header />
 
       {/* Hero Banner Section */}
-      <section className="bg-gradient-to-br from-primary to-primary-hover text-white py-14 px-6 shadow-inner relative overflow-hidden border-b border-blue-900/20">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
+      <Box
+        component="section"
+        sx={{
+          background: (theme) =>
+            `linear-gradient(to bottom right, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+          color: "primary.contrastText",
+          py: { xs: 8, md: 10 },
+          px: 3,
+          boxShadow: "inset 0 2px 4px rgba(0,0,0,0.15)",
+          position: "relative",
+          overflow: "hidden",
+          borderBottom: "1px solid",
+          borderColor: "primary.dark",
+        }}
+      >
+        {/* Decorative SVG background */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0.1,
+            pointerEvents: "none",
+            color: "primary.contrastText",
+          }}
+        >
           <svg
-            className="w-full h-full"
+            width="100%"
+            height="100%"
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
           >
@@ -259,36 +320,80 @@ export default async function AboutPage() {
               fill="currentColor"
             />
           </svg>
-        </div>
-        <div className="max-w-4xl mx-auto flex flex-col justify-between gap-6 relative z-10">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] tracking-widest font-black uppercase text-amber-500 bg-white/10 px-2.5 py-0.5 rounded border border-white/20">
+        </Box>
+
+        <Box
+          sx={{
+            maxWidth: "md",
+            mx: "auto",
+            display: "flex",
+            flexDirection: "column",
+            gap: 3,
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+            <Box>
+              <Box
+                component="span"
+                sx={{
+                  fontSize: "0.625rem",
+                  letterSpacing: "0.15em",
+                  fontWeight: 900,
+                  textTransform: "uppercase",
+                  color: "warning.light",
+                  bgcolor: "rgba(255,255,255,0.1)",
+                  px: 1.25,
+                  py: 0.25,
+                  borderRadius: 1,
+                  border: "1px solid rgba(255,255,255,0.2)",
+                }}
+              >
                 System Context
-              </span>
-            </div>
-            <h1 className="text-4xl font-extrabold tracking-tight">
+              </Box>
+            </Box>
+            <Typography
+              variant="h1"
+              sx={{ fontSize: "2.25rem", fontWeight: 900, letterSpacing: "-0.025em" }}
+            >
               About Memorias
-            </h1>
-            <p className="text-blue-100 max-w-xl text-sm leading-relaxed">
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: "primary.contrastText", opacity: 0.8, maxWidth: "36rem", lineHeight: 1.6 }}
+            >
               Discover the history, objectives, and the unique agent-driven technology behind this scientific research catalog.
-            </p>
-          </div>
-        </div>
-      </section>
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-4xl w-full mx-auto px-6 py-10">
-        <div className="bg-white dark:bg-slate-900 border border-border shadow-md rounded-3xl p-8 md:p-12 animate-in fade-in slide-in-from-top-3 duration-300">
+      <Container
+        component="main"
+        maxWidth="md"
+        sx={{ flex: 1, py: 5, px: { xs: 3, md: 3 } }}
+      >
+        <Box
+          sx={{
+            bgcolor: "background.paper",
+            border: "1px solid",
+            borderColor: "divider",
+            boxShadow: 3,
+            borderRadius: 4,
+            p: { xs: 4, md: 6 },
+          }}
+        >
           {/* Main Parsed Markdown Document */}
-          <article className="prose dark:prose-invert max-w-none space-y-4">
+          <Box component="article" sx={{ maxWidth: "none" }}>
             {renderedElements}
-          </article>
-        </div>
-      </main>
+          </Box>
+        </Box>
+      </Container>
 
       {/* Unified Footer */}
       <Footer />
-    </div>
+    </Box>
   );
 }

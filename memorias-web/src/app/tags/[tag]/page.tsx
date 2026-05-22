@@ -1,6 +1,16 @@
 import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import {
+  Box,
+  Container,
+  Typography,
+  Button,
+  Paper,
+  Avatar,
+  Chip,
+  Divider,
+} from "@mui/material";
 import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/Header";
 import { formatCitation } from "@/lib/citations";
@@ -53,234 +63,441 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
     publications.length;
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        bgcolor: "background.default",
+      }}
+    >
       <Header />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto px-6 py-10 space-y-10 animate-fadeIn">
+      <Container
+        component="main"
+        maxWidth="lg"
+        sx={{ flex: 1, py: 5, px: { xs: 3, md: 3 }, display: "flex", flexDirection: "column", gap: 5 }}
+      >
         {/* Navigation Breadcrumb & Page Header */}
-        <div className="space-y-4">
-          <Link
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <Button
+            component={Link}
             href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline"
+            variant="text"
+            size="small"
+            sx={{ alignSelf: "flex-start", fontWeight: 700, fontSize: "0.75rem", px: 0 }}
           >
             Back to Home
-          </Link>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
-            <div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-slate-850 dark:text-white capitalize">
+          </Button>
+
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              alignItems: { sm: "center" },
+              justifyContent: "space-between",
+              gap: 2,
+              borderBottom: "1px solid",
+              borderColor: "divider",
+              pb: 3,
+            }}
+          >
+            <Box>
+              <Typography
+                variant="h1"
+                sx={{
+                  fontSize: "1.875rem",
+                  fontWeight: 900,
+                  letterSpacing: "-0.025em",
+                  color: "text.primary",
+                  textTransform: "capitalize",
+                }}
+              >
                 Topic: {decodedTag}
-              </h1>
-              <p className="text-xs text-muted mt-1">
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{ color: "text.secondary", mt: 0.5, display: "block" }}
+              >
                 Unified directory of all items matching this research classification.
-              </p>
-            </div>
-            <div className="bg-white dark:bg-slate-900 border border-border px-4 py-2 rounded-2xl shadow-sm text-xs font-bold text-slate-700 dark:text-slate-300 self-start sm:self-center shrink-0">
-              {totalMatches} {totalMatches === 1 ? "Linked Entry" : "Linked Entries"}
-            </div>
-          </div>
-        </div>
+              </Typography>
+            </Box>
+
+            <Chip
+              label={`${totalMatches} ${totalMatches === 1 ? "Linked Entry" : "Linked Entries"}`}
+              variant="outlined"
+              sx={{ fontWeight: 700, fontSize: "0.75rem", alignSelf: { xs: "flex-start", sm: "center" }, flexShrink: 0 }}
+            />
+          </Box>
+        </Box>
 
         {totalMatches === 0 ? (
-          <div className="text-center py-20 bg-white dark:bg-slate-900 border border-dashed border-border rounded-3xl space-y-4 shadow-sm">
-            <h3 className="font-extrabold text-lg text-slate-800 dark:text-white">
+          <Paper
+            variant="outlined"
+            sx={{
+              textAlign: "center",
+              py: 10,
+              borderRadius: 4,
+              borderStyle: "dashed",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
+            <Typography variant="h3" sx={{ fontWeight: 900, fontSize: "1.125rem", color: "text.primary" }}>
               No entries found
-            </h3>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+            </Typography>
+            <Typography variant="caption" sx={{ color: "text.secondary", maxWidth: "24rem" }}>
               There are currently no items classified under &ldquo;{decodedTag}&rdquo; in our repository.
-            </p>
-            <Link
+            </Typography>
+            <Button
+              component={Link}
               href="/"
-              className="inline-block bg-primary text-white font-bold px-6 py-2.5 rounded-xl text-xs hover:bg-primary-hover shadow transition-all"
+              variant="contained"
+              size="small"
+              sx={{ fontWeight: 700, borderRadius: 2, mt: 1 }}
             >
               Return Home
-            </Link>
-          </div>
+            </Button>
+          </Paper>
         ) : (
-          <div className="space-y-10">
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 5 }}>
             {/* 1. Associated Laboratory Members */}
             {members.length > 0 && (
-              <section className="space-y-4">
-                <h3 className="font-extrabold text-sm uppercase tracking-wider text-primary">
+              <Box component="section" sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <Typography
+                  variant="overline"
+                  sx={{ fontWeight: 900, color: "primary.main", letterSpacing: "0.1em" }}
+                >
                   Laboratory Members ({members.length})
-                </h3>
-                <div className="bg-white dark:bg-slate-900 border border-border rounded-3xl divide-y divide-border/60 overflow-hidden shadow-sm">
-                  {members.map((member) => (
-                    <Link
-                      key={member.id}
-                      href={`/members/${member.slug}`}
-                      className="flex items-center gap-4 p-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/35 transition-colors group"
-                    >
-                      {member.avatarUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={member.avatarUrl}
-                          alt={`${member.firstName} avatar`}
-                          className="h-10 w-10 rounded-full border border-border object-cover object-top shrink-0"
-                        />
-                      ) : (
-                        <div className="h-10 w-10 rounded-full bg-primary/10 text-primary border border-border/80 flex items-center justify-center text-sm font-bold shrink-0">
-                          {member.firstName[0]}
-                          {member.lastName[0]}
-                        </div>
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <span className="font-bold text-sm text-slate-800 dark:text-slate-200 group-hover:text-primary group-hover:underline transition-all block">
-                          {member.firstName} {member.lastName}
-                        </span>
-                        <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
-                          <span className="text-[10px] text-slate-700 dark:text-slate-300 font-semibold bg-slate-100 dark:bg-slate-850 px-2 py-0.5 rounded">
-                            {member.positionAtLab || "Lab Researcher"}
-                          </span>
-                          {member.tags.slice(0, 5).map((t, idx) => (
-                            <span
-                              key={idx}
-                              className="text-[9px] bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 font-bold px-2 py-0.5 rounded border border-blue-100 dark:border-blue-950/30"
-                            >
-                              #{t}
-                            </span>
-                          ))}
-                          {member.tags.length > 5 && (
-                            <span className="text-[9px] text-muted font-bold">
-                              +{member.tags.length - 5}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <span className="text-xs text-primary font-bold opacity-0 group-hover:opacity-100 transition-opacity">
-                        View Profile
-                      </span>
-                    </Link>
+                </Typography>
+                <Paper variant="outlined" sx={{ borderRadius: 4, overflow: "hidden" }}>
+                  {members.map((member, index) => (
+                    <React.Fragment key={member.id}>
+                      {index > 0 && <Divider />}
+                      <Box
+                        component={Link}
+                        href={`/members/${member.slug}`}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                          p: 2,
+                          textDecoration: "none",
+                          color: "inherit",
+                          "&:hover": { bgcolor: "action.hover" },
+                          transition: "background-color 0.15s",
+                        }}
+                      >
+                        {member.avatarUrl ? (
+                          <Avatar
+                            src={member.avatarUrl}
+                            alt={`${member.firstName} avatar`}
+                            sx={{ width: 40, height: 40, border: "1px solid", borderColor: "divider", flexShrink: 0 }}
+                          />
+                        ) : (
+                          <Avatar
+                            sx={{
+                              width: 40,
+                              height: 40,
+                              bgcolor: (theme) =>
+                                theme.palette.mode === "dark"
+                                  ? "rgba(255,255,255,0.08)"
+                                  : "rgba(0,0,0,0.08)",
+                              color: "primary.main",
+                              fontSize: "0.875rem",
+                              fontWeight: 700,
+                              border: "1px solid",
+                              borderColor: "divider",
+                              flexShrink: 0,
+                            }}
+                          >
+                            {member.firstName[0]}
+                            {member.lastName[0]}
+                          </Avatar>
+                        )}
+                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontWeight: 700,
+                              color: "text.primary",
+                              display: "block",
+                              "&:hover": { color: "primary.main" },
+                            }}
+                          >
+                            {member.firstName} {member.lastName}
+                          </Typography>
+                          <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 0.75, mt: 0.75 }}>
+                            <Chip
+                              label={member.positionAtLab || "Lab Researcher"}
+                              size="small"
+                              sx={{ fontSize: "0.625rem", fontWeight: 600, height: 20 }}
+                            />
+                            {member.tags.slice(0, 5).map((t, idx) => (
+                              <Chip
+                                key={idx}
+                                label={`#${t}`}
+                                size="small"
+                                color="primary"
+                                variant="outlined"
+                                sx={{ fontSize: "0.5625rem", fontWeight: 700, height: 18 }}
+                              />
+                            ))}
+                            {member.tags.length > 5 && (
+                              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700 }}>
+                                +{member.tags.length - 5}
+                              </Typography>
+                            )}
+                          </Box>
+                        </Box>
+                        <Typography
+                          variant="caption"
+                          sx={{ color: "primary.main", fontWeight: 700, flexShrink: 0 }}
+                        >
+                          View Profile
+                        </Typography>
+                      </Box>
+                    </React.Fragment>
                   ))}
-                </div>
-              </section>
+                </Paper>
+              </Box>
             )}
 
             {/* 2. Active & Defended Research Projects */}
             {projects.length > 0 && (
-              <section className="space-y-4">
-                <h3 className="font-extrabold text-sm uppercase tracking-wider text-primary">
+              <Box component="section" sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <Typography
+                  variant="overline"
+                  sx={{ fontWeight: 900, color: "primary.main", letterSpacing: "0.1em" }}
+                >
                   Research Projects ({projects.length})
-                </h3>
-                <div className="bg-white dark:bg-slate-900 border border-border rounded-3xl divide-y divide-border/60 overflow-hidden shadow-sm">
-                  {projects.map((proj) => (
-                    <Link
-                      key={proj.id}
-                      href={`/projects/${proj.slug}`}
-                      className="flex items-center gap-4 p-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/35 transition-colors group"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <span className="font-bold text-sm text-slate-800 dark:text-slate-200 group-hover:text-primary group-hover:underline transition-all block truncate">
-                          {proj.title}
-                        </span>
-                        <span className="text-[10px] text-muted block truncate mt-0.5">
-                          {proj.code ? `Code: ${proj.code} | ` : ""}Director: {proj.director || "Not Specified"}
-                        </span>
-                      </div>
-                      <span className="text-xs text-primary font-bold opacity-0 group-hover:opacity-100 transition-opacity">
-                        Explore Project
-                      </span>
-                    </Link>
+                </Typography>
+                <Paper variant="outlined" sx={{ borderRadius: 4, overflow: "hidden" }}>
+                  {projects.map((proj, index) => (
+                    <React.Fragment key={proj.id}>
+                      {index > 0 && <Divider />}
+                      <Box
+                        component={Link}
+                        href={`/projects/${proj.slug}`}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                          p: 2,
+                          textDecoration: "none",
+                          color: "inherit",
+                          "&:hover": { bgcolor: "action.hover" },
+                          transition: "background-color 0.15s",
+                        }}
+                      >
+                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                          <Typography
+                            variant="body2"
+                            noWrap
+                            sx={{ fontWeight: 700, color: "text.primary", display: "block" }}
+                          >
+                            {proj.title}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            noWrap
+                            sx={{ color: "text.secondary", display: "block", mt: 0.25 }}
+                          >
+                            {proj.code ? `Code: ${proj.code} | ` : ""}Director: {proj.director || "Not Specified"}
+                          </Typography>
+                        </Box>
+                        <Typography
+                          variant="caption"
+                          sx={{ color: "primary.main", fontWeight: 700, flexShrink: 0 }}
+                        >
+                          Explore Project
+                        </Typography>
+                      </Box>
+                    </React.Fragment>
                   ))}
-                </div>
-              </section>
+                </Paper>
+              </Box>
             )}
 
             {/* 3. Dissertations & Thesis Projects */}
             {theses.length > 0 && (
-              <section className="space-y-4">
-                <h3 className="font-extrabold text-sm uppercase tracking-wider text-primary">
+              <Box component="section" sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <Typography
+                  variant="overline"
+                  sx={{ fontWeight: 900, color: "primary.main", letterSpacing: "0.1em" }}
+                >
                   Academic Theses ({theses.length})
-                </h3>
-                <div className="bg-white dark:bg-slate-900 border border-border rounded-3xl divide-y divide-border/60 overflow-hidden shadow-sm">
-                  {theses.map((thesis) => (
-                    <Link
-                      key={thesis.id}
-                      href={`/theses/${thesis.slug}`}
-                      className="flex items-center gap-4 p-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/35 transition-colors group"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <span className="font-bold text-sm text-slate-800 dark:text-slate-200 group-hover:text-primary group-hover:underline transition-all block line-clamp-1">
-                          {thesis.title}
-                        </span>
-                        <span className="text-[10px] text-muted block truncate mt-0.5">
-                          {thesis.level ? `${thesis.level} | ` : ""}Student: {thesis.student || "Not Specified"}
-                        </span>
-                      </div>
-                      <span className="text-xs text-primary font-bold opacity-0 group-hover:opacity-100 transition-opacity">
-                        View Thesis
-                      </span>
-                    </Link>
+                </Typography>
+                <Paper variant="outlined" sx={{ borderRadius: 4, overflow: "hidden" }}>
+                  {theses.map((thesis, index) => (
+                    <React.Fragment key={thesis.id}>
+                      {index > 0 && <Divider />}
+                      <Box
+                        component={Link}
+                        href={`/theses/${thesis.slug}`}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                          p: 2,
+                          textDecoration: "none",
+                          color: "inherit",
+                          "&:hover": { bgcolor: "action.hover" },
+                          transition: "background-color 0.15s",
+                        }}
+                      >
+                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontWeight: 700,
+                              color: "text.primary",
+                              display: "-webkit-box",
+                              WebkitLineClamp: 1,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                            }}
+                          >
+                            {thesis.title}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            noWrap
+                            sx={{ color: "text.secondary", display: "block", mt: 0.25 }}
+                          >
+                            {thesis.level ? `${thesis.level} | ` : ""}Student: {thesis.student || "Not Specified"}
+                          </Typography>
+                        </Box>
+                        <Typography
+                          variant="caption"
+                          sx={{ color: "primary.main", fontWeight: 700, flexShrink: 0 }}
+                        >
+                          View Thesis
+                        </Typography>
+                      </Box>
+                    </React.Fragment>
                   ))}
-                </div>
-              </section>
+                </Paper>
+              </Box>
             )}
 
             {/* 4. Active Grants & Scholarships */}
             {scholarships.length > 0 && (
-              <section className="space-y-4">
-                <h3 className="font-extrabold text-sm uppercase tracking-wider text-primary">
+              <Box component="section" sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <Typography
+                  variant="overline"
+                  sx={{ fontWeight: 900, color: "primary.main", letterSpacing: "0.1em" }}
+                >
                   Research Scholarships ({scholarships.length})
-                </h3>
-                <div className="bg-white dark:bg-slate-900 border border-border rounded-3xl divide-y divide-border/60 overflow-hidden shadow-sm">
-                  {scholarships.map((sch) => (
-                    <Link
-                      key={sch.id}
-                      href={`/scholarships/${sch.slug}`}
-                      className="flex items-center gap-4 p-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/35 transition-colors group"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <span className="font-bold text-sm text-slate-800 dark:text-slate-200 group-hover:text-primary group-hover:underline transition-all block truncate">
-                          {sch.title}
-                        </span>
-                        <span className="text-[10px] text-muted block truncate mt-0.5">
-                          {sch.type || "Scholarship"} | Student: {sch.student || "Not Specified"}
-                        </span>
-                      </div>
-                      <span className="text-xs text-primary font-bold opacity-0 group-hover:opacity-100 transition-opacity">
-                        View Scholarship
-                      </span>
-                    </Link>
+                </Typography>
+                <Paper variant="outlined" sx={{ borderRadius: 4, overflow: "hidden" }}>
+                  {scholarships.map((sch, index) => (
+                    <React.Fragment key={sch.id}>
+                      {index > 0 && <Divider />}
+                      <Box
+                        component={Link}
+                        href={`/scholarships/${sch.slug}`}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                          p: 2,
+                          textDecoration: "none",
+                          color: "inherit",
+                          "&:hover": { bgcolor: "action.hover" },
+                          transition: "background-color 0.15s",
+                        }}
+                      >
+                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                          <Typography
+                            variant="body2"
+                            noWrap
+                            sx={{ fontWeight: 700, color: "text.primary", display: "block" }}
+                          >
+                            {sch.title}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            noWrap
+                            sx={{ color: "text.secondary", display: "block", mt: 0.25 }}
+                          >
+                            {sch.type || "Scholarship"} | Student: {sch.student || "Not Specified"}
+                          </Typography>
+                        </Box>
+                        <Typography
+                          variant="caption"
+                          sx={{ color: "primary.main", fontWeight: 700, flexShrink: 0 }}
+                        >
+                          View Scholarship
+                        </Typography>
+                      </Box>
+                    </React.Fragment>
                   ))}
-                </div>
-              </section>
+                </Paper>
+              </Box>
             )}
 
             {/* 5. Scientific Publications */}
             {publications.length > 0 && (
-              <section className="space-y-4">
-                <h3 className="font-extrabold text-sm uppercase tracking-wider text-primary">
+              <Box component="section" sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <Typography
+                  variant="overline"
+                  sx={{ fontWeight: 900, color: "primary.main", letterSpacing: "0.1em" }}
+                >
                   Scientific Bibliography ({publications.length})
-                </h3>
-                <div className="bg-white dark:bg-slate-900 border border-border rounded-3xl divide-y divide-border/60 overflow-hidden shadow-sm">
-                  {publications.map((pub) => {
+                </Typography>
+                <Paper variant="outlined" sx={{ borderRadius: 4, overflow: "hidden" }}>
+                  {publications.map((pub, index) => {
                     const citation = formatCitation(pub, "apa");
                     return (
-                      <Link
-                        key={pub.id}
-                        href={`/publications/${pub.slug}`}
-                        className="flex items-start gap-4 p-5 hover:bg-slate-50/50 dark:hover:bg-slate-800/35 transition-colors group"
-                      >
-                        <div className="min-w-0 flex-1 space-y-1">
-                          <span className="font-bold text-sm text-slate-800 dark:text-slate-200 group-hover:text-primary group-hover:underline transition-all block leading-snug">
-                            {pub.title}
-                          </span>
-                          <div
-                            className="text-[11px] text-slate-650 dark:text-slate-400 font-medium"
-                            dangerouslySetInnerHTML={{ __html: citation.html }}
-                          />
-                        </div>
-                        <span className="text-xs text-primary font-bold opacity-0 group-hover:opacity-100 transition-opacity self-center shrink-0">
-                          View Paper
-                        </span>
-                      </Link>
+                      <React.Fragment key={pub.id}>
+                        {index > 0 && <Divider />}
+                        <Box
+                          component={Link}
+                          href={`/publications/${pub.slug}`}
+                          sx={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: 2,
+                            p: 2.5,
+                            textDecoration: "none",
+                            color: "inherit",
+                            "&:hover": { bgcolor: "action.hover" },
+                            transition: "background-color 0.15s",
+                          }}
+                        >
+                          <Box sx={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: 0.5 }}>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: 700, color: "text.primary", lineHeight: 1.4 }}
+                            >
+                              {pub.title}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              component="div"
+                              sx={{ color: "text.secondary", fontWeight: 500 }}
+                              dangerouslySetInnerHTML={{ __html: citation.html }}
+                            />
+                          </Box>
+                          <Typography
+                            variant="caption"
+                            sx={{ color: "primary.main", fontWeight: 700, flexShrink: 0, alignSelf: "center" }}
+                          >
+                            View Paper
+                          </Typography>
+                        </Box>
+                      </React.Fragment>
                     );
                   })}
-                </div>
-              </section>
+                </Paper>
+              </Box>
             )}
-          </div>
+          </Box>
         )}
-      </main>
-    </div>
+      </Container>
+    </Box>
   );
 }

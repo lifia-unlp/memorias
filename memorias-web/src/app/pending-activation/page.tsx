@@ -1,6 +1,9 @@
 import React from "react";
 import { auth, signOut } from "@/auth";
 import { redirect } from "next/navigation";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Paper from "@mui/material/Paper";
 
 export default async function PendingActivationPage() {
   const session = await auth();
@@ -16,49 +19,158 @@ export default async function PendingActivationPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="material-card w-full max-w-md text-center py-12 px-8 space-y-6">
-        {/* Animated Clock / Pending Icon */}
-        <div className="mx-auto w-20 h-20 bg-secondary/10 text-secondary border border-secondary/20 flex items-center justify-center rounded-full text-4xl animate-pulse">
-          ⏳
-        </div>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "background.default",
+        px: 2,
+      }}
+    >
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: 448,
+          textAlign: "center",
+          py: 6,
+          px: 4,
+          bgcolor: "background.paper",
+          borderRadius: 2,
+          boxShadow: 3,
+          display: "flex",
+          flexDirection: "column",
+          gap: 3,
+        }}
+      >
+        {/* Animated hourglass / pending icon */}
+        <Box
+          sx={{
+            mx: "auto",
+            width: 80,
+            height: 80,
+            bgcolor: "secondary.main",
+            opacity: 0.15,
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "1px solid",
+            borderColor: "secondary.main",
+            animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+            "@keyframes pulse": {
+              "0%, 100%": { opacity: 0.15 },
+              "50%": { opacity: 0.35 },
+            },
+            position: "relative",
+          }}
+        >
+          <Box
+            component="svg"
+            viewBox="0 0 24 24"
+            sx={{
+              width: 40,
+              height: 40,
+              color: "secondary.main",
+              opacity: 1,
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+            fill="currentColor"
+          >
+            {/* Hourglass SVG path */}
+            <path d="M6 2v6l4 4-4 4v6h12v-6l-4-4 4-4V2H6zm10 14.5V20H8v-3.5l4-4 4 4zM8 7.5V4h8v3.5l-4 4-4-4z" />
+          </Box>
+        </Box>
 
-        <div className="space-y-2">
-          <h1 className="text-2xl font-extrabold text-primary dark:text-white">Account Pending</h1>
-          <p className="text-sm font-semibold text-muted">
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+          <Typography variant="h5" sx={{ fontWeight: 800, color: "primary.main" }}>
+            Account Pending
+          </Typography>
+          <Typography variant="body2" sx={{ fontWeight: 600, color: "text.secondary" }}>
             Waiting for Administrator Review
-          </p>
-        </div>
+          </Typography>
+        </Box>
 
         {/* User Card */}
-        <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-border text-left space-y-2">
-          <div className="flex items-center gap-3">
+        <Paper
+          variant="outlined"
+          sx={{
+            p: 2,
+            borderRadius: 2,
+            textAlign: "left",
+            bgcolor: (theme) =>
+              theme.palette.mode === "dark" ? "rgba(15,23,42,0.5)" : "grey.50",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
             {session.user.image ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img
+              (<img
                 src={session.user.image}
                 alt="Profile"
-                className="w-10 h-10 rounded-full border border-border"
-              />
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  border: "1px solid rgba(0,0,0,0.12)",
+                  flexShrink: 0,
+                }}
+              />)
             ) : (
-              <span className="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-full text-lg">
-                👤
-              </span>
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  bgcolor: "primary.main",
+                  opacity: 0.1,
+                  borderRadius: "50%",
+                  flexShrink: 0,
+                  position: "relative",
+                }}
+              >
+                <Box
+                  component="svg"
+                  viewBox="0 0 24 24"
+                  sx={{
+                    width: 22,
+                    height: 22,
+                    color: "primary.main",
+                    opacity: 1,
+                    position: "absolute",
+                  }}
+                  fill="currentColor"
+                >
+                  <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+                </Box>
+              </Box>
             )}
-            <div className="min-w-0">
-              <span className="font-bold text-sm block truncate text-foreground">
+            <Box sx={{ minWidth: 0 }}>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: "bold", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "text.primary" }}
+              >
                 {session.user.name || "Authenticated User"}
-              </span>
-              <span className="text-xs text-muted block truncate">
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{ color: "text.secondary", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+              >
                 {session.user.email}
-              </span>
-            </div>
-          </div>
-        </div>
+              </Typography>
+            </Box>
+          </Box>
+        </Paper>
 
-        <p className="text-xs text-muted leading-relaxed">
+        <Typography variant="caption" sx={{ color: "text.secondary", lineHeight: 1.6 }}>
           Your account was successfully created! However, before you can view lab analytics or edit resources, an administrator needs to activate your membership. You will receive access automatically once approved.
-        </p>
+        </Typography>
 
         {/* Sign Out Action */}
         <form
@@ -66,16 +178,28 @@ export default async function PendingActivationPage() {
             "use server";
             await signOut({ redirectTo: "/auth/signin" });
           }}
-          className="pt-4"
+          style={{ paddingTop: 8 }}
         >
           <button
             type="submit"
-            className="w-full btn-secondary cursor-pointer py-3 rounded-lg text-sm font-bold text-white transition-all shadow-md"
+            style={{
+              width: "100%",
+              padding: "12px 16px",
+              borderRadius: 8,
+              border: "none",
+              background: "var(--mui-palette-secondary-main, #9c27b0)",
+              color: "#fff",
+              fontSize: "0.875rem",
+              fontWeight: 700,
+              cursor: "pointer",
+              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+              transition: "background 0.2s, box-shadow 0.2s",
+            }}
           >
             Sign Out
           </button>
         </form>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }

@@ -5,6 +5,21 @@ import { createProject, updateProject } from "./actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TagWidget } from "@/components/TagWidget";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  TextField,
+  Button,
+  Alert,
+  Chip,
+  InputAdornment,
+  FormControlLabel,
+  Checkbox,
+  Avatar,
+} from "@mui/material";
 
 interface Member {
   id: string;
@@ -120,46 +135,37 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
   );
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto pb-16">
+    <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 4, pb: 8 }}>
       {errorMsg && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
-          <span>🚫</span>
-          <span>{errorMsg}</span>
-        </div>
+        <Alert severity="error" sx={{ borderRadius: 3 }}>
+          {errorMsg}
+        </Alert>
       )}
-
       {/* 1. Core Profile Details Card */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Core Project Details
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="space-y-1.5 md:col-span-2">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Project Title *</label>
-            <input
-              type="text"
-              name="title"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Collaborative Knowledge Management Systems"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Core Project Details
+          </Typography>
 
-          <div className="space-y-1.5 md:col-span-2">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-              <span>SEO Slug *</span>
-              {!isSlugOverridden && (
-                <span className="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded">
-                  ✨ Auto-Generated
-                </span>
-              )}
-            </label>
-            <div className="relative">
-              <input
-                type="text"
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="Project Title"
+                name="title"
+                required
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. Collaborative Knowledge Management Systems"
+                size="small"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="SEO Slug"
                 name="slug"
                 required
                 value={slug}
@@ -168,274 +174,331 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
                   setSlug(e.target.value);
                 }}
                 placeholder="e.g. collaborative-knowledge-systems"
-                className="w-full border border-border pl-3 pr-24 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm font-semibold"
+                size="small"
+                helperText="Generates the URL /projects/[slug] for this project. Custom slugs are maintained unless reset."
+                slotProps={{ input: {
+                  endAdornment: (
+                    <InputAdornment position="end" sx={{ gap: 1 }}>
+                      {!isSlugOverridden ? (
+                        <Chip
+                          label="Auto-Generated"
+                          color="success"
+                          size="small"
+                          sx={{ fontWeight: "bold", borderRadius: 1 }}
+                        />
+                      ) : (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() => {
+                            setIsSlugOverridden(false);
+                            const generated = title
+                              .toLowerCase()
+                              .trim()
+                              .normalize("NFD")
+                              .replace(/[\u0300-\u036f]/g, "")
+                              .replace(/[^a-z0-9]+/g, "-")
+                              .replace(/(^-|-$)/g, "");
+                            setSlug(generated);
+                          }}
+                          sx={{ textTransform: "none", py: 0.25, px: 1, fontSize: "0.625rem", fontWeight: "bold" }}
+                        >
+                          Reset Auto
+                        </Button>
+                      )}
+                    </InputAdornment>
+                  ),
+                } }}
               />
-              <button
-                type="button"
-                onClick={() => {
-                  setIsSlugOverridden(false);
-                  const generated = title
-                    .toLowerCase()
-                    .trim()
-                    .normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .replace(/[^a-z0-9]+/g, "-")
-                    .replace(/(^-|-$)/g, "");
-                  setSlug(generated);
+            </Grid>
+
+            {/* Featured Project Switcher */}
+            <Grid size={{ xs: 12 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  bgcolor: (theme) =>
+                    theme.palette.mode === "dark" ? "rgba(25, 118, 210, 0.15)" : "rgba(25, 118, 210, 0.04)",
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderRadius: 2,
+                  p: 2,
                 }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] uppercase font-bold text-primary hover:bg-slate-100 dark:hover:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-border cursor-pointer transition-all"
               >
-                Reset Auto
-              </button>
-            </div>
-            <p className="text-[10px] text-muted leading-relaxed">
-              Generates the URL `/projects/[slug]` for this project. Custom slugs are maintained unless reset.
-            </p>
-          </div>
-
-          {/* Featured Project Switcher */}
-          <div className="md:col-span-2 flex items-center gap-3 bg-primary/5 dark:bg-primary/10 border border-primary/10 p-4 rounded-xl">
-            <input
-              type="checkbox"
-              id="featured"
-              checked={featured}
-              onChange={(e) => setFeatured(e.target.checked)}
-              className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
-            />
-            <div>
-              <label htmlFor="featured" className="block text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer">
-                Featured Project
-              </label>
-              <span className="block text-[10px] text-muted leading-tight mt-0.5">
-                Highlight this project on the home page as part of the selected scientific research feed.
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Project Code</label>
-            <input
-              type="text"
-              name="code"
-              defaultValue={initialData?.code || ""}
-              placeholder="e.g. I110, PIN-2026"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Responsible Group</label>
-            <input
-              type="text"
-              name="responsibleGroup"
-              defaultValue={initialData?.responsibleGroup || ""}
-              placeholder="e.g. Lab, Research Group"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Start Date *</label>
-            <input
-              type="date"
-              name="startDate"
-              required
-              defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">End Date *</label>
-            <input
-              type="date"
-              name="endDate"
-              required
-              defaultValue={initialData?.endDate ? new Date(initialData.endDate).toISOString().split("T")[0] : ""}
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Management and Agency info */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Funding & Administration
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Director Name</label>
-            <input
-              type="text"
-              name="director"
-              defaultValue={initialData?.director || ""}
-              placeholder="e.g. Alejandro Fernandez"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Co-Director Name</label>
-            <input
-              type="text"
-              name="coDirector"
-              defaultValue={initialData?.coDirector || ""}
-              placeholder="e.g. Jose Delle Ville"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Funding Agency</label>
-            <input
-              type="text"
-              name="fundingAgency"
-              defaultValue={initialData?.fundingAgency || ""}
-              placeholder="e.g. UNLP, CONICET, ANPCyT"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Funding Amount</label>
-            <input
-              type="text"
-              name="amount"
-              defaultValue={initialData?.amount || ""}
-              placeholder="e.g. $5,000,000 ARS"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-
-          <div className="space-y-1.5 md:col-span-2">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Project Website Link</label>
-            <input
-              type="url"
-              name="website"
-              defaultValue={initialData?.website || ""}
-              placeholder="e.g. https://domain.com/projects/..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Associated Members Multi-Selection */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <div className="border-b border-border pb-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div>
-            <h3 className="font-extrabold text-lg text-primary">Associate Members</h3>
-            <p className="text-[10px] text-muted">Select researchers associated with this project.</p>
-          </div>
-          
-          <input
-            type="text"
-            placeholder="🔍 Search members..."
-            value={memberSearchQuery}
-            onChange={(e) => setMemberSearchQuery(e.target.value)}
-            className="border border-border px-3 py-1.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs w-full md:w-64"
-          />
-        </div>
-
-        {filteredMembers.length === 0 ? (
-          <div className="text-center py-6 text-xs text-muted font-medium bg-slate-50 dark:bg-slate-950 rounded-xl border border-border">
-            No researchers found matching search query.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 max-h-72 overflow-y-auto pr-2">
-            {filteredMembers.map((member) => {
-              const isChecked = selectedMemberIds.includes(member.id);
-              return (
-                <div
-                  key={member.id}
-                  onClick={() => handleToggleMember(member.id)}
-                  className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer select-none transition-all ${
-                    isChecked
-                      ? "bg-primary/5 border-primary ring-1 ring-primary"
-                      : "bg-surface border-border hover:bg-slate-50 dark:hover:bg-slate-800"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    readOnly
-                    className="h-4 w-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
-                  />
-                  {member.avatarUrl ? (
-                    <img
-                      src={member.avatarUrl}
-                      alt={`${member.firstName} ${member.lastName}`}
-                      className="h-8 w-8 rounded-full object-cover border border-border bg-slate-100"
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={featured}
+                      onChange={(e) => setFeatured(e.target.checked)}
+                      color="primary"
                     />
-                  ) : (
-                    <div className="h-8 w-8 rounded-full bg-primary/10 text-primary border border-border flex items-center justify-center text-xs font-bold font-mono">
-                      {member.firstName[0]}
-                      {member.lastName[0]}
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <span className="font-bold text-xs text-slate-800 dark:text-slate-200 block truncate">
-                      {member.firstName} {member.lastName}
-                    </span>
-                    <span className="text-[10px] text-muted block truncate">
-                      {member.positionAtLab || "Researcher"}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                  }
+                  label={
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                        Featured Project
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Highlight this project on the home page as part of the selected scientific research feed.
+                      </Typography>
+                    </Box>
+                  }
+                />
+              </Box>
+            </Grid>
 
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Project Code"
+                name="code"
+                defaultValue={initialData?.code || ""}
+                placeholder="e.g. I110, PIN-2026"
+                size="small"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Responsible Group"
+                name="responsibleGroup"
+                defaultValue={initialData?.responsibleGroup || ""}
+                placeholder="e.g. Lab, Research Group"
+                size="small"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                type="date"
+                label="Start Date"
+                name="startDate"
+                required
+                defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
+                size="small"
+                slotProps={{ inputLabel: { shrink: true } }}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                type="date"
+                label="End Date"
+                name="endDate"
+                required
+                defaultValue={initialData?.endDate ? new Date(initialData.endDate).toISOString().split("T")[0] : ""}
+                size="small"
+                slotProps={{ inputLabel: { shrink: true } }}
+              />
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+      {/* 2. Funding & Administration */}
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Funding & Administration
+          </Typography>
+
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Director Name"
+                name="director"
+                defaultValue={initialData?.director || ""}
+                placeholder="e.g. Alejandro Fernandez"
+                size="small"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Co-Director Name"
+                name="coDirector"
+                defaultValue={initialData?.coDirector || ""}
+                placeholder="e.g. Jose Delle Ville"
+                size="small"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Funding Agency"
+                name="fundingAgency"
+                defaultValue={initialData?.fundingAgency || ""}
+                placeholder="e.g. UNLP, CONICET, ANPCyT"
+                size="small"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Funding Amount"
+                name="amount"
+                defaultValue={initialData?.amount || ""}
+                placeholder="e.g. $5,000,000 ARS"
+                size="small"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                type="url"
+                label="Project Website Link"
+                name="website"
+                defaultValue={initialData?.website || ""}
+                placeholder="e.g. https://domain.com/projects/..."
+                size="small"
+              />
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+      {/* 3. Associated Members Multi-Selection */}
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ borderBottom: "1px solid", borderColor: "divider", pb: 2, mb: 3, display: "flex", flexDirection: { xs: "column", md: "row" }, justifyContent: "space-between", alignItems: { xs: "stretch", md: "center" }, gap: 2 }}>
+            <Box>
+              <Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>
+                Associate Members
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Select researchers associated with this project.
+              </Typography>
+            </Box>
+
+            <TextField
+              size="small"
+              placeholder="Search members..."
+              value={memberSearchQuery}
+              onChange={(e) => setMemberSearchQuery(e.target.value)}
+              sx={{ width: { xs: "100%", md: 260 } }}
+            />
+          </Box>
+
+          {filteredMembers.length === 0 ? (
+            <Box sx={{ textAlign: "center", py: 4, bgcolor: "action.hover", borderRadius: 2, border: "1px dashed", borderColor: "divider" }}>
+              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: "bold" }}>
+                No researchers found matching search query.
+              </Typography>
+            </Box>
+          ) : (
+            <Box sx={{ maxHeight: 280, overflowY: "auto", pr: 1 }}>
+              <Grid container spacing={2}>
+                {filteredMembers.map((member) => {
+                  const isChecked = selectedMemberIds.includes(member.id);
+                  return (
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={member.id}>
+                      <Card
+                        variant="outlined"
+                        onClick={() => handleToggleMember(member.id)}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.5,
+                          p: 1.5,
+                          borderRadius: 2,
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                          bgcolor: isChecked ? "primary.light" : "background.paper",
+                          borderColor: isChecked ? "primary.main" : "divider",
+                          "&:hover": {
+                            bgcolor: isChecked ? "primary.light" : "action.hover",
+                          },
+                        }}
+                      >
+                        <Checkbox checked={isChecked} size="small" sx={{ p: 0.5 }} />
+                        <Avatar
+                          src={member.avatarUrl || undefined}
+                          sx={{
+                            width: 32,
+                            height: 32,
+                            fontSize: "0.75rem",
+                            fontWeight: "bold",
+                            bgcolor: "primary.main",
+                          }}
+                        >
+                          {member.firstName[0]}
+                          {member.lastName[0]}
+                        </Avatar>
+                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                          <Typography variant="body2" sx={{ fontWeight: "bold" }} noWrap>
+                            {member.firstName} {member.lastName}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block" }}>
+                            {member.positionAtLab || "Researcher"}
+                          </Typography>
+                        </Box>
+                      </Card>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
       {/* 4. Rich Abstract Summary */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Project Abstract/Summary
-        </h3>
-        <div className="space-y-1.5">
-          <textarea
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Project Abstract/Summary
+          </Typography>
+          <TextField
+            fullWidth
+            multiline
+            rows={6}
             name="summary"
             defaultValue={initialData?.summary || ""}
             placeholder="Provide a detailed overview of the research scope, objectives, and findings..."
-            className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm h-48"
+            size="small"
           />
-        </div>
-      </div>
-
+        </CardContent>
+      </Card>
       {/* Dynamic Classification Tags */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Research Classification Tags
-        </h3>
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Classification Tags</label>
-          <TagWidget
-            initialTags={initialData?.tags || []}
-            placeholder="Add project keywords and fields..."
-          />
-        </div>
-      </div>
-
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Research Classification Tags
+          </Typography>
+          <Box sx={{ mt: 1 }}>
+            <TagWidget
+              initialTags={initialData?.tags || []}
+              placeholder="Add project keywords and fields..."
+            />
+          </Box>
+        </CardContent>
+      </Card>
       {/* Form Actions */}
-      <div className="flex items-center justify-end gap-4">
-        <Link
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 2 }}>
+        <Button
+          variant="outlined"
+          component={Link}
           href={initialData ? `/projects/${initialData.slug}` : "/projects"}
-          className="px-6 py-3 rounded-xl border border-border text-slate-700 hover:bg-slate-100 transition-all font-bold text-sm cursor-pointer"
+          sx={{ borderRadius: 2, textTransform: "none", fontWeight: "bold", px: 4, py: 1 }}
         >
           Cancel
-        </Link>
-        
-        <button
+        </Button>
+
+        <Button
           type="submit"
           disabled={isSubmitting}
-          className="bg-primary hover:bg-primary-hover text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+          variant="contained"
+          sx={{ borderRadius: 2, textTransform: "none", fontWeight: "bold", px: 4, py: 1 }}
         >
           {isSubmitting ? "Saving Project..." : initialData ? "Save Changes" : "Create Project"}
-        </button>
-      </div>
-    </form>
+        </Button>
+      </Box>
+    </Box>
   );
 }

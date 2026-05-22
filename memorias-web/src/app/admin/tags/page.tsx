@@ -2,6 +2,9 @@ import React from "react";
 import { Header } from "@/components/Header";
 import { getTagsWithCountsAdmin } from "./actions";
 import { TagsCurationClient } from "./TagsCurationClient";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+import { Box, Container } from "@mui/material";
 
 export const metadata = {
   title: "Tag Curation Dashboard - Memorias Admin",
@@ -9,15 +12,21 @@ export const metadata = {
 };
 
 export default async function AdminTagsPage() {
+  const session = await auth();
+  if (!session || session.user?.role !== "ADMIN" || !session.user?.active) {
+    redirect("/");
+  }
+
   const initialTags = await getTagsWithCountsAdmin();
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>
       <Header />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto px-6 py-10 space-y-8 animate-fadeIn">
+      <Container component="main" maxWidth="lg" sx={{ py: 6, flexGrow: 1, display: "flex", flexDirection: "column", gap: 4 }}>
         <TagsCurationClient initialTags={initialTags} />
-      </main>
-    </div>
+      </Container>
+    </Box>
   );
 }
+

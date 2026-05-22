@@ -5,6 +5,22 @@ import { createThesis, updateThesis } from "./actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TagWidget } from "@/components/TagWidget";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  TextField,
+  Button,
+  Alert,
+  Chip,
+  InputAdornment,
+  FormControlLabel,
+  Checkbox,
+  Avatar,
+  MenuItem,
+} from "@mui/material";
 
 interface Member {
   id: string;
@@ -52,6 +68,10 @@ export function ThesisForm({
     initialData ? true : false
   );
   const [featured, setFeatured] = useState<boolean>(initialData?.featured || false);
+  const [level, setLevel] = useState(initialData?.level || "");
+  const [progress, setProgress] = useState(
+    initialData?.progress !== undefined ? String(initialData.progress) : ""
+  );
 
   // Multi-selection states
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(
@@ -175,46 +195,37 @@ export function ThesisForm({
   const progressOptions = Array.from({ length: 11 }, (_, i) => i * 10);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto pb-16">
+    <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 4, pb: 8 }}>
       {errorMsg && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
-          <span>🚫</span>
-          <span>{errorMsg}</span>
-        </div>
+        <Alert severity="error" sx={{ borderRadius: 3 }}>
+          {errorMsg}
+        </Alert>
       )}
-
       {/* 1. Core Profile Details Card */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Core Thesis Details
-        </h3>
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Core Thesis Details
+          </Typography>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="space-y-1.5 md:col-span-2">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Thesis Title *</label>
-            <input
-              type="text"
-              name="title"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Dynamic User Modelling in Virtual Environments"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="Thesis Title"
+                name="title"
+                required
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. Dynamic User Modelling in Virtual Environments"
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5 md:col-span-2">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-              <span>SEO Slug *</span>
-              {!isSlugOverridden && (
-                <span className="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded">
-                  ✨ Auto-Generated
-                </span>
-              )}
-            </label>
-            <div className="relative">
-              <input
-                type="text"
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="SEO Slug"
                 name="slug"
                 required
                 value={slug}
@@ -223,441 +234,533 @@ export function ThesisForm({
                   setSlug(e.target.value);
                 }}
                 placeholder="e.g. dynamic-user-modelling-virtual-environments"
-                className="w-full border border-border pl-3 pr-24 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm font-semibold"
+                size="small"
+                helperText="Generates the URL /theses/[slug] for this thesis. Custom slugs are maintained unless reset."
+                slotProps={{ input: {
+                  endAdornment: (
+                    <InputAdornment position="end" sx={{ gap: 1 }}>
+                      {!isSlugOverridden ? (
+                        <Chip
+                          label="Auto-Generated"
+                          color="success"
+                          size="small"
+                          sx={{ fontWeight: "bold", borderRadius: 1 }}
+                        />
+                      ) : (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() => {
+                            setIsSlugOverridden(false);
+                            const generated = title
+                              .toLowerCase()
+                              .trim()
+                              .normalize("NFD")
+                              .replace(/[\u0300-\u036f]/g, "")
+                              .replace(/[^a-z0-9]+/g, "-")
+                              .replace(/(^-|-$)/g, "");
+                            setSlug(generated);
+                          }}
+                        >
+                          Reset Auto
+                        </Button>
+                      )}
+                    </InputAdornment>
+                  ),
+                } }}
               />
-              <button
-                type="button"
-                onClick={() => {
-                  setIsSlugOverridden(false);
-                  const generated = title
-                    .toLowerCase()
-                    .trim()
-                    .normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .replace(/[^a-z0-9]+/g, "-")
-                    .replace(/(^-|-$)/g, "");
-                  setSlug(generated);
+            </Grid>
+
+            {/* Featured Thesis Switcher */}
+            <Grid size={{ xs: 12 }}>
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: "action.hover",
+                  border: "1px dashed",
+                  borderColor: "divider",
                 }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] uppercase font-bold text-primary hover:bg-slate-100 dark:hover:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-border cursor-pointer transition-all"
               >
-                Reset Auto
-              </button>
-            </div>
-            <p className="text-[10px] text-muted leading-relaxed">
-              Generates the URL `/theses/[slug]` for this thesis. Custom slugs are maintained unless reset.
-            </p>
-          </div>
-
-          {/* Featured Thesis Switcher */}
-          <div className="md:col-span-2 flex items-center gap-3 bg-primary/5 dark:bg-primary/10 border border-primary/10 p-4 rounded-xl">
-            <input
-              type="checkbox"
-              id="featured"
-              checked={featured}
-              onChange={(e) => setFeatured(e.target.checked)}
-              className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
-            />
-            <div>
-              <label htmlFor="featured" className="block text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer">
-                Featured Thesis
-              </label>
-              <span className="block text-[10px] text-muted leading-tight mt-0.5">
-                Highlight this thesis on the home page as part of the selected scientific research feed.
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Student Name</label>
-            <input
-              type="text"
-              name="student"
-              defaultValue={initialData?.student || ""}
-              placeholder="e.g. Laura G. Rossi"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Career Name</label>
-            <input
-              type="text"
-              name="career"
-              defaultValue={initialData?.career || ""}
-              placeholder="e.g. Doctorado en Ciencias Informáticas"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Thesis Level</label>
-            <select
-              name="level"
-              defaultValue={initialData?.level || ""}
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            >
-              <option value="">Select Level</option>
-              {levels.map((lvl) => (
-                <option key={lvl} value={lvl}>
-                  {lvl}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Thesis Progress</label>
-            <select
-              name="progress"
-              defaultValue={initialData?.progress !== undefined ? String(initialData.progress) : ""}
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            >
-              <option value="">Select Progress</option>
-              {progressOptions.map((pct) => (
-                <option key={pct} value={String(pct)}>
-                  {pct}% {pct === 100 ? "(Completed)" : pct === 0 ? "(Just Started)" : "(In Progress)"}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Advisors & Committee Info */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Advisors & Thesis Committee
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Director Name</label>
-            <input
-              type="text"
-              name="director"
-              defaultValue={initialData?.director || ""}
-              placeholder="e.g. Alejandro Fernandez"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Co-Director Name</label>
-            <input
-              type="text"
-              name="coDirector"
-              defaultValue={initialData?.coDirector || ""}
-              placeholder="e.g. Jose Delle Ville"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-
-          <div className="space-y-1.5 md:col-span-2">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Other Advisors (comma separated)</label>
-            <input
-              type="text"
-              name="otherAdvisors"
-              defaultValue={initialData?.otherAdvisors || ""}
-              placeholder="e.g. Carlos R. Smith, Maria J. Garcia"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Resources & Timelines */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Resources & Timelines
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Start Date</label>
-            <input
-              type="date"
-              name="startDate"
-              defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">End Date (or Defense Date)</label>
-            <input
-              type="date"
-              name="endDate"
-              defaultValue={initialData?.endDate ? new Date(initialData.endDate).toISOString().split("T")[0] : ""}
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Thesis Manuscript PDF Link</label>
-            <input
-              type="url"
-              name="reportUrl"
-              defaultValue={initialData?.reportUrl || ""}
-              placeholder="e.g. https://sedici.unlp.edu.ar/handle/..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Thesis Website</label>
-            <input
-              type="url"
-              name="website"
-              defaultValue={initialData?.website || ""}
-              placeholder="e.g. https://github.com/..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* 4. Associate Members Multi-Selection */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <div className="border-b border-border pb-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div>
-            <h3 className="font-extrabold text-lg text-primary">Associate Lab Members</h3>
-            <p className="text-[10px] text-muted">Select researchers associated with this thesis.</p>
-          </div>
-          
-          <input
-            type="text"
-            placeholder="Search members..."
-            value={memberSearch}
-            onChange={(e) => setMemberSearch(e.target.value)}
-            className="border border-border px-3 py-1.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs w-full md:w-64"
-          />
-        </div>
-
-        {filteredMembers.length === 0 ? (
-          <div className="text-center py-6 text-xs text-muted font-medium bg-slate-50 dark:bg-slate-950 rounded-xl border border-border">
-            No researchers found.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 max-h-56 overflow-y-auto pr-2">
-            {filteredMembers.map((member) => {
-              const isChecked = selectedMemberIds.includes(member.id);
-              return (
-                <div
-                  key={member.id}
-                  onClick={() => handleToggleMember(member.id)}
-                  className={`flex items-center gap-3 p-2.5 rounded-xl border cursor-pointer select-none transition-all ${
-                    isChecked
-                      ? "bg-primary/5 border-primary ring-1 ring-primary"
-                      : "bg-surface border-border hover:bg-slate-50 dark:hover:bg-slate-800"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    readOnly
-                    className="h-4 w-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
-                  />
-                  {member.avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={member.avatarUrl}
-                      alt={`${member.firstName} ${member.lastName}`}
-                      className="h-8 w-8 rounded-full object-cover border border-border bg-slate-100"
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={featured}
+                      onChange={(e) => setFeatured(e.target.checked)}
+                      name="featured"
                     />
-                  ) : (
-                    <div className="h-8 w-8 rounded-full bg-primary/10 text-primary border border-border flex items-center justify-center text-xs font-bold font-mono">
-                      {member.firstName[0]}
-                      {member.lastName[0]}
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <span className="font-bold text-xs text-slate-800 dark:text-slate-200 block truncate">
-                      {member.firstName} {member.lastName}
-                    </span>
-                    <span className="text-[10px] text-muted block truncate">
-                      {member.positionAtLab || "Researcher"}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                  }
+                  label={
+                    <Box>
+                      <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
+                        Featured Thesis
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
+                        Highlight this thesis on the home page as part of the selected scientific research feed.
+                      </Typography>
+                    </Box>
+                  }
+                />
+              </Box>
+            </Grid>
 
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Student Name"
+                name="student"
+                defaultValue={initialData?.student || ""}
+                placeholder="e.g. Laura G. Rossi"
+                size="small"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Career Name"
+                name="career"
+                defaultValue={initialData?.career || ""}
+                placeholder="e.g. Doctorado en Ciencias Informáticas"
+                size="small"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                select
+                fullWidth
+                label="Thesis Level"
+                name="level"
+                value={level}
+                onChange={(e) => setLevel(e.target.value)}
+                size="small"
+              >
+                <MenuItem value="">Select Level</MenuItem>
+                {levels.map((lvl) => (
+                  <MenuItem key={lvl} value={lvl}>
+                    {lvl}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                select
+                fullWidth
+                label="Thesis Progress"
+                name="progress"
+                value={progress}
+                onChange={(e) => setProgress(e.target.value)}
+                size="small"
+              >
+                <MenuItem value="">Select Progress</MenuItem>
+                {progressOptions.map((pct) => (
+                  <MenuItem key={pct} value={String(pct)}>
+                    {pct}% {pct === 100 ? "(Completed)" : pct === 0 ? "(Just Started)" : "(In Progress)"}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+      {/* 2. Advisors & Committee Info */}
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Advisors & Thesis Committee
+          </Typography>
+
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Director Name"
+                name="director"
+                defaultValue={initialData?.director || ""}
+                placeholder="e.g. Alejandro Fernandez"
+                size="small"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Co-Director Name"
+                name="coDirector"
+                defaultValue={initialData?.coDirector || ""}
+                placeholder="e.g. Jose Delle Ville"
+                size="small"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="Other Advisors (comma separated)"
+                name="otherAdvisors"
+                defaultValue={initialData?.otherAdvisors || ""}
+                placeholder="e.g. Carlos R. Smith, Maria J. Garcia"
+                size="small"
+              />
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+      {/* 3. Resources & Timelines */}
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Resources & Timelines
+          </Typography>
+
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                type="date"
+                label="Start Date"
+                name="startDate"
+                defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
+                size="small"
+                slotProps={{ inputLabel: { shrink: true } }}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                type="date"
+                label="End Date (or Defense Date)"
+                name="endDate"
+                defaultValue={initialData?.endDate ? new Date(initialData.endDate).toISOString().split("T")[0] : ""}
+                size="small"
+                slotProps={{ inputLabel: { shrink: true } }}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                type="url"
+                label="Thesis Manuscript PDF Link"
+                name="reportUrl"
+                defaultValue={initialData?.reportUrl || ""}
+                placeholder="e.g. https://sedici.unlp.edu.ar/handle/..."
+                size="small"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                type="url"
+                label="Thesis Website"
+                name="website"
+                defaultValue={initialData?.website || ""}
+                placeholder="e.g. https://github.com/..."
+                size="small"
+              />
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+      {/* 4. Associate Members Multi-Selection */}
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyItems: "center", justifyContent: "between", alignItems: { xs: "stretch", md: "center" }, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3, gap: 2 }}>
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>
+                Associate Lab Members
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Select researchers associated with this thesis.
+              </Typography>
+            </Box>
+            <TextField
+              size="small"
+              placeholder="Search members..."
+              value={memberSearch}
+              onChange={(e) => setMemberSearch(e.target.value)}
+              sx={{ width: { xs: "100%", md: 260 } }}
+            />
+          </Box>
+
+          {filteredMembers.length === 0 ? (
+            <Typography variant="body2" sx={{ color: "text.secondary", fontStyle: "italic", py: 2 }}>
+              No researchers found.
+            </Typography>
+          ) : (
+            <Box sx={{ maxHeight: 240, overflowY: "auto", pr: 1 }}>
+              <Grid container spacing={2}>
+                {filteredMembers.map((member) => {
+                  const isChecked = selectedMemberIds.includes(member.id);
+                  return (
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={member.id}>
+                      <Box
+                        onClick={() => handleToggleMember(member.id)}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.5,
+                          p: 1.5,
+                          borderRadius: 2,
+                          border: "1px solid",
+                          borderColor: isChecked ? "primary.main" : "divider",
+                          bgcolor: isChecked ? "action.selected" : "background.paper",
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                          "&:hover": {
+                            bgcolor: "action.hover",
+                          },
+                        }}
+                      >
+                        <Checkbox
+                          checked={isChecked}
+                          size="small"
+                          sx={{ p: 0.5 }}
+                        />
+                        {member.avatarUrl ? (
+                          <Avatar
+                            src={member.avatarUrl}
+                            alt={`${member.firstName} ${member.lastName}`}
+                            sx={{ width: 32, height: 32 }}
+                          />
+                        ) : (
+                          <Avatar sx={{ width: 32, height: 32, fontSize: "0.8rem", fontWeight: "bold" }}>
+                            {member.firstName[0]}
+                            {member.lastName[0]}
+                          </Avatar>
+                        )}
+                        <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                          <Typography variant="subtitle2" noWrap sx={{ fontWeight: "bold", fontSize: "0.75rem" }}>
+                            {member.firstName} {member.lastName}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", fontSize: "0.65rem" }}>
+                            {member.positionAtLab || "Researcher"}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
       {/* 5. Linked Projects Multi-Selection */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <div className="border-b border-border pb-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div>
-            <h3 className="font-extrabold text-lg text-primary">Linked Projects</h3>
-            <p className="text-[10px] text-muted">Select research projects connected to this thesis.</p>
-          </div>
-          
-          <input
-            type="text"
-            placeholder="Search projects..."
-            value={projectSearch}
-            onChange={(e) => setProjectSearch(e.target.value)}
-            className="border border-border px-3 py-1.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs w-full md:w-64"
-          />
-        </div>
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyItems: "center", justifyContent: "between", alignItems: { xs: "stretch", md: "center" }, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3, gap: 2 }}>
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>
+                Linked Projects
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Select research projects connected to this thesis.
+              </Typography>
+            </Box>
+            <TextField
+              size="small"
+              placeholder="Search projects..."
+              value={projectSearch}
+              onChange={(e) => setProjectSearch(e.target.value)}
+              sx={{ width: { xs: "100%", md: 260 } }}
+            />
+          </Box>
 
-        {filteredProjects.length === 0 ? (
-          <div className="text-center py-6 text-xs text-muted font-medium bg-slate-50 dark:bg-slate-950 rounded-xl border border-border">
-            No projects found.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-56 overflow-y-auto pr-2">
-            {filteredProjects.map((proj) => {
-              const isChecked = selectedProjectIds.includes(proj.id);
-              return (
-                <div
-                  key={proj.id}
-                  onClick={() => handleToggleProject(proj.id)}
-                  className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer select-none transition-all ${
-                    isChecked
-                      ? "bg-primary/5 border-primary ring-1 ring-primary"
-                      : "bg-surface border-border hover:bg-slate-50 dark:hover:bg-slate-800"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    readOnly
-                    className="h-4 w-4 rounded border-border text-primary focus:ring-primary cursor-pointer shrink-0"
-                  />
-                  <div className="min-w-0">
-                    <span className="font-bold text-xs text-slate-800 dark:text-slate-200 block truncate">
-                      {proj.title}
-                    </span>
-                    <span className="text-[10px] text-muted block truncate mt-0.5">
-                      Slug: {proj.slug}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
+          {filteredProjects.length === 0 ? (
+            <Typography variant="body2" sx={{ color: "text.secondary", fontStyle: "italic", py: 2 }}>
+              No projects found.
+            </Typography>
+          ) : (
+            <Box sx={{ maxHeight: 240, overflowY: "auto", pr: 1 }}>
+              <Grid container spacing={2}>
+                {filteredProjects.map((proj) => {
+                  const isChecked = selectedProjectIds.includes(proj.id);
+                  return (
+                    <Grid size={{ xs: 12, sm: 6 }} key={proj.id}>
+                      <Box
+                        onClick={() => handleToggleProject(proj.id)}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.5,
+                          p: 1.5,
+                          borderRadius: 2,
+                          border: "1px solid",
+                          borderColor: isChecked ? "primary.main" : "divider",
+                          bgcolor: isChecked ? "action.selected" : "background.paper",
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                          "&:hover": {
+                            bgcolor: "action.hover",
+                          },
+                        }}
+                      >
+                        <Checkbox
+                          checked={isChecked}
+                          size="small"
+                          sx={{ p: 0.5 }}
+                        />
+                        <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                          <Typography variant="subtitle2" noWrap sx={{ fontWeight: "bold", fontSize: "0.75rem" }}>
+                            {proj.title}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", fontSize: "0.65rem" }}>
+                            Slug: {proj.slug}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
       {/* 6. Linked Publications Multi-Selection */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <div className="border-b border-border pb-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div>
-            <h3 className="font-extrabold text-lg text-primary">Linked Publications</h3>
-            <p className="text-[10px] text-muted">Select associated scientific papers or publications.</p>
-          </div>
-          
-          <input
-            type="text"
-            placeholder="Search publications..."
-            value={publicationSearch}
-            onChange={(e) => setPublicationSearch(e.target.value)}
-            className="border border-border px-3 py-1.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-xs w-full md:w-64"
-          />
-        </div>
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyItems: "center", justifyContent: "between", alignItems: { xs: "stretch", md: "center" }, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3, gap: 2 }}>
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>
+                Linked Publications
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Select associated scientific papers or publications.
+              </Typography>
+            </Box>
+            <TextField
+              size="small"
+              placeholder="Search publications..."
+              value={publicationSearch}
+              onChange={(e) => setPublicationSearch(e.target.value)}
+              sx={{ width: { xs: "100%", md: 260 } }}
+            />
+          </Box>
 
-        {filteredPublications.length === 0 ? (
-          <div className="text-center py-6 text-xs text-muted font-medium bg-slate-50 dark:bg-slate-950 rounded-xl border border-border">
-            No publications found.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-3 max-h-56 overflow-y-auto pr-2">
-            {filteredPublications.map((pub) => {
-              const isChecked = selectedPublicationIds.includes(pub.id);
-              return (
-                <div
-                  key={pub.id}
-                  onClick={() => handleTogglePublication(pub.id)}
-                  className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer select-none transition-all ${
-                    isChecked
-                      ? "bg-primary/5 border-primary ring-1 ring-primary"
-                      : "bg-surface border-border hover:bg-slate-50 dark:hover:bg-slate-800"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    readOnly
-                    className="h-4 w-4 rounded border-border text-primary focus:ring-primary cursor-pointer shrink-0"
-                  />
-                  <div className="min-w-0">
-                    <span className="font-bold text-xs text-slate-800 dark:text-slate-200 block truncate">
-                      {pub.title}
-                    </span>
-                    <span className="text-[10px] text-muted block truncate mt-0.5">
-                      Year: {pub.year}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
+          {filteredPublications.length === 0 ? (
+            <Typography variant="body2" sx={{ color: "text.secondary", fontStyle: "italic", py: 2 }}>
+              No publications found.
+            </Typography>
+          ) : (
+            <Box sx={{ maxHeight: 240, overflowY: "auto", pr: 1 }}>
+              <Grid container spacing={2}>
+                {filteredPublications.map((pub) => {
+                  const isChecked = selectedPublicationIds.includes(pub.id);
+                  return (
+                    <Grid size={{ xs: 12 }} key={pub.id}>
+                      <Box
+                        onClick={() => handleTogglePublication(pub.id)}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.5,
+                          p: 1.5,
+                          borderRadius: 2,
+                          border: "1px solid",
+                          borderColor: isChecked ? "primary.main" : "divider",
+                          bgcolor: isChecked ? "action.selected" : "background.paper",
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                          "&:hover": {
+                            bgcolor: "action.hover",
+                          },
+                        }}
+                      >
+                        <Checkbox
+                          checked={isChecked}
+                          size="small"
+                          sx={{ p: 0.5 }}
+                        />
+                        <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                          <Typography variant="subtitle2" noWrap sx={{ fontWeight: "bold", fontSize: "0.75rem" }}>
+                            {pub.title}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", fontSize: "0.65rem" }}>
+                            Year: {pub.year}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
       {/* 7. Abstract Summary & Tagging */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Thesis Abstract & Classification
-        </h3>
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Thesis Abstract & Classification
+          </Typography>
 
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Thesis Abstract/Summary</label>
-            <textarea
-              name="summary"
-              defaultValue={initialData?.summary || ""}
-              placeholder="Provide a detailed abstract summary of the thesis scope, methodology, and scientific contributions..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm h-48"
-            />
-          </div>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                multiline
+                rows={6}
+                label="Thesis Abstract/Summary"
+                name="summary"
+                defaultValue={initialData?.summary || ""}
+                placeholder="Provide a detailed abstract summary of the thesis scope, methodology, and scientific contributions..."
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Classification Keywords (comma separated)</label>
-            <input
-              type="text"
-              name="keywords"
-              defaultValue={initialData?.keywords || ""}
-              placeholder="e.g. HCI, Knowledge Management, Collaborative Learning"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-        </div>
-      </div>
-
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="Classification Keywords (comma separated)"
+                name="keywords"
+                defaultValue={initialData?.keywords || ""}
+                placeholder="e.g. HCI, Knowledge Management, Collaborative Learning"
+                size="small"
+              />
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
       {/* Dynamic Classification Tags */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Research Classification Tags
-        </h3>
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Classification Tags</label>
-          <TagWidget
-            initialTags={initialData?.tags || []}
-            placeholder="Add thesis keywords and fields..."
-          />
-        </div>
-      </div>
-
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Research Classification Tags
+          </Typography>
+          <Box sx={{ mt: 1 }}>
+            <TagWidget
+              initialTags={initialData?.tags || []}
+              placeholder="Add thesis keywords and fields..."
+            />
+          </Box>
+        </CardContent>
+      </Card>
       {/* Form Actions */}
-      <div className="flex items-center justify-end gap-4">
-        <Link
+      <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}>
+        <Button
+          variant="outlined"
+          component={Link}
           href={initialData ? `/theses/${initialData.slug}` : "/theses"}
-          className="px-6 py-3 rounded-xl border border-border text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-bold text-sm cursor-pointer"
+          sx={{ borderRadius: 2, px: 4, py: 1.5, fontWeight: "bold" }}
         >
           Cancel
-        </Link>
-        
-        <button
+        </Button>
+        <Button
           type="submit"
+          variant="contained"
           disabled={isSubmitting}
-          className="bg-primary hover:bg-primary-hover text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+          sx={{ borderRadius: 2, px: 4, py: 1.5, fontWeight: "bold" }}
         >
           {isSubmitting ? "Saving Thesis..." : initialData ? "Save Changes" : "Create Thesis"}
-        </button>
-      </div>
-    </form>
+        </Button>
+      </Box>
+    </Box>
   );
 }

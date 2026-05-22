@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { SUPPORTED_STYLES } from "@/lib/citations";
+import { Box, Typography, FormControl, Select, MenuItem } from "@mui/material";
 
 interface CitationStyleSelectorProps {
   initialStyle: string;
@@ -13,7 +13,7 @@ export function CitationStyleSelector({ initialStyle }: CitationStyleSelectorPro
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleChange = (e: { target: { value: string } }) => {
     const newStyle = e.target.value;
     const params = new URLSearchParams(searchParams.toString());
     params.set("style", newStyle);
@@ -21,21 +21,27 @@ export function CitationStyleSelector({ initialStyle }: CitationStyleSelectorPro
   };
 
   return (
-    <div className="flex items-center gap-1.5">
-      <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-        Format:
-      </label>
-      <select
-        value={initialStyle}
-        onChange={handleChange}
-        className="px-2 py-1 text-[11px] font-semibold bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 rounded-lg focus:outline-none text-slate-700 dark:text-slate-350 cursor-pointer transition-all hover:bg-slate-100 dark:hover:bg-slate-900"
+    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+      <Typography
+        variant="caption"
+        sx={{ fontWeight: 800, color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.5px" }}
       >
-        {SUPPORTED_STYLES.map((st) => (
-          <option key={st.value} value={st.value}>
-            {st.label}
-          </option>
-        ))}
-      </select>
-    </div>
+        Format:
+      </Typography>
+      <FormControl size="small">
+        <Select
+          size="small"
+          value={initialStyle}
+          onChange={(e) => handleChange({ target: { value: e.target.value } })}
+          sx={{ fontSize: "0.75rem", height: 28 }}
+        >
+          {SUPPORTED_STYLES.map((st) => (
+            <MenuItem key={st.value} value={st.value}>
+              {st.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </Box>
   );
 }

@@ -5,6 +5,19 @@ import { createMember, updateMember } from "./actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TagWidget } from "@/components/TagWidget";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  TextField,
+  MenuItem,
+  Button,
+  Alert,
+  Chip,
+  InputAdornment,
+} from "@mui/material";
 
 interface MemberFormProps {
   initialData?: any;
@@ -74,59 +87,52 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto pb-16">
+    <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 4, pb: 8 }}>
       {errorMsg && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
-          <span>🚫</span>
-          <span>{errorMsg}</span>
-        </div>
+        <Alert severity="error" sx={{ borderRadius: 3 }}>
+          {errorMsg}
+        </Alert>
       )}
-
       {/* 1. Core Profile Details Card */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Core Profile Info
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">First Name *</label>
-            <input
-              type="text"
-              name="firstName"
-              required
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              placeholder="e.g. Alejandro"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Core Profile Info
+          </Typography>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Last Name *</label>
-            <input
-              type="text"
-              name="lastName"
-              required
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              placeholder="e.g. Fernandez"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="First Name"
+                name="firstName"
+                required
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="e.g. Alejandro"
+                size="small"
+                variant="outlined"
+              />
+            </Grid>
 
-          <div className="space-y-1.5 md:col-span-2">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-              <span>SEO Slug *</span>
-              {!isSlugOverridden && (
-                <span className="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded">
-                  ✨ Auto-Generated
-                </span>
-              )}
-            </label>
-            <div className="relative">
-              <input
-                type="text"
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Last Name"
+                name="lastName"
+                required
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="e.g. Fernandez"
+                size="small"
+                variant="outlined"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="SEO Slug"
                 name="slug"
                 required
                 value={slug}
@@ -135,408 +141,457 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
                   setSlug(e.target.value);
                 }}
                 placeholder="e.g. alejandro-fernandez"
-                className="w-full border border-border pl-3 pr-24 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm font-semibold"
+                size="small"
+                variant="outlined"
+                helperText="This slug generates the URL /members/[slug] for this CV profile. Manual override is active if you type in it."
+                slotProps={{ input: {
+                  endAdornment: (
+                    <InputAdornment position="end" sx={{ gap: 1 }}>
+                      {!isSlugOverridden ? (
+                        <Chip
+                          label="Auto-Generated"
+                          color="success"
+                          size="small"
+                          sx={{ fontWeight: "bold", borderRadius: 1 }}
+                        />
+                      ) : (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() => {
+                            setIsSlugOverridden(false);
+                            const generated = `${firstName} ${lastName}`
+                              .toLowerCase()
+                              .trim()
+                              .normalize("NFD")
+                              .replace(/[\u0300-\u036f]/g, "")
+                              .replace(/[^a-z0-9]+/g, "-")
+                              .replace(/(^-|-$)/g, "");
+                            setSlug(generated);
+                          }}
+                          sx={{ textTransform: "none", py: 0.25, px: 1, fontSize: "0.625rem", fontWeight: "bold" }}
+                        >
+                          Reset Auto
+                        </Button>
+                      )}
+                    </InputAdornment>
+                  ),
+                } }}
               />
-              <button
-                type="button"
-                onClick={() => {
-                  setIsSlugOverridden(false);
-                  // Trigger reset
-                  const generated = `${firstName} ${lastName}`
-                    .toLowerCase()
-                    .trim()
-                    .normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .replace(/[^a-z0-9]+/g, "-")
-                    .replace(/(^-|-$)/g, "");
-                  setSlug(generated);
-                }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] uppercase font-bold text-primary hover:bg-slate-100 dark:hover:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-border cursor-pointer transition-all"
-              >
-                Reset Auto
-              </button>
-            </div>
-            <p className="text-[10px] text-muted leading-relaxed">
-              This slug generates the URL `/members/[slug]` for this CV profile. Manual override is active if you type in it.
-            </p>
-          </div>
-        </div>
-      </div>
-
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
       {/* 2. Professional & Academic Accreditation */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Lab Role & Academic Credentials
-        </h3>
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Lab Role & Academic Credentials
+          </Typography>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Position at Lab</label>
-            <select
-              name="positionAtLab"
-              defaultValue={initialData?.positionAtLab || ""}
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            >
-              <option value="">-- Select Position --</option>
-              {positionAtLabOptions.map((val) => (
-                <option key={val} value={val}>
-                  {val}
-                </option>
-              ))}
-              {initialData?.positionAtLab && !positionAtLabOptions.includes(initialData.positionAtLab) && (
-                <option value={initialData.positionAtLab}>
-                  {initialData.positionAtLab} (Legacy)
-                </option>
-              )}
-            </select>
-          </div>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                select
+                fullWidth
+                label="Position at Lab"
+                name="positionAtLab"
+                defaultValue={initialData?.positionAtLab || ""}
+                size="small"
+              >
+                <MenuItem value="">-- Select Position --</MenuItem>
+                {positionAtLabOptions.map((val) => (
+                  <MenuItem key={val} value={val}>
+                    {val}
+                  </MenuItem>
+                ))}
+                {initialData?.positionAtLab && !positionAtLabOptions.includes(initialData.positionAtLab) && (
+                  <MenuItem value={initialData.positionAtLab}>
+                    {initialData.positionAtLab} (Legacy)
+                  </MenuItem>
+                )}
+              </TextField>
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">UNLP Academic position</label>
-            <select
-              name="positionAtUnlp"
-              defaultValue={initialData?.positionAtUnlp || ""}
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            >
-              <option value="">-- Select Position --</option>
-              {positionAtUnlpOptions.map((val) => (
-                <option key={val} value={val}>
-                  {val}
-                </option>
-              ))}
-              {initialData?.positionAtUnlp && !positionAtUnlpOptions.includes(initialData.positionAtUnlp) && (
-                <option value={initialData.positionAtUnlp}>
-                  {initialData.positionAtUnlp} (Legacy)
-                </option>
-              )}
-            </select>
-          </div>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                select
+                fullWidth
+                label="UNLP Academic Position"
+                name="positionAtUnlp"
+                defaultValue={initialData?.positionAtUnlp || ""}
+                size="small"
+              >
+                <MenuItem value="">-- Select Position --</MenuItem>
+                {positionAtUnlpOptions.map((val) => (
+                  <MenuItem key={val} value={val}>
+                    {val}
+                  </MenuItem>
+                ))}
+                {initialData?.positionAtUnlp && !positionAtUnlpOptions.includes(initialData.positionAtUnlp) && (
+                  <MenuItem value={initialData.positionAtUnlp}>
+                    {initialData.positionAtUnlp} (Legacy)
+                  </MenuItem>
+                )}
+              </TextField>
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Highest Degree</label>
-            <input
-              type="text"
-              name="highestDegree"
-              defaultValue={initialData?.highestDegree || ""}
-              placeholder="e.g. Dr. en Ciencias Informáticas"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                fullWidth
+                label="Highest Degree"
+                name="highestDegree"
+                defaultValue={initialData?.highestDegree || ""}
+                placeholder="e.g. Dr. en Ciencias Informaticas"
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">CONICET Category</label>
-            <select
-              name="positionAtCONICET"
-              defaultValue={initialData?.positionAtCONICET || ""}
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            >
-              <option value="">-- Select Category --</option>
-              {positionAtCONICETOptions.map((val) => (
-                <option key={val} value={val}>
-                  {val}
-                </option>
-              ))}
-              {initialData?.positionAtCONICET && !positionAtCONICETOptions.includes(initialData.positionAtCONICET) && (
-                <option value={initialData.positionAtCONICET}>
-                  {initialData.positionAtCONICET} (Legacy)
-                </option>
-              )}
-            </select>
-          </div>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                select
+                fullWidth
+                label="CONICET Category"
+                name="positionAtCONICET"
+                defaultValue={initialData?.positionAtCONICET || ""}
+                size="small"
+              >
+                <MenuItem value="">-- Select Category --</MenuItem>
+                {positionAtCONICETOptions.map((val) => (
+                  <MenuItem key={val} value={val}>
+                    {val}
+                  </MenuItem>
+                ))}
+                {initialData?.positionAtCONICET && !positionAtCONICETOptions.includes(initialData.positionAtCONICET) && (
+                  <MenuItem value={initialData.positionAtCONICET}>
+                    {initialData.positionAtCONICET} (Legacy)
+                  </MenuItem>
+                )}
+              </TextField>
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">CIC Position</label>
-            <select
-              name="positionAtCIC"
-              defaultValue={initialData?.positionAtCIC || ""}
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            >
-              <option value="">-- Select Position --</option>
-              {positionAtCICOptions.map((val) => (
-                <option key={val} value={val}>
-                  {val}
-                </option>
-              ))}
-              {initialData?.positionAtCIC && !positionAtCICOptions.includes(initialData.positionAtCIC) && (
-                <option value={initialData.positionAtCIC}>
-                  {initialData.positionAtCIC} (Legacy)
-                </option>
-              )}
-            </select>
-          </div>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                select
+                fullWidth
+                label="CIC Position"
+                name="positionAtCIC"
+                defaultValue={initialData?.positionAtCIC || ""}
+                size="small"
+              >
+                <MenuItem value="">-- Select Position --</MenuItem>
+                {positionAtCICOptions.map((val) => (
+                  <MenuItem key={val} value={val}>
+                    {val}
+                  </MenuItem>
+                ))}
+                {initialData?.positionAtCIC && !positionAtCICOptions.includes(initialData.positionAtCIC) && (
+                  <MenuItem value={initialData.positionAtCIC}>
+                    {initialData.positionAtCIC} (Legacy)
+                  </MenuItem>
+                )}
+              </TextField>
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">SICADI Category</label>
-            <input
-              type="text"
-              name="sicadiCategory"
-              defaultValue={initialData?.sicadiCategory || ""}
-              placeholder="e.g. I, II, III"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                fullWidth
+                label="SICADI Category"
+                name="sicadiCategory"
+                defaultValue={initialData?.sicadiCategory || ""}
+                placeholder="e.g. I, II, III"
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Scientific Category (Incentivos)</label>
-            <input
-              type="text"
-              name="category"
-              defaultValue={initialData?.category || ""}
-              placeholder="e.g. Cat I, Cat II"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                fullWidth
+                label="Scientific Category (Incentivos)"
+                name="category"
+                defaultValue={initialData?.category || ""}
+                placeholder="e.g. Cat I, Cat II"
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Joined Lab (Date)</label>
-            <input
-              type="date"
-              name="startDate"
-              defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                fullWidth
+                type="date"
+                label="Joined Lab"
+                name="startDate"
+                defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
+                size="small"
+                slotProps={{ inputLabel: { shrink: true } }}
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Left Lab (Date)</label>
-            <input
-              type="date"
-              name="endDate"
-              defaultValue={initialData?.endDate ? new Date(initialData.endDate).toISOString().split("T")[0] : ""}
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-        </div>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                fullWidth
+                type="date"
+                label="Left Lab"
+                name="endDate"
+                defaultValue={initialData?.endDate ? new Date(initialData.endDate).toISOString().split("T")[0] : ""}
+                size="small"
+                slotProps={{ inputLabel: { shrink: true } }}
+              />
+            </Grid>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Courses taught at UNLP</label>
-            <textarea
-              name="coursesAtUNLP"
-              defaultValue={initialData?.coursesAtUNLP || ""}
-              placeholder="List courses separated by commas or lines..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm h-20 resize-none"
-            />
-          </div>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                label="Courses taught at UNLP"
+                name="coursesAtUNLP"
+                defaultValue={initialData?.coursesAtUNLP || ""}
+                placeholder="List courses separated by commas or lines..."
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Affiliations</label>
-            <textarea
-              name="affiliations"
-              defaultValue={initialData?.affiliations || ""}
-              placeholder="e.g. Lab - Department - University"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm h-20 resize-none"
-            />
-          </div>
-        </div>
-      </div>
-
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                label="Affiliations"
+                name="affiliations"
+                defaultValue={initialData?.affiliations || ""}
+                placeholder="e.g. Lab - Department - University"
+                size="small"
+              />
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
       {/* 3. Communication & Web Portals */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Contact Details & Web Profiles
-        </h3>
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Contact Details & Web Profiles
+          </Typography>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Institutional Email</label>
-            <input
-              type="email"
-              name="institutionalEmail"
-              defaultValue={initialData?.institutionalEmail || ""}
-              placeholder="e.g. name@domain.com"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                fullWidth
+                type="email"
+                label="Institutional Email"
+                name="institutionalEmail"
+                defaultValue={initialData?.institutionalEmail || ""}
+                placeholder="e.g. name@domain.com"
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Personal Email</label>
-            <input
-              type="email"
-              name="personalEmail"
-              defaultValue={initialData?.personalEmail || ""}
-              placeholder="e.g. name@gmail.com"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                fullWidth
+                type="email"
+                label="Personal Email"
+                name="personalEmail"
+                defaultValue={initialData?.personalEmail || ""}
+                placeholder="e.g. name@gmail.com"
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Phone Number</label>
-            <input
-              type="text"
-              name="phone"
-              defaultValue={initialData?.phone || ""}
-              placeholder="e.g. +54 221 ..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                fullWidth
+                label="Phone Number"
+                name="phone"
+                defaultValue={initialData?.phone || ""}
+                placeholder="e.g. +54 221 ..."
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Personal Web Page URL</label>
-            <input
-              type="url"
-              name="webPage"
-              defaultValue={initialData?.webPage || ""}
-              placeholder="e.g. https://..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                fullWidth
+                type="url"
+                label="Personal Web Page URL"
+                name="webPage"
+                defaultValue={initialData?.webPage || ""}
+                placeholder="e.g. https://..."
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">ORCID ID</label>
-            <input
-              type="text"
-              name="orcid"
-              defaultValue={initialData?.orcid || ""}
-              placeholder="e.g. 0000-0002-1825-0097"
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                fullWidth
+                label="ORCID ID"
+                name="orcid"
+                defaultValue={initialData?.orcid || ""}
+                placeholder="e.g. 0000-0002-1825-0097"
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">DBLP Profile Link</label>
-            <input
-              type="url"
-              name="dblpProfile"
-              defaultValue={initialData?.dblpProfile || ""}
-              placeholder="e.g. https://dblp.org/pid/..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                fullWidth
+                type="url"
+                label="DBLP Profile Link"
+                name="dblpProfile"
+                defaultValue={initialData?.dblpProfile || ""}
+                placeholder="e.g. https://dblp.org/pid/..."
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Google Scholar URL</label>
-            <input
-              type="url"
-              name="googleResearchProfile"
-              defaultValue={initialData?.googleResearchProfile || ""}
-              placeholder="e.g. https://scholar.google.com/citations?..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                fullWidth
+                type="url"
+                label="Google Scholar URL"
+                name="googleResearchProfile"
+                defaultValue={initialData?.googleResearchProfile || ""}
+                placeholder="e.g. https://scholar.google.com/citations?..."
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">ResearchGate URL</label>
-            <input
-              type="url"
-              name="researchGateProfile"
-              defaultValue={initialData?.researchGateProfile || ""}
-              placeholder="e.g. https://www.researchgate.net/profile/..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                fullWidth
+                type="url"
+                label="ResearchGate URL"
+                name="researchGateProfile"
+                defaultValue={initialData?.researchGateProfile || ""}
+                placeholder="e.g. https://www.researchgate.net/profile/..."
+                size="small"
+              />
+            </Grid>
 
-           <div className="space-y-1.5 col-span-1">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Avatar Image URL</label>
-            <input
-              type="url"
-              name="avatarUrl"
-              defaultValue={initialData?.avatarUrl || ""}
-              placeholder="e.g. https://..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm"
-            />
-          </div>
-        </div>
-      </div>
-
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                fullWidth
+                type="url"
+                label="Avatar Image URL"
+                name="avatarUrl"
+                defaultValue={initialData?.avatarUrl || ""}
+                placeholder="e.g. https://..."
+                size="small"
+              />
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
       {/* Dynamic Classification Tags */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-4">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Research Classification Tags
-        </h3>
-        <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Interest Tags</label>
-          <TagWidget
-            initialTags={initialData?.tags || []}
-            placeholder="Add academic or research interests..."
-          />
-        </div>
-      </div>
-
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Research Classification Tags
+          </Typography>
+          <Box sx={{ mt: 1 }}>
+            <TagWidget
+              initialTags={initialData?.tags || []}
+              placeholder="Add academic or research interests..."
+            />
+          </Box>
+        </CardContent>
+      </Card>
       {/* 4. Bilingual Biographies & General Notes */}
-      <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-        <h3 className="font-extrabold text-lg text-primary border-b border-border pb-3">
-          Bilingual CV & Research Summaries
-        </h3>
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
+            Bilingual CV & Research Summaries
+          </Typography>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-              <span>🇬🇧 Short CV (English)</span>
-            </label>
-            <textarea
-              name="shortCvInEnglish"
-              defaultValue={initialData?.shortCvInEnglish || ""}
-              placeholder="Write a concise professional biography in English..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm h-40"
-            />
-          </div>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <TextField
+                fullWidth
+                multiline
+                rows={6}
+                label="Short CV (English)"
+                name="shortCvInEnglish"
+                defaultValue={initialData?.shortCvInEnglish || ""}
+                placeholder="Write a concise professional biography in English..."
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-              <span>🇪🇸 Breve CV (Español)</span>
-            </label>
-            <textarea
-              name="shortCvInSpanish"
-              defaultValue={initialData?.shortCvInSpanish || ""}
-              placeholder="Escriba una biografía profesional breve en Español..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm h-40"
-            />
-          </div>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <TextField
+                fullWidth
+                multiline
+                rows={6}
+                label="Short CV (Spanish)"
+                name="shortCvInSpanish"
+                defaultValue={initialData?.shortCvInSpanish || ""}
+                placeholder="Escriba una biografia profesional breve en Espanol..."
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-              <span>🇬🇧 Research Interests (English)</span>
-            </label>
-            <textarea
-              name="interestsInEnglish"
-              defaultValue={initialData?.interestsInEnglish || ""}
-              placeholder="Summarize main research lines in English..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm h-28"
-            />
-          </div>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                label="Research Interests (English)"
+                name="interestsInEnglish"
+                defaultValue={initialData?.interestsInEnglish || ""}
+                placeholder="Summarize main research lines in English..."
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-              <span>🇪🇸 Intereses de Investigación (Español)</span>
-            </label>
-            <textarea
-              name="interestsInSpanish"
-              defaultValue={initialData?.interestsInSpanish || ""}
-              placeholder="Resuma las principales líneas de investigación en Español..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm h-28"
-            />
-          </div>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                label="Research Interests (Spanish)"
+                name="interestsInSpanish"
+                defaultValue={initialData?.interestsInSpanish || ""}
+                placeholder="Resuma las principales lineas de investigacion en Espanol..."
+                size="small"
+              />
+            </Grid>
 
-          <div className="space-y-1.5 md:col-span-2">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">General Notes</label>
-            <textarea
-              name="notes"
-              defaultValue={initialData?.notes || ""}
-              placeholder="Any additional system administrative notes..."
-              className="w-full border border-border px-3 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary bg-background text-foreground text-sm h-20"
-            />
-          </div>
-        </div>
-      </div>
-
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                label="General Notes"
+                name="notes"
+                defaultValue={initialData?.notes || ""}
+                placeholder="Any additional system administrative notes..."
+                size="small"
+              />
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
       {/* Form Submission Action Buttons */}
-      <div className="flex items-center justify-end gap-4">
-        <Link
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 2 }}>
+        <Button
+          variant="outlined"
+          component={Link}
           href={initialData ? `/members/${initialData.slug}` : "/members"}
-          className="px-6 py-3 rounded-xl border border-border text-slate-700 hover:bg-slate-100 transition-all font-bold text-sm cursor-pointer"
+          sx={{ borderRadius: 2, textTransform: "none", fontWeight: "bold", px: 4, py: 1 }}
         >
           Cancel
-        </Link>
-        
-        <button
+        </Button>
+
+        <Button
           type="submit"
           disabled={isSubmitting}
-          className="bg-primary hover:bg-primary-hover text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+          variant="contained"
+          sx={{ borderRadius: 2, textTransform: "none", fontWeight: "bold", px: 4, py: 1 }}
         >
           {isSubmitting ? "Saving Profile..." : initialData ? "Save Changes" : "Create Profile"}
-        </button>
-      </div>
-    </form>
+        </Button>
+      </Box>
+    </Box>
   );
 }

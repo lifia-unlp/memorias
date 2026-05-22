@@ -1,19 +1,21 @@
 import React from "react";
 import { Header } from "@/components/Header";
 import ReportBuilderClient from "./ReportBuilderClient";
+import { Container, Box } from "@mui/material";
 
 export default function ReportBuilderPage() {
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>
       
       {/* Server-side Header - perfectly isolated from client Webpack bundles */}
       <Header />
 
       {/* Client-side Workspace */}
-      <div className="flex-1 flex flex-col max-w-7xl w-full mx-auto px-6 py-8">
+      <Container maxWidth="xl" sx={{ py: 4, flex: 1, display: "flex", flexDirection: "column" }}>
         <ReportBuilderClient />
-      </div>
+      </Container>
 
-    </div>
+    </Box>
   );
 }
+

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { Box, Tabs, Tab, Typography, Card } from "@mui/material";
 
 export function CvTabs({
   cvEs,
@@ -13,75 +14,153 @@ export function CvTabs({
   interestsEs: string | null;
   interestsEn: string | null;
 }) {
-  const [lang, setLang] = useState<"ES" | "EN">("EN"); // Default English
+  const [tabValue, setTabValue] = useState(0); // 0 = English, 1 = Spanish
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-2xl shadow-sm space-y-6">
-      <div className="flex items-center justify-between border-b border-border pb-4">
-        <h3 className="font-extrabold text-lg text-primary">Biography & Interests</h3>
-        <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-          <button
-            onClick={() => setLang("EN")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              lang === "EN"
-                ? "bg-white dark:bg-slate-950 text-primary shadow-sm"
-                : "text-slate-500 hover:text-slate-850 dark:hover:text-slate-200"
-            }`}
-          >
-            🇬🇧 English
-          </button>
-          <button
-            onClick={() => setLang("ES")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              lang === "ES"
-                ? "bg-white dark:bg-slate-950 text-primary shadow-sm"
-                : "text-slate-500 hover:text-slate-855 dark:hover:text-slate-200"
-            }`}
-          >
-            🇪🇸 Spanish
-          </button>
-        </div>
-      </div>
+    <Card sx={{ p: 4, display: "flex", flexDirection: "column", gap: 3 }}>
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: 1, borderColor: "divider", pb: 1, flexWrap: "wrap", gap: 2 }}>
+        <Typography variant="h3" sx={{ color: "primary.main", fontWeight: "bold" }}>
+          Biography and Interests
+        </Typography>
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          aria-label="Biography language tabs"
+          sx={{
+            minHeight: "auto",
+            "& .MuiTab-root": {
+              minHeight: "auto",
+              py: 1,
+              px: 2,
+              fontWeight: "bold",
+              fontSize: "0.8rem",
+            },
+          }}
+        >
+          <Tab label="English" />
+          <Tab label="Spanish" />
+        </Tabs>
+      </Box>
 
-      <div className="space-y-6 leading-relaxed text-sm">
-        {lang === "EN" ? (
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        {tabValue === 0 ? (
           <>
             {cvEn ? (
-              <div className="space-y-2">
-                <span className="text-xs font-bold text-secondary uppercase tracking-wider block">Short CV</span>
-                <p className="whitespace-pre-line text-slate-600 dark:text-slate-300">{cvEn}</p>
-              </div>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: "bold",
+                    color: "secondary.main",
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                  }}
+                >
+                  Short CV
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    whiteSpace: "pre-line",
+                    color: "text.primary",
+                  }}
+                >
+                  {cvEn}
+                </Typography>
+              </Box>
             ) : (
-              <p className="text-xs text-muted italic">No English biography provided.</p>
+              <Typography variant="body2" sx={{ fontStyle: "italic", color: "text.secondary" }}>
+                No English biography provided.
+              </Typography>
             )}
 
             {interestsEn && (
-              <div className="space-y-2 pt-4 border-t border-border/60">
-                <span className="text-xs font-bold text-secondary uppercase tracking-wider block">Research Interests</span>
-                <p className="whitespace-pre-line text-slate-600 dark:text-slate-300">{interestsEn}</p>
-              </div>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1, pt: 3, borderTop: 1, borderColor: "divider" }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: "bold",
+                    color: "secondary.main",
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                  }}
+                >
+                  Research Interests
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    whiteSpace: "pre-line",
+                    color: "text.primary",
+                  }}
+                >
+                  {interestsEn}
+                </Typography>
+              </Box>
             )}
           </>
         ) : (
           <>
             {cvEs ? (
-              <div className="space-y-2">
-                <span className="text-xs font-bold text-secondary uppercase tracking-wider block">Breve CV</span>
-                <p className="whitespace-pre-line text-slate-600 dark:text-slate-300">{cvEs}</p>
-              </div>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: "bold",
+                    color: "secondary.main",
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                  }}
+                >
+                  Breve CV
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    whiteSpace: "pre-line",
+                    color: "text.primary",
+                  }}
+                >
+                  {cvEs}
+                </Typography>
+              </Box>
             ) : (
-              <p className="text-xs text-muted italic">No Spanish biography provided.</p>
+              <Typography variant="body2" sx={{ fontStyle: "italic", color: "text.secondary" }}>
+                No Spanish biography provided.
+              </Typography>
             )}
 
             {interestsEs && (
-              <div className="space-y-2 pt-4 border-t border-border/60">
-                <span className="text-xs font-bold text-secondary uppercase tracking-wider block">Intereses de Investigación</span>
-                <p className="whitespace-pre-line text-slate-600 dark:text-slate-300">{interestsEs}</p>
-              </div>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1, pt: 3, borderTop: 1, borderColor: "divider" }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: "bold",
+                    color: "secondary.main",
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                  }}
+                >
+                  Intereses de Investigacion
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    whiteSpace: "pre-line",
+                    color: "text.primary",
+                  }}
+                >
+                  {interestsEs}
+                </Typography>
+              </Box>
             )}
           </>
         )}
-      </div>
-    </div>
+      </Box>
+    </Card>
   );
 }

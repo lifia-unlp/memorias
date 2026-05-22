@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
 import { Header } from "@/components/Header";
 import { PublicationForm } from "../../PublicationForm";
+import { Container, Box, Typography } from "@mui/material";
 
 type Params = Promise<{ slug: string }>;
 
@@ -48,26 +49,42 @@ export default async function EditPublicationPage({ params }: { params: Params }
   });
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>
       <Header activeTab="publications" />
 
-      <section className="bg-gradient-to-br from-primary to-primary-hover text-white py-12 px-6 shadow-inner relative overflow-hidden border-b border-blue-700/20">
-        <div className="max-w-7xl mx-auto z-10 relative">
-          <h1 className="text-4xl font-extrabold tracking-tight">Edit Publication</h1>
-          <p className="text-blue-100 text-sm mt-2 max-w-xl">
+      {/* Hero Banner Section */}
+      <Box
+        sx={{
+          background: (theme) =>
+            theme.palette.mode === "dark"
+              ? "linear-gradient(135deg, #052438 0%, #093A54 100%)"
+              : "linear-gradient(135deg, #093A54 0%, #0d4b6e 100%)",
+          color: "white",
+          py: 6,
+          px: 3,
+          boxShadow: "inset 0 -2px 10px rgba(0,0,0,0.1)",
+        }}
+      >
+        <Container maxWidth="lg">
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 800, mb: 1 }}>
+            Edit Publication
+          </Typography>
+          <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.8)", maxWidth: 600 }}>
             Update attributes, revise tags, or sync researcher and project relationships below.
-          </p>
-        </div>
-      </section>
+          </Typography>
+        </Container>
+      </Box>
 
-      <main className="max-w-7xl w-full mx-auto px-6 py-10 flex-1">
+      {/* Form Area */}
+      <Container maxWidth="lg" sx={{ py: 6, flex: 1 }}>
         <PublicationForm
           publication={publication}
           members={members}
           projects={projects}
           theses={theses}
         />
-      </main>
-    </div>
+      </Container>
+    </Box>
   );
 }
+

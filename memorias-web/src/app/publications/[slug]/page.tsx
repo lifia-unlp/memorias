@@ -4,12 +4,26 @@ import { auth } from "@/auth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { jsonToBibtex } from "@/lib/bibtex";
 import { CopyBibtexButton } from "./CopyBibtexButton";
 import { DeletePublicationButton } from "./DeletePublicationButton";
 import { formatCitation } from "@/lib/citations";
 import { CopyCitationButton } from "../CopyCitationButton";
 import { CitationStyleSelector } from "../CitationStyleSelector";
+import { RelatedMembers } from "@/components/reusable/RelatedMembers";
+import { RelatedProjects } from "@/components/reusable/RelatedProjects";
+import { RelatedTheses } from "@/components/reusable/RelatedTheses";
+import {
+  Container,
+  Box,
+  Typography,
+  Button,
+  Grid,
+  Card,
+  CardContent,
+  Chip,
+} from "@mui/material";
 
 type Params = Promise<{ slug: string }>;
 type SearchParams = Promise<{ style?: string }>;
@@ -31,7 +45,7 @@ export default async function PublicationDetailPage({
   const resolvedSearchParams = await searchParams;
   const styleFilter = resolvedSearchParams.style || "apa";
 
-  // Query publication and related entities
+  // Query publication and related entities with all fields needed for widgets
   const pb = await prisma.publication.findUnique({
     where: { slug },
     include: {
@@ -41,14 +55,19 @@ export default async function PublicationDetailPage({
           firstName: true,
           lastName: true,
           slug: true,
+          positionAtLab: true,
+          avatarUrl: true,
         },
       },
       projects: {
         select: {
           id: true,
           title: true,
-          code: true,
           slug: true,
+          code: true,
+          fundingAgency: true,
+          startDate: true,
+          endDate: true,
         },
       },
       theses: {
@@ -57,6 +76,8 @@ export default async function PublicationDetailPage({
           title: true,
           slug: true,
           student: true,
+          level: true,
+          progress: true,
         },
       },
     },
@@ -74,231 +95,386 @@ export default async function PublicationDetailPage({
   const doiVal = bib?.entryTags?.doi || bib?.entryTags?.DOI || "";
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
-      {/* Unified Brand Header */}
+    <Box sx={{ flex1: 1, display: "flex", flexDirection: "column", minHeight: "screen" }}>
       <Header activeTab="publications" />
 
-      {/* Decorative Title Banner */}
-      <section className="bg-gradient-to-br from-primary to-primary-hover text-white py-12 px-6 shadow-inner relative overflow-hidden border-b border-blue-700/20">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+      {/* Hero Header Banner */}
+      <Box
+        sx={{
+          background: (theme) =>
+            `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark || theme.palette.primary.main} 100%)`,
+          color: "common.white",
+          py: { xs: 6, md: 8 },
+          position: "relative",
+          overflow: "hidden",
+          borderBottom: "1px solid",
+          borderColor: "rgba(0, 0, 0, 0.08)",
+        }}
+      >
+        {/* Decorative Wave Background */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0.08,
+            pointerEvents: "none",
+          }}
+        >
+          <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
             <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
           </svg>
-        </div>
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-3">
-            <span className="text-[10px] uppercase font-extrabold tracking-widest bg-white/10 px-2.5 py-1 rounded-full text-blue-100">
-              {pb.type} Bibliography Profile
-            </span>
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-3 text-white leading-tight max-w-4xl">
-              {pb.title}
-            </h1>
-          </div>
+        </Box>
 
-          {isEditorOrAdmin && (
-            <div className="flex items-center gap-3">
-              <Link
-                href={`/publications/${pb.slug}/edit`}
-                className="bg-white hover:bg-slate-100 text-primary font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition-all text-center"
+        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              alignItems: { xs: "flex-start", md: "center" },
+              justifyContent: "space-between",
+              gap: 3,
+            }}
+          >
+            <Box sx={{ spaceY: 2, maxWidth: 800 }}>
+              <Chip
+                label={pb.type}
+                size="small"
+                sx={{
+                  fontSize: "0.675rem",
+                  fontWeight: "extrabold",
+                  bgcolor: "rgba(255, 255, 255, 0.2)",
+                  color: "common.white",
+                  textTransform: "uppercase",
+                  mb: 2,
+                }}
+              />
+              <Typography
+                variant="h1"
+                sx={{
+                  color: "common.white",
+                  fontSize: { xs: "1.75rem", sm: "2.25rem", md: "2.55rem" },
+                  fontWeight: 900,
+                  lineHeight: 1.25,
+                }}
               >
-                Edit Publication
-              </Link>
-              <DeletePublicationButton id={pb.id} title={pb.title} />
-            </div>
-          )}
-        </div>
-      </section>
+                {pb.title}
+              </Typography>
+            </Box>
 
-      {/* Main Layout Container */}
-      <main className="max-w-7xl w-full mx-auto px-6 py-10 flex-1 grid grid-cols-1 lg:grid-cols-8 gap-8 animate-fadeIn">
-        
-        {/* Left Column: APA formatting & BibTeX container */}
-        <div className="lg:col-span-5 space-y-6">
-          
-          {/* Citation Style Box */}
-          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-3xl shadow-sm space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                Bibliography Reference
-              </h3>
-              <div className="flex items-center gap-3">
-                <CitationStyleSelector initialStyle={styleFilter} />
-                <CopyCitationButton textToCopy={citation.text} />
-              </div>
-            </div>
-            <div
-              className="text-base text-slate-800 dark:text-slate-100 leading-relaxed font-medium"
-              dangerouslySetInnerHTML={{ __html: citation.html }}
-            />
-          </div>
+            {isEditorOrAdmin && (
+              <Box sx={{ display: "flex", gap: 1.5, flexShrink: 0, mt: { xs: 2, md: 0 } }}>
+                <Button
+                  component={Link}
+                  href={`/publications/${pb.slug}/edit`}
+                  variant="contained"
+                  sx={{
+                    bgcolor: "common.white",
+                    color: "primary.main",
+                    fontWeight: "bold",
+                    borderRadius: 3,
+                    boxShadow: 2,
+                    "&:hover": {
+                      bgcolor: "rgba(255, 255, 255, 0.9)",
+                      boxShadow: 3,
+                    },
+                  }}
+                >
+                  Edit Publication
+                </Button>
+                <DeletePublicationButton id={pb.id} title={pb.title} />
+              </Box>
+            )}
+          </Box>
+        </Container>
+      </Box>
 
-          {/* Publication Abstract */}
-          {abstractVal && (
-            <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-3xl shadow-sm space-y-3">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-3">
-                Publication Abstract
-              </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed whitespace-pre-line">
-                {abstractVal}
-              </p>
-            </div>
-          )}
+      {/* Main Content Grid */}
+      <Container maxWidth="lg" sx={{ py: 6, flex: 1 }}>
+        <Grid container spacing={4}>
+          {/* Left Column: Reference, Abstract, BibTeX Source Code */}
+          <Grid size={{ xs: 12, lg: 8 }} sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            
+            {/* Citation Box Card */}
+            <Card sx={{ p: 1 }}>
+              <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 2,
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                    pb: 1.5,
+                  }}
+                >
+                  <Typography variant="h3" sx={{ fontSize: "0.75rem", fontWeight: "extrabold", color: "text.secondary", textTransform: "uppercase", letterSpacing: 1 }}>
+                    Bibliography Reference
+                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <CitationStyleSelector initialStyle={styleFilter} />
+                    <CopyCitationButton textToCopy={citation.text} />
+                  </Box>
+                </Box>
+                <Box
+                  sx={{
+                    fontSize: "1.05rem",
+                    lineHeight: 1.6,
+                    color: "text.primary",
+                    fontWeight: 500,
+                    "& a": {
+                      color: "primary.main",
+                      textDecoration: "none",
+                      "&:hover": { textDecoration: "underline" },
+                    },
+                  }}
+                  dangerouslySetInnerHTML={{ __html: citation.html }}
+                />
+              </CardContent>
+            </Card>
 
-          {/* BibTeX Code Container */}
-          {bibString && (
-            <div className="bg-white dark:bg-slate-900 border border-border rounded-3xl shadow-sm overflow-hidden">
-              <div className="border-b border-border px-6 py-4 flex items-center justify-between bg-slate-50 dark:bg-slate-900">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                  BibTeX Source Entry
-                </span>
-                <CopyBibtexButton bibtex={bibString} />
-              </div>
-              <pre className="p-6 text-xs font-mono bg-slate-950 text-slate-300 dark:text-slate-400 overflow-x-auto whitespace-pre leading-relaxed">
-                {bibString}
-              </pre>
-            </div>
-          )}
+            {/* Publication Abstract */}
+            {abstractVal && (
+              <Card sx={{ p: 1 }}>
+                <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <Typography
+                    variant="h2"
+                    sx={{
+                      fontSize: "1.15rem",
+                      fontWeight: 700,
+                      color: "primary.main",
+                      borderBottom: "1px solid",
+                      borderColor: "divider",
+                      pb: 1.5,
+                    }}
+                  >
+                    Publication Abstract
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      fontSize: "0.925rem",
+                      lineHeight: 1.7,
+                      color: "text.primary",
+                      whiteSpace: "pre-line",
+                    }}
+                  >
+                    {abstractVal}
+                  </Typography>
+                </CardContent>
+              </Card>
+            )}
 
-          {/* Quick PDF Action */}
-          {pb.selfArchivingUrl && (
-            <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-3xl shadow-sm flex items-center justify-between gap-4">
-              <div className="space-y-1">
-                <span className="block text-sm font-bold text-slate-850 dark:text-white">
-                  Self-Archived Version
-                </span>
-                <span className="block text-xs text-slate-400">
-                  Read or download the open-access publication manuscript directly.
-                </span>
-              </div>
-              <a
-                href={pb.selfArchivingUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-primary hover:bg-primary-hover text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl shadow-md transition-all whitespace-nowrap inline-flex items-center gap-1 cursor-pointer"
-              >
-                Open Manuscript PDF
-              </a>
-            </div>
-          )}
-        </div>
+            {/* BibTeX Source Entry */}
+            {bibString && (
+              <Card sx={{ overflow: "hidden" }}>
+                <Box
+                  sx={{
+                    px: 3,
+                    py: 2,
+                    bgcolor: "action.hover",
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Typography variant="h3" sx={{ fontSize: "0.75rem", fontWeight: "extrabold", color: "text.secondary", textTransform: "uppercase", letterSpacing: 1 }}>
+                    BibTeX Source Entry
+                  </Typography>
+                  <CopyBibtexButton bibtex={bibString} />
+                </Box>
+                <Box
+                  component="pre"
+                  sx={{
+                    p: 3,
+                    m: 0,
+                    fontSize: "0.75rem",
+                    fontFamily: "monospace",
+                    bgcolor: "common.black",
+                    color: "#e2e8f0",
+                    overflowX: "auto",
+                    whitespace: "pre",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {bibString}
+                </Box>
+              </Card>
+            )}
 
-        {/* Right Column: Publication Details Sidebar */}
-        <div className="lg:col-span-3 space-y-6">
-          <div className="bg-white dark:bg-slate-900 border border-border p-6 rounded-3xl shadow-sm space-y-6">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-border pb-3">
-              Publication Details
-            </h3>
-
-            {/* Core parameters list */}
-            <div className="space-y-4 text-xs">
-              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-                <span className="text-slate-400">Publication Year</span>
-                <span className="font-bold text-slate-700 dark:text-slate-200">{pb.year}</span>
-              </div>
-
-              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-                <span className="text-slate-400">Type</span>
-                <span className="font-bold text-primary uppercase">{pb.type}</span>
-              </div>
-
-              {doiVal && (
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-                  <span className="text-slate-400">DOI</span>
-                  <a
-                    href={`https://doi.org/${encodeURIComponent(doiVal)}`}
+            {/* Quick Open manuscript Card */}
+            {pb.selfArchivingUrl && (
+              <Card sx={{ p: 1 }}>
+                <CardContent sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+                  <Box sx={{ minWidth: 250 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary", mb: 0.5 }}>
+                      Self-Archived Version
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Read or download the open-access publication manuscript directly.
+                    </Typography>
+                  </Box>
+                  <Button
+                    component="a"
+                    href={pb.selfArchivingUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-bold text-primary hover:underline truncate max-w-[180px] text-right"
-                    title={doiVal}
+                    variant="contained"
+                    color="primary"
+                    sx={{ borderRadius: 3, fontWeight: "bold" }}
                   >
-                    {doiVal}
-                  </a>
-                </div>
-              )}
+                    Open Manuscript PDF
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </Grid>
 
-              {pb.ranking && (
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-                  <span className="text-slate-400">Ranking / Tier</span>
-                  <span className="font-bold text-amber-600 dark:text-amber-400">{pb.ranking}</span>
-                </div>
-              )}
+          {/* Right Column: Sidebar */}
+          <Grid size={{ xs: 12, lg: 4 }} sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            
+            {/* Publication Profile Details */}
+            <Card sx={{ p: 1 }}>
+              <CardContent sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontSize: "0.75rem",
+                    fontWeight: "extrabold",
+                    color: "primary.main",
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                    pb: 1.5,
+                    mb: -1,
+                  }}
+                >
+                  Publication Details
+                </Typography>
 
-              {pb.tags && pb.tags.length > 0 && (
-                <div className="space-y-2 pt-1">
-                  <span className="text-slate-400 block">Keywords</span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {pb.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="bg-slate-100 dark:bg-slate-800 text-[10px] text-slate-600 px-2 py-0.5 rounded"
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid", borderColor: "divider", pb: 1.5 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 650, color: "text.secondary" }}>
+                      Publication Year
+                    </Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary" }}>
+                      {pb.year}
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ display: "flex", alignItems: "center", justifySpaceBetween: "space-between", borderBottom: "1px solid", borderColor: "divider", pb: 1.5, justifyContent: "space-between" }}>
+                    <Typography variant="caption" sx={{ fontWeight: 650, color: "text.secondary" }}>
+                      Type
+                    </Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "primary.main", textTransform: "uppercase" }}>
+                      {pb.type}
+                    </Typography>
+                  </Box>
+
+                  {doiVal && (
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid", borderColor: "divider", pb: 1.5 }}>
+                      <Typography variant="caption" sx={{ fontWeight: 650, color: "text.secondary" }}>
+                        DOI
+                      </Typography>
+                      <Button
+                        component="a"
+                        href={`https://doi.org/${encodeURIComponent(doiVal)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        variant="text"
+                        color="primary"
+                        sx={{
+                          p: 0,
+                          fontSize: "0.825rem",
+                          fontWeight: "bold",
+                          textTransform: "none",
+                          minWidth: 0,
+                          maxWidth: 160,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                        title={doiVal}
                       >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+                        {doiVal}
+                      </Button>
+                    </Box>
+                  )}
 
-            {/* Associated Members */}
+                  {pb.ranking && (
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid", borderColor: "divider", pb: 1.5 }}>
+                      <Typography variant="caption" sx={{ fontWeight: 650, color: "text.secondary" }}>
+                        Ranking / Tier
+                      </Typography>
+                      <Chip
+                        label={pb.ranking}
+                        size="small"
+                        sx={{
+                          fontWeight: "bold",
+                          fontSize: "0.625rem",
+                          height: 20,
+                          bgcolor: "warning.light",
+                          color: "warning.main",
+                          border: "1px solid",
+                          borderColor: "warning.main",
+                        }}
+                      />
+                    </Box>
+                  )}
+
+                  {pb.tags && pb.tags.length > 0 && (
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                      <Typography variant="caption" sx={{ fontWeight: 650, color: "text.secondary" }}>
+                        Keywords
+                      </Typography>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
+                        {pb.tags.map((tag) => (
+                          <Chip
+                            key={tag}
+                            label={`#${tag}`}
+                            size="small"
+                            sx={{
+                              fontSize: "0.7rem",
+                              fontWeight: 600,
+                              bgcolor: "action.selected",
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
+                </Box>
+              </CardContent>
+            </Card>
+
+            {/* Associated Members (Co-Authors) */}
             {pb.members && pb.members.length > 0 && (
-              <div className="space-y-2 border-t border-border pt-4 text-xs">
-                <span className="text-slate-400 font-bold block">Co-Authors (Members)</span>
-                <div className="space-y-1.5">
-                  {pb.members.map((m) => (
-                    <Link
-                      key={m.id}
-                      href={`/members/${m.slug}`}
-                      className="block text-primary hover:underline font-medium"
-                    >
-                      • {m.firstName} {m.lastName}
-                    </Link>
-                  ))}
-                </div>
-              </div>
+              <Box>
+                <RelatedMembers members={pb.members} title="Co-Authors (Members)" />
+              </Box>
             )}
 
             {/* Connected Projects */}
             {pb.projects && pb.projects.length > 0 && (
-              <div className="space-y-2 border-t border-border pt-4 text-xs">
-                <span className="text-slate-400 font-bold block">Connected Projects</span>
-                <div className="space-y-1.5">
-                  {pb.projects.map((p) => (
-                    <Link
-                      key={p.id}
-                      href={`/projects/${p.slug}`}
-                      className="block text-primary hover:underline font-medium"
-                    >
-                      • {p.code ? `[${p.code}] ` : ""}
-                      {p.title}
-                    </Link>
-                  ))}
-                </div>
-              </div>
+              <Box>
+                <RelatedProjects projects={pb.projects} />
+              </Box>
             )}
 
             {/* Related Theses */}
             {pb.theses && pb.theses.length > 0 && (
-              <div className="space-y-2 border-t border-border pt-4 text-xs">
-                <span className="text-slate-400 font-bold block">Related Theses</span>
-                <div className="space-y-1.5">
-                  {pb.theses.map((t) => (
-                    <Link
-                      key={t.id}
-                      href={`/theses/${t.slug}`}
-                      className="block text-primary hover:underline font-medium"
-                    >
-                      • {t.title} {t.student ? `(${t.student})` : ""}
-                    </Link>
-                  ))}
-                </div>
-              </div>
+              <Box>
+                <RelatedTheses theses={pb.theses} />
+              </Box>
             )}
-
-
-          </div>
-        </div>
-      </main>
-    </div>
+          </Grid>
+        </Grid>
+      </Container>
+      <Footer />
+    </Box>
   );
 }

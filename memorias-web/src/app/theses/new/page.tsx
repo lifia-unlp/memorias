@@ -3,6 +3,7 @@ import { Header } from "@/components/Header";
 import { prisma } from "@/lib/prisma";
 import { ThesisForm } from "../ThesisForm";
 import { ensureEditorOrAdmin } from "../actions";
+import { Container, Box, Typography } from "@mui/material";
 
 export default async function NewThesisPage() {
   await ensureEditorOrAdmin();
@@ -47,26 +48,41 @@ export default async function NewThesisPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>
       <Header activeTab="theses" />
 
-      <main className="max-w-7xl w-full mx-auto px-6 py-10 flex-1">
-        <div className="max-w-4xl mx-auto space-y-2 mb-8">
-          <h1 className="text-3xl font-black text-foreground tracking-tight">
+      {/* Hero Banner Section */}
+      <Box
+        sx={{
+          background: (theme) =>
+            theme.palette.mode === "dark"
+              ? "linear-gradient(135deg, #052438 0%, #093A54 100%)"
+              : "linear-gradient(135deg, #093A54 0%, #0d4b6e 100%)",
+          color: "white",
+          py: 6,
+          px: 3,
+          boxShadow: "inset 0 -2px 10px rgba(0,0,0,0.1)",
+        }}
+      >
+        <Container maxWidth="md">
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 800, mb: 1 }}>
             Add New Thesis
-          </h1>
-          <p className="text-xs text-muted">
+          </Typography>
+          <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.8)", maxWidth: 600 }}>
             Configure thesis details, students, academic levels, timeline progress, and connect research networks.
-          </p>
-        </div>
+          </Typography>
+        </Container>
+      </Box>
 
+      {/* Form Area */}
+      <Container maxWidth="md" sx={{ py: 6, flex: 1 }}>
         <ThesisForm
           members={members}
           projects={projects}
           publications={publications}
           levels={levels}
         />
-      </main>
-    </div>
+      </Container>
+    </Box>
   );
 }

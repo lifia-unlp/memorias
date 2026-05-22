@@ -1,10 +1,10 @@
 import React from "react";
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { MemberForm } from "../MemberForm";
 import { prisma } from "@/lib/prisma";
-import { Logo } from "@/components/Logo";
+import { Header } from "@/components/Header";
+import { Container, Box, Typography } from "@mui/material";
 
 export default async function NewMemberPage() {
   const session = await auth();
@@ -22,98 +22,36 @@ export default async function NewMemberPage() {
   });
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900/50">
-      {/* Premium Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-surface/90 border-b border-border shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Logo />
-          
-          <nav className="flex items-center gap-6 text-sm font-medium text-muted">
-            <Link href="/members" className="text-primary hover:text-primary transition-colors">Members</Link>
-            <Link href="/projects" className="hover:text-primary transition-colors">Projects</Link>
-            <Link href="/theses" className="hover:text-primary transition-colors">Theses</Link>
-            <Link href="/publications" className="hover:text-primary transition-colors">Publications</Link>
-            
-            {session && (
-              <div className="flex items-center gap-4 pl-4 border-l border-border">
-                {session.user?.role === "ADMIN" && (
-                  <>
-                    <Link
-                      href="/admin/users"
-                      className="text-xs font-bold text-secondary hover:text-secondary-hover transition-colors flex items-center gap-1"
-                    >
-                      ⚙️ Users Admin
-                    </Link>
-                    <Link
-                      href="/admin/lists"
-                      className="text-xs font-bold text-primary hover:text-primary-hover transition-colors mr-2 flex items-center gap-1"
-                    >
-                      📋 Lists Admin
-                    </Link>
-                  </>
-                )}
-                <div className="flex items-center gap-2">
-                  {session.user?.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={session.user.image}
-                      alt="Avatar"
-                      className="w-8 h-8 rounded-full border border-border"
-                    />
-                  ) : (
-                    <span className="w-8 h-8 flex items-center justify-center bg-primary/10 rounded-full text-sm">
-                      👤
-                    </span>
-                  )}
-                  <div className="text-left hidden lg:block">
-                    <span className="text-xs font-bold block text-foreground leading-tight truncate max-w-[120px]">
-                      {session.user?.name}
-                    </span>
-                    <span className="text-[10px] text-muted block leading-none uppercase tracking-wider font-semibold">
-                      {session.user?.role}
-                    </span>
-                  </div>
-                </div>
-                
-                <form
-                  action={async () => {
-                    "use server";
-                    await signOut();
-                  }}
-                >
-                  <button
-                    type="submit"
-                    className="text-xs font-bold text-red-500 hover:text-red-600 transition-colors cursor-pointer"
-                  >
-                    Sign Out
-                  </button>
-                </form>
-              </div>
-            )}
-          </nav>
-        </div>
-      </header>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>
+      <Header activeTab="members" />
 
       {/* Hero Banner Section */}
-      <section className="bg-gradient-to-br from-primary to-primary-hover text-white py-12 px-6 shadow-inner relative overflow-hidden">
-        {/* Dynamic Abstract Wave */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="currentColor" />
-          </svg>
-        </div>
-        <div className="max-w-4xl mx-auto space-y-2 relative z-10">
-          <h1 className="text-4xl font-extrabold tracking-tight">Create Researcher Profile</h1>
-          <p className="text-blue-100 max-w-xl text-sm">
-            Bootstrapping a new member profiles in our portal registry. Accreditations, categories, and bilingual bios will be generated dynamically.
-          </p>
-        </div>
-      </section>
+      <Box
+        sx={{
+          background: (theme) =>
+            theme.palette.mode === "dark"
+              ? "linear-gradient(135deg, #052438 0%, #093A54 100%)"
+              : "linear-gradient(135deg, #093A54 0%, #0d4b6e 100%)",
+          color: "white",
+          py: 6,
+          px: 3,
+          boxShadow: "inset 0 -2px 10px rgba(0,0,0,0.1)",
+        }}
+      >
+        <Container maxWidth="md">
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 800, mb: 1 }}>
+            Create Researcher Profile
+          </Typography>
+          <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.8)", maxWidth: 600 }}>
+            Bootstrap a new member profile in our portal registry. Accreditations, categories, and bilingual bios will be generated dynamically.
+          </Typography>
+        </Container>
+      </Box>
 
       {/* Form Area */}
-      <main className="max-w-4xl w-full mx-auto px-6 py-10 flex-1">
+      <Container maxWidth="md" sx={{ py: 6, flex: 1 }}>
         <MemberForm systemOptions={systemOptions} />
-      </main>
-    </div>
+      </Container>
+    </Box>
   );
 }
