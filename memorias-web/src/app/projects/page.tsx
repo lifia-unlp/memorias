@@ -1,4 +1,5 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
@@ -82,8 +83,7 @@ export default async function ProjectsPage(props: {
         
         <Box
           sx={{
-            background: (theme) =>
-              `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark || theme.palette.primary.main} 100%)`,
+            background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
             color: "common.white",
             py: 6,
             px: { xs: 3, md: 6 },
@@ -122,8 +122,7 @@ export default async function ProjectsPage(props: {
           </Box>
 
           {isEditorOrAdmin && (
-            <Button
-              component={Link}
+            <LinkButton 
               href="/projects/new"
               variant="contained"
               sx={{
@@ -142,7 +141,7 @@ export default async function ProjectsPage(props: {
               }}
             >
               Add Project
-            </Button>
+            </LinkButton>
           )}
         </Box>
 
@@ -194,8 +193,7 @@ export default async function ProjectsPage(props: {
                 </Button>
 
                 {(q || limit !== 10) && (
-                  <Button
-                    component={Link}
+                  <LinkButton 
                     href="/projects"
                     variant="text"
                     color="inherit"
@@ -206,7 +204,7 @@ export default async function ProjectsPage(props: {
                     }}
                   >
                     Clear
-                  </Button>
+                  </LinkButton>
                 )}
               </Box>
             </Box>
@@ -258,8 +256,7 @@ export default async function ProjectsPage(props: {
                             left: 0,
                             width: "100%",
                             height: "4px",
-                            background: (theme) =>
-                              `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                            background: "linear-gradient(90deg, var(--mui-palette-primary-main), var(--mui-palette-secondary-main))",
                             transform: "scaleX(0)",
                             transformOrigin: "left",
                             transition: "transform 0.3s ease",
@@ -272,23 +269,34 @@ export default async function ProjectsPage(props: {
                         <Box sx={{ mb: 2 }}>
                           <Typography
                             variant="h3"
-                            component={Link}
-                            href={`/projects/${project.slug}`}
                             sx={{
                               fontSize: "1.1rem",
                               fontWeight: "bold",
-                              textDecoration: "none",
-                              color: "text.primary",
                               lineHeight: 1.4,
-                              "&:hover": { color: "primary.main", textDecoration: "underline" },
                               transition: "color 0.2s",
-                              display: "-webkit-box",
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: "vertical",
-                              overflow: "hidden",
                             }}
                           >
-                            {project.title}
+                            <Link
+                              href={`/projects/${project.slug}`}
+                              style={{
+                                color: "inherit",
+                                textDecoration: "none",
+                              }}
+                            >
+                              <Box
+                                component="span"
+                                sx={{
+                                  color: "text.primary",
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: "vertical",
+                                  overflow: "hidden",
+                                  "&:hover": { color: "primary.main", textDecoration: "underline" },
+                                }}
+                              >
+                                {project.title}
+                              </Box>
+                            </Link>
                           </Typography>
                           {project.code && (
                             <Chip
@@ -375,19 +383,21 @@ export default async function ProjectsPage(props: {
                             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, alignItems: "center" }}>
                               {project.members.map((member, i) => (
                                 <React.Fragment key={member.slug}>
-                                  <Typography
-                                    component={Link}
+                                  <Link
                                     href={`/members/${member.slug}`}
-                                    variant="caption"
-                                    sx={{
-                                      fontWeight: "bold",
-                                      color: "primary.main",
-                                      textDecoration: "none",
-                                      "&:hover": { textDecoration: "underline" },
-                                    }}
+                                    style={{ textDecoration: "none" }}
                                   >
-                                    {member.firstName} {member.lastName}
-                                  </Typography>
+                                    <Typography
+                                      variant="caption"
+                                      sx={{
+                                        fontWeight: "bold",
+                                        color: "primary.main",
+                                        "&:hover": { textDecoration: "underline" },
+                                      }}
+                                    >
+                                      {member.firstName} {member.lastName}
+                                    </Typography>
+                                  </Link>
                                   {i < project.members.length - 1 && (
                                     <Typography variant="caption" color="text.secondary" sx={{ mr: 0.5 }}>
                                       ,

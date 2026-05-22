@@ -1,4 +1,5 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { notFound } from "next/navigation";
@@ -101,8 +102,7 @@ export default async function PublicationDetailPage({
       {/* Hero Header Banner */}
       <Box
         sx={{
-          background: (theme) =>
-            `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark || theme.palette.primary.main} 100%)`,
+          background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
           color: "common.white",
           py: { xs: 6, md: 8 },
           position: "relative",
@@ -163,8 +163,7 @@ export default async function PublicationDetailPage({
 
             {isEditorOrAdmin && (
               <Box sx={{ display: "flex", gap: 1.5, flexShrink: 0, mt: { xs: 2, md: 0 } }}>
-                <Button
-                  component={Link}
+                <LinkButton 
                   href={`/publications/${pb.slug}/edit`}
                   variant="contained"
                   sx={{
@@ -180,7 +179,7 @@ export default async function PublicationDetailPage({
                   }}
                 >
                   Edit Publication
-                </Button>
+                </LinkButton>
                 <DeletePublicationButton id={pb.id} title={pb.title} />
               </Box>
             )}

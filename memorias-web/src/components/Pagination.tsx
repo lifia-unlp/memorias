@@ -1,4 +1,5 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import Link from "next/link";
 import { Box, Button, Typography } from "@mui/material";
 
@@ -89,15 +90,14 @@ export function Pagination({
       >
         {/* Previous Button */}
         {currentPage > 1 ? (
-          <Button
-            component={Link}
+          <LinkButton 
             href={createPageLink(currentPage - 1)}
             variant="outlined"
             size="small"
             sx={{ borderRadius: 2 }}
           >
             Previous
-          </Button>
+          </LinkButton>
         ) : (
           <Button variant="outlined" size="small" disabled sx={{ borderRadius: 2 }}>
             Previous
@@ -121,9 +121,8 @@ export function Pagination({
 
           const isCurrent = page === currentPage;
           return (
-            <Button
-              key={page}
-              component={Link}
+            <LinkButton key={page}
+              
               href={createPageLink(page as number)}
               variant={isCurrent ? "contained" : "outlined"}
               size="small"
@@ -136,21 +135,20 @@ export function Pagination({
               }}
             >
               {page}
-            </Button>
+            </LinkButton>
           );
         })}
 
         {/* Next Button */}
         {currentPage < totalPages ? (
-          <Button
-            component={Link}
+          <LinkButton 
             href={createPageLink(currentPage + 1)}
             variant="outlined"
             size="small"
             sx={{ borderRadius: 2 }}
           >
             Next
-          </Button>
+          </LinkButton>
         ) : (
           <Button variant="outlined" size="small" disabled sx={{ borderRadius: 2 }}>
             Next

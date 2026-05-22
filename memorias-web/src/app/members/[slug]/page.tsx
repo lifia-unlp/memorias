@@ -1,4 +1,5 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -117,8 +118,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                 left: 0,
                 width: "100%",
                 height: "6px",
-                background: (theme) =>
-                  `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                background: "linear-gradient(90deg, var(--mui-palette-primary-main), var(--mui-palette-secondary-main))",
               },
             }}
           >
@@ -315,15 +315,14 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
             {/* Actions Panel */}
             {isEditorOrAdmin && (
               <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 2, display: "flex", flexDirection: "column", gap: 1 }}>
-                <Button
-                  component={Link}
+                <LinkButton 
                   href={`/members/${member.slug}/edit`}
                   variant="contained"
                   fullWidth
                   sx={{ borderRadius: 3, fontWeight: "bold" }}
                 >
                   Edit Profile
-                </Button>
+                </LinkButton>
                 <DeleteMemberButton memberId={member.id} memberName={`${member.firstName} ${member.lastName}`} />
               </Box>
             )}
@@ -365,16 +364,17 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
               <Grid container spacing={2}>
                 {scholarships.map((s) => (
                   <Grid size={{ xs: 12, sm: 6 }} key={s.id}>
-                    <Card
-                      sx={{
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        textDecoration: "none",
-                      }}
-                      component={Link}
+                    <Link
                       href={`/scholarships/${s.slug}`}
+                      style={{ textDecoration: "none", color: "inherit" }}
                     >
+                      <Card
+                        sx={{
+                          height: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
                       <Box sx={{ p: 2.5, display: "flex", flexDirection: "column", gap: 1 }}>
                         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 1.5 }}>
                           <Typography
@@ -417,7 +417,8 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                           {s.endDate ? new Date(s.endDate).getFullYear() : "Present"}
                         </Typography>
                       </Box>
-                    </Card>
+                      </Card>
+                    </Link>
                   </Grid>
                 ))}
               </Grid>

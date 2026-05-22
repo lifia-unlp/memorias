@@ -225,7 +225,8 @@ export default function ListDashboardClient({
               variant="contained"
               color="secondary"
               disabled={isSubmitting || !newValue.trim()}
-              sx={{ textTransform: "none", fontWeight: "bold", px: 4, py: 1, borderRadius: 3, shrink: 0 }}
+              size="small"
+              sx={{ textTransform: "none", fontWeight: "bold", px: 3, borderRadius: 2, shrink: 0, height: 40 }}
             >
               {isSubmitting ? "Adding..." : "Add Option"}
             </Button>
@@ -244,7 +245,7 @@ export default function ListDashboardClient({
               {searchQuery ? "No matching options found." : "No options defined yet in this category."}
             </Typography>
           ) : (
-            <Grid container spacing={2}>
+            <Grid container spacing={1.5}>
               {activeOptions.map((opt) => (
                 <Grid size={{ xs: 12, sm: 6 }} key={opt.id}>
                   <Box
@@ -252,11 +253,12 @@ export default function ListDashboardClient({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      p: 2,
+                      px: 2,
+                      py: 1,
                       bgcolor: "background.paper",
                       border: "1px solid",
                       borderColor: "divider",
-                      borderRadius: 3,
+                      borderRadius: 2,
                       "&:hover": {
                         bgcolor: "action.hover",
                         boxShadow: "0 1px 3px 0 rgba(0,0,0,0.05)",
@@ -273,7 +275,7 @@ export default function ListDashboardClient({
                       color="error"
                       size="small"
                       variant="text"
-                      sx={{ textTransform: "none", fontWeight: "bold", fontSize: "0.75rem" }}
+                      sx={{ textTransform: "none", fontWeight: "bold", fontSize: "0.75rem", py: 0.25 }}
                     >
                       Delete
                     </Button>

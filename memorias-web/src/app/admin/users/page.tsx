@@ -1,4 +1,5 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { prisma } from "@/lib/prisma";
 import { RoleSelector, ActivationButton, DeleteUserButton } from "./UserControls";
 import Link from "next/link";
@@ -52,15 +53,14 @@ export default async function AdminUsersPage() {
           <Logo />
           
           <Box component="nav" sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Button
-              component={Link}
+            <LinkButton 
               href="/"
               variant="text"
               size="small"
               sx={{ fontWeight: "bold", textTransform: "none" }}
             >
               Back to Portal
-            </Button>
+            </LinkButton>
           </Box>
         </Container>
       </Box>

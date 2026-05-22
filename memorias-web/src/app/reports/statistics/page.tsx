@@ -1,4 +1,5 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { Header } from "@/components/Header";
 import {
   Container,
@@ -28,7 +29,7 @@ export default function StatisticsPage() {
               position: "absolute",
               inset: 8,
               borderRadius: "16px",
-              background: (theme) => `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.secondary.dark} 100%)`,
+              background: "linear-gradient(135deg, var(--mui-palette-secondary-main) 0%, var(--mui-palette-secondary-dark) 100%)",
               opacity: 0.15,
               animation: "spin 10s linear infinite",
               "@keyframes spin": {
@@ -79,7 +80,8 @@ export default function StatisticsPage() {
             sx={{
               position: "absolute",
               inset: 0,
-              bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.4)",
+              bgcolor: "background.default",
+              opacity: 0.5,
               backdropFilter: "blur(1px)",
               display: "flex",
               alignItems: "center",
@@ -176,15 +178,14 @@ export default function StatisticsPage() {
 
         {/* Back Button */}
         <Box>
-          <Button
-            component={Link}
+          <LinkButton 
             href="/"
             variant="contained"
             color="primary"
             sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", px: 4, py: 1.5, borderRadius: 3 }}
           >
             Back to Home
-          </Button>
+          </LinkButton>
         </Box>
       </Container>
     </Box>

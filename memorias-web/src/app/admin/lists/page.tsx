@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -51,17 +52,15 @@ export default async function AdminListsPage() {
           <Logo />
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Button
-              component={Link}
+            <LinkButton 
               href="/admin/users"
               variant="outlined"
               size="small"
               sx={{ textTransform: "none", fontWeight: "bold", borderRadius: 3 }}
             >
               Manage Users
-            </Button>
-            <Button
-              component={Link}
+            </LinkButton>
+            <LinkButton 
               href="/"
               variant="contained"
               color="primary"
@@ -69,7 +68,7 @@ export default async function AdminListsPage() {
               sx={{ textTransform: "none", fontWeight: "bold", borderRadius: 3 }}
             >
               Portal Home
-            </Button>
+            </LinkButton>
           </Box>
         </Container>
       </Box>

@@ -182,8 +182,6 @@ export default async function SignInPage({ searchParams }: PageProps) {
                             boxShadow: "0 1px 2px rgba(0,0,0,0.08)",
                             transition: "background 0.2s",
                           }}
-                          onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#96bd33"; }}
-                          onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#A6CE39"; }}
                         >
                           <svg viewBox="0 0 256 256" style={{ width: 20, height: 20, flexShrink: 0 }}>
                             <path fill="#FFF" d="M256 128c0 70.7-57.3 128-128 128S0 198.7 0 128 57.3 0 128 0s128 57.3 128 128z"/>
@@ -472,8 +470,7 @@ export default async function SignInPage({ searchParams }: PageProps) {
             px: 2,
             pb: 2,
             borderRadius: 2,
-            bgcolor: (theme) =>
-              theme.palette.mode === "dark" ? "rgba(15,23,42,0.5)" : "grey.50",
+            bgcolor: "action.hover",
             display: "flex",
             gap: 1.5,
             alignItems: "flex-start",

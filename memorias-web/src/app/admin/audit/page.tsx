@@ -1,4 +1,5 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { auth } from "@/auth";
@@ -118,17 +119,15 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
           <Logo />
           
           <Box component="nav" sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-            <Button
-              component={Link}
+            <LinkButton 
               href="/admin/config"
               variant="text"
               color="inherit"
               sx={{ textTransform: "none", fontWeight: 500, fontSize: "0.875rem" }}
             >
               System Settings
-            </Button>
-            <Button
-              component={Link}
+            </LinkButton>
+            <LinkButton 
               href="/admin/users"
               variant="text"
               color="inherit"
@@ -143,9 +142,8 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
               }}
             >
               Users Panel
-            </Button>
-            <Button
-              component={Link}
+            </LinkButton>
+            <LinkButton 
               href="/"
               variant="text"
               color="inherit"
@@ -160,7 +158,7 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
               }}
             >
               Back to Portal
-            </Button>
+            </LinkButton>
           </Box>
         </Container>
       </Box>
@@ -325,15 +323,14 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
               </Grid>
 
               <Grid size={{ xs: 12 }} sx={{ display: "flex", justifyContent: "flex-end", gap: 2, pt: 1 }}>
-                <Button
-                  component={Link}
+                <LinkButton 
                   href="/admin/audit"
                   variant="outlined"
                   size="small"
                   sx={{ textTransform: "none", fontWeight: "bold" }}
                 >
                   Clear Filters
-                </Button>
+                </LinkButton>
                 <Button
                   type="submit"
                   variant="contained"

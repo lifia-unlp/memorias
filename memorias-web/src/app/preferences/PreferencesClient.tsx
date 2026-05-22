@@ -26,10 +26,8 @@ export default function PreferencesClient({ session }: PreferencesClientProps) {
   const { themeMode, customColors, setThemeMode, setCustomColors } = useAppTheme();
 
   // Form states
-  const [displayName, setDisplayName] = useState(session?.user?.name || "John Smith");
-  const [email, setEmail] = useState(session?.user?.email || "jsmith@lifia.info.unlp.edu.ar");
-  const [citationStyle, setCitationStyle] = useState("apa");
-  const [language, setLanguage] = useState("en");
+  const [displayName] = useState(session?.user?.name || "John Smith");
+  const [email] = useState(session?.user?.email || "jsmith@lifia.info.unlp.edu.ar");
   const [digestEmails, setDigestEmails] = useState(true);
   const [defenseAlerts, setDefenseAlerts] = useState(true);
   const [fundingAlerts, setFundingAlerts] = useState(false);
@@ -96,8 +94,7 @@ export default function PreferencesClient({ session }: PreferencesClientProps) {
                     fullWidth
                     label="Display Name"
                     value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    required
+                    slotProps={{ input: { readOnly: true } }}
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
@@ -106,48 +103,8 @@ export default function PreferencesClient({ session }: PreferencesClientProps) {
                     label="Email Address"
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
+                    slotProps={{ input: { readOnly: true } }}
                   />
-                </Grid>
-              </Grid>
-            </Grid>
-
-            {/* Curation Styles */}
-            <Grid size={{ xs: 12 }} sx={{ mt: 1 }}>
-              <Typography variant="h3" sx={{ fontSize: "0.95rem", fontWeight: 700, mb: 1, color: "primary.main" }}>
-                Curation Styles
-              </Typography>
-              <Divider sx={{ mb: 2.5 }} />
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormControl fullWidth>
-                    <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", mb: 0.75, display: "block" }}>
-                      Default Citation View
-                    </Typography>
-                    <Select
-                      value={citationStyle}
-                      onChange={(e) => setCitationStyle(e.target.value)}
-                    >
-                      <MenuItem value="apa" sx={{ fontSize: "0.85rem" }}>APA Style</MenuItem>
-                      <MenuItem value="ieee" sx={{ fontSize: "0.85rem" }}>IEEE Style</MenuItem>
-                      <MenuItem value="bibtex" sx={{ fontSize: "0.85rem" }}>Raw BibTeX Structure</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormControl fullWidth>
-                    <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", mb: 0.75, display: "block" }}>
-                      UI Language
-                    </Typography>
-                    <Select
-                      value={language}
-                      onChange={(e) => setLanguage(e.target.value)}
-                    >
-                      <MenuItem value="en" sx={{ fontSize: "0.85rem" }}>English (US)</MenuItem>
-                      <MenuItem value="es" sx={{ fontSize: "0.85rem" }}>Spanish (Castellano)</MenuItem>
-                    </Select>
-                  </FormControl>
                 </Grid>
               </Grid>
             </Grid>
@@ -244,7 +201,7 @@ export default function PreferencesClient({ session }: PreferencesClientProps) {
             {/* Notifications Settings */}
             <Grid size={{ xs: 12 }} sx={{ mt: 1 }}>
               <Typography variant="h3" sx={{ fontSize: "0.95rem", fontWeight: 700, mb: 1, color: "primary.main" }}>
-                Notifications Settings
+                Notifications Settings (to be implemented)
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>

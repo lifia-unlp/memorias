@@ -287,8 +287,7 @@ export default async function AboutPage() {
       <Box
         component="section"
         sx={{
-          background: (theme) =>
-            `linear-gradient(to bottom right, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+          background: "linear-gradient(to bottom right, var(--mui-palette-primary-main), var(--mui-palette-primary-dark))",
           color: "primary.contrastText",
           py: { xs: 8, md: 10 },
           px: 3,

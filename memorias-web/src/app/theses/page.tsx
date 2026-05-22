@@ -1,4 +1,5 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
@@ -109,8 +110,7 @@ export default async function ThesesPage(props: {
       <Container maxWidth="lg" sx={{ py: 4, flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
         <Box
           sx={{
-            background: (theme) =>
-              `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark || theme.palette.primary.main} 100%)`,
+            background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
             color: "common.white",
             py: 6,
             px: { xs: 3, md: 6 },
@@ -149,8 +149,7 @@ export default async function ThesesPage(props: {
           </Box>
 
           {isEditorOrAdmin && (
-            <Button
-              component={Link}
+            <LinkButton 
               href="/theses/new"
               variant="contained"
               sx={{
@@ -169,7 +168,7 @@ export default async function ThesesPage(props: {
               }}
             >
               Add Thesis
-            </Button>
+            </LinkButton>
           )}
         </Box>
 
@@ -209,36 +208,35 @@ export default async function ThesesPage(props: {
 
                   return (
                     <Grid size={{ xs: 12, md: 6 }} key={ths.id}>
-                      <Card
-                        component={Link}
+                      <Link
                         href={`/theses/${ths.slug}`}
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          height: "100%",
-                          textDecoration: "none",
-                          color: "inherit",
-                          p: 3,
-                          position: "relative",
-                          overflow: "hidden",
-                          "&::before": {
-                            content: '""',
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: "4px",
-                            background: (theme) =>
-                              `linear-gradient(90deg, ${theme.palette.secondary.main}, ${theme.palette.primary.main} 40%)`,
-                            transform: "scaleX(0)",
-                            transformOrigin: "left",
-                            transition: "transform 0.3s ease",
-                          },
-                          "&:hover::before": {
-                            transform: "scaleX(1)",
-                          },
-                        }}
+                        style={{ textDecoration: "none", color: "inherit" }}
                       >
+                        <Card
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            height: "100%",
+                            p: 3,
+                            position: "relative",
+                            overflow: "hidden",
+                            "&::before": {
+                              content: '""',
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              width: "100%",
+                              height: "4px",
+                              background: "linear-gradient(90deg, var(--mui-palette-secondary-main), var(--mui-palette-primary-main) 40%)",
+                              transform: "scaleX(0)",
+                              transformOrigin: "left",
+                              transition: "transform 0.3s ease",
+                            },
+                            "&:hover::before": {
+                              transform: "scaleX(1)",
+                            },
+                          }}
+                        >
                         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, mb: 1.5 }}>
                           {ths.level && (
                             <Chip
@@ -415,7 +413,8 @@ export default async function ThesesPage(props: {
                             )}
                           </Box>
                         )}
-                      </Card>
+                        </Card>
+                      </Link>
                     </Grid>
                   );
                 })}

@@ -1,4 +1,5 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import Link from "next/link";
@@ -84,8 +85,7 @@ export default async function PublicationsPage(props: {
       <Container maxWidth="lg" sx={{ py: 4, flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
         <Box
           sx={{
-            background: (theme) =>
-              `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark || theme.palette.primary.main} 100%)`,
+            background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
             color: "common.white",
             py: 6,
             px: { xs: 3, md: 6 },
@@ -124,8 +124,7 @@ export default async function PublicationsPage(props: {
           </Box>
 
           {isEditorOrAdmin && (
-            <Button
-              component={Link}
+            <LinkButton 
               href="/publications/new"
               variant="contained"
               sx={{
@@ -144,7 +143,7 @@ export default async function PublicationsPage(props: {
               }}
             >
               Add Publication
-            </Button>
+            </LinkButton>
           )}
         </Box>
 
@@ -223,7 +222,7 @@ export default async function PublicationsPage(props: {
                                   height: 18,
                                   borderRadius: 1,
                                   textTransform: "uppercase",
-                                  bgcolor: (theme) => theme.palette.primary.light,
+                                  bgcolor: "primary.light",
                                   color: "primary.main",
                                 }}
                               />
@@ -307,8 +306,7 @@ export default async function PublicationsPage(props: {
                                 </Button>
                               )}
 
-                              <Button
-                                component={Link}
+                              <LinkButton 
                                 href={`/publications/${pb.slug}`}
                                 size="small"
                                 color="secondary"
@@ -322,7 +320,7 @@ export default async function PublicationsPage(props: {
                                 }}
                               >
                                 Details
-                              </Button>
+                              </LinkButton>
 
                               <CopyCitationButton textToCopy={citation.text} />
                             </Box>

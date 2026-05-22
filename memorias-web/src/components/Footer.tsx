@@ -1,4 +1,5 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import Link from "next/link";
 import { Box, Container, Typography, Link as MuiLink, Button } from "@mui/material";
 import { getLabName, getLabUrl } from "@/lib/config";
@@ -14,8 +15,7 @@ export async function Footer() {
       sx={{
         borderTop: "1px solid",
         borderColor: "divider",
-        bgcolor: (theme) =>
-          theme.palette.mode === "dark" ? "rgba(20, 28, 47, 0.4)" : "rgba(255, 255, 255, 0.4)",
+        bgcolor: "background.paper", style: { backdropFilter: "blur(8px)" },
         py: 4,
         mt: "auto",
       }}
@@ -58,8 +58,7 @@ export async function Footer() {
             .
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-            <Button
-              component={Link}
+            <LinkButton 
               href="/about"
               size="small"
               sx={{
@@ -77,7 +76,7 @@ export async function Footer() {
               }}
             >
               About the Portal
-            </Button>
+            </LinkButton>
           </Box>
         </Box>
       </Container>

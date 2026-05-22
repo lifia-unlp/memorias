@@ -35,10 +35,7 @@ export default async function NewProjectPage() {
       {/* Hero Banner Section */}
       <Box
         sx={{
-          background: (theme) =>
-            theme.palette.mode === "dark"
-              ? "linear-gradient(135deg, #052438 0%, #093A54 100%)"
-              : "linear-gradient(135deg, #093A54 0%, #0d4b6e 100%)",
+          background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
           color: "white",
           py: 6,
           px: 3,

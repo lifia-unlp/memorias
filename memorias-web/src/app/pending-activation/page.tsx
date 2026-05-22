@@ -102,8 +102,7 @@ export default async function PendingActivationPage() {
             p: 2,
             borderRadius: 2,
             textAlign: "left",
-            bgcolor: (theme) =>
-              theme.palette.mode === "dark" ? "rgba(15,23,42,0.5)" : "grey.50",
+            bgcolor: "action.hover",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>

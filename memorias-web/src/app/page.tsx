@@ -1,4 +1,5 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -63,10 +64,7 @@ export default async function Home() {
       {/* Hero Banner Section */}
       <Box
         sx={{
-          background: (theme) =>
-            theme.palette.mode === "dark"
-              ? "linear-gradient(135deg, #0b0f19 0%, #141c2f 100%)"
-              : `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+          background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
           color: "#ffffff",
           py: 8,
           px: 3,
@@ -142,14 +140,13 @@ export default async function Home() {
             <Typography variant="h2" sx={{ fontSize: "1.35rem", fontWeight: 800 }}>
               Featured Publications
             </Typography>
-            <Button
-              component={Link}
+            <LinkButton 
               href="/publications"
               size="small"
               sx={{ fontWeight: "bold", fontSize: "0.75rem" }}
             >
               Browse All Publications →
-            </Button>
+            </LinkButton>
           </Box>
 
           {featuredPublications.length === 0 ? (
@@ -214,18 +211,29 @@ export default async function Home() {
                       </Box>
                       <Typography
                         variant="h3"
-                        component={Link}
-                        href={`/publications/${pub.slug}`}
                         sx={{
                           fontSize: "0.95rem",
                           fontWeight: 800,
-                          color: "text.primary",
-                          textDecoration: "none",
                           lineHeight: 1.4,
-                          "&:hover": { color: "primary.main", textDecoration: "underline" },
                         }}
                       >
-                        {pub.title}
+                        <Link
+                          href={`/publications/${pub.slug}`}
+                          style={{
+                            color: "inherit",
+                            textDecoration: "none",
+                          }}
+                        >
+                          <Box
+                            component="span"
+                            sx={{
+                              color: "text.primary",
+                              "&:hover": { color: "primary.main", textDecoration: "underline" },
+                            }}
+                          >
+                            {pub.title}
+                          </Box>
+                        </Link>
                       </Typography>
                       <Box
                         sx={{
@@ -241,8 +249,7 @@ export default async function Home() {
                         dangerouslySetInnerHTML={{ __html: citation.html }}
                       />
                     </Box>
-                    <Button
-                      component={Link}
+                    <LinkButton 
                       href={`/publications/${pub.slug}`}
                       variant="outlined"
                       size="small"
@@ -262,7 +269,7 @@ export default async function Home() {
                       }}
                     >
                       View Citation Details
-                    </Button>
+                    </LinkButton>
                   </Card>
                 );
               })}
@@ -288,15 +295,14 @@ export default async function Home() {
                 <Typography variant="h2" sx={{ fontSize: "1.25rem", fontWeight: 800 }}>
                   Featured Theses
                 </Typography>
-                <Button
-                  component={Link}
+                <LinkButton 
                   href="/theses"
                   size="small"
                   color="secondary"
                   sx={{ fontWeight: "bold", fontSize: "0.75rem" }}
                 >
                   All Theses →
-                </Button>
+                </LinkButton>
               </Box>
 
               {featuredTheses.length === 0 ? (
@@ -358,22 +364,33 @@ export default async function Home() {
                         </Box>
                         <Typography
                           variant="h3"
-                          component={Link}
-                          href={`/theses/${thesis.slug}`}
                           sx={{
                             fontSize: "0.85rem",
                             fontWeight: 800,
-                            color: "text.primary",
-                            textDecoration: "none",
                             lineHeight: 1.4,
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                            "&:hover": { color: "primary.main", textDecoration: "underline" },
                           }}
                         >
-                          {thesis.title}
+                          <Link
+                            href={`/theses/${thesis.slug}`}
+                            style={{
+                              color: "inherit",
+                              textDecoration: "none",
+                            }}
+                          >
+                            <Box
+                              component="span"
+                              sx={{
+                                color: "text.primary",
+                                display: "-webkit-box",
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden",
+                                "&:hover": { color: "primary.main", textDecoration: "underline" },
+                              }}
+                            >
+                              {thesis.title}
+                            </Box>
+                          </Link>
                         </Typography>
                       </Box>
 
@@ -423,15 +440,14 @@ export default async function Home() {
                 <Typography variant="h2" sx={{ fontSize: "1.25rem", fontWeight: 800 }}>
                   Featured Projects
                 </Typography>
-                <Button
-                  component={Link}
+                <LinkButton 
                   href="/projects"
                   size="small"
                   color="secondary"
                   sx={{ fontWeight: "bold", fontSize: "0.75rem" }}
                 >
                   All Projects →
-                </Button>
+                </LinkButton>
               </Box>
 
               {featuredProjects.length === 0 ? (
@@ -479,22 +495,33 @@ export default async function Home() {
                         )}
                         <Typography
                           variant="h3"
-                          component={Link}
-                          href={`/projects/${project.slug}`}
                           sx={{
                             fontSize: "0.85rem",
                             fontWeight: 800,
-                            color: "text.primary",
-                            textDecoration: "none",
                             lineHeight: 1.4,
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                            "&:hover": { color: "primary.main", textDecoration: "underline" },
                           }}
                         >
-                          {project.title}
+                          <Link
+                            href={`/projects/${project.slug}`}
+                            style={{
+                              color: "inherit",
+                              textDecoration: "none",
+                            }}
+                          >
+                            <Box
+                              component="span"
+                              sx={{
+                                color: "text.primary",
+                                display: "-webkit-box",
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden",
+                                "&:hover": { color: "primary.main", textDecoration: "underline" },
+                              }}
+                            >
+                              {project.title}
+                            </Box>
+                          </Link>
                         </Typography>
                       </Box>
 

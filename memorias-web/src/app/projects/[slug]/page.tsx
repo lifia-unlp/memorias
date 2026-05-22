@@ -1,4 +1,5 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
@@ -90,8 +91,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
       {/* Title Banner (Gradient aligned with Members page) */}
       <Box
         sx={{
-          background: (theme) =>
-            `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark || theme.palette.primary.main} 100%)`,
+          background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
           color: "common.white",
           py: 6,
           px: { xs: 3, md: 6 },
@@ -152,8 +152,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
 
           {isEditorOrAdmin && (
             <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-              <Button
-                component={Link}
+              <LinkButton 
                 href={`/projects/${project.slug}/edit`}
                 variant="contained"
                 sx={{
@@ -169,7 +168,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                 }}
               >
                 Edit Project
-              </Button>
+              </LinkButton>
               <DeleteProjectButton projectId={project.id} projectTitle={project.title} />
             </Box>
           )}
@@ -228,16 +227,17 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
               <Grid container spacing={2}>
                 {project.scholarships.map((sch) => (
                   <Grid size={{ xs: 12, sm: 6 }} key={sch.id}>
-                    <Card
-                      sx={{
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        textDecoration: "none",
-                      }}
-                      component={Link}
+                    <Link
                       href={`/scholarships/${sch.slug}`}
+                      style={{ textDecoration: "none", color: "inherit" }}
                     >
+                      <Card
+                        sx={{
+                          height: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
                       <Box sx={{ p: 2.5, display: "flex", flexDirection: "column", gap: 1 }}>
                         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 1.5 }}>
                           <Typography
@@ -276,7 +276,8 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                           </Typography>
                         )}
                       </Box>
-                    </Card>
+                      </Card>
+                    </Link>
                   </Grid>
                 ))}
               </Grid>
@@ -386,29 +387,29 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
             ) : (
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 {project.members.map((member) => (
-                  <Card
+                  <Link
                     key={member.id}
-                    component={Link}
                     href={`/members/${member.slug}`}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 2,
-                      p: 1.5,
-                      textDecoration: "none",
-                      color: "inherit",
-                      border: "1px solid",
-                      borderColor: "divider",
-                      borderRadius: 2.5,
-                      boxShadow: "none",
-                      "&:hover": {
-                        borderColor: "primary.main",
-                        bgcolor: "action.hover",
-                        boxShadow: "none",
-                        transform: "none",
-                      },
-                    }}
+                    style={{ textDecoration: "none", color: "inherit" }}
                   >
+                    <Card
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        p: 1.5,
+                        border: "1px solid",
+                        borderColor: "divider",
+                        borderRadius: 2.5,
+                        boxShadow: "none",
+                        "&:hover": {
+                          borderColor: "primary.main",
+                          bgcolor: "action.hover",
+                          boxShadow: "none",
+                          transform: "none",
+                        },
+                      }}
+                    >
                     <Avatar
                       src={member.avatarUrl || undefined}
                       alt={`${member.firstName} ${member.lastName}`}
@@ -434,7 +435,8 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                         </Typography>
                       )}
                     </Box>
-                  </Card>
+                    </Card>
+                  </Link>
                 ))}
               </Box>
             )}

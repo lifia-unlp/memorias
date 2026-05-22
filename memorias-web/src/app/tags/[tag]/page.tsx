@@ -1,4 +1,5 @@
 import React from "react";
+import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -80,15 +81,14 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
       >
         {/* Navigation Breadcrumb & Page Header */}
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <Button
-            component={Link}
+          <LinkButton 
             href="/"
             variant="text"
             size="small"
             sx={{ alignSelf: "flex-start", fontWeight: 700, fontSize: "0.75rem", px: 0 }}
           >
             Back to Home
-          </Button>
+          </LinkButton>
 
           <Box
             sx={{
@@ -151,15 +151,14 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
             <Typography variant="caption" sx={{ color: "text.secondary", maxWidth: "24rem" }}>
               There are currently no items classified under &ldquo;{decodedTag}&rdquo; in our repository.
             </Typography>
-            <Button
-              component={Link}
+            <LinkButton 
               href="/"
               variant="contained"
               size="small"
               sx={{ fontWeight: 700, borderRadius: 2, mt: 1 }}
             >
               Return Home
-            </Button>
+            </LinkButton>
           </Paper>
         ) : (
           <Box sx={{ display: "flex", flexDirection: "column", gap: 5 }}>
@@ -176,20 +175,20 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
                   {members.map((member, index) => (
                     <React.Fragment key={member.id}>
                       {index > 0 && <Divider />}
-                      <Box
-                        component={Link}
+                      <Link
                         href={`/members/${member.slug}`}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
-                          p: 2,
-                          textDecoration: "none",
-                          color: "inherit",
-                          "&:hover": { bgcolor: "action.hover" },
-                          transition: "background-color 0.15s",
-                        }}
+                        style={{ textDecoration: "none", color: "inherit" }}
                       >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 2,
+                            p: 2,
+                            "&:hover": { bgcolor: "action.hover" },
+                            transition: "background-color 0.15s",
+                          }}
+                        >
                         {member.avatarUrl ? (
                           <Avatar
                             src={member.avatarUrl}
@@ -201,10 +200,7 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
                             sx={{
                               width: 40,
                               height: 40,
-                              bgcolor: (theme) =>
-                                theme.palette.mode === "dark"
-                                  ? "rgba(255,255,255,0.08)"
-                                  : "rgba(0,0,0,0.08)",
+                              bgcolor: "action.hover",
                               color: "primary.main",
                               fontSize: "0.875rem",
                               fontWeight: 700,
@@ -258,7 +254,8 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
                         >
                           View Profile
                         </Typography>
-                      </Box>
+                        </Box>
+                      </Link>
                     </React.Fragment>
                   ))}
                 </Paper>
@@ -278,20 +275,20 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
                   {projects.map((proj, index) => (
                     <React.Fragment key={proj.id}>
                       {index > 0 && <Divider />}
-                      <Box
-                        component={Link}
+                      <Link
                         href={`/projects/${proj.slug}`}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
-                          p: 2,
-                          textDecoration: "none",
-                          color: "inherit",
-                          "&:hover": { bgcolor: "action.hover" },
-                          transition: "background-color 0.15s",
-                        }}
+                        style={{ textDecoration: "none", color: "inherit" }}
                       >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 2,
+                            p: 2,
+                            "&:hover": { bgcolor: "action.hover" },
+                            transition: "background-color 0.15s",
+                          }}
+                        >
                         <Box sx={{ minWidth: 0, flex: 1 }}>
                           <Typography
                             variant="body2"
@@ -314,7 +311,8 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
                         >
                           Explore Project
                         </Typography>
-                      </Box>
+                        </Box>
+                      </Link>
                     </React.Fragment>
                   ))}
                 </Paper>
@@ -334,20 +332,20 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
                   {theses.map((thesis, index) => (
                     <React.Fragment key={thesis.id}>
                       {index > 0 && <Divider />}
-                      <Box
-                        component={Link}
+                      <Link
                         href={`/theses/${thesis.slug}`}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
-                          p: 2,
-                          textDecoration: "none",
-                          color: "inherit",
-                          "&:hover": { bgcolor: "action.hover" },
-                          transition: "background-color 0.15s",
-                        }}
+                        style={{ textDecoration: "none", color: "inherit" }}
                       >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 2,
+                            p: 2,
+                            "&:hover": { bgcolor: "action.hover" },
+                            transition: "background-color 0.15s",
+                          }}
+                        >
                         <Box sx={{ minWidth: 0, flex: 1 }}>
                           <Typography
                             variant="body2"
@@ -376,7 +374,8 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
                         >
                           View Thesis
                         </Typography>
-                      </Box>
+                        </Box>
+                      </Link>
                     </React.Fragment>
                   ))}
                 </Paper>
@@ -396,20 +395,20 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
                   {scholarships.map((sch, index) => (
                     <React.Fragment key={sch.id}>
                       {index > 0 && <Divider />}
-                      <Box
-                        component={Link}
+                      <Link
                         href={`/scholarships/${sch.slug}`}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
-                          p: 2,
-                          textDecoration: "none",
-                          color: "inherit",
-                          "&:hover": { bgcolor: "action.hover" },
-                          transition: "background-color 0.15s",
-                        }}
+                        style={{ textDecoration: "none", color: "inherit" }}
                       >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 2,
+                            p: 2,
+                            "&:hover": { bgcolor: "action.hover" },
+                            transition: "background-color 0.15s",
+                          }}
+                        >
                         <Box sx={{ minWidth: 0, flex: 1 }}>
                           <Typography
                             variant="body2"
@@ -432,7 +431,8 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
                         >
                           View Scholarship
                         </Typography>
-                      </Box>
+                        </Box>
+                      </Link>
                     </React.Fragment>
                   ))}
                 </Paper>
@@ -454,20 +454,20 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
                     return (
                       <React.Fragment key={pub.id}>
                         {index > 0 && <Divider />}
-                        <Box
-                          component={Link}
+                        <Link
                           href={`/publications/${pub.slug}`}
-                          sx={{
-                            display: "flex",
-                            alignItems: "flex-start",
-                            gap: 2,
-                            p: 2.5,
-                            textDecoration: "none",
-                            color: "inherit",
-                            "&:hover": { bgcolor: "action.hover" },
-                            transition: "background-color 0.15s",
-                          }}
+                          style={{ textDecoration: "none", color: "inherit" }}
                         >
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "flex-start",
+                              gap: 2,
+                              p: 2.5,
+                              "&:hover": { bgcolor: "action.hover" },
+                              transition: "background-color 0.15s",
+                            }}
+                          >
                           <Box sx={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: 0.5 }}>
                             <Typography
                               variant="body2"
@@ -489,6 +489,7 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
                             View Paper
                           </Typography>
                         </Box>
+                        </Link>
                       </React.Fragment>
                     );
                   })}
