@@ -225,6 +225,7 @@ export function buildAppTheme(mode: ThemeMode, customColors?: CustomColors): The
   }
 
   return createTheme({
+    cssVariables: true,
     ...commonThemeSettings,
     palette,
     ...getComponentOverrides(mode === "dark"),
