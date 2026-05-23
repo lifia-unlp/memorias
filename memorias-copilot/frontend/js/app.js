@@ -44,6 +44,7 @@ class App {
       thinkingRow:      this._thinkingRow,
       truncationNotice: this._truncationNote,
       onUserEdit:       (index, newContent) => this._handleEdit(index, newContent),
+      onFeedback:       (content, rating) => this._handleFeedback(content, rating),
     });
 
     const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
@@ -118,6 +119,12 @@ class App {
     }
     this._chat.truncateAndEdit(index, newContent);
     this._requestCompletion();
+  }
+
+  _handleFeedback(content, rating) {
+    this._api.sendFeedback(content, rating).catch((err) => {
+      console.error("Error sending feedback:", err);
+    });
   }
 
   // ── Completion cycle ──────────────────────────────────────────────────────

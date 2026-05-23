@@ -90,3 +90,93 @@ async def test_chat_endpoint_offline() -> None:
 
     # Clean up dependency overrides
     app.dependency_overrides.clear()
+
+
+@pytest.mark.asyncio
+async def test_feedback_endpoint() -> None:
+    import json
+    from unittest.mock import patch
+
+    # Patch pathlib.Path to simulate a session log file
+    mock_log_content = [
+        {"role": "user", "content": "Hello"},
+        {"role": "assistant", "content": "Hello, how can I help you?"},
+    ]
+
+    with (
+        patch("pathlib.Path.exists", return_value=True),
+        patch("pathlib.Path.read_text", return_value=json.dumps(mock_log_content)),
+        patch("pathlib.Path.write_text") as mock_write_text,
+    ):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as ac:
+            response = await ac.post(
+                "/chat/feedback",
+                json={"content": "Hello, how can I help you?", "rating": "thumbs_up"},
+                headers={"X-Session-Token": "test-session-token"},
+            )
+
+            assert response.status_code == 200
+            assert response.json() == {"status": "success"}
+
+            # Verify write_text was called with the updated rating
+            written_args = mock_write_text.call_args[0][0]
+            written_data = json.loads(written_args)
+            assert written_data[1]["rating"] == "thumbs_up"
+
+
+@pytest.mark.asyncio
+async def test_feedback_endpoint_untoggle() -> None:
+    import json
+    from unittest.mock import patch
+
+    # Patch pathlib.Path to simulate a session log file
+    mock_log_content = [
+        {"role": "user", "content": "Hello"},
+        {"role": "assistant", "content": "Hello, how can I help you?", "rating": "thumbs_up"},
+    ]
+
+    with (
+        patch("pathlib.Path.exists", return_value=True),
+        patch("pathlib.Path.read_text", return_value=json.dumps(mock_log_content)),
+        patch("pathlib.Path.write_text") as mock_write_text,
+    ):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as ac:
+            response = await ac.post(
+                "/chat/feedback",
+                json={"content": "Hello, how can I help you?", "rating": None},
+                headers={"X-Session-Token": "test-session-token"},
+            )
+
+            assert response.status_code == 200
+            assert response.json() == {"status": "success"}
+
+            # Verify write_text was called with rating removed
+            written_args = mock_write_text.call_args[0][0]
+            written_data = json.loads(written_args)
+            assert "rating" not in written_data[1]
+
+
+@pytest.mark.asyncio
+async def test_feedback_endpoint_not_found() -> None:
+    from unittest.mock import patch
+
+    with patch("pathlib.Path.exists", return_value=False):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as ac:
+            response = await ac.post(
+                "/chat/feedback",
+                json={"content": "Hello, how can I help you?", "rating": "thumbs_up"},
+                headers={"X-Session-Token": "test-session-token"},
+            )
+
+            assert response.status_code == 200
+            assert response.json() == {
+                "status": "ignored",
+                "reason": "Session log or message content not found",
+            }
+

@@ -581,3 +581,44 @@ button { font-family: inherit; }
   border: 1px solid rgba(52, 168, 83, 0.3);
 }
 
+/* ─── Feedback actions ──────────────────────────────────────────────────────── */
+.feedback-actions {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 6px;
+}
+
+.feedback-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  padding: 0;
+}
+
+.feedback-btn:hover {
+  border-color: var(--border-input);
+  color: var(--text-primary);
+  background: var(--bg-user-row);
+}
+
+.feedback-btn.active.up {
+  background-color: rgba(52, 168, 83, 0.12);
+  color: #137333;
+  border-color: #c4eed0;
+}
+
+.feedback-btn.active.down {
+  background-color: rgba(217, 48, 37, 0.12);
+  color: #c5221f;
+  border-color: #fad2cf;
+}
+
+

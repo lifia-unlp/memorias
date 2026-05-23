@@ -68,6 +68,30 @@ export class ApiClient {
     return this._sessionToken;
   }
 
+  /**
+   * Send user feedback rating for a specific assistant message.
+   * @param {string} content - Assistant message text content.
+   * @param {string|null} rating - "thumbs_up", "thumbs_down", or null.
+   */
+  async sendFeedback(content, rating) {
+    const endpoint = `${this._baseUrl}/chat/feedback`;
+    console.log("[ApiClient] Sending feedback:", { content, rating });
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Session-Token": this._sessionToken,
+        },
+        body: JSON.stringify({ content, rating }),
+      });
+      return await response.json();
+    } catch (err) {
+      console.error("[ApiClient] Failed to send feedback:", err);
+      throw err;
+    }
+  }
+
   // ── Private: real SSE implementation (used when backend is ready) ───────
 
   _streamReal(messageHistory, onChunk, onDone, onError) {

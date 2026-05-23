@@ -1,10 +1,13 @@
+import json
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import Depends, FastAPI, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 
 from copilot.config import Settings
 from copilot.db.adapter import PostgresDatabaseAdapter
@@ -125,3 +128,49 @@ async def chat_endpoint(
             yield "data: [DONE]\n\n"
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+
+class FeedbackRequest(BaseModel):
+    content: str
+    rating: str | None  # "thumbs_up", "thumbs_down", or None
+
+
+@app.post("/chat/feedback")
+async def chat_feedback(
+    request: FeedbackRequest,
+    x_session_token: str = Header(..., alias="X-Session-Token"),
+) -> dict[str, str]:
+    try:
+        logs_dir = Path(__file__).parent / ".." / ".." / "logs"
+        log_file = logs_dir / f"session_{x_session_token}.json"
+
+        if log_file.exists():
+            file_content = log_file.read_text(encoding="utf-8")
+            thread = json.loads(file_content)
+
+            target_content = request.content.strip()
+            found = False
+            for msg in thread:
+                if msg.get("role") == "assistant" and msg.get("content"):
+                    if msg["content"].strip() == target_content:
+                        if request.rating is None:
+                            msg.pop("rating", None)
+                        else:
+                            msg["rating"] = request.rating
+                        found = True
+                        break
+
+            if found:
+                log_file.write_text(
+                    json.dumps(thread, indent=2, ensure_ascii=False),
+                    encoding="utf-8",
+                )
+                return {"status": "success"}
+
+        return {
+            "status": "ignored",
+            "reason": "Session log or message content not found",
+        }
+    except Exception as e:
+        return {"status": "error", "reason": str(e)}
+
