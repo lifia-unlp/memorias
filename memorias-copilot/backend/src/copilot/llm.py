@@ -64,6 +64,9 @@ class OpenAIProvider(LLMProvider):
             thread.append({"role": msg.role, "content": msg.content})
 
         tool_calls_count = 0
+        # Track where in the thread the history ends so we know which messages
+        # were generated during this turn (tool calls, results, final reply).
+        history_end_index = len(thread)
 
         while True:
             # Build API completions request kwargs
@@ -167,18 +170,39 @@ class OpenAIProvider(LLMProvider):
 
         if session_id:
             try:
-                full_log = list(thread)
-                full_log.append(
-                    {
-                        "role": "metadata",
-                        "grounding_level": level,
-                        "tool_calls_count": tool_calls_count,
-                    }
-                )
+                # Only the messages appended during this turn
+                # (tool calls, results, final reply).
+                generated_this_turn = list(thread[history_end_index:])
+                turn_metadata = {
+                    "role": "metadata",
+                    "grounding_level": level,
+                    "tool_calls_count": tool_calls_count,
+                }
+
                 base_dir = Path(__file__).parent
                 logs_dir = base_dir / ".." / ".." / "logs"
                 logs_dir.mkdir(parents=True, exist_ok=True)
                 log_file = logs_dir / f"session_{session_id}.json"
+
+                if log_file.exists():
+                    # Append mode: preserve prior turns exactly as they happened.
+                    existing_log: list[dict[str, Any]] = json.loads(
+                        log_file.read_text(encoding="utf-8")
+                    )
+                    # The new user message is the last message in the incoming history.
+                    new_user_msg = {
+                        "role": messages[-1].role,
+                        "content": messages[-1].content,
+                    }
+                    existing_log.append(new_user_msg)
+                    existing_log.extend(generated_this_turn)
+                    existing_log.append(turn_metadata)
+                    full_log = existing_log
+                else:
+                    # First turn: write the full initial thread plus generated messages.
+                    full_log = list(thread)
+                    full_log.append(turn_metadata)
+
                 log_file.write_text(
                     json.dumps(full_log, indent=2, ensure_ascii=False),
                     encoding="utf-8",
