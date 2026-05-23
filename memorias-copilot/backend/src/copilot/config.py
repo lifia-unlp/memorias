@@ -39,3 +39,9 @@ class Settings(BaseModel):
         )
     )
     session_timeout_seconds: int = Field(default=3600)
+    memorias_web_base_url: str = Field(
+        default_factory=lambda: os.getenv(
+            "MEMORIAS_WEB_BASE_URL",
+            "http://localhost:3000",
+        )
+    )

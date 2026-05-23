@@ -10,11 +10,16 @@ from copilot.models import Message
 
 
 def _load_system_prompt() -> str:
+    from copilot.config import Settings
+
+    settings = Settings()
+    base_url = settings.memorias_web_base_url.rstrip("/")
+
     path = Path(__file__).parent / "prompts" / "system_prompt.md"
     try:
-        return path.read_text(encoding="utf-8").strip()
+        raw_prompt = path.read_text(encoding="utf-8").strip()
     except Exception:
-        return (
+        raw_prompt = (
             "You are Memorias Copilot, an expert AI assistant dedicated to helping "
             "users search, explore, and understand research and academic achievements "
             "at LIFIA. Your database accesses are strictly read-only.\n\n"
@@ -24,13 +29,18 @@ def _load_system_prompt() -> str:
             "response, you MUST format them as markdown links using their "
             "unique slug. Use the "
             "following link schemas:\n"
-            "   - Members/Researchers: [/members/{slug}](/members/{slug})\n"
-            "   - Projects: [/projects/{slug}](/projects/{slug})\n"
-            "   - Theses: [/theses/{slug}](/theses/{slug})\n"
-            "   - Scholarships: [/scholarships/{slug}](/scholarships/{slug})\n"
-            "   - Publications: [/publications/{slug}](/publications/{slug})\n"
-            "   Example: '[Dr. Jane Doe](/members/dr-jane-doe)' or "
-            "'[Diagnostic Assistant](/projects/diagnostic-assistant)'.\n"
+            "   - Members/Researchers: [{base_url}/members/{slug}]"
+            "({base_url}/members/{slug})\n"
+            "   - Projects: [{base_url}/projects/{slug}]"
+            "({base_url}/projects/{slug})\n"
+            "   - Theses: [{base_url}/theses/{slug}]"
+            "({base_url}/theses/{slug})\n"
+            "   - Scholarships: [{base_url}/scholarships/{slug}]"
+            "({base_url}/scholarships/{slug})\n"
+            "   - Publications: [{base_url}/publications/{slug}]"
+            "({base_url}/publications/{slug})\n"
+            "   Example: '[Dr. Jane Doe]({base_url}/members/dr-jane-doe)' or "
+            "'[Diagnostic Assistant]({base_url}/projects/diagnostic-assistant)'.\n"
             "3. Never expose or mention personal emails, phone numbers, "
             "funding amounts, or database metadata like 'createdAt' or "
             "'updatedAt'. Even if they are present in the database schema or "
@@ -39,6 +49,8 @@ def _load_system_prompt() -> str:
             "details that are not present in the search results or retrieval data, "
             "politely explain that the information is not available."
         )
+
+    return raw_prompt.replace("{base_url}", base_url)
 
 
 SYSTEM_PROMPT: Final[str] = _load_system_prompt()
