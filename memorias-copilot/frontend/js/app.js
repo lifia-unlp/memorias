@@ -36,6 +36,7 @@ class App {
     this._iconDark       = this._el("iconDark");
     this._offlinePanel   = this._el("offlinePanel");
     this._inputArea      = this._el("inputArea");
+    this._consentOverlay = this._el("consentOverlay");
 
     // ── Collaborators ─────────────────────────────────────────────────
     this._chat = new ChatView({
@@ -62,6 +63,7 @@ class App {
   start() {
     this._bindEvents();
     this._autoResize(this._chatInput);
+    this._showConsentIfNeeded();
   }
 
   // ── Event binding ────────────────────────────────────────────────────────
@@ -246,6 +248,26 @@ class App {
       this._iconLight.style.display = "none";
       this._iconDark.style.display  = "";
     }
+  }
+
+  // ── Consent notice ────────────────────────────────────────────────────────
+
+  _showConsentIfNeeded() {
+    const CONSENT_KEY = "copilot_consent_acknowledged";
+    if (sessionStorage.getItem(CONSENT_KEY)) {
+      this._consentOverlay.classList.add("hidden");
+      return;
+    }
+    // Modal is visible by default (no hidden class). Wire the accept button.
+    const acceptBtn = this._el("consentAcceptBtn");
+    acceptBtn.addEventListener("click", () => {
+      sessionStorage.setItem(CONSENT_KEY, "1");
+      this._consentOverlay.classList.add("hidden");
+      this._chatInput.focus();
+    });
+    // Move focus into the modal so keyboard users do not interact with the
+    // content behind it.
+    acceptBtn.focus();
   }
 
   // ── Offline state (called externally when backend reports offline) ─────────

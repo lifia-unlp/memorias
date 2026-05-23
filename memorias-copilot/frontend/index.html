@@ -158,6 +158,33 @@
       </p>
     </div>
   </div>
+  <!-- ── Consent modal (recording notice) ──────────────────────────────── -->
+  <div class="consent-overlay" id="consentOverlay" role="dialog"
+       aria-modal="true" aria-labelledby="consentTitle" aria-describedby="consentBody">
+    <div class="consent-card">
+      <h2 class="consent-title" id="consentTitle">Interaction Recording Notice</h2>
+      <p class="consent-body" id="consentBody">
+        This tool is a research prototype under active development at
+        <strong>LIFIA, UNLP</strong>. Your conversations with the Copilot are
+        recorded and stored on our servers for research and development purposes,
+        including quality assessment and system improvement.
+      </p>
+      <p class="consent-body">
+        No personal identification is collected beyond the anonymised session
+        token assigned to your browser tab. Recorded sessions may be reviewed
+        by LIFIA researchers and are handled in accordance with the
+        institution's data governance policies.
+      </p>
+      <p class="consent-note">
+        By continuing to use this tool you acknowledge the above.
+      </p>
+      <div class="consent-actions">
+        <button class="btn-consent-accept" id="consentAcceptBtn">
+          I understand, continue
+        </button>
+      </div>
+    </div>
+  </div>
 
 </div><!-- /app -->
 
