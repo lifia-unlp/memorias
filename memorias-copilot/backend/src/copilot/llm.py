@@ -69,7 +69,7 @@ class OpenAIProvider(LLMProvider):
             # Build API completions request kwargs
             kwargs: dict[str, Any] = {
                 "model": self._model,
-                "messages": thread,
+                "messages": list(thread),
                 "stream": True,
             }
             if dispatcher is not None:
@@ -115,6 +115,9 @@ class OpenAIProvider(LLMProvider):
 
             # If no tool calls were generated, the stream is finished!
             if not tool_calls_acc:
+                final_content = "".join(content_acc)
+                if final_content:
+                    thread.append({"role": "assistant", "content": final_content})
                 break
 
             # Reconstruct complete tool calls

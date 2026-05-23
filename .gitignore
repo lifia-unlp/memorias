@@ -33,3 +33,6 @@
 *.njsproj
 *.sln
 *.sw?
+
+# Copilot Backend Logs
+/memorias-copilot/backend/logs/
