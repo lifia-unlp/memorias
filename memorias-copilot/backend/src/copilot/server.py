@@ -106,7 +106,9 @@ async def chat_endpoint(
         try:
             chunk_count = 0
             async for chunk in llm.stream_completions(
-                session.messages, dispatcher=tool_dispatcher
+                session.messages,
+                dispatcher=tool_dispatcher,
+                session_id=session_id.value,
             ):
                 chunk_count += 1
                 # Escape newlines and carriage returns so they don't break SSE framing

@@ -32,6 +32,7 @@ class LLMProvider(ABC):
         self,
         messages: list[Message],
         dispatcher: Any = None,
+        session_id: str | None = None,
     ) -> AsyncIterator[str]:
         if False:
             yield ""
@@ -48,6 +49,7 @@ class OpenAIProvider(LLMProvider):
         self,
         messages: list[Message],
         dispatcher: Any = None,
+        session_id: str | None = None,
     ) -> AsyncIterator[str]:
         from copilot.tools.definitions import TOOLS
 
@@ -159,5 +161,26 @@ class OpenAIProvider(LLMProvider):
             level = "moderate"
         else:
             level = "strong"
+
+        if session_id:
+            try:
+                full_log = list(thread)
+                full_log.append(
+                    {
+                        "role": "metadata",
+                        "grounding_level": level,
+                        "tool_calls_count": tool_calls_count,
+                    }
+                )
+                base_dir = Path(__file__).parent
+                logs_dir = base_dir / ".." / ".." / "logs"
+                logs_dir.mkdir(parents=True, exist_ok=True)
+                log_file = logs_dir / f"session_{session_id}.json"
+                log_file.write_text(
+                    json.dumps(full_log, indent=2, ensure_ascii=False),
+                    encoding="utf-8",
+                )
+            except Exception:
+                pass
 
         yield f"[GROUNDING:{level}:{tool_calls_count}]"

@@ -16,6 +16,7 @@ class MockLLMProvider(LLMProvider):
         self,
         messages: list[Message],
         dispatcher: Any = None,
+        session_id: str | None = None,
     ) -> AsyncIterator[str]:
         yield "Hello"
         yield "\n"
