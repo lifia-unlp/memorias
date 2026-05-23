@@ -1,6 +1,32 @@
 import os
+from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
 
 from pydantic import BaseModel, Field
+
+
+def _sanitize_db_url(url: str) -> str:
+    if not url:
+        return url
+    try:
+        parsed = urlparse(url)
+        # Parse query params
+        qps = parse_qsl(parsed.query)
+        # Strip out Prisma-specific parameters that psycopg/libpq do not accept
+        prisma_params = {
+            "connection_limit",
+            "pool_timeout",
+            "max_idle_connection_lifetime",
+            "socket_timeout",
+            "schema",
+        }
+        filtered_qps = [(k, v) for k, v in qps if k.lower() not in prisma_params]
+        
+        # Reconstruct url
+        new_query = urlencode(filtered_qps)
+        new_parsed = parsed._replace(query=new_query)
+        return urlunparse(new_parsed)
+    except Exception:
+        return url
 
 
 def _load_dotenv() -> None:
@@ -34,8 +60,11 @@ class Settings(BaseModel):
         default_factory=lambda: os.getenv("OPENAI_MODEL", "gpt-4o-mini")
     )
     database_url: str = Field(
-        default_factory=lambda: os.getenv(
-            "DATABASE_URL", "postgresql://postgres:postgres@localhost:51216/default"
+        default_factory=lambda: _sanitize_db_url(
+            os.getenv(
+                "DATABASE_URL",
+                "postgresql://postgres:postgres@localhost:51216/default",
+            )
         )
     )
     session_timeout_seconds: int = Field(default=3600)
@@ -45,3 +74,4 @@ class Settings(BaseModel):
             "http://localhost:3000",
         )
     )
+
