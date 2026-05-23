@@ -20,9 +20,27 @@ export class MarkdownRenderer {
       );
     }
 
+    const renderer = new marked.Renderer();
+    renderer.link = (href, title, text) => {
+      let actualHref = href;
+      let actualTitle = title;
+      let actualText = text;
+
+      // Handle both old signature link(href, title, text) and new signature link({ href, title, text })
+      if (href && typeof href === "object") {
+        actualHref = href.href;
+        actualTitle = href.title;
+        actualText = href.text;
+      }
+
+      const titleAttr = actualTitle ? ` title="${actualTitle}"` : "";
+      return `<a href="${actualHref}"${titleAttr} target="_blank" rel="noopener noreferrer">${actualText}</a>`;
+    };
+
     marked.setOptions({
-      breaks: true,   // single newline → <br>
-      gfm: true,      // GitHub-Flavoured Markdown (tables, strikethrough, etc.)
+      breaks: true, // single newline → <br>
+      gfm: true, // GitHub-Flavoured Markdown (tables, strikethrough, etc.)
+      renderer: renderer,
     });
   }
 
