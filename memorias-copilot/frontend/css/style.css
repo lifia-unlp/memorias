@@ -711,3 +711,33 @@ button { font-family: inherit; }
 .btn-consent-accept:hover {
   background: var(--accent-hover);
 }
+
+/* ─── Footer ──────────────────────────────────────────────────────────────── */
+.app-footer {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.app-footer a {
+  color: var(--text-secondary);
+  text-decoration: underline dotted;
+  font-weight: 500;
+  transition: color var(--transition);
+}
+
+.app-footer a:hover {
+  color: var(--accent);
+}
+
+.footer-stats {
+  color: var(--text-muted);
+}
+

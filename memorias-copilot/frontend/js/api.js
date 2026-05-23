@@ -92,6 +92,25 @@ export class ApiClient {
     }
   }
 
+  /**
+   * Fetch lab info and log statistics from the backend.
+   * @returns {Promise<{lab_name: string, conversations_count: number, repo_url: string}>}
+   */
+  async fetchInfo() {
+    const endpoint = `${this._baseUrl}/info`;
+    console.log("[ApiClient] Fetching server stats...");
+    try {
+      const response = await fetch(endpoint);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch stats: ${response.status}`);
+      }
+      return await response.json();
+    } catch (err) {
+      console.error("[ApiClient] Failed to fetch server info:", err);
+      throw err;
+    }
+  }
+
   // ── Private: real SSE implementation (used when backend is ready) ───────
 
   _streamReal(messageHistory, onChunk, onDone, onError) {

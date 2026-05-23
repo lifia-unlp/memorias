@@ -4,6 +4,7 @@ import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Any
 
 from fastapi import Depends, FastAPI, Header
 from fastapi.middleware.cors import CORSMiddleware
@@ -175,6 +176,26 @@ async def chat_feedback(
         }
     except Exception as e:
         return {"status": "error", "reason": str(e)}
+
+
+@app.get("/info")
+async def get_info() -> dict[str, Any]:
+    try:
+        logs_dir = Path(__file__).parent / ".." / ".." / "logs"
+        if logs_dir.is_dir():
+            # Count the number of session_*.json files
+            count = len(list(logs_dir.glob("session_*.json")))
+        else:
+            count = 0
+    except Exception:
+        count = 0
+
+    return {
+        "lab_name": settings.lab_name,
+        "conversations_count": count,
+        "repo_url": "https://github.com/casco/memorias-migration-antigrativy",
+    }
+
 
 
 # Serve the static frontend.

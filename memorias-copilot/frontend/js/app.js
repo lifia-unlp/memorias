@@ -64,6 +64,7 @@ class App {
     this._bindEvents();
     this._autoResize(this._chatInput);
     this._showConsentIfNeeded();
+    this._initFooter();
   }
 
   // ── Event binding ────────────────────────────────────────────────────────
@@ -268,6 +269,38 @@ class App {
     // Move focus into the modal so keyboard users do not interact with the
     // content behind it.
     acceptBtn.focus();
+  }
+
+  _initFooter() {
+    try {
+      const yearEl = document.getElementById("footerYear");
+      if (yearEl) {
+        yearEl.textContent = new Date().getFullYear();
+      }
+
+      this._api.fetchInfo()
+        .then((info) => {
+          const labLink = document.getElementById("footerLabLink");
+          if (labLink) {
+            labLink.textContent = info.lab_name || "LIFIA";
+            if (info.repo_url) {
+              labLink.href = info.repo_url;
+            }
+          }
+          
+          const statsEl = document.getElementById("footerStats");
+          const countEl = document.getElementById("conversationsCount");
+          if (statsEl && countEl && typeof info.conversations_count === "number") {
+            countEl.textContent = info.conversations_count;
+            statsEl.style.display = "";
+          }
+        })
+        .catch((err) => {
+          console.warn("Could not load footer stats from backend:", err);
+        });
+    } catch (e) {
+      console.error("Error initializing footer:", e);
+    }
   }
 
   // ── Offline state (called externally when backend reports offline) ─────────
