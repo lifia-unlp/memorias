@@ -114,6 +114,18 @@ export class ChatView {
         this._scrollToBottom();
       },
       finalise: () => {
+        const match = accumulated.match(/\[GROUNDING:([a-z]+):(\d+)\]/);
+        let textToRender = accumulated;
+
+        if (match) {
+          const level = match[1];
+          const count = parseInt(match[2], 10);
+          textToRender = accumulated.replace(match[0], "");
+          this._history[index].content = textToRender;
+          this._updateGroundingBadge(row, level, count);
+        }
+
+        bodyEl.innerHTML = this._renderer.render(textToRender);
         this._streamingIndex = -1;
         this._scrollToBottom();
       },
@@ -313,11 +325,23 @@ export class ChatView {
 
     if (level === "none") {
       badgeEl.textContent = "Grounding: None";
+      badgeEl.setAttribute(
+        "title",
+        "This response is based on the Copilot's general pre-trained knowledge rather than active database records."
+      );
     } else if (level === "moderate") {
       const q = count === 1 ? "query" : "queries";
       badgeEl.textContent = `Grounding: Moderate (${count} DB ${q})`;
+      badgeEl.setAttribute(
+        "title",
+        `This response is moderately grounded, using ${count} specific database ${q} to retrieve matching archive records.`
+      );
     } else if (level === "strong") {
       badgeEl.textContent = `Grounding: Strong (${count} DB queries)`;
+      badgeEl.setAttribute(
+        "title",
+        `This response is strongly backed by ${count} real database queries from the Memorias archive.`
+      );
     }
   }
 }
