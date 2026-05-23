@@ -38,6 +38,10 @@ class ToolDispatcher:
                 publications = await self._db.search_publications(arguments["query"])
                 return json.dumps([p.model_dump(mode="json") for p in publications])
 
+            elif name == "get_tag_cloud":
+                tags = await self._db.get_tag_cloud()
+                return json.dumps(tags)
+
             # --- Detail Retrieval Tools ---
             elif name == "get_member_by_id_or_slug":
                 member = await self._db.get_member_by_id_or_slug(

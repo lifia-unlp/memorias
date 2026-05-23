@@ -88,6 +88,17 @@ TOOLS: Final[list[dict[str, Any]]] = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_tag_cloud",
+            "description": "Retrieve the complete tag cloud of research topics, keywords, and tags active in the database along with their frequencies. Use this to explore what topics/keywords the lab works on, or to suggest relevant alternative research topics.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+            },
+        },
+    },
     # --- Detail Retrieval Tools ---
     {
         "type": "function",

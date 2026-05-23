@@ -37,6 +37,11 @@ class DatabaseAdapter(ABC):
     async def search_publications(self, query: str) -> list[Publication]:
         pass
 
+    # --- Tag Cloud / Topic Exploration ---
+    @abstractmethod
+    async def get_tag_cloud(self) -> dict[str, int]:
+        pass
+
     # --- Detail Retrieval Methods ---
     @abstractmethod
     async def get_member_by_id_or_slug(self, id_or_slug: str) -> Member | None:
@@ -226,6 +231,29 @@ class PostgresDatabaseAdapter(DatabaseAdapter):
         """
         records = await self._fetch(sql, {"q": f"%{query}%"})
         return [Publication(**r) for r in records]
+
+    # --- Tag Cloud / Topic Exploration ---
+    @override
+    async def get_tag_cloud(self) -> dict[str, int]:
+        sql = """
+            SELECT tag, COUNT(*) as count FROM (
+                SELECT unnest(tags) as tag FROM "Member"
+                UNION ALL
+                SELECT unnest(tags) as tag FROM "Project"
+                UNION ALL
+                SELECT unnest(tags) as tag FROM "Thesis"
+                UNION ALL
+                SELECT unnest(tags) as tag FROM "Scholarship"
+                UNION ALL
+                SELECT unnest(tags) as tag FROM "Publication"
+            ) sub
+            WHERE tag IS NOT NULL AND tag != ''
+            GROUP BY tag
+            ORDER BY count DESC, tag ASC
+            LIMIT 100
+        """
+        records = await self._fetch(sql)
+        return {r["tag"]: int(r["count"]) for r in records}
 
     # --- Detail Retrieval Methods ---
     @override
