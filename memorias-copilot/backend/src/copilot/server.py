@@ -24,7 +24,22 @@ tool_dispatcher = ToolDispatcher(db=db_adapter)
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     logger.info("[Server] Initializing database connection pool...")
-    await db_adapter.connect()
+    try:
+        await db_adapter.connect()
+        logger.info("[Server] Database connection pool initialized successfully.")
+    except Exception as e:
+        logger.error(
+            "DATABASE CONNECTION ERROR\n"
+            "----------------------------------------------------------------------\n"
+            f"Unable to connect to the database: {e}\n"
+            "Please check:\n"
+            f"  1. Is the database running on {settings.database_url}?\n"
+            "  2. Is your DATABASE_URL in the .env file correct?\n"
+            "  3. Do you have the required network access / SSH tunnel open?\n"
+            "----------------------------------------------------------------------\n"
+            "Running server in offline mode "
+            "(friendly messages will be served to clients)."
+        )
     try:
         yield
     finally:
@@ -58,6 +73,19 @@ async def chat_endpoint(
     x_session_token: str = Header(..., alias="X-Session-Token"),
     llm: LLMProvider = Depends(get_llm_provider),
 ) -> StreamingResponse:
+    # Check if database is offline due to connection issues
+    if getattr(db_adapter, "_connection_error", None) is not None:
+
+        async def offline_generator() -> AsyncIterator[str]:
+            msg = (
+                "I've had a long day today... too tired to answer. Try again tomorrow!"
+            )
+            escaped_msg = msg.replace("\n", "\\n").replace("\r", "\\r")
+            yield f"data: {escaped_msg}\n\n"
+            yield "data: [DONE]\n\n"
+
+        return StreamingResponse(offline_generator(), media_type="text/event-stream")
+
     session_id = SessionId(x_session_token)
     logger.info(
         f"[Server] Received POST /chat request. Session Token: {x_session_token}"

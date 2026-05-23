@@ -10,6 +10,8 @@ dependencies = [
     "openai>=1.14.0",
     "typing-extensions>=4.10.0",
     "asyncpg>=0.31.0",
+    "psycopg[binary]>=3.3.4",
+    "psycopg-pool>=3.3.1",
 ]
 
 [tool.uv]
