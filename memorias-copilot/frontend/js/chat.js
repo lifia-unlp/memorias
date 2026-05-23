@@ -97,8 +97,20 @@ export class ChatView {
     return {
       appendChunk: (chunk) => {
         accumulated += chunk;
-        this._history[index].content = accumulated;
-        bodyEl.innerHTML = this._renderer.render(accumulated);
+        const match = accumulated.match(/\[GROUNDING:([a-z]+):(\d+)\]/);
+        let textToRender = accumulated;
+
+        if (match) {
+          const level = match[1];
+          const count = parseInt(match[2], 10);
+          textToRender = accumulated.replace(match[0], "");
+          this._history[index].content = textToRender;
+          this._updateGroundingBadge(row, level, count);
+        } else {
+          this._history[index].content = accumulated;
+        }
+
+        bodyEl.innerHTML = this._renderer.render(textToRender);
         this._scrollToBottom();
       },
       finalise: () => {
@@ -203,12 +215,24 @@ export class ChatView {
         <div class="message-header">
           <span class="message-label">Copilot</span>
           <span class="message-time">${this._nowTime()}</span>
+          <span class="grounding-badge" style="display: none;"></span>
         </div>
         <div class="message-body"></div>
       </div>`;
 
-    if (content) {
-      row.querySelector(".message-body").innerHTML = this._renderer.render(content);
+    let textToRender = content;
+    if (content && typeof content === "string") {
+      const match = content.match(/\[GROUNDING:([a-z]+):(\d+)\]/);
+      if (match) {
+        const level = match[1];
+        const count = parseInt(match[2], 10);
+        textToRender = content.replace(match[0], "");
+        this._updateGroundingBadge(row, level, count);
+      }
+    }
+
+    if (textToRender) {
+      row.querySelector(".message-body").innerHTML = this._renderer.render(textToRender);
     }
     return row;
   }
@@ -278,5 +302,22 @@ export class ChatView {
       ":" +
       d.getMinutes().toString().padStart(2, "0")
     );
+  }
+
+  _updateGroundingBadge(row, level, count) {
+    const badgeEl = row.querySelector(".grounding-badge");
+    if (!badgeEl) return;
+
+    badgeEl.className = `grounding-badge ${level}`;
+    badgeEl.style.display = "inline-flex";
+
+    if (level === "none") {
+      badgeEl.textContent = "Grounding: None";
+    } else if (level === "moderate") {
+      const q = count === 1 ? "query" : "queries";
+      badgeEl.textContent = `Grounding: Moderate (${count} DB ${q})`;
+    } else if (level === "strong") {
+      badgeEl.textContent = `Grounding: Strong (${count} DB queries)`;
+    }
   }
 }

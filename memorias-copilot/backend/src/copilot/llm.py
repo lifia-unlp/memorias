@@ -88,6 +88,8 @@ class OpenAIProvider(LLMProvider):
                 continue
             thread.append({"role": msg.role, "content": msg.content})
 
+        tool_calls_count = 0
+
         while True:
             # Build API completions request kwargs
             kwargs: dict[str, Any] = {
@@ -166,6 +168,7 @@ class OpenAIProvider(LLMProvider):
                 except Exception as je:
                     args = {"error": f"Invalid JSON arguments: {je}"}
 
+                tool_calls_count += 1
                 tool_result = await dispatcher.dispatch(func_name, args)
 
                 thread.append(
@@ -176,3 +179,12 @@ class OpenAIProvider(LLMProvider):
                         "content": tool_result,
                     }
                 )
+
+        if tool_calls_count == 0:
+            level = "none"
+        elif tool_calls_count <= 2:
+            level = "moderate"
+        else:
+            level = "strong"
+
+        yield f"[GROUNDING:{level}:{tool_calls_count}]"

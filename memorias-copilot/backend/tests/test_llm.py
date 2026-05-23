@@ -45,7 +45,7 @@ async def test_openai_provider_streaming() -> None:
 
         from copilot.llm import SYSTEM_PROMPT
 
-        assert chunks == ["Hello", " world"]
+        assert chunks == ["Hello", " world", "[GROUNDING:none:0]"]
         mock_completions.create.assert_called_once_with(
             model="fake-model",
             messages=[
