@@ -47,7 +47,15 @@ def _load_system_prompt() -> str:
             "tool results, do not include them in your responses.\n"
             "4. Do not hallucinate or invent any information. If a query refers to "
             "details that are not present in the search results or retrieval data, "
-            "politely explain that the information is not available."
+            "politely explain that the information is not available.\n"
+            "5. Always prioritize using database tools to retrieve actual data "
+            "about LIFIA. Do not rely on your pre-trained generic knowledge to "
+            "describe LIFIA's research topics, members, or projects. For broad or "
+            "introductory questions (e.g., 'What topics does LIFIA work on?' or "
+            "'List LIFIA's research areas'), you MUST execute search queries "
+            "(such as search_projects or search_publications) to identify actual "
+            "active research areas and base your answer entirely on those "
+            "retrieved records."
         )
 
     return raw_prompt.replace("{base_url}", base_url)
