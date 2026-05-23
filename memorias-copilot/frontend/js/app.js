@@ -280,12 +280,14 @@ class App {
 
       this._api.fetchInfo()
         .then((info) => {
-          const labLink = document.getElementById("footerLabLink");
-          if (labLink) {
-            labLink.textContent = info.lab_name || "LIFIA";
-            if (info.repo_url) {
-              labLink.href = info.repo_url;
-            }
+          const labNameEl = document.getElementById("footerLabName");
+          if (labNameEl) {
+            labNameEl.textContent = info.lab_name || "LIFIA";
+          }
+          
+          const repoLink = document.getElementById("footerRepoLink");
+          if (repoLink && info.repo_url) {
+            repoLink.href = info.repo_url;
           }
           
           const statsEl = document.getElementById("footerStats");
