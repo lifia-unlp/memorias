@@ -32,6 +32,13 @@ export class ApiClient {
     this._sessionToken = this._initSessionToken();
   }
 
+  /** Reset the session token, generating a fresh context for a new conversation. */
+  resetSession() {
+    this._sessionToken = crypto.randomUUID();
+    sessionStorage.setItem("copilot_session", this._sessionToken);
+    console.log("[ApiClient] Session token reset to new conversation:", this._sessionToken);
+  }
+
   // ── Public API ──────────────────────────────────────────────────────────
 
   /**

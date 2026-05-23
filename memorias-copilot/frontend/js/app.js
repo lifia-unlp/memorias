@@ -220,14 +220,14 @@ class App {
     URL.revokeObjectURL(a.href);
   }
 
-  // ── New conversation ──────────────────────────────────────────────────────
-
   _handleNewChat() {
     if (this._busy) {
       this._cancelStream?.();
       this._cancelStream = null;
       this._busy = false;
     }
+    this._api.resetSession();
+    this._initFooter();
     this._chat.reset();
     this._sendBtn.disabled = false;
     this._chatInput.value = "";
