@@ -1,4 +1,5 @@
 import json
+import os
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -7,6 +8,7 @@ from pathlib import Path
 from fastapi import Depends, FastAPI, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from copilot.config import Settings
@@ -173,4 +175,20 @@ async def chat_feedback(
         }
     except Exception as e:
         return {"status": "error", "reason": str(e)}
+
+
+# Serve the static frontend.
+# This mount must come after all API routes so that /chat and /chat/feedback
+# are matched by FastAPI before the catch-all static handler.
+# FRONTEND_DIR is set to /app/frontend in the Docker image; when running
+# locally (outside Docker) you can set the env var or it falls back to the
+# sibling directory relative to the package root.
+_frontend_dir = Path(
+    os.getenv(
+        "FRONTEND_DIR",
+        str(Path(__file__).parent.parent.parent.parent.parent / "frontend"),
+    )
+)
+if _frontend_dir.is_dir():
+    app.mount("/", StaticFiles(directory=str(_frontend_dir), html=True), name="frontend")
 
