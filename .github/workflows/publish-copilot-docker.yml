@@ -28,7 +28,7 @@ jobs:
         with:
           context: ./memorias-copilot
           file: ./memorias-copilot/Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             cientopolis/memorias-copilot:latest
