@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memorias Copilot — UI Mockup</title>
+  <meta name="description" content="Static UI mockup for the Memorias research-lab conversational assistant." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Marked.js for Markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    /* ─── Design tokens — light theme ───────────────────────────────── */
+    :root {
+      --bg-page:        #ffffff;
+      --bg-user-row:    #f5f7fa;
+      --bg-bot-row:     #ffffff;
+      --bg-input:       #ffffff;
+      --bg-hover-edit:  #eef2f7;
+      --bg-code:        #f0f4f8;
+
+      --border:         #e2e6ed;
+      --border-input:   #c8cfd8;
+      --border-focus:   #4a7fc1;
+
+      --accent:         #2d6bbd;
+      --accent-light:   #e8f0fb;
+      --accent-hover:   #1e4f94;
+
+      --text-primary:   #1a1f2e;
+      --text-secondary: #5a6478;
+      --text-muted:     #99a3b3;
+      --text-link:      #2d6bbd;
+
+      --label-user:     #3d5a80;
+      --label-bot:      #2e6d58;
+
+      --offline-bg:     #fff8e6;
+      --offline-border: #f0c040;
+      --offline-text:   #7a5800;
+
+      --truncation-bg:     #fff3e0;
+      --truncation-border: #ffcc80;
+      --truncation-text:   #a05000;
+
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg:  12px;
+
+      --input-max-h: 200px;
+
+      --transition: 0.15s ease;
+
+      /* Typography scale */
+      --font-size-base: 15px;
+      --font-size-sm:   13px;
+      --font-size-xs:   11.5px;
+      --line-height:    1.7;
+    }
+
+    /* Dark theme (applied when <html data-theme="dark">) */
+    [data-theme="dark"] {
+      --bg-page:        #111318;
+      --bg-user-row:    #1a1e26;
+      --bg-bot-row:     #111318;
+      --bg-input:       #1a1e26;
+      --bg-hover-edit:  #1e2533;
+      --bg-code:        #0d1117;
+
+      --border:         #2a2f3d;
+      --border-input:   #3a4050;
+      --border-focus:   #5b8fd4;
+
+      --accent:         #5b8fd4;
+      --accent-light:   rgba(91,143,212,0.12);
+      --accent-hover:   #7aaae0;
+
+      --text-primary:   #e8ecf4;
+      --text-secondary: #8a93a8;
+      --text-muted:     #4a5260;
+      --text-link:      #7aaae0;
+
+      --label-user:     #7aaee0;
+      --label-bot:      #5aaa8a;
+
+      --offline-bg:     #2a2100;
+      --offline-border: #806000;
+      --offline-text:   #ffd060;
+
+      --truncation-bg:     #2a1a00;
+      --truncation-border: #8a4000;
+      --truncation-text:   #ffaa60;
+    }
+
+    /* ─── Reset & base ───────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      font-size: var(--font-size-base);
+      line-height: var(--line-height);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--text-link); }
+    code { font-family: 'JetBrains Mono', monospace; }
+
+    /* ─── Scrollbar ──────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-input); }
+
+    /* ─── Layout ─────────────────────────────────────────────────────── */
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ─── Top bar ────────────────────────────────────────────────────── */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 52px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-page);
+      flex-shrink: 0;
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .app-wordmark {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .app-wordmark span {
+      font-weight: 300;
+      color: var(--text-secondary);
+    }
+
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bar-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    .bar-btn:hover {
+      border-color: var(--border-input);
+      color: var(--text-primary);
+      background: var(--bg-user-row);
+    }
+    .bar-btn.accent {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .bar-btn.accent:hover {
+      background: var(--accent-light);
+    }
+
+    /* Theme toggle */
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: var(--font-size-xs);
+      font-family: inherit;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .theme-toggle:hover {
+      border-color: var(--border-input);
+      color: var(--text-primary);
+      background: var(--bg-user-row);
+    }
+
+    /* ─── Message list ───────────────────────────────────────────────── */
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--bg-page);
+    }
+
+    /* Empty / welcome state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 80px 24px 40px;
+      text-align: center;
+    }
+
+    .empty-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .empty-subtitle {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      max-width: 480px;
+      line-height: 1.65;
+    }
+
+    .suggestion-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 12px;
+      max-width: 560px;
+    }
+
+    .chip {
+      padding: 6px 14px;
+      background: var(--bg-user-row);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: inherit;
+      transition: all var(--transition);
+    }
+    .chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    /* ─── Message row ────────────────────────────────────────────────── */
+    .message-row {
+      display: flex;
+      flex-direction: column;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    .message-row.user-row {
+      background: var(--bg-user-row);
+    }
+
+    .message-row.bot-row {
+      background: var(--bg-bot-row);
+    }
+
+    /* Show edit link on hover */
+    .message-row:hover .edit-link { opacity: 1; }
+
+    .message-inner {
+      max-width: 760px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .message-header {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .message-label {
+      font-size: var(--font-size-xs);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .user-row .message-label  { color: var(--label-user); }
+    .bot-row  .message-label  { color: var(--label-bot); }
+
+    .message-time {
+      font-size: var(--font-size-xs);
+      color: var(--text-muted);
+    }
+
+    .edit-link {
+      margin-left: auto;
+      font-size: var(--font-size-xs);
+      color: var(--text-muted);
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: inherit;
+      padding: 0;
+      opacity: 0;
+      transition: opacity var(--transition), color var(--transition);
+    }
+    .edit-link:hover { color: var(--accent); }
+
+    /* Message body text */
+    .message-body {
+      font-size: var(--font-size-base);
+      line-height: var(--line-height);
+      color: var(--text-primary);
+    }
+
+    /* Markdown inside messages */
+    .message-body p { margin-bottom: 0.55em; }
+    .message-body p:last-child { margin-bottom: 0; }
+    .message-body h1, .message-body h2, .message-body h3 {
+      font-weight: 600;
+      margin: 0.9em 0 0.4em;
+      letter-spacing: -0.01em;
+    }
+    .message-body h1 { font-size: 1.2em; }
+    .message-body h2 { font-size: 1.08em; }
+    .message-body h3 { font-size: 1em; }
+    .message-body ul, .message-body ol {
+      padding-left: 1.5em;
+      margin: 0.4em 0 0.6em;
+    }
+    .message-body li { margin-bottom: 0.2em; }
+    .message-body code {
+      background: var(--bg-code);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.88em;
+      color: var(--text-primary);
+    }
+    .message-body pre {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      overflow-x: auto;
+      margin: 0.6em 0;
+    }
+    .message-body pre code {
+      background: none;
+      padding: 0;
+      font-size: 0.87em;
+    }
+    .message-body table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: var(--font-size-sm);
+      margin: 0.6em 0;
+    }
+    .message-body th, .message-body td {
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      text-align: left;
+    }
+    .message-body th {
+      background: var(--bg-user-row);
+      font-weight: 600;
+      font-size: var(--font-size-xs);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .message-body blockquote {
+      border-left: 3px solid var(--border-input);
+      padding-left: 12px;
+      color: var(--text-secondary);
+      margin: 0.6em 0;
+    }
+    .message-body strong { font-weight: 600; }
+    .message-body a { color: var(--text-link); }
+
+    /* ─── Inline editor ──────────────────────────────────────────────── */
+    .inline-editor {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .inline-editor.visible { display: flex; }
+
+    .inline-editor textarea {
+      background: var(--bg-input);
+      border: 1px solid var(--border-focus);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: var(--font-size-base);
+      line-height: var(--line-height);
+      resize: vertical;
+      min-height: 72px;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(45,107,189,0.1);
+    }
+
+    .editor-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 5px 14px;
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-family: inherit;
+      transition: all var(--transition);
+    }
+    .btn-cancel {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text-secondary);
+    }
+    .btn-cancel:hover { border-color: var(--border-input); color: var(--text-primary); }
+    .btn-send {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-send:hover { background: var(--accent-hover); }
+
+    /* ─── Truncation notice ──────────────────────────────────────────── */
+    .truncation-notice {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 8px 24px;
+      font-size: var(--font-size-sm);
+      color: var(--truncation-text);
+      background: var(--truncation-bg);
+      border-top: 1px solid var(--truncation-border);
+      border-bottom: 1px solid var(--truncation-border);
+    }
+
+    /* ─── Thinking / typing indicator ───────────────────────────────── */
+    .thinking-row {
+      display: none;
+      background: var(--bg-bot-row);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 0;
+    }
+    .thinking-row.visible { display: block; }
+
+    .thinking-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .thinking-label {
+      font-size: var(--font-size-xs);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--label-bot);
+      margin-bottom: 8px;
+    }
+
+    .thinking-dots {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      animation: bounce 1.3s ease-in-out infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.35; }
+      30%            { transform: translateY(-4px); opacity: 1; }
+    }
+
+    /* ─── Offline message ────────────────────────────────────────────── */
+    .offline-panel {
+      display: none;
+      padding: 24px;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .offline-panel.visible { display: block; }
+
+    .offline-card {
+      background: var(--offline-bg);
+      border: 1px solid var(--offline-border);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      color: var(--offline-text);
+      font-size: var(--font-size-sm);
+      line-height: 1.7;
+    }
+
+    .offline-card strong {
+      display: block;
+      font-size: var(--font-size-base);
+      margin-bottom: 4px;
+    }
+
+    /* ─── Input area ─────────────────────────────────────────────────── */
+    .input-area {
+      flex-shrink: 0;
+      border-top: 1px solid var(--border);
+      background: var(--bg-page);
+      padding: 14px 24px 18px;
+    }
+
+    .input-wrapper {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      border: 1px solid var(--border-input);
+      border-radius: var(--radius-md);
+      padding: 10px 12px 10px 16px;
+      background: var(--bg-input);
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .input-row:focus-within {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(45,107,189,0.1);
+    }
+
+    .input-textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: var(--font-size-base);
+      line-height: 1.6;
+      resize: none;
+      min-height: 24px;
+      max-height: var(--input-max-h);
+      overflow-y: auto;
+    }
+    .input-textarea::placeholder { color: var(--text-muted); }
+
+    .send-btn {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      cursor: pointer;
+      align-self: flex-end;
+      transition: background var(--transition);
+    }
+    .send-btn:hover { background: var(--accent-hover); }
+    .send-btn:disabled { background: var(--text-muted); cursor: not-allowed; }
+
+    .input-hint {
+      margin-top: 8px;
+      font-size: var(--font-size-xs);
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* ─── Responsive ─────────────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .top-bar { padding: 0 14px; }
+      .message-inner, .input-wrapper, .thinking-inner { padding: 0 14px; }
+      .input-area { padding: 10px 14px 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ── Top bar ───────────────────────────────────────────────────────── -->
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <span class="app-wordmark">Memorias <span>Copilot</span></span>
+    </div>
+    <div class="top-bar-right">
+      <button class="bar-btn accent" id="downloadBtn" aria-label="Download conversation as Markdown file">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download transcript
+      </button>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <svg id="iconLight" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <svg id="iconDark" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none;">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <span id="themeLabel">Dark mode</span>
+      </button>
+      <button class="bar-btn" id="newChatBtn" aria-label="Start a new conversation">New conversation</button>
+    </div>
+  </header>
+
+  <!-- ── Message list ──────────────────────────────────────────────────── -->
+  <div class="messages" id="messageList" role="log" aria-live="polite" aria-label="Conversation">
+
+    <!-- Welcome / empty state -->
+    <div class="empty-state" id="emptyState">
+      <h1 class="empty-title">Memorias Research Copilot</h1>
+      <p class="empty-subtitle">
+        Ask me anything about the lab's publications, projects, members, theses, and
+        scholarships. I answer only from data in the Memorias database — I never
+        invent information.
+      </p>
+      <div class="suggestion-chips" role="list" aria-label="Suggested questions">
+        <button class="chip" id="chip1">Which papers were published in 2023?</button>
+        <button class="chip" id="chip2">Who are the current PhD students?</button>
+        <button class="chip" id="chip3">List active research projects</button>
+        <button class="chip" id="chip4">Find theses on natural language processing</button>
+        <button class="chip" id="chip5">What scholarships are available?</button>
+      </div>
+    </div>
+
+    <!-- ── Sample conversation (mockup) ──────────────────────────────── -->
+
+    <!-- User message 1 -->
+    <div class="message-row user-row" id="msg-1" role="article" aria-label="Your message">
+      <div class="message-inner">
+        <div class="message-header">
+          <span class="message-label">You</span>
+          <span class="message-time">20:31</span>
+          <button class="edit-link" id="edit-1" aria-label="Edit this message">Edit</button>
+        </div>
+        <div class="message-body" id="msg-1-body">
+          Which papers on deep learning were published by the lab in 2022?
+        </div>
+        <div class="inline-editor" id="editor-1">
+          <textarea id="editor-1-ta" aria-label="Edit your message">Which papers on deep learning were published by the lab in 2022?</textarea>
+          <div class="editor-actions">
+            <button class="btn btn-cancel" id="cancel-1">Cancel</button>
+            <button class="btn btn-send" id="save-1">Send edited message</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Copilot response 1 -->
+    <div class="message-row bot-row" id="msg-2" role="article" aria-label="Copilot response">
+      <div class="message-inner">
+        <div class="message-header">
+          <span class="message-label">Copilot</span>
+          <span class="message-time">20:31</span>
+        </div>
+        <div class="message-body" id="msg-2-body"><!-- filled by JS --></div>
+      </div>
+    </div>
+
+    <!-- User message 2 — shown in edit mode as demo -->
+    <div class="message-row user-row" id="msg-3" role="article" aria-label="Your message">
+      <div class="message-inner">
+        <div class="message-header">
+          <span class="message-label">You</span>
+          <span class="message-time">20:33</span>
+          <button class="edit-link" id="edit-3" aria-label="Edit this message">Edit</button>
+        </div>
+        <div class="message-body" id="msg-3-body" style="display:none;">
+          Can you also show me the 2021 ones?
+        </div>
+        <!-- editing in progress -->
+        <div class="inline-editor visible" id="editor-3">
+          <textarea id="editor-3-ta" rows="2" aria-label="Edit your message">Can you also show me the 2020 and 2021 papers?</textarea>
+          <div class="editor-actions">
+            <button class="btn btn-cancel" id="cancel-3">Cancel</button>
+            <button class="btn btn-send" id="save-3">Send edited message</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Truncation notice (shown when an edit would remove subsequent messages) -->
+    <div class="truncation-notice" id="truncationNotice" role="status">
+      Editing this message will remove the responses that follow it and start the conversation again from here.
+    </div>
+
+    <!-- Thinking / streaming indicator -->
+    <div class="thinking-row" id="thinkingRow" role="status" aria-label="Copilot is thinking">
+      <div class="thinking-inner">
+        <div class="thinking-label">Copilot</div>
+        <div class="thinking-dots" aria-hidden="true">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /messages -->
+
+  <!-- ── Offline panel (hidden by default, toggle with button below) ── -->
+  <!-- Uncomment / toggle id="offlinePanel" to demo the offline state    -->
+  <div class="offline-panel" id="offlinePanel">
+    <div class="offline-card" role="alert">
+      <strong>The Copilot is taking a break.</strong>
+      I've had a long day today... too tired to answer. Please try again tomorrow!
+    </div>
+  </div>
+
+  <!-- ── Input area ────────────────────────────────────────────────────── -->
+  <div class="input-area" id="inputArea">
+    <div class="input-wrapper">
+      <div class="input-row" id="inputRow">
+        <textarea
+          class="input-textarea"
+          id="chatInput"
+          placeholder="Ask about publications, projects, members, theses..."
+          rows="1"
+          aria-label="Your message"
+          aria-multiline="true"
+        ></textarea>
+        <button class="send-btn" id="sendBtn" aria-label="Send message">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+      <p class="input-hint">Enter to send &middot; Shift+Enter for new line &middot; Sessions are not saved</p>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+  /* ──────────────────────────────────────────────────────────────────────
+     MOCKUP SCRIPT
+     Simulates UI behaviour. No real backend or AI calls.
+  ────────────────────────────────────────────────────────────────────── */
+
+  /* Configure marked */
+  marked.setOptions({ breaks: true, gfm: true });
+
+  /* ── Sample bot response ─────────────────────────────────────────── */
+  const botResponse1 = `
+The database contains **4 publications** on deep learning from 2022:
+
+| Title | Authors | Year | DOI |
+|-------|---------|------|-----|
+| Deep Residual Attention for Image Segmentation | García, López, Martínez | 2022 | [10.1145/ex.1](https://doi.org) |
+| Self-Supervised Pretraining for Medical Imaging | Rodríguez, Fernández | 2022 | [10.1145/ex.2](https://doi.org) |
+| Efficient Transformers for Edge Deployment | Torres, García | 2022 | [10.1145/ex.3](https://doi.org) |
+| Continual Learning with Replay Buffers | Martínez, López, Díaz | 2022 | [10.1145/ex.4](https://doi.org) |
+
+> The information above comes solely from the Memorias database. If a paper is missing, it may not have been entered yet.
+  `.trim();
+
+  document.getElementById('msg-2-body').innerHTML = marked.parse(botResponse1);
+
+  /* ── Auto-resize textarea ────────────────────────────────────────── */
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 200) + 'px';
+  }
+
+  const chatInput = document.getElementById('chatInput');
+  chatInput.addEventListener('input', () => autoResize(chatInput));
+
+  /* ── Send on Enter ───────────────────────────────────────────────── */
+  chatInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+  document.getElementById('sendBtn').addEventListener('click', sendMessage);
+
+  /* ── Suggestion chips ────────────────────────────────────────────── */
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      chatInput.value = chip.textContent.trim();
+      autoResize(chatInput);
+      chatInput.focus();
+    });
+  });
+
+  /* ── Send message (mock) ─────────────────────────────────────────── */
+  let msgCounter = 10;
+
+  function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+
+    document.getElementById('emptyState').style.display = 'none';
+
+    const list = document.getElementById('messageList');
+    const userRow = makeUserRow(text, ++msgCounter);
+    list.insertBefore(userRow, document.getElementById('thinkingRow'));
+    wireEdit(msgCounter);
+
+    chatInput.value = '';
+    autoResize(chatInput);
+
+    const thinking = document.getElementById('thinkingRow');
+    thinking.classList.add('visible');
+    scrollToBottom();
+
+    setTimeout(() => {
+      thinking.classList.remove('visible');
+      const botRow = makeBotRow(
+        `I searched the Memorias database for **"${escHtml(text)}"**.\n\nThis is a mockup — in the real application I would call the available tools and return actual data from the database.`,
+        ++msgCounter
+      );
+      list.insertBefore(botRow, thinking);
+      scrollToBottom();
+    }, 1600);
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function nowTime() {
+    const d = new Date();
+    return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+  }
+
+  function makeUserRow(text, id) {
+    const div = document.createElement('div');
+    div.className = 'message-row user-row';
+    div.id = 'msg-' + id;
+    div.setAttribute('role', 'article');
+    div.setAttribute('aria-label', 'Your message');
+    div.innerHTML = `
+      <div class="message-inner">
+        <div class="message-header">
+          <span class="message-label">You</span>
+          <span class="message-time">${nowTime()}</span>
+          <button class="edit-link" id="edit-${id}" aria-label="Edit this message">Edit</button>
+        </div>
+        <div class="message-body" id="msg-${id}-body">${escHtml(text)}</div>
+        <div class="inline-editor" id="editor-${id}">
+          <textarea id="editor-${id}-ta" aria-label="Edit your message">${escHtml(text)}</textarea>
+          <div class="editor-actions">
+            <button class="btn btn-cancel" id="cancel-${id}">Cancel</button>
+            <button class="btn btn-send" id="save-${id}">Send edited message</button>
+          </div>
+        </div>
+      </div>`;
+    return div;
+  }
+
+  function makeBotRow(markdown, id) {
+    const div = document.createElement('div');
+    div.className = 'message-row bot-row';
+    div.id = 'msg-' + id;
+    div.setAttribute('role', 'article');
+    div.setAttribute('aria-label', 'Copilot response');
+    div.innerHTML = `
+      <div class="message-inner">
+        <div class="message-header">
+          <span class="message-label">Copilot</span>
+          <span class="message-time">${nowTime()}</span>
+        </div>
+        <div class="message-body">${marked.parse(markdown)}</div>
+      </div>`;
+    return div;
+  }
+
+  function scrollToBottom() {
+    const ml = document.getElementById('messageList');
+    ml.scrollTop = ml.scrollHeight;
+  }
+
+  /* ── Edit wiring ─────────────────────────────────────────────────── */
+  function wireEdit(id) {
+    const editBtn = document.getElementById('edit-' + id);
+    const body    = document.getElementById('msg-' + id + '-body');
+    const editor  = document.getElementById('editor-' + id);
+    const ta      = document.getElementById('editor-' + id + '-ta');
+    const cancel  = document.getElementById('cancel-' + id);
+    const save    = document.getElementById('save-' + id);
+    if (!editBtn) return;
+
+    editBtn.addEventListener('click', () => {
+      body.style.display = 'none';
+      editor.classList.add('visible');
+      ta.focus();
+    });
+    cancel.addEventListener('click', () => {
+      editor.classList.remove('visible');
+      body.style.display = '';
+    });
+    save.addEventListener('click', () => {
+      const val = ta.value.trim();
+      if (!val) return;
+      body.textContent = val;
+      editor.classList.remove('visible');
+      body.style.display = '';
+      // In the real app: truncate subsequent messages and resubmit
+    });
+  }
+
+  wireEdit(1);
+  wireEdit(3);
+
+  /* ── New conversation ────────────────────────────────────────────── */
+  document.getElementById('newChatBtn').addEventListener('click', () => {
+    const list    = document.getElementById('messageList');
+    const keep    = new Set(['emptyState','thinkingRow','truncationNotice','offlinePanel']);
+    Array.from(list.children).forEach(el => {
+      if (!keep.has(el.id)) el.remove();
+    });
+    document.getElementById('emptyState').style.display = '';
+    document.getElementById('thinkingRow').classList.remove('visible');
+    document.getElementById('truncationNotice').style.display = 'none';
+    chatInput.value = '';
+    autoResize(chatInput);
+  });
+
+  /* ── Download transcript ─────────────────────────────────────────── */
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const ts = new Date().toISOString();
+    let md = `# Memorias Copilot — Conversation Transcript\n\n_Downloaded: ${ts}_\n\n---\n\n`;
+    md += `**You:** Which papers on deep learning were published by the lab in 2022?\n\n`;
+    md += `**Copilot:**\n\n${botResponse1}\n\n---\n`;
+    const blob = new Blob([md], { type: 'text/markdown' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `memorias-copilot-${ts.slice(0,10)}.md`;
+    a.click();
+  });
+
+  /* ── Theme toggle ────────────────────────────────────────────────── */
+  const html = document.documentElement;
+  const themeLabel = document.getElementById('themeLabel');
+  const iconLight  = document.getElementById('iconLight');
+  const iconDark   = document.getElementById('iconDark');
+
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      html.removeAttribute('data-theme');
+      themeLabel.textContent = 'Dark mode';
+      iconLight.style.display = '';
+      iconDark.style.display  = 'none';
+    } else {
+      html.setAttribute('data-theme', 'dark');
+      themeLabel.textContent = 'Light mode';
+      iconLight.style.display = 'none';
+      iconDark.style.display  = '';
+    }
+  });
+
+  /* ── Demo: show truncation notice when editing msg-3 ────────────── */
+  document.getElementById('edit-3').addEventListener('click', () => {
+    document.getElementById('truncationNotice').style.display = '';
+  });
+  document.getElementById('cancel-3').addEventListener('click', () => {
+    document.getElementById('truncationNotice').style.display = 'none';
+  });
+  document.getElementById('save-3').addEventListener('click', () => {
+    document.getElementById('truncationNotice').style.display = 'none';
+  });
+
+  /* Initial scroll */
+  scrollToBottom();
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Python virtualenv & dependencies
+.venv/
+bin/
+lib/
+include/
+share/
+pyvenv.cfg
+
+# Caches and temporary files
+__pycache__/
+*.pyc
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Local Environment Variables
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store

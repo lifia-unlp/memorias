@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memorias Copilot</title>
+  <meta name="description" content="Conversational research assistant for the Memorias lab database." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- marked.js — must load before the ES module entry point -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Design system -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- App entry point (ES module; must be served over HTTP, not file://) -->
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ── Top bar ────────────────────────────────────────────────────────── -->
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <span class="app-wordmark">Memorias <span>Copilot</span></span>
+    </div>
+
+    <div class="top-bar-right">
+      <button class="bar-btn accent" id="downloadBtn" aria-label="Download conversation as Markdown file">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        <span>Download transcript</span>
+      </button>
+
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <!-- Sun icon (shown in light mode) -->
+        <svg id="iconLight" width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1"     x2="12" y2="3"/>
+          <line x1="12" y1="21"    x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22"  x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12"    x2="3" y2="12"/>
+          <line x1="21" y1="12"   x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <!-- Moon icon (shown in dark mode) -->
+        <svg id="iconDark" width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true" style="display:none;">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <span id="themeLabel">Dark mode</span>
+      </button>
+
+      <button class="bar-btn" id="newChatBtn" aria-label="Start a new conversation">
+        New conversation
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Message list ──────────────────────────────────────────────────── -->
+  <div class="messages"
+       id="messageList"
+       role="log"
+       aria-live="polite"
+       aria-label="Conversation">
+
+    <!-- Welcome / empty state -->
+    <div class="empty-state" id="emptyState">
+      <h1 class="empty-title">Memorias Research Copilot</h1>
+      <p class="empty-subtitle">
+        Ask me anything about the lab's publications, projects, members, theses,
+        and scholarships. I answer only from data in the Memorias database —
+        I never invent information.
+      </p>
+      <div class="suggestion-chips" id="suggestions" role="list" aria-label="Suggested questions">
+        <button class="chip" id="chip1">Which papers were published in 2023?</button>
+        <button class="chip" id="chip2">Who are the current PhD students?</button>
+        <button class="chip" id="chip3">List active research projects</button>
+        <button class="chip" id="chip4">Find theses on natural language processing</button>
+        <button class="chip" id="chip5">What scholarships are available?</button>
+      </div>
+    </div>
+
+    <!-- Thinking / streaming indicator (always present, hidden by default) -->
+    <div class="thinking-row"
+         id="thinkingRow"
+         role="status"
+         aria-label="Copilot is thinking">
+      <div class="thinking-inner">
+        <div class="thinking-label">Copilot</div>
+        <div class="thinking-dots" aria-hidden="true">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Truncation notice (shown when an edit would remove subsequent messages) -->
+    <div class="truncation-notice"
+         id="truncationNotice"
+         role="status"
+         aria-live="polite"
+         style="display:none;">
+      Editing this message will remove the responses that follow it and start
+      the conversation again from here.
+    </div>
+
+  </div><!-- /messages -->
+
+  <!-- ── Offline panel (hidden; shown by App.showOffline()) ────────────── -->
+  <div class="offline-panel" id="offlinePanel" role="alert" aria-live="assertive">
+    <div class="offline-card">
+      <strong>The Copilot is taking a break.</strong>
+      <p class="offline-message">
+        I've had a long day today... too tired to answer. Please try again tomorrow!
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Input area ─────────────────────────────────────────────────────── -->
+  <div class="input-area" id="inputArea">
+    <div class="input-wrapper">
+      <div class="input-row" id="inputRow">
+        <textarea
+          class="input-textarea"
+          id="chatInput"
+          placeholder="Ask about publications, projects, members, theses..."
+          rows="1"
+          aria-label="Your message"
+          aria-multiline="true"
+        ></textarea>
+        <button class="send-btn" id="sendBtn" aria-label="Send message">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round" aria-hidden="true">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+      <p class="input-hint">
+        Enter to send &middot; Shift+Enter for new line &middot; Sessions are not saved
+      </p>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+</body>
+</html>
