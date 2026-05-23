@@ -152,6 +152,8 @@ class PostgresDatabaseAdapter(DatabaseAdapter):
             SELECT * FROM "Member"
             WHERE "firstName" ILIKE %(q)s
                OR "lastName" ILIKE %(q)s
+               OR ("firstName" || ' ' || "lastName") ILIKE %(q)s
+               OR ("lastName" || ' ' || "firstName") ILIKE %(q)s
                OR "slug" ILIKE %(q)s
                OR "positionAtLab" ILIKE %(q)s
                OR "shortCvInSpanish" ILIKE %(q)s
