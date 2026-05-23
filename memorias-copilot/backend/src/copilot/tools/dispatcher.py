@@ -91,39 +91,38 @@ class ToolDispatcher:
 
             # --- Relationship Traversal Tools ---
             elif name == "get_project_members":
-                members = await self._db.get_project_members(arguments["project_id"])
+                val = arguments.get("project_id_or_slug") or arguments.get("project_id") or ""
+                members = await self._db.get_project_members(val)
                 return json.dumps([m.model_dump(mode="json") for m in members])
 
             elif name == "get_member_projects":
-                projects = await self._db.get_member_projects(arguments["member_id"])
+                val = arguments.get("member_id_or_slug") or arguments.get("member_id") or ""
+                projects = await self._db.get_member_projects(val)
                 return json.dumps([p.model_dump(mode="json") for p in projects])
 
             elif name == "get_member_publications":
-                publications = await self._db.get_member_publications(
-                    arguments["member_id"]
-                )
+                val = arguments.get("member_id_or_slug") or arguments.get("member_id") or ""
+                publications = await self._db.get_member_publications(val)
                 return json.dumps([p.model_dump(mode="json") for p in publications])
 
             elif name == "get_member_theses":
-                theses = await self._db.get_member_theses(arguments["member_id"])
+                val = arguments.get("member_id_or_slug") or arguments.get("member_id") or ""
+                theses = await self._db.get_member_theses(val)
                 return json.dumps([t.model_dump(mode="json") for t in theses])
 
             elif name == "get_member_scholarships":
-                scholarships = await self._db.get_member_scholarships(
-                    arguments["member_id"]
-                )
+                val = arguments.get("member_id_or_slug") or arguments.get("member_id") or ""
+                scholarships = await self._db.get_member_scholarships(val)
                 return json.dumps([s.model_dump(mode="json") for s in scholarships])
 
             elif name == "get_project_publications":
-                publications = await self._db.get_project_publications(
-                    arguments["project_id"]
-                )
+                val = arguments.get("project_id_or_slug") or arguments.get("project_id") or ""
+                publications = await self._db.get_project_publications(val)
                 return json.dumps([p.model_dump(mode="json") for p in publications])
 
             elif name == "get_thesis_publications":
-                publications = await self._db.get_thesis_publications(
-                    arguments["thesis_id"]
-                )
+                val = arguments.get("thesis_id_or_slug") or arguments.get("thesis_id") or ""
+                publications = await self._db.get_thesis_publications(val)
                 return json.dumps([p.model_dump(mode="json") for p in publications])
 
             else:

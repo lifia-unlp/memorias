@@ -64,31 +64,31 @@ class DatabaseAdapter(ABC):
 
     # --- Relation Traversal Methods ---
     @abstractmethod
-    async def get_project_members(self, project_id: str) -> list[Member]:
+    async def get_project_members(self, project_id_or_slug: str) -> list[Member]:
         pass
 
     @abstractmethod
-    async def get_member_projects(self, member_id: str) -> list[Project]:
+    async def get_member_projects(self, member_id_or_slug: str) -> list[Project]:
         pass
 
     @abstractmethod
-    async def get_member_publications(self, member_id: str) -> list[Publication]:
+    async def get_member_publications(self, member_id_or_slug: str) -> list[Publication]:
         pass
 
     @abstractmethod
-    async def get_member_theses(self, member_id: str) -> list[Thesis]:
+    async def get_member_theses(self, member_id_or_slug: str) -> list[Thesis]:
         pass
 
     @abstractmethod
-    async def get_member_scholarships(self, member_id: str) -> list[Scholarship]:
+    async def get_member_scholarships(self, member_id_or_slug: str) -> list[Scholarship]:
         pass
 
     @abstractmethod
-    async def get_project_publications(self, project_id: str) -> list[Publication]:
+    async def get_project_publications(self, project_id_or_slug: str) -> list[Publication]:
         pass
 
     @abstractmethod
-    async def get_thesis_publications(self, thesis_id: str) -> list[Publication]:
+    async def get_thesis_publications(self, thesis_id_or_slug: str) -> list[Publication]:
         pass
 
 
@@ -264,78 +264,85 @@ class PostgresDatabaseAdapter(DatabaseAdapter):
 
     # --- Relation Traversal Methods ---
     @override
-    async def get_project_members(self, project_id: str) -> list[Member]:
+    async def get_project_members(self, project_id_or_slug: str) -> list[Member]:
         sql = """
             SELECT m.* FROM "Member" m
             JOIN "_ProjectMembers" pm ON pm."A" = m.id
-            WHERE pm."B" = %s
+            JOIN "Project" p ON pm."B" = p.id
+            WHERE p.id = %s OR p.slug = %s
             ORDER BY m."lastName" ASC, m."firstName" ASC
         """
-        records = await self._fetch(sql, (project_id,))
+        records = await self._fetch(sql, (project_id_or_slug, project_id_or_slug))
         return [Member(**r) for r in records]
 
     @override
-    async def get_member_projects(self, member_id: str) -> list[Project]:
+    async def get_member_projects(self, member_id_or_slug: str) -> list[Project]:
         sql = """
             SELECT p.* FROM "Project" p
             JOIN "_ProjectMembers" pm ON pm."B" = p.id
-            WHERE pm."A" = %s
+            JOIN "Member" m ON pm."A" = m.id
+            WHERE m.id = %s OR m.slug = %s
             ORDER BY p."startDate" DESC NULLS LAST
         """
-        records = await self._fetch(sql, (member_id,))
+        records = await self._fetch(sql, (member_id_or_slug, member_id_or_slug))
         return [Project(**r) for r in records]
 
     @override
-    async def get_member_publications(self, member_id: str) -> list[Publication]:
+    async def get_member_publications(self, member_id_or_slug: str) -> list[Publication]:
         sql = """
             SELECT p.* FROM "Publication" p
             JOIN "_PublicationMembers" pm ON pm."B" = p.id
-            WHERE pm."A" = %s
+            JOIN "Member" m ON pm."A" = m.id
+            WHERE m.id = %s OR m.slug = %s
             ORDER BY p."year" DESC
         """
-        records = await self._fetch(sql, (member_id,))
+        records = await self._fetch(sql, (member_id_or_slug, member_id_or_slug))
         return [Publication(**r) for r in records]
 
     @override
-    async def get_member_theses(self, member_id: str) -> list[Thesis]:
+    async def get_member_theses(self, member_id_or_slug: str) -> list[Thesis]:
         sql = """
             SELECT t.* FROM "Thesis" t
             JOIN "_ThesisMembers" tm ON tm."B" = t.id
-            WHERE tm."A" = %s
+            JOIN "Member" m ON tm."A" = m.id
+            WHERE m.id = %s OR m.slug = %s
             ORDER BY t."startDate" DESC NULLS LAST
         """
-        records = await self._fetch(sql, (member_id,))
+        records = await self._fetch(sql, (member_id_or_slug, member_id_or_slug))
         return [Thesis(**r) for r in records]
 
     @override
-    async def get_member_scholarships(self, member_id: str) -> list[Scholarship]:
+    async def get_member_scholarships(self, member_id_or_slug: str) -> list[Scholarship]:
         sql = """
             SELECT s.* FROM "Scholarship" s
             JOIN "_ScholarshipMembers" sm ON sm."B" = s.id
-            WHERE sm."A" = %s
+            JOIN "Member" m ON sm."A" = m.id
+            WHERE m.id = %s OR m.slug = %s
             ORDER BY s."startDate" DESC NULLS LAST
         """
-        records = await self._fetch(sql, (member_id,))
+        records = await self._fetch(sql, (member_id_or_slug, member_id_or_slug))
         return [Scholarship(**r) for r in records]
 
     @override
-    async def get_project_publications(self, project_id: str) -> list[Publication]:
+    async def get_project_publications(self, project_id_or_slug: str) -> list[Publication]:
         sql = """
             SELECT p.* FROM "Publication" p
             JOIN "_ProjectPublications" pp ON pp."B" = p.id
-            WHERE pp."A" = %s
+            JOIN "Project" pr ON pp."A" = pr.id
+            WHERE pr.id = %s OR pr.slug = %s
             ORDER BY p."year" DESC
         """
-        records = await self._fetch(sql, (project_id,))
+        records = await self._fetch(sql, (project_id_or_slug, project_id_or_slug))
         return [Publication(**r) for r in records]
 
     @override
-    async def get_thesis_publications(self, thesis_id: str) -> list[Publication]:
+    async def get_thesis_publications(self, thesis_id_or_slug: str) -> list[Publication]:
         sql = """
             SELECT p.* FROM "Publication" p
             JOIN "_ThesisPublications" tp ON tp."A" = p.id
-            WHERE tp."B" = %s
+            JOIN "Thesis" t ON tp."B" = t.id
+            WHERE t.id = %s OR t.slug = %s
             ORDER BY p."year" DESC
         """
-        records = await self._fetch(sql, (thesis_id,))
+        records = await self._fetch(sql, (thesis_id_or_slug, thesis_id_or_slug))
         return [Publication(**r) for r in records]

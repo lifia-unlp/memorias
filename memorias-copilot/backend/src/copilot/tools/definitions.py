@@ -183,12 +183,12 @@ TOOLS: Final[list[dict[str, Any]]] = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "project_id": {
+                    "project_id_or_slug": {
                         "type": "string",
-                        "description": "The project's UUID id string",
+                        "description": "The project's UUID id string or unique slug",
                     }
                 },
-                "required": ["project_id"],
+                "required": ["project_id_or_slug"],
             },
         },
     },
@@ -200,12 +200,12 @@ TOOLS: Final[list[dict[str, Any]]] = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "member_id": {
+                    "member_id_or_slug": {
                         "type": "string",
-                        "description": "The member's UUID id string",
+                        "description": "The member's UUID id string or unique slug (e.g. 'alejandro-fernandez')",
                     }
                 },
-                "required": ["member_id"],
+                "required": ["member_id_or_slug"],
             },
         },
     },
@@ -217,12 +217,12 @@ TOOLS: Final[list[dict[str, Any]]] = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "member_id": {
+                    "member_id_or_slug": {
                         "type": "string",
-                        "description": "The member's UUID id string",
+                        "description": "The member's UUID id string or unique slug (e.g. 'alejandro-fernandez')",
                     }
                 },
-                "required": ["member_id"],
+                "required": ["member_id_or_slug"],
             },
         },
     },
@@ -234,12 +234,12 @@ TOOLS: Final[list[dict[str, Any]]] = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "member_id": {
+                    "member_id_or_slug": {
                         "type": "string",
-                        "description": "The member's UUID id string",
+                        "description": "The member's UUID id string or unique slug (e.g. 'alejandro-fernandez')",
                     }
                 },
-                "required": ["member_id"],
+                "required": ["member_id_or_slug"],
             },
         },
     },
@@ -251,12 +251,12 @@ TOOLS: Final[list[dict[str, Any]]] = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "member_id": {
+                    "member_id_or_slug": {
                         "type": "string",
-                        "description": "The member's UUID id string",
+                        "description": "The member's UUID id string or unique slug (e.g. 'alejandro-fernandez')",
                     }
                 },
-                "required": ["member_id"],
+                "required": ["member_id_or_slug"],
             },
         },
     },
@@ -268,12 +268,12 @@ TOOLS: Final[list[dict[str, Any]]] = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "project_id": {
+                    "project_id_or_slug": {
                         "type": "string",
-                        "description": "The project's UUID id string",
+                        "description": "The project's UUID id string or unique slug",
                     }
                 },
-                "required": ["project_id"],
+                "required": ["project_id_or_slug"],
             },
         },
     },
@@ -285,12 +285,12 @@ TOOLS: Final[list[dict[str, Any]]] = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "thesis_id": {
+                    "thesis_id_or_slug": {
                         "type": "string",
-                        "description": "The thesis's UUID id string",
+                        "description": "The thesis's UUID id string or unique slug",
                     }
                 },
-                "required": ["thesis_id"],
+                "required": ["thesis_id_or_slug"],
             },
         },
     },
