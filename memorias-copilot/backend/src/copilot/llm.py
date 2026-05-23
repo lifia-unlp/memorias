@@ -18,7 +18,7 @@ def _load_system_prompt() -> str | None:
     path = Path(__file__).parent / "prompts" / "system_prompt.md"
     try:
         raw_prompt = path.read_text(encoding="utf-8").strip()
-        return raw_prompt.replace("{base_url}", base_url)
+        return raw_prompt.replace("{base_url}", base_url).replace("{lab_name}", settings.lab_name)
     except Exception:
         return None
 

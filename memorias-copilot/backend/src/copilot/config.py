@@ -74,4 +74,11 @@ class Settings(BaseModel):
             "http://localhost:3000",
         )
     )
+    lab_name: str = Field(
+        default_factory=lambda: os.getenv(
+            "LAB_NAME",
+            "LIFIA",
+        )
+    )
+
 
