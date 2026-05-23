@@ -73,8 +73,13 @@ async def chat_endpoint(
     x_session_token: str = Header(..., alias="X-Session-Token"),
     llm: LLMProvider = Depends(get_llm_provider),
 ) -> StreamingResponse:
-    # Check if database is offline due to connection issues
-    if getattr(db_adapter, "_connection_error", None) is not None:
+    from copilot.llm import SYSTEM_PROMPT
+
+    # Check if database is offline or system prompt is missing
+    if (
+        getattr(db_adapter, "_connection_error", None) is not None
+        or SYSTEM_PROMPT is None
+    ):
 
         async def offline_generator() -> AsyncIterator[str]:
             msg = (
