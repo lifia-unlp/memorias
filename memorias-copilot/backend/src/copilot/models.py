@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, computed_field
+from pydantic import BaseModel, Field, computed_field
 
 
 @dataclass(frozen=True)
@@ -38,9 +38,9 @@ class Member(BaseModel):
     sicadiCategory: str | None = None
     positionAtCIC: str | None = None
     positionAtCONICET: str | None = None
-    personalEmail: str | None = None
+    personalEmail: str | None = Field(default=None, exclude=True)
     institutionalEmail: str | None = None
-    phone: str | None = None
+    phone: str | None = Field(default=None, exclude=True)
     webPage: str | None = None
     orcid: str | None = None
     dblpProfile: str | None = None
@@ -51,11 +51,11 @@ class Member(BaseModel):
     interestsInEnglish: str | None = None
     interestsInSpanish: str | None = None
     affiliations: str | None = None
-    notes: str | None = None
+    notes: str | None = Field(default=None, exclude=True)
     avatarUrl: str | None = None
     tags: list[str] = []
-    createdAt: datetime
-    updatedAt: datetime
+    createdAt: datetime = Field(exclude=True)
+    updatedAt: datetime = Field(exclude=True)
 
 
 class Project(BaseModel):
@@ -70,13 +70,13 @@ class Project(BaseModel):
     coDirector: str | None = None
     responsibleGroup: str | None = None
     fundingAgency: str | None = None
-    amount: str | None = None
+    amount: str | None = Field(default=None, exclude=True)
     summary: str | None = None
     website: str | None = None
     tags: list[str] = []
     featured: bool = False
-    createdAt: datetime
-    updatedAt: datetime
+    createdAt: datetime = Field(exclude=True)
+    updatedAt: datetime = Field(exclude=True)
 
 
 class Thesis(BaseModel):
@@ -99,8 +99,8 @@ class Thesis(BaseModel):
     website: str | None = None
     tags: list[str] = []
     featured: bool = False
-    createdAt: datetime
-    updatedAt: datetime
+    createdAt: datetime = Field(exclude=True)
+    updatedAt: datetime = Field(exclude=True)
 
 
 class Scholarship(BaseModel):
@@ -117,8 +117,8 @@ class Scholarship(BaseModel):
     endDate: date | None = None
     summary: str | None = None
     tags: list[str] = []
-    createdAt: datetime
-    updatedAt: datetime
+    createdAt: datetime = Field(exclude=True)
+    updatedAt: datetime = Field(exclude=True)
 
 
 def get_bibtex_string(val: Any) -> str:
@@ -280,8 +280,8 @@ class Publication(BaseModel):
     bibtexData: Any  # JSON field representing BibTex data
     tags: list[str] = []
     featured: bool = False
-    createdAt: datetime
-    updatedAt: datetime
+    createdAt: datetime = Field(exclude=True)
+    updatedAt: datetime = Field(exclude=True)
 
     @computed_field  # type: ignore[prop-decorator]
     @property

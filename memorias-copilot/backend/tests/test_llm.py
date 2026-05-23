@@ -43,9 +43,14 @@ async def test_openai_provider_streaming() -> None:
         async for chunk in provider.stream_completions(messages):
             chunks.append(chunk)
 
+        from copilot.llm import SYSTEM_PROMPT
+
         assert chunks == ["Hello", " world"]
         mock_completions.create.assert_called_once_with(
             model="fake-model",
-            messages=[{"role": "user", "content": "Hi"}],
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": "Hi"},
+            ],
             stream=True,
         )
