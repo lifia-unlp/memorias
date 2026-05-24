@@ -11,6 +11,8 @@ services:
       - SESSION_TIMEOUT_SECONDS=${SESSION_TIMEOUT_SECONDS:-3600}
     volumes:
       - copilot-logs:/app/logs
+    ports:
+      - "8000:8000"
     networks:
       - proxy-network
       - db-network
