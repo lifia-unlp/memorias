@@ -15,8 +15,10 @@ import {
   Button,
   Grid,
   Divider,
+  Alert,
 } from "@mui/material";
 import { useAppTheme } from "@/context/ThemeContext";
+import { updateUserPreferences } from "./actions";
 
 interface PreferencesClientProps {
   session: any;
@@ -28,13 +30,50 @@ export default function PreferencesClient({ session }: PreferencesClientProps) {
   // Form states
   const [displayName] = useState(session?.user?.name || "John Smith");
   const [email] = useState(session?.user?.email || "jsmith@lifia.info.unlp.edu.ar");
-  const [digestEmails, setDigestEmails] = useState(true);
-  const [defenseAlerts, setDefenseAlerts] = useState(true);
-  const [fundingAlerts, setFundingAlerts] = useState(false);
+  
+  const [notificationEmail, setNotificationEmail] = useState(
+    session?.user?.notificationEmail || ""
+  );
+  const [avatarUrl, setAvatarUrl] = useState(
+    session?.user?.avatarUrl || ""
+  );
+  const [digestEmails, setDigestEmails] = useState(
+    session?.user?.digestEmails !== undefined ? session.user.digestEmails : true
+  );
+  const [immediateNotifications, setImmediateNotifications] = useState(
+    session?.user?.immediateNotifications !== undefined ? session.user.immediateNotifications : true
+  );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Preferences updated successfully!");
+    setIsSaving(true);
+    setSaveError(null);
+    setSaveSuccess(false);
+
+    try {
+      const formData = new FormData();
+      formData.set("notificationEmail", notificationEmail);
+      formData.set("avatarUrl", avatarUrl);
+      formData.set("digestEmails", String(digestEmails));
+      formData.set("immediateNotifications", String(immediateNotifications));
+
+      const res = await updateUserPreferences(formData);
+      if (res && !res.success) {
+        setSaveError(res.error || "Failed to update preferences.");
+      } else {
+        setSaveSuccess(true);
+        // Force refresh to reload NextAuth JWT session changes
+        window.location.reload();
+      }
+    } catch (err: any) {
+      setSaveError(err.message || "Failed to save user preferences.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -80,12 +119,23 @@ export default function PreferencesClient({ session }: PreferencesClientProps) {
           </Typography>
         </Box>
 
+        {saveError && (
+          <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+            {saveError}
+          </Alert>
+        )}
+        {saveSuccess && (
+          <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>
+            Preferences saved successfully!
+          </Alert>
+        )}
+
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
             {/* Account Credentials */}
             <Grid size={{ xs: 12 }}>
               <Typography variant="h3" sx={{ fontSize: "0.95rem", fontWeight: 700, mb: 1, color: "primary.main" }}>
-                Account Credentials
+                Account & Preferences Settings
               </Typography>
               <Divider sx={{ mb: 2.5 }} />
               <Grid container spacing={2}>
@@ -95,15 +145,37 @@ export default function PreferencesClient({ session }: PreferencesClientProps) {
                     label="Display Name"
                     value={displayName}
                     slotProps={{ input: { readOnly: true } }}
+                    helperText="Identity provider name (Read-Only)"
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     fullWidth
-                    label="Email Address"
+                    label="Primary Login Email Address"
                     type="email"
                     value={email}
                     slotProps={{ input: { readOnly: true } }}
+                    helperText="Identity provider email (Read-Only)"
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    label="Notification Email Address"
+                    type="email"
+                    value={notificationEmail}
+                    onChange={(e) => setNotificationEmail(e.target.value)}
+                    helperText="Defaults to your login email if left empty."
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    label="Custom Avatar URL"
+                    type="url"
+                    value={avatarUrl}
+                    onChange={(e) => setAvatarUrl(e.target.value)}
+                    helperText="Paste a URL to set a custom profile avatar."
                   />
                 </Grid>
               </Grid>
@@ -201,10 +273,10 @@ export default function PreferencesClient({ session }: PreferencesClientProps) {
             {/* Notifications Settings */}
             <Grid size={{ xs: 12 }} sx={{ mt: 1 }}>
               <Typography variant="h3" sx={{ fontSize: "0.95rem", fontWeight: 700, mb: 1, color: "primary.main" }}>
-                Notifications Settings (to be implemented)
+                Notification Settings
               </Typography>
               <Divider sx={{ mb: 2 }} />
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 <FormControlLabel
                   control={
                     <Switch
@@ -215,35 +287,21 @@ export default function PreferencesClient({ session }: PreferencesClientProps) {
                   }
                   label={
                     <Typography variant="body2" sx={{ fontWeight: 650, color: "text.primary" }}>
-                      Send me digest emails of new publications added by the laboratory
+                      Send me digest emails of new updates and research activity
                     </Typography>
                   }
                 />
                 <FormControlLabel
                   control={
                     <Switch
-                      checked={defenseAlerts}
-                      onChange={(e) => setDefenseAlerts(e.target.checked)}
+                      checked={immediateNotifications}
+                      onChange={(e) => setImmediateNotifications(e.target.checked)}
                       color="primary"
                     />
                   }
                   label={
                     <Typography variant="body2" sx={{ fontWeight: 650, color: "text.primary" }}>
-                      Alert me when thesis defenses are scheduled in the portal
-                    </Typography>
-                  }
-                />
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={fundingAlerts}
-                      onChange={(e) => setFundingAlerts(e.target.checked)}
-                      color="primary"
-                    />
-                  }
-                  label={
-                    <Typography variant="body2" sx={{ fontWeight: 650, color: "text.primary" }}>
-                      Send me warning emails about project funding expiration dates
+                      Notify me immediately of any changes to the elements I am linked to
                     </Typography>
                   }
                 />
@@ -258,6 +316,7 @@ export default function PreferencesClient({ session }: PreferencesClientProps) {
                   href="/"
                   variant="outlined"
                   sx={{ minWidth: 100 }}
+                  disabled={isSaving}
                 >
                   Cancel
                 </Button>
@@ -266,8 +325,9 @@ export default function PreferencesClient({ session }: PreferencesClientProps) {
                   variant="contained"
                   color="primary"
                   sx={{ minWidth: 150 }}
+                  disabled={isSaving}
                 >
-                  Save Preferences
+                  {isSaving ? "Saving..." : "Save Preferences"}
                 </Button>
               </Box>
             </Grid>

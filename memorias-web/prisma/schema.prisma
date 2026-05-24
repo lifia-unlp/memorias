@@ -10,15 +10,21 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  name          String?
-  role          Role      @default(USER)
-  active        Boolean   @default(false) // Must be activated by admin
-  emailVerified DateTime?
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                     String    @id @default(uuid())
+  email                  String    @unique
+  name                   String?
+  role                   Role      @default(USER)
+  active                 Boolean   @default(false) // Must be activated by admin
+  emailVerified          DateTime?
+  image                  String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  
+  // New Preferences Fields
+  notificationEmail      String?
+  avatarUrl              String?
+  digestEmails           Boolean   @default(true)
+  immediateNotifications Boolean   @default(true)
   
   memberId      String?   @unique
   member        Member?   @relation(fields: [memberId], references: [id])
@@ -172,6 +178,7 @@ model Thesis {
   members          Member[]  @relation("ThesisMembers")
   projects         Project[] @relation("ProjectTheses")
   publications     Publication[] @relation("ThesisPublications")
+  scholarships     Scholarship[] @relation("ThesisScholarships")
 }
 
 model Scholarship {
@@ -193,6 +200,7 @@ model Scholarship {
 
   members          Member[]  @relation("ScholarshipMembers")
   projects         Project[] @relation("ProjectScholarships")
+  theses           Thesis[]  @relation("ThesisScholarships")
 }
 
 model Publication {

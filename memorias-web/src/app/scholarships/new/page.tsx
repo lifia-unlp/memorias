@@ -29,6 +29,15 @@ export default async function NewScholarshipPage() {
     orderBy: { title: "asc" },
   });
 
+  const theses = await prisma.thesis.findMany({
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+    },
+    orderBy: { title: "asc" },
+  });
+
   const typeOptions = await prisma.systemOption.findMany({
     where: { listName: "scholarshipType" },
     select: { value: true },
@@ -86,6 +95,7 @@ export default async function NewScholarshipPage() {
         <ScholarshipForm
           members={members}
           projects={projects}
+          theses={theses}
           types={types}
         />
       </Container>

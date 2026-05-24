@@ -19,6 +19,7 @@ export default async function EditScholarshipPage({ params }: { params: Params }
     include: {
       members: { select: { id: true } },
       projects: { select: { id: true } },
+      theses: { select: { id: true } },
     },
   });
 
@@ -39,6 +40,15 @@ export default async function EditScholarshipPage({ params }: { params: Params }
   });
 
   const projects = await prisma.project.findMany({
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+    },
+    orderBy: { title: "asc" },
+  });
+
+  const theses = await prisma.thesis.findMany({
     select: {
       id: true,
       title: true,
@@ -105,6 +115,7 @@ export default async function EditScholarshipPage({ params }: { params: Params }
           initialData={scholarship}
           members={members}
           projects={projects}
+          theses={theses}
           types={types}
         />
       </Container>

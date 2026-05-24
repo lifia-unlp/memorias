@@ -42,11 +42,18 @@ interface Publication {
   year: number;
 }
 
+interface Scholarship {
+  id: string;
+  title: string;
+  slug: string;
+}
+
 interface ThesisFormProps {
   initialData?: any;
   members: Member[];
   projects: Project[];
   publications: Publication[];
+  scholarships?: Scholarship[];
   levels: string[];
 }
 
@@ -55,6 +62,7 @@ export function ThesisForm({
   members,
   projects,
   publications,
+  scholarships = [],
   levels,
 }: ThesisFormProps) {
   const router = useRouter();
@@ -83,11 +91,15 @@ export function ThesisForm({
   const [selectedPublicationIds, setSelectedPublicationIds] = useState<string[]>(
     initialData?.publications?.map((p: any) => p.id) || []
   );
+  const [selectedScholarshipIds, setSelectedScholarshipIds] = useState<string[]>(
+    initialData?.scholarships?.map((s: any) => s.id) || []
+  );
 
   // Search queries
   const [memberSearch, setMemberSearch] = useState("");
   const [projectSearch, setProjectSearch] = useState("");
   const [publicationSearch, setPublicationSearch] = useState("");
+  const [scholarshipSearch, setScholarshipSearch] = useState("");
 
   // Auto-generate slug from title
   useEffect(() => {
@@ -121,6 +133,12 @@ export function ThesisForm({
     );
   };
 
+  const handleToggleScholarship = (id: string) => {
+    setSelectedScholarshipIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -137,6 +155,9 @@ export function ThesisForm({
 
     formData.delete("publications");
     selectedPublicationIds.forEach((id) => formData.append("publications", id));
+
+    formData.delete("scholarships");
+    selectedScholarshipIds.forEach((id) => formData.append("scholarships", id));
     formData.set("featured", String(featured));
 
     try {
@@ -190,6 +211,10 @@ export function ThesisForm({
 
   const filteredPublications = publications.filter((p) =>
     p.title.toLowerCase().includes(publicationSearch.toLowerCase())
+  );
+
+  const filteredScholarships = scholarships.filter((s) =>
+    s.title.toLowerCase().includes(scholarshipSearch.toLowerCase())
   );
 
   const progressOptions = Array.from({ length: 11 }, (_, i) => i * 10);
@@ -684,6 +709,78 @@ export function ThesisForm({
                           </Typography>
                           <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", fontSize: "0.65rem" }}>
                             Year: {pub.year}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
+      {/* 6.5 Linked Scholarships Multi-Selection */}
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyItems: "center", justifyContent: "between", alignItems: { xs: "stretch", md: "center" }, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3, gap: 2 }}>
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>
+                Linked Scholarships
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Select associated scholarships.
+              </Typography>
+            </Box>
+            <TextField
+              size="small"
+              placeholder="Search scholarships..."
+              value={scholarshipSearch}
+              onChange={(e) => setScholarshipSearch(e.target.value)}
+              sx={{ width: { xs: "100%", md: 260 } }}
+            />
+          </Box>
+
+          {filteredScholarships.length === 0 ? (
+            <Typography variant="body2" sx={{ color: "text.secondary", fontStyle: "italic", py: 2 }}>
+              No scholarships found.
+            </Typography>
+          ) : (
+            <Box sx={{ maxHeight: 240, overflowY: "auto", pr: 1 }}>
+              <Grid container spacing={2}>
+                {filteredScholarships.map((s) => {
+                  const isChecked = selectedScholarshipIds.includes(s.id);
+                  return (
+                    <Grid size={{ xs: 12, sm: 6 }} key={s.id}>
+                      <Box
+                        onClick={() => handleToggleScholarship(s.id)}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.5,
+                          p: 1.5,
+                          borderRadius: 2,
+                          border: "1px solid",
+                          borderColor: isChecked ? "primary.main" : "divider",
+                          bgcolor: isChecked ? "action.selected" : "background.paper",
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                          "&:hover": {
+                            bgcolor: "action.hover",
+                          },
+                        }}
+                      >
+                        <Checkbox
+                          checked={isChecked}
+                          size="small"
+                          sx={{ p: 0.5 }}
+                        />
+                        <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                          <Typography variant="subtitle2" noWrap sx={{ fontWeight: "bold", fontSize: "0.75rem" }}>
+                            {s.title}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", fontSize: "0.65rem" }}>
+                            Slug: {s.slug}
                           </Typography>
                         </Box>
                       </Box>

@@ -66,6 +66,7 @@ export async function createScholarship(formData: FormData) {
 
     const selectedMemberIds = formData.getAll("members") as string[];
     const selectedProjectIds = formData.getAll("projects") as string[];
+    const selectedThesisIds = formData.getAll("theses") as string[];
 
     const scholarship = await prisma.scholarship.create({
       data: {
@@ -90,6 +91,9 @@ export async function createScholarship(formData: FormData) {
         },
         projects: {
           connect: selectedProjectIds.map((id) => ({ id })),
+        },
+        theses: {
+          connect: selectedThesisIds.map((id) => ({ id })),
         },
       },
     });
@@ -143,6 +147,7 @@ export async function updateScholarship(scholarshipId: string, formData: FormDat
 
     const selectedMemberIds = formData.getAll("members") as string[];
     const selectedProjectIds = formData.getAll("projects") as string[];
+    const selectedThesisIds = formData.getAll("theses") as string[];
 
     const scholarship = await prisma.scholarship.update({
       where: { id: scholarshipId },
@@ -168,6 +173,9 @@ export async function updateScholarship(scholarshipId: string, formData: FormDat
         },
         projects: {
           set: selectedProjectIds.map((id) => ({ id })),
+        },
+        theses: {
+          set: selectedThesisIds.map((id) => ({ id })),
         },
       },
     });

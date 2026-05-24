@@ -35,6 +35,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               name: "Dev Admin Backdoor",
               role: role as Role,
               active: true,
+              notificationEmail: email,
+              avatarUrl: null,
             },
           });
         } else {
@@ -71,11 +73,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token.sub) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
-          select: { role: true, active: true },
+          select: {
+            role: true,
+            active: true,
+            notificationEmail: true,
+            avatarUrl: true,
+            digestEmails: true,
+            immediateNotifications: true,
+          },
         });
         if (dbUser) {
           token.role = dbUser.role;
           token.active = dbUser.active;
+          token.notificationEmail = dbUser.notificationEmail;
+          token.avatarUrl = dbUser.avatarUrl;
+          token.digestEmails = dbUser.digestEmails;
+          token.immediateNotifications = dbUser.immediateNotifications;
         } else {
           // Invalidate the session if the user was deleted from the database
           token.role = undefined;
@@ -92,6 +105,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.role = token.role as "USER" | "EDITOR" | "ADMIN" | undefined;
         session.user.active = token.active as boolean | undefined;
         session.user.id = token.sub as string;
+        session.user.notificationEmail = token.notificationEmail as string | null | undefined;
+        session.user.avatarUrl = token.avatarUrl as string | null | undefined;
+        session.user.digestEmails = token.digestEmails as boolean | undefined;
+        session.user.immediateNotifications = token.immediateNotifications as boolean | undefined;
       }
       return session;
     },
@@ -117,6 +134,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           data: {
             role,
             active,
+            notificationEmail: user.email,
+            avatarUrl: user.image,
           },
         });
         console.log(`🎉 Registered user: ${user.email} (Role: ${role}, Active: ${active})`);

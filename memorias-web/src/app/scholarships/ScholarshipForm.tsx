@@ -35,10 +35,17 @@ interface Project {
   slug: string;
 }
 
+interface Thesis {
+  id: string;
+  title: string;
+  slug: string;
+}
+
 interface ScholarshipFormProps {
   initialData?: any;
   members: Member[];
   projects: Project[];
+  theses?: Thesis[];
   types: string[];
 }
 
@@ -46,6 +53,7 @@ export function ScholarshipForm({
   initialData,
   members,
   projects,
+  theses = [],
   types,
 }: ScholarshipFormProps) {
   const router = useRouter();
@@ -67,10 +75,14 @@ export function ScholarshipForm({
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>(
     initialData?.projects?.map((p: any) => p.id) || []
   );
+  const [selectedThesisIds, setSelectedThesisIds] = useState<string[]>(
+    initialData?.theses?.map((t: any) => t.id) || []
+  );
 
   // Search queries
   const [memberSearch, setMemberSearch] = useState("");
   const [projectSearch, setProjectSearch] = useState("");
+  const [thesisSearch, setThesisSearch] = useState("");
 
   // Auto-generate slug from title
   useEffect(() => {
@@ -98,6 +110,12 @@ export function ScholarshipForm({
     );
   };
 
+  const handleToggleThesis = (id: string) => {
+    setSelectedThesisIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -111,6 +129,9 @@ export function ScholarshipForm({
 
     formData.delete("projects");
     selectedProjectIds.forEach((id) => formData.append("projects", id));
+
+    formData.delete("theses");
+    selectedThesisIds.forEach((id) => formData.append("theses", id));
 
     try {
       let res;
@@ -159,6 +180,10 @@ export function ScholarshipForm({
 
   const filteredProjects = projects.filter((p) =>
     p.title.toLowerCase().includes(projectSearch.toLowerCase())
+  );
+
+  const filteredTheses = theses.filter((t) =>
+    t.title.toLowerCase().includes(thesisSearch.toLowerCase())
   );
 
   return (
@@ -492,6 +517,78 @@ export function ScholarshipForm({
                           </Typography>
                           <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", fontSize: "0.65rem" }}>
                             Slug: {proj.slug}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
+      {/* 5.5 Linked Theses Multi-Selection */}
+      <Card variant="outlined" sx={{ borderRadius: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyItems: "center", justifyContent: "between", alignItems: { xs: "stretch", md: "center" }, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3, gap: 2 }}>
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>
+                Linked Theses
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Select associated theses.
+              </Typography>
+            </Box>
+            <TextField
+              size="small"
+              placeholder="Search theses..."
+              value={thesisSearch}
+              onChange={(e) => setThesisSearch(e.target.value)}
+              sx={{ width: { xs: "100%", md: 260 } }}
+            />
+          </Box>
+
+          {filteredTheses.length === 0 ? (
+            <Typography variant="body2" sx={{ color: "text.secondary", fontStyle: "italic", py: 2 }}>
+              No theses found.
+            </Typography>
+          ) : (
+            <Box sx={{ maxHeight: 240, overflowY: "auto", pr: 1 }}>
+              <Grid container spacing={2}>
+                {filteredTheses.map((t) => {
+                  const isChecked = selectedThesisIds.includes(t.id);
+                  return (
+                    <Grid size={{ xs: 12, sm: 6 }} key={t.id}>
+                      <Box
+                        onClick={() => handleToggleThesis(t.id)}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.5,
+                          p: 1.5,
+                          borderRadius: 2,
+                          border: "1px solid",
+                          borderColor: isChecked ? "primary.main" : "divider",
+                          bgcolor: isChecked ? "action.selected" : "background.paper",
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                          "&:hover": {
+                            bgcolor: "action.hover",
+                          },
+                        }}
+                      >
+                        <Checkbox
+                          checked={isChecked}
+                          size="small"
+                          sx={{ p: 0.5 }}
+                        />
+                        <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                          <Typography variant="subtitle2" noWrap sx={{ fontWeight: "bold", fontSize: "0.75rem" }}>
+                            {t.title}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", fontSize: "0.65rem" }}>
+                            Slug: {t.slug}
                           </Typography>
                         </Box>
                       </Box>

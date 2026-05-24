@@ -20,6 +20,7 @@ export default async function EditThesisPage({ params }: { params: Params }) {
       members: { select: { id: true } },
       projects: { select: { id: true } },
       publications: { select: { id: true } },
+      scholarships: { select: { id: true } },
     },
   });
 
@@ -55,6 +56,15 @@ export default async function EditThesisPage({ params }: { params: Params }) {
       year: true,
     },
     orderBy: { year: "desc" },
+  });
+
+  const scholarships = await prisma.scholarship.findMany({
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+    },
+    orderBy: { title: "asc" },
   });
 
   const levelOptions = await prisma.systemOption.findMany({
@@ -116,6 +126,7 @@ export default async function EditThesisPage({ params }: { params: Params }) {
           members={members}
           projects={projects}
           publications={publications}
+          scholarships={scholarships}
           levels={levels}
         />
       </Container>

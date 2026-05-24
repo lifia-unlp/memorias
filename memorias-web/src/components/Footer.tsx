@@ -1,6 +1,4 @@
 import React from "react";
-import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
-import Link from "next/link";
 import { Box, Container, Typography, Link as MuiLink, Button } from "@mui/material";
 import { getLabName, getLabUrl } from "@/lib/config";
 
@@ -59,8 +57,11 @@ export async function Footer() {
             .
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-            <LinkButton 
-              href="/about"
+            <Button
+              component="a"
+              href="https://github.com/casco/memorias-migration-antigrativy/blob/main/README.md"
+              target="_blank"
+              rel="noopener noreferrer"
               size="small"
               sx={{
                 fontWeight: 700,
@@ -77,7 +78,7 @@ export async function Footer() {
               }}
             >
               About the Portal
-            </LinkButton>
+            </Button>
           </Box>
         </Box>
       </Container>

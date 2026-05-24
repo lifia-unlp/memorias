@@ -5,11 +5,19 @@ declare module "next-auth" {
     user: {
       role?: "USER" | "EDITOR" | "ADMIN";
       active?: boolean;
+      notificationEmail?: string | null;
+      avatarUrl?: string | null;
+      digestEmails?: boolean;
+      immediateNotifications?: boolean;
     } & DefaultSession["user"];
   }
 
   interface User extends DefaultUser {
     role?: "USER" | "EDITOR" | "ADMIN";
     active?: boolean;
+    notificationEmail?: string | null;
+    avatarUrl?: string | null;
+    digestEmails?: boolean;
+    immediateNotifications?: boolean;
   }
 }

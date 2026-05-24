@@ -38,6 +38,15 @@ export default async function NewThesisPage() {
     orderBy: { year: "desc" },
   });
 
+  const scholarships = await prisma.scholarship.findMany({
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+    },
+    orderBy: { title: "asc" },
+  });
+
   const levelOptions = await prisma.systemOption.findMany({
     where: { listName: "thesisLevel" },
     select: { value: true },
@@ -96,6 +105,7 @@ export default async function NewThesisPage() {
           members={members}
           projects={projects}
           publications={publications}
+          scholarships={scholarships}
           levels={levels}
         />
       </Container>

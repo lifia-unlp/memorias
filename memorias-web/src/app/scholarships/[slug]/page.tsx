@@ -55,6 +55,13 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
           endDate: true,
         },
       },
+      theses: {
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+        },
+      },
     },
   });
 
@@ -301,6 +308,47 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
               <Box>
                 <RelatedMembers members={scholarship.members} />
               </Box>
+            )}
+
+            {/* Related Theses */}
+            {scholarship.theses.length > 0 && (
+              <Card sx={{ p: 1 }}>
+                <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      fontSize: "0.75rem",
+                      fontWeight: "extrabold",
+                      color: "primary.main",
+                      textTransform: "uppercase",
+                      letterSpacing: 1,
+                      borderBottom: "1px solid",
+                      borderColor: "divider",
+                      pb: 1.5,
+                      mb: -0.5,
+                    }}
+                  >
+                    Related Theses
+                  </Typography>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, pt: 0.5 }}>
+                    {scholarship.theses.map((t) => (
+                      <LinkListItemButton
+                        key={t.id}
+                        href={`/theses/${t.slug}`}
+                      >
+                        <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                          <Typography variant="subtitle2" noWrap sx={{ fontWeight: "bold", fontSize: "0.8rem", color: "text.primary" }}>
+                            {t.title}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", fontSize: "0.75rem" }}>
+                            Thesis Details
+                          </Typography>
+                        </Box>
+                      </LinkListItemButton>
+                    ))}
+                  </Box>
+                </CardContent>
+              </Card>
             )}
 
             {/* Scientific Keywords / tags */}

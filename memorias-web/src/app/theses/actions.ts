@@ -68,6 +68,7 @@ export async function createThesis(formData: FormData) {
     const selectedMemberIds = formData.getAll("members") as string[];
     const selectedProjectIds = formData.getAll("projects") as string[];
     const selectedPublicationIds = formData.getAll("publications") as string[];
+    const selectedScholarshipIds = formData.getAll("scholarships") as string[];
 
     const featured = formData.get("featured") === "true";
 
@@ -103,6 +104,9 @@ export async function createThesis(formData: FormData) {
         },
         publications: {
           connect: selectedPublicationIds.map((id) => ({ id })),
+        },
+        scholarships: {
+          connect: selectedScholarshipIds.map((id) => ({ id })),
         },
       },
     });
@@ -158,6 +162,7 @@ export async function updateThesis(thesisId: string, formData: FormData) {
     const selectedMemberIds = formData.getAll("members") as string[];
     const selectedProjectIds = formData.getAll("projects") as string[];
     const selectedPublicationIds = formData.getAll("publications") as string[];
+    const selectedScholarshipIds = formData.getAll("scholarships") as string[];
 
     const featured = formData.get("featured") === "true";
 
@@ -194,6 +199,9 @@ export async function updateThesis(thesisId: string, formData: FormData) {
         },
         publications: {
           set: selectedPublicationIds.map((id) => ({ id })),
+        },
+        scholarships: {
+          set: selectedScholarshipIds.map((id) => ({ id })),
         },
       },
     });

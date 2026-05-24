@@ -62,6 +62,13 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
           year: "desc",
         },
       },
+      scholarships: {
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+        },
+      },
     },
   });
 
@@ -424,6 +431,47 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
               <Box>
                 <RelatedMembers members={thesis.members} />
               </Box>
+            )}
+
+            {/* Related Scholarships */}
+            {thesis.scholarships.length > 0 && (
+              <Card sx={{ p: 1 }}>
+                <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      fontSize: "0.75rem",
+                      fontWeight: "extrabold",
+                      color: "primary.main",
+                      textTransform: "uppercase",
+                      letterSpacing: 1,
+                      borderBottom: "1px solid",
+                      borderColor: "divider",
+                      pb: 1.5,
+                      mb: -0.5,
+                    }}
+                  >
+                    Related Scholarships
+                  </Typography>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, pt: 0.5 }}>
+                    {thesis.scholarships.map((s) => (
+                      <LinkListItemButton
+                        key={s.id}
+                        href={`/scholarships/${s.slug}`}
+                      >
+                        <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                          <Typography variant="subtitle2" noWrap sx={{ fontWeight: "bold", fontSize: "0.8rem", color: "text.primary" }}>
+                            {s.title}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", fontSize: "0.75rem" }}>
+                            Scholarship Details
+                          </Typography>
+                        </Box>
+                      </LinkListItemButton>
+                    ))}
+                  </Box>
+                </CardContent>
+              </Card>
             )}
 
             {/* Keywords & Tags cloud */}

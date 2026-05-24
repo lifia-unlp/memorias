@@ -331,4 +331,36 @@ If no OAuth identity providers are configured, the login screen displays a promi
   - `AUTH_MICROSOFT_ENTRA_ID_ID`
   - `AUTH_MICROSOFT_ENTRA_ID_SECRET`
 
+---
+
+## Step 7: Database Backups & Disaster Recovery
+
+To prevent data loss during upgrades, schema migrations, or server maintenance, follow these commands to backup and restore your production database.
+
+### 1. Backing Up the Database
+
+Run this command from your host machine (where Docker is running) to create a compressed custom-format backup of your PostgreSQL database:
+
+```bash
+docker exec -t memorias-db pg_dump -U postgres -F c -d memorias > backup.dump
+```
+
+* **Note**: It is highly recommended to include the current date in the filename when performing manual backups before a migration:
+  ```bash
+  docker exec -t memorias-db pg_dump -U postgres -F c -d memorias > pre_migration_$(date +%F).dump
+  ```
+
+### 2. Restoring the Database
+
+If you need to restore your database from a backup file (e.g., `backup.dump`), run:
+
+```bash
+docker exec -i memorias-db pg_restore -U postgres -d memorias --clean --no-owner < backup.dump
+```
+
+* **Explanation of flags**:
+  * `--clean`: Drops database objects (tables, indexes, etc.) before recreating them to ensure a clean state.
+  * `--no-owner`: Skips setting the ownership of objects to match the original database, which avoids permission issues during restore.
+
+
 
