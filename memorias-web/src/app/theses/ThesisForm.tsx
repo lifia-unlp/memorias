@@ -5,6 +5,11 @@ import { createThesis, updateThesis } from "./actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TagWidget } from "@/components/TagWidget";
+import { MemberSelector } from "@/components/reusable/MemberSelector";
+import { ProjectSelector } from "@/components/reusable/ProjectSelector";
+import { ThesisSelector } from "@/components/reusable/ThesisSelector";
+import { ScholarshipSelector } from "@/components/reusable/ScholarshipSelector";
+import { PublicationSelector } from "@/components/reusable/PublicationSelector";
 import {
   Box,
   Card,
@@ -492,311 +497,11 @@ export function ThesisForm({
           </Grid>
         </CardContent>
       </Card>
-      {/* 4. Associate Members Multi-Selection */}
-      <Card variant="outlined" sx={{ borderRadius: 3 }}>
-        <CardContent sx={{ p: 3 }}>
-          <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyItems: "center", justifyContent: "between", alignItems: { xs: "stretch", md: "center" }, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3, gap: 2 }}>
-            <Box sx={{ flexGrow: 1 }}>
-              <Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>
-                Associate Lab Members
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Select researchers associated with this thesis.
-              </Typography>
-            </Box>
-            <TextField
-              size="small"
-              placeholder="Search members..."
-              value={memberSearch}
-              onChange={(e) => setMemberSearch(e.target.value)}
-              sx={{ width: { xs: "100%", md: 260 } }}
-            />
-          </Box>
-
-          {filteredMembers.length === 0 ? (
-            <Typography variant="body2" sx={{ color: "text.secondary", fontStyle: "italic", py: 2 }}>
-              No researchers found.
-            </Typography>
-          ) : (
-            <Box sx={{ maxHeight: 240, overflowY: "auto", pr: 1 }}>
-              <Grid container spacing={2}>
-                {filteredMembers.map((member) => {
-                  const isChecked = selectedMemberIds.includes(member.id);
-                  return (
-                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={member.id}>
-                      <Box
-                        onClick={() => handleToggleMember(member.id)}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1.5,
-                          p: 1.5,
-                          borderRadius: 2,
-                          border: "1px solid",
-                          borderColor: isChecked ? "primary.main" : "divider",
-                          bgcolor: isChecked ? "action.selected" : "background.paper",
-                          cursor: "pointer",
-                          transition: "all 0.2s",
-                          "&:hover": {
-                            bgcolor: "action.hover",
-                          },
-                        }}
-                      >
-                        <Checkbox
-                          checked={isChecked}
-                          size="small"
-                          sx={{ p: 0.5 }}
-                        />
-                        {member.avatarUrl ? (
-                          <Avatar
-                            src={member.avatarUrl}
-                            alt={`${member.firstName} ${member.lastName}`}
-                            sx={{ width: 32, height: 32 }}
-                          />
-                        ) : (
-                          <Avatar sx={{ width: 32, height: 32, fontSize: "0.8rem", fontWeight: "bold" }}>
-                            {member.firstName[0]}
-                            {member.lastName[0]}
-                          </Avatar>
-                        )}
-                        <Box sx={{ minWidth: 0, flexGrow: 1 }}>
-                          <Typography variant="subtitle2" noWrap sx={{ fontWeight: "bold", fontSize: "0.75rem" }}>
-                            {member.firstName} {member.lastName}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", fontSize: "0.65rem" }}>
-                            {member.positionAtLab || "Researcher"}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </Box>
-          )}
-        </CardContent>
-      </Card>
-      {/* 5. Linked Projects Multi-Selection */}
-      <Card variant="outlined" sx={{ borderRadius: 3 }}>
-        <CardContent sx={{ p: 3 }}>
-          <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyItems: "center", justifyContent: "between", alignItems: { xs: "stretch", md: "center" }, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3, gap: 2 }}>
-            <Box sx={{ flexGrow: 1 }}>
-              <Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>
-                Linked Projects
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Select research projects connected to this thesis.
-              </Typography>
-            </Box>
-            <TextField
-              size="small"
-              placeholder="Search projects..."
-              value={projectSearch}
-              onChange={(e) => setProjectSearch(e.target.value)}
-              sx={{ width: { xs: "100%", md: 260 } }}
-            />
-          </Box>
-
-          {filteredProjects.length === 0 ? (
-            <Typography variant="body2" sx={{ color: "text.secondary", fontStyle: "italic", py: 2 }}>
-              No projects found.
-            </Typography>
-          ) : (
-            <Box sx={{ maxHeight: 240, overflowY: "auto", pr: 1 }}>
-              <Grid container spacing={2}>
-                {filteredProjects.map((proj) => {
-                  const isChecked = selectedProjectIds.includes(proj.id);
-                  return (
-                    <Grid size={{ xs: 12, sm: 6 }} key={proj.id}>
-                      <Box
-                        onClick={() => handleToggleProject(proj.id)}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1.5,
-                          p: 1.5,
-                          borderRadius: 2,
-                          border: "1px solid",
-                          borderColor: isChecked ? "primary.main" : "divider",
-                          bgcolor: isChecked ? "action.selected" : "background.paper",
-                          cursor: "pointer",
-                          transition: "all 0.2s",
-                          "&:hover": {
-                            bgcolor: "action.hover",
-                          },
-                        }}
-                      >
-                        <Checkbox
-                          checked={isChecked}
-                          size="small"
-                          sx={{ p: 0.5 }}
-                        />
-                        <Box sx={{ minWidth: 0, flexGrow: 1 }}>
-                          <Typography variant="subtitle2" noWrap sx={{ fontWeight: "bold", fontSize: "0.75rem" }}>
-                            {proj.title}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", fontSize: "0.65rem" }}>
-                            Slug: {proj.slug}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </Box>
-          )}
-        </CardContent>
-      </Card>
-      {/* 6. Linked Publications Multi-Selection */}
-      <Card variant="outlined" sx={{ borderRadius: 3 }}>
-        <CardContent sx={{ p: 3 }}>
-          <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyItems: "center", justifyContent: "between", alignItems: { xs: "stretch", md: "center" }, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3, gap: 2 }}>
-            <Box sx={{ flexGrow: 1 }}>
-              <Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>
-                Linked Publications
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Select associated scientific papers or publications.
-              </Typography>
-            </Box>
-            <TextField
-              size="small"
-              placeholder="Search publications..."
-              value={publicationSearch}
-              onChange={(e) => setPublicationSearch(e.target.value)}
-              sx={{ width: { xs: "100%", md: 260 } }}
-            />
-          </Box>
-
-          {filteredPublications.length === 0 ? (
-            <Typography variant="body2" sx={{ color: "text.secondary", fontStyle: "italic", py: 2 }}>
-              No publications found.
-            </Typography>
-          ) : (
-            <Box sx={{ maxHeight: 240, overflowY: "auto", pr: 1 }}>
-              <Grid container spacing={2}>
-                {filteredPublications.map((pub) => {
-                  const isChecked = selectedPublicationIds.includes(pub.id);
-                  return (
-                    <Grid size={{ xs: 12 }} key={pub.id}>
-                      <Box
-                        onClick={() => handleTogglePublication(pub.id)}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1.5,
-                          p: 1.5,
-                          borderRadius: 2,
-                          border: "1px solid",
-                          borderColor: isChecked ? "primary.main" : "divider",
-                          bgcolor: isChecked ? "action.selected" : "background.paper",
-                          cursor: "pointer",
-                          transition: "all 0.2s",
-                          "&:hover": {
-                            bgcolor: "action.hover",
-                          },
-                        }}
-                      >
-                        <Checkbox
-                          checked={isChecked}
-                          size="small"
-                          sx={{ p: 0.5 }}
-                        />
-                        <Box sx={{ minWidth: 0, flexGrow: 1 }}>
-                          <Typography variant="subtitle2" noWrap sx={{ fontWeight: "bold", fontSize: "0.75rem" }}>
-                            {pub.title}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", fontSize: "0.65rem" }}>
-                            Year: {pub.year}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </Box>
-          )}
-        </CardContent>
-      </Card>
-      {/* 6.5 Linked Scholarships Multi-Selection */}
-      <Card variant="outlined" sx={{ borderRadius: 3 }}>
-        <CardContent sx={{ p: 3 }}>
-          <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyItems: "center", justifyContent: "between", alignItems: { xs: "stretch", md: "center" }, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3, gap: 2 }}>
-            <Box sx={{ flexGrow: 1 }}>
-              <Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>
-                Linked Scholarships
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Select associated scholarships.
-              </Typography>
-            </Box>
-            <TextField
-              size="small"
-              placeholder="Search scholarships..."
-              value={scholarshipSearch}
-              onChange={(e) => setScholarshipSearch(e.target.value)}
-              sx={{ width: { xs: "100%", md: 260 } }}
-            />
-          </Box>
-
-          {filteredScholarships.length === 0 ? (
-            <Typography variant="body2" sx={{ color: "text.secondary", fontStyle: "italic", py: 2 }}>
-              No scholarships found.
-            </Typography>
-          ) : (
-            <Box sx={{ maxHeight: 240, overflowY: "auto", pr: 1 }}>
-              <Grid container spacing={2}>
-                {filteredScholarships.map((s) => {
-                  const isChecked = selectedScholarshipIds.includes(s.id);
-                  return (
-                    <Grid size={{ xs: 12, sm: 6 }} key={s.id}>
-                      <Box
-                        onClick={() => handleToggleScholarship(s.id)}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1.5,
-                          p: 1.5,
-                          borderRadius: 2,
-                          border: "1px solid",
-                          borderColor: isChecked ? "primary.main" : "divider",
-                          bgcolor: isChecked ? "action.selected" : "background.paper",
-                          cursor: "pointer",
-                          transition: "all 0.2s",
-                          "&:hover": {
-                            bgcolor: "action.hover",
-                          },
-                        }}
-                      >
-                        <Checkbox
-                          checked={isChecked}
-                          size="small"
-                          sx={{ p: 0.5 }}
-                        />
-                        <Box sx={{ minWidth: 0, flexGrow: 1 }}>
-                          <Typography variant="subtitle2" noWrap sx={{ fontWeight: "bold", fontSize: "0.75rem" }}>
-                            {s.title}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block", fontSize: "0.65rem" }}>
-                            Slug: {s.slug}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </Box>
-          )}
-        </CardContent>
-      </Card>
-      {/* 7. Abstract Summary & Tagging */}
+      {/* 4. Summary */}
       <Card variant="outlined" sx={{ borderRadius: 3 }}>
         <CardContent sx={{ p: 3 }}>
           <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
-            Thesis Abstract & Classification
+            Summary
           </Typography>
 
           <Grid container spacing={3}>
@@ -805,7 +510,7 @@ export function ThesisForm({
                 fullWidth
                 multiline
                 rows={6}
-                label="Thesis Abstract/Summary"
+                label="Summary"
                 name="summary"
                 defaultValue={initialData?.summary || ""}
                 placeholder="Provide a detailed abstract summary of the thesis scope, methodology, and scientific contributions..."
@@ -825,11 +530,12 @@ export function ThesisForm({
           </Grid>
         </CardContent>
       </Card>
-      {/* Dynamic Classification Tags */}
+
+      {/* 5. Research Topics */}
       <Card variant="outlined" sx={{ borderRadius: 3 }}>
         <CardContent sx={{ p: 3 }}>
           <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
-            Research Classification Tags
+            Research Topics
           </Typography>
           <Box sx={{ mt: 1 }}>
             <TagWidget
@@ -839,6 +545,38 @@ export function ThesisForm({
           </Box>
         </CardContent>
       </Card>
+
+      {/* 6. Involved Lab Members Selection */}
+      <MemberSelector
+        items={members}
+        selectedIds={selectedMemberIds}
+        onChange={setSelectedMemberIds}
+        layout="grid"
+      />
+
+      {/* 7. Related Projects Selection */}
+      <ProjectSelector
+        items={projects}
+        selectedIds={selectedProjectIds}
+        onChange={setSelectedProjectIds}
+        layout="grid"
+      />
+
+      {/* 8. Related Scholarships Selection */}
+      <ScholarshipSelector
+        items={scholarships}
+        selectedIds={selectedScholarshipIds}
+        onChange={setSelectedScholarshipIds}
+        layout="grid"
+      />
+
+      {/* 9. Related Publications Selection */}
+      <PublicationSelector
+        items={publications}
+        selectedIds={selectedPublicationIds}
+        onChange={setSelectedPublicationIds}
+        layout="grid"
+      />
       {/* Form Actions */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}>
         <Button

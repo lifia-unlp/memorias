@@ -16,6 +16,7 @@ export default async function NewThesisPage() {
       lastName: true,
       avatarUrl: true,
       positionAtLab: true,
+      endDate: true,
     },
     orderBy: { lastName: "asc" },
   });
@@ -25,15 +26,24 @@ export default async function NewThesisPage() {
       id: true,
       title: true,
       slug: true,
+      code: true,
+      director: true,
+      coDirector: true,
+      startDate: true,
+      endDate: true,
     },
-    orderBy: { title: "asc" },
+    orderBy: { endDate: "desc" },
   });
 
   const publications = await prisma.publication.findMany({
     select: {
       id: true,
+      slug: true,
       title: true,
+      type: true,
+      authors: true,
       year: true,
+      bibtexData: true,
     },
     orderBy: { year: "desc" },
   });
@@ -43,8 +53,12 @@ export default async function NewThesisPage() {
       id: true,
       title: true,
       slug: true,
+      type: true,
+      student: true,
+      startDate: true,
+      endDate: true,
     },
-    orderBy: { title: "asc" },
+    orderBy: { endDate: "desc" },
   });
 
   const levelOptions = await prisma.systemOption.findMany({

@@ -16,6 +16,7 @@ export default async function NewScholarshipPage() {
       lastName: true,
       avatarUrl: true,
       positionAtLab: true,
+      endDate: true,
     },
     orderBy: { lastName: "asc" },
   });
@@ -25,8 +26,13 @@ export default async function NewScholarshipPage() {
       id: true,
       title: true,
       slug: true,
+      code: true,
+      director: true,
+      coDirector: true,
+      startDate: true,
+      endDate: true,
     },
-    orderBy: { title: "asc" },
+    orderBy: { endDate: "desc" },
   });
 
   const theses = await prisma.thesis.findMany({
@@ -34,8 +40,14 @@ export default async function NewScholarshipPage() {
       id: true,
       title: true,
       slug: true,
+      level: true,
+      student: true,
+      director: true,
+      coDirector: true,
+      startDate: true,
+      endDate: true,
     },
-    orderBy: { title: "asc" },
+    orderBy: { endDate: "desc" },
   });
 
   const typeOptions = await prisma.systemOption.findMany({

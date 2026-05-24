@@ -36,13 +36,14 @@ export default async function EditProjectPage({ params }: { params: Params }) {
 
   // Fetch members to populate the association grid
   const members = await prisma.member.findMany({
-    orderBy: { firstName: "asc" },
+    orderBy: { lastName: "asc" },
     select: {
       id: true,
       firstName: true,
       lastName: true,
       avatarUrl: true,
       positionAtLab: true,
+      endDate: true,
     },
   });
 

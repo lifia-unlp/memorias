@@ -5,6 +5,7 @@ import { createProject, updateProject } from "./actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TagWidget } from "@/components/TagWidget";
+import { MemberSelector } from "@/components/reusable/MemberSelector";
 import {
   Box,
   Card,
@@ -364,95 +365,11 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
           </Grid>
         </CardContent>
       </Card>
-      {/* 3. Associated Members Multi-Selection */}
-      <Card variant="outlined" sx={{ borderRadius: 3 }}>
-        <CardContent sx={{ p: 3 }}>
-          <Box sx={{ borderBottom: "1px solid", borderColor: "divider", pb: 2, mb: 3, display: "flex", flexDirection: { xs: "column", md: "row" }, justifyContent: "space-between", alignItems: { xs: "stretch", md: "center" }, gap: 2 }}>
-            <Box>
-              <Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>
-                Associate Members
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Select researchers associated with this project.
-              </Typography>
-            </Box>
-
-            <TextField
-              size="small"
-              placeholder="Search members..."
-              value={memberSearchQuery}
-              onChange={(e) => setMemberSearchQuery(e.target.value)}
-              sx={{ width: { xs: "100%", md: 260 } }}
-            />
-          </Box>
-
-          {filteredMembers.length === 0 ? (
-            <Box sx={{ textAlign: "center", py: 4, bgcolor: "action.hover", borderRadius: 2, border: "1px dashed", borderColor: "divider" }}>
-              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: "bold" }}>
-                No researchers found matching search query.
-              </Typography>
-            </Box>
-          ) : (
-            <Box sx={{ maxHeight: 280, overflowY: "auto", pr: 1 }}>
-              <Grid container spacing={2}>
-                {filteredMembers.map((member) => {
-                  const isChecked = selectedMemberIds.includes(member.id);
-                  return (
-                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={member.id}>
-                      <Card
-                        variant="outlined"
-                        onClick={() => handleToggleMember(member.id)}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1.5,
-                          p: 1.5,
-                          borderRadius: 2,
-                          cursor: "pointer",
-                          transition: "all 0.2s",
-                          bgcolor: isChecked ? "primary.light" : "background.paper",
-                          borderColor: isChecked ? "primary.main" : "divider",
-                          "&:hover": {
-                            bgcolor: isChecked ? "primary.light" : "action.hover",
-                          },
-                        }}
-                      >
-                        <Checkbox checked={isChecked} size="small" sx={{ p: 0.5 }} />
-                        <Avatar
-                          src={member.avatarUrl || undefined}
-                          sx={{
-                            width: 32,
-                            height: 32,
-                            fontSize: "0.75rem",
-                            fontWeight: "bold",
-                            bgcolor: "primary.main",
-                          }}
-                        >
-                          {member.firstName[0]}
-                          {member.lastName[0]}
-                        </Avatar>
-                        <Box sx={{ minWidth: 0, flex: 1 }}>
-                          <Typography variant="body2" sx={{ fontWeight: "bold" }} noWrap>
-                            {member.firstName} {member.lastName}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block" }}>
-                            {member.positionAtLab || "Researcher"}
-                          </Typography>
-                        </Box>
-                      </Card>
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </Box>
-          )}
-        </CardContent>
-      </Card>
-      {/* 4. Rich Abstract Summary */}
+      {/* 3. Summary */}
       <Card variant="outlined" sx={{ borderRadius: 3 }}>
         <CardContent sx={{ p: 3 }}>
           <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
-            Project Abstract/Summary
+            Summary
           </Typography>
           <TextField
             fullWidth
@@ -465,11 +382,12 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
           />
         </CardContent>
       </Card>
-      {/* Dynamic Classification Tags */}
+
+      {/* 4. Research Topics */}
       <Card variant="outlined" sx={{ borderRadius: 3 }}>
         <CardContent sx={{ p: 3 }}>
           <Typography variant="h6" color="primary" sx={{ fontWeight: 800, borderBottom: "1px solid", borderColor: "divider", pb: 1, mb: 3 }}>
-            Research Classification Tags
+            Research Topics
           </Typography>
           <Box sx={{ mt: 1 }}>
             <TagWidget
@@ -479,6 +397,14 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
           </Box>
         </CardContent>
       </Card>
+
+      {/* 5. Involved Lab Members Selection */}
+      <MemberSelector
+        items={members}
+        selectedIds={selectedMemberIds}
+        onChange={setSelectedMemberIds}
+        layout="grid"
+      />
       {/* Form Actions */}
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 2 }}>
         <Button

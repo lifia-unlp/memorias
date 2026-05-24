@@ -9,6 +9,8 @@ import {
   MenuItem,
   FormControl,
   Typography,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 
 export function MemberFilters({ positions }: { positions: string[] }) {
@@ -16,6 +18,9 @@ export function MemberFilters({ positions }: { positions: string[] }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+
+  const hideFormerParam = searchParams.get("hideFormer");
+  const hideFormer = hideFormerParam !== "false";
 
   const handleSearch = (query: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -43,6 +48,19 @@ export function MemberFilters({ positions }: { positions: string[] }) {
     });
   };
 
+  const handleHideFormerChange = (checked: boolean) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (!checked) {
+      params.set("hideFormer", "false");
+    } else {
+      params.delete("hideFormer");
+    }
+    params.delete("page"); // Reset page offset on filter change
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`);
+    });
+  };
+
   const handleLimitChange = (limit: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (limit && limit !== "10") {
@@ -60,7 +78,7 @@ export function MemberFilters({ positions }: { positions: string[] }) {
     <Box
       sx={{
         display: "flex",
-        flexDirection: { xs: "column", sm: "row" },
+        flexDirection: { xs: "column", md: "row" },
         gap: 2,
         alignItems: "center",
         width: "100%",
@@ -85,13 +103,26 @@ export function MemberFilters({ positions }: { positions: string[] }) {
 
       <Box
         sx={{
-          width: { xs: "100%", sm: "auto" },
+          width: { xs: "100%", md: "auto" },
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
           alignItems: "center",
           gap: 2,
         }}
       >
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={hideFormer}
+              onChange={(e) => handleHideFormerChange(e.target.checked)}
+              size="small"
+              sx={{ p: 0.5 }}
+            />
+          }
+          label={<span style={{ fontSize: "0.75rem", whiteSpace: "nowrap" }}>Hide former members</span>}
+          sx={{ m: 0 }}
+        />
+
         <FormControl fullWidth sx={{ width: { sm: 180 } }} size="small">
           <Select
             value={searchParams.get("position") || ""}

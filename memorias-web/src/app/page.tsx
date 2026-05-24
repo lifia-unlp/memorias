@@ -121,7 +121,7 @@ export default async function Home() {
       <Container maxWidth="xl" component="main" sx={{ py: 6, flexGrow: 1, display: "flex", flexDirection: "column", gap: 6 }}>
         
         {/* Dynamic Tag Cloud Topic Explorer */}
-        <Box data-component-semantics="Topic cloud">
+        <Box data-component-semantics="Research topics">
           <TagCloud tags={tags} limit={40} />
         </Box>
 

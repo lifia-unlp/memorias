@@ -29,7 +29,7 @@ export function RelatedProjects({ projects }: RelatedProjectsProps) {
   if (!projects || projects.length === 0) return null;
 
   return (
-    <Box data-component-semantics="Relevant projects" sx={{ width: "100%" }}>
+    <Box data-component-semantics="Related projects" sx={{ width: "100%" }}>
       <Typography
         variant="h3"
         sx={{
@@ -41,7 +41,7 @@ export function RelatedProjects({ projects }: RelatedProjectsProps) {
           pb: 1,
         }}
       >
-        Relevant projects
+        Related Projects
       </Typography>
       <Grid container spacing={2}>
         {projects.map((project) => (

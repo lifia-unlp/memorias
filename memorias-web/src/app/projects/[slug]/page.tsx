@@ -8,6 +8,7 @@ import { DeleteProjectButton } from "./DeleteProjectButton";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { RelatedTheses } from "@/components/reusable/RelatedTheses";
+import { RelatedScholarships } from "@/components/reusable/RelatedScholarships";
 import { RelatedPublications } from "@/components/reusable/RelatedPublications";
 import {
   Container,
@@ -213,78 +214,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
 
           {/* Linked Scholarships */}
           {project.scholarships.length > 0 && (
-            <Box data-component-semantics="Relevant scholarships" sx={{ width: "100%" }}>
-              <Typography
-                variant="h3"
-                sx={{
-                  mb: 2.5,
-                  fontSize: "1.15rem",
-                  fontWeight: 700,
-                  borderBottom: "1px solid",
-                  borderColor: "divider",
-                  pb: 1,
-                }}
-              >
-                Relevant scholarships
-              </Typography>
-              <Grid container spacing={2}>
-                {project.scholarships.map((sch) => (
-                  <Grid size={{ xs: 12, sm: 6 }} key={sch.id}>
-                    <Link
-                      href={`/scholarships/${sch.slug}`}
-                      style={{ textDecoration: "none", color: "inherit" }}
-                    >
-                      <Card
-                        sx={{
-                          height: "100%",
-                          display: "flex",
-                          flexDirection: "column",
-                        }}
-                      >
-                      <Box sx={{ p: 2.5, display: "flex", flexDirection: "column", gap: 1 }}>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 1.5 }}>
-                          <Typography
-                            variant="subtitle2"
-                            sx={{
-                              fontWeight: 800,
-                              fontSize: "0.875rem",
-                              color: "text.primary",
-                              lineHeight: 1.4,
-                              display: "-webkit-box",
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: "vertical",
-                              overflow: "hidden",
-                            }}
-                          >
-                            {sch.title}
-                          </Typography>
-                          {sch.type && (
-                            <Chip
-                              label={sch.type}
-                              size="small"
-                              color="secondary"
-                              variant="outlined"
-                              sx={{
-                                fontWeight: "bold",
-                                fontSize: "0.625rem",
-                                height: 20,
-                                borderRadius: 1,
-                              }}
-                            />
-                          )}
-                        </Box>
-                        {sch.student && (
-                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
-                            Student: {sch.student}
-                          </Typography>
-                        )}
-                      </Box>
-                      </Card>
-                    </Link>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
+            <RelatedScholarships scholarships={project.scholarships} layout="grid" />
           )}
 
           {/* Linked Publications */}
@@ -378,9 +308,9 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
           </Card>
 
           {/* Associated Members Box */}
-          <Card sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2.5 }}>
+          <Card data-component-semantics="Involved lab members" sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2.5 }}>
             <Typography variant="caption" sx={{ fontWeight: "extrabold", color: "primary.main", textTransform: "uppercase", letterSpacing: 1, borderBottom: "1px solid", borderColor: "divider", pb: 1 }}>
-              Associated Members ({project.members.length})
+              Involved lab members ({project.members.length})
             </Typography>
 
             {project.members.length === 0 ? (

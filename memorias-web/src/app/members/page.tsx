@@ -18,7 +18,7 @@ import {
   Chip,
 } from "@mui/material";
 
-type SearchParams = Promise<{ query?: string; position?: string; limit?: string; page?: string }>;
+type SearchParams = Promise<{ query?: string; position?: string; limit?: string; page?: string; hideFormer?: string }>;
 
 export default async function MembersPage({
   searchParams,
@@ -33,6 +33,7 @@ export default async function MembersPage({
   const resolvedParams = await searchParams;
   const query = resolvedParams.query || "";
   const position = resolvedParams.position || "";
+  const hideFormer = resolvedParams.hideFormer !== "false";
   const page = parseInt(resolvedParams.page || "1", 10) || 1;
   const limit = parseInt(resolvedParams.limit || "10", 10) || 10;
 
@@ -45,28 +46,42 @@ export default async function MembersPage({
     .map((p) => p.positionAtLab)
     .filter(Boolean) as string[];
 
-  // Fetch members with position filter
+  // Fetch members with position filter, sorted by lastName, then by firstName
   const members = await prisma.member.findMany({
     where: position ? { positionAtLab: { equals: position } } : {},
-    orderBy: { lastName: "asc" },
+    orderBy: [
+      { lastName: "asc" },
+      { firstName: "asc" },
+    ],
   });
 
-  // Filter in memory for maximum search flexibility (including case-insensitive, partial array tag matching)
-  const lowerQuery = query.trim().toLowerCase();
-  const filteredMembers = lowerQuery
-    ? members.filter((m) => {
-        const matchName =
-          m.firstName.toLowerCase().includes(lowerQuery) ||
-          m.lastName.toLowerCase().includes(lowerQuery);
-        const matchPosition =
-          (m.positionAtLab && m.positionAtLab.toLowerCase().includes(lowerQuery)) ||
-          (m.positionAtUnlp && m.positionAtUnlp.toLowerCase().includes(lowerQuery));
-        const matchTags = m.tags.some((tag) =>
-          tag.toLowerCase().includes(lowerQuery)
-        );
-        return matchName || matchPosition || matchTags;
-      })
-    : members;
+  const isFormer = (m: any) => {
+    if (!m.endDate) return false;
+    const end = new Date(m.endDate);
+    const now = new Date();
+    end.setHours(0, 0, 0, 0);
+    now.setHours(0, 0, 0, 0);
+    return end < now;
+  };
+
+  // Filter in memory for maximum search flexibility (including case-insensitive, partial array tag matching, and hide-former constraint)
+  const filteredMembers = members.filter((m) => {
+    if (hideFormer && isFormer(m)) {
+      return false;
+    }
+    if (!query.trim()) return true;
+    const lowerQuery = query.trim().toLowerCase();
+    const matchName =
+      m.firstName.toLowerCase().includes(lowerQuery) ||
+      m.lastName.toLowerCase().includes(lowerQuery);
+    const matchPosition =
+      (m.positionAtLab && m.positionAtLab.toLowerCase().includes(lowerQuery)) ||
+      (m.positionAtUnlp && m.positionAtUnlp.toLowerCase().includes(lowerQuery));
+    const matchTags = m.tags.some((tag) =>
+      tag.toLowerCase().includes(lowerQuery)
+    );
+    return matchName || matchPosition || matchTags;
+  });
 
   // Paginate final list
   const totalPages = Math.ceil(filteredMembers.length / limit);
@@ -360,7 +375,7 @@ export default async function MembersPage({
               <Pagination
                 currentPage={page}
                 totalPages={totalPages}
-                currentSearchParams={{ query, position, limit }}
+                currentSearchParams={{ query, position, limit, hideFormer: hideFormer ? undefined : "false" }}
                 baseUrl="/members"
               />
             </Box>

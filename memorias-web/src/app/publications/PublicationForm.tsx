@@ -4,6 +4,9 @@ import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { resolveDoiAction, parseBibtex, createPublication, updatePublication } from "./actions";
 import { TagWidget } from "@/components/TagWidget";
+import { MemberSelector } from "@/components/reusable/MemberSelector";
+import { ProjectSelector } from "@/components/reusable/ProjectSelector";
+import { ThesisSelector } from "@/components/reusable/ThesisSelector";
 import {
   Box,
   Card,
@@ -845,175 +848,28 @@ export function PublicationForm({
         {/* Right Column: Connection lists */}
         <Grid size={{ xs: 12, lg: 4 }} sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {/* Members checklist */}
-          <Card variant="outlined" sx={{ borderRadius: 3 }}>
-            <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: "bold", borderBottom: "1px solid", borderColor: "divider", pb: 1 }}>
-                Associated Members
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                placeholder="Search researchers..."
-                value={memberFilter}
-                onChange={(e) => setMemberFilter(e.target.value)}
-              />
-              <Box sx={{ maxHeight: 200, overflowY: "auto", border: "1px solid", borderColor: "divider", borderRadius: 2, p: 1, bgcolor: "background.paper" }}>
-                <List dense disablePadding>
-                  {filteredMembers.map((m) => {
-                    const checked = selectedMembers.includes(m.id);
-                    return (
-                      <ListItemButton
-                        key={m.id}
-                        dense
-                        onClick={() => {
-                          if (checked) {
-                            setSelectedMembers(selectedMembers.filter((id) => id !== m.id));
-                          } else {
-                            setSelectedMembers([...selectedMembers, m.id]);
-                          }
-                        }}
-                        sx={{ borderRadius: 1, mb: 0.5 }}
-                      >
-                        <Checkbox
-                          edge="start"
-                          checked={checked}
-                          tabIndex={-1}
-                          disableRipple
-                          size="small"
-                          sx={{ p: 0.5 }}
-                        />
-                        <ListItemText
-                          primary={`${m.firstName} ${m.lastName}`}
-                          slotProps={{
-                            primary: { sx: { fontSize: "0.75rem", fontWeight: checked ? "bold" : "normal" } }
-                          }}
-                        />
-                      </ListItemButton>
-                    );
-                  })}
-                  {filteredMembers.length === 0 && (
-                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", textAlign: "center", py: 2 }}>
-                      No members found
-                    </Typography>
-                  )}
-                </List>
-              </Box>
-            </CardContent>
-          </Card>
+          <MemberSelector
+            items={members}
+            selectedIds={selectedMembers}
+            onChange={setSelectedMembers}
+            layout="list"
+          />
 
           {/* Projects checklist */}
-          <Card variant="outlined" sx={{ borderRadius: 3 }}>
-            <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: "bold", borderBottom: "1px solid", borderColor: "divider", pb: 1 }}>
-                Connected Projects
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                placeholder="Search projects..."
-                value={projectFilter}
-                onChange={(e) => setProjectFilter(e.target.value)}
-              />
-              <Box sx={{ maxHeight: 200, overflowY: "auto", border: "1px solid", borderColor: "divider", borderRadius: 2, p: 1, bgcolor: "background.paper" }}>
-                <List dense disablePadding>
-                  {filteredProjects.map((p) => {
-                    const checked = selectedProjects.includes(p.id);
-                    return (
-                      <ListItemButton
-                        key={p.id}
-                        dense
-                        onClick={() => {
-                          if (checked) {
-                            setSelectedProjects(selectedProjects.filter((id) => id !== p.id));
-                          } else {
-                            setSelectedProjects([...selectedProjects, p.id]);
-                          }
-                        }}
-                        sx={{ borderRadius: 1, mb: 0.5 }}
-                      >
-                        <Checkbox
-                          edge="start"
-                          checked={checked}
-                          tabIndex={-1}
-                          disableRipple
-                          size="small"
-                          sx={{ p: 0.5 }}
-                        />
-                        <ListItemText
-                          primary={(p.code ? `[${p.code}] ` : "") + p.title}
-                          slotProps={{
-                            primary: { sx: { fontSize: "0.75rem", fontWeight: checked ? "bold" : "normal" } }
-                          }}
-                        />
-                      </ListItemButton>
-                    );
-                  })}
-                  {filteredProjects.length === 0 && (
-                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", textAlign: "center", py: 2 }}>
-                      No projects found
-                    </Typography>
-                  )}
-                </List>
-              </Box>
-            </CardContent>
-          </Card>
+          <ProjectSelector
+            items={projects}
+            selectedIds={selectedProjects}
+            onChange={setSelectedProjects}
+            layout="list"
+          />
 
           {/* Theses checklist */}
-          <Card variant="outlined" sx={{ borderRadius: 3 }}>
-            <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: "bold", borderBottom: "1px solid", borderColor: "divider", pb: 1 }}>
-                Related Theses
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                placeholder="Search theses..."
-                value={thesisFilter}
-                onChange={(e) => setThesisFilter(e.target.value)}
-              />
-              <Box sx={{ maxHeight: 200, overflowY: "auto", border: "1px solid", borderColor: "divider", borderRadius: 2, p: 1, bgcolor: "background.paper" }}>
-                <List dense disablePadding>
-                  {filteredTheses.map((t) => {
-                    const checked = selectedTheses.includes(t.id);
-                    return (
-                      <ListItemButton
-                        key={t.id}
-                        dense
-                        onClick={() => {
-                          if (checked) {
-                            setSelectedTheses(selectedTheses.filter((id) => id !== t.id));
-                          } else {
-                            setSelectedTheses([...selectedTheses, t.id]);
-                          }
-                        }}
-                        sx={{ borderRadius: 1, mb: 0.5 }}
-                      >
-                        <Checkbox
-                          edge="start"
-                          checked={checked}
-                          tabIndex={-1}
-                          disableRipple
-                          size="small"
-                          sx={{ p: 0.5 }}
-                        />
-                        <ListItemText
-                          primary={t.title + (t.student ? ` (${t.student})` : "")}
-                          slotProps={{
-                            primary: { sx: { fontSize: "0.75rem", fontWeight: checked ? "bold" : "normal" } }
-                          }}
-                        />
-                      </ListItemButton>
-                    );
-                  })}
-                  {filteredTheses.length === 0 && (
-                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", textAlign: "center", py: 2 }}>
-                      No theses found
-                    </Typography>
-                  )}
-                </List>
-              </Box>
-            </CardContent>
-          </Card>
+          <ThesisSelector
+            items={theses}
+            selectedIds={selectedTheses}
+            onChange={setSelectedTheses}
+            layout="list"
+          />
         </Grid>
       </Grid>
     </Box>

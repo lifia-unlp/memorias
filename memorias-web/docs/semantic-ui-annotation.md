@@ -146,9 +146,9 @@ The compact card-like component presenting a featured research project on the ho
 
 The compact card-like component presenting a featured scientific publication on the home page dashboard.
 
-### Topic cloud
+### Research topics
 
-The TagCloud topic explorer widget on the home page dashboard that displays the dynamically sized research topics/tags.
+The TagCloud topic explorer widget on the home page dashboard that displays the dynamically sized research topics/tags, as well as the topics selection widget in the editors.
 
 ### Member directory card
 
@@ -182,21 +182,25 @@ The brand logo navigation anchor on the left side of the main menu bar linking b
 
 The authentication status and action controller, displaying either a "Sign In" action link or the logged-in user profile avatar menu button.
 
-### Relevant theses
+### Related theses
 
 The component presenting the list of theses related to a specific entity (such as a project, publication, or member).
 
-### Relevant projects
+### Related projects
 
 The component presenting the list of research projects related to a specific entity (such as a scholarship, publication, thesis, or member).
 
-### Relevant lab members
+### Involved lab members
 
 The component presenting the list of lab members related to a specific entity (such as a scholarship, publication, or thesis).
 
-### Relevant scholarships
+### Related scholarships
 
 The component presenting the list of scholarships related to a specific entity (such as a project or member).
+
+### Related publications
+
+The component presenting the list of scientific publications related to a specific entity (such as a member, project, or thesis).
 
 ### Tag badge
 

@@ -123,7 +123,7 @@ export function TagWidget({
   const displaySuggestions = isOpen && inputValue.trim().length > 0 && suggestions.length > 0;
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, width: "100%" }}>
+    <Box data-component-semantics="Research topics" sx={{ display: "flex", flexDirection: "column", gap: 1.5, width: "100%" }}>
       {/* 1. Visual Tags Pills Container */}
       {tags.length > 0 && (
         <Box

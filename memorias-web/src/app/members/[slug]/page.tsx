@@ -10,6 +10,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { RelatedProjects } from "@/components/reusable/RelatedProjects";
 import { RelatedTheses } from "@/components/reusable/RelatedTheses";
+import { RelatedScholarships } from "@/components/reusable/RelatedScholarships";
 import { RelatedPublications } from "@/components/reusable/RelatedPublications";
 import {
   Container,
@@ -352,82 +353,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
 
           {/* 4. Associated Scholarships */}
           {scholarships.length > 0 && (
-            <Box data-component-semantics="Relevant scholarships" sx={{ width: "100%" }}>
-              <Typography
-                variant="h3"
-                sx={{
-                  mb: 2.5,
-                  fontSize: "1.15rem",
-                  fontWeight: 700,
-                  borderBottom: "1px solid",
-                  borderColor: "divider",
-                  pb: 1,
-                }}
-              >
-                Relevant scholarships
-              </Typography>
-              <Grid container spacing={2}>
-                {scholarships.map((s) => (
-                  <Grid size={{ xs: 12, sm: 6 }} key={s.id}>
-                    <Link
-                      href={`/scholarships/${s.slug}`}
-                      style={{ textDecoration: "none", color: "inherit" }}
-                    >
-                      <Card
-                        sx={{
-                          height: "100%",
-                          display: "flex",
-                          flexDirection: "column",
-                        }}
-                      >
-                      <Box sx={{ p: 2.5, display: "flex", flexDirection: "column", gap: 1 }}>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 1.5 }}>
-                          <Typography
-                            variant="subtitle2"
-                            sx={{
-                              fontWeight: 800,
-                              fontSize: "0.875rem",
-                              color: "text.primary",
-                              lineHeight: 1.4,
-                              display: "-webkit-box",
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: "vertical",
-                              overflow: "hidden",
-                            }}
-                          >
-                            {s.title}
-                          </Typography>
-                          {s.type && (
-                            <Chip
-                              label={s.type}
-                              size="small"
-                              color="secondary"
-                              variant="outlined"
-                              sx={{
-                                fontWeight: "bold",
-                                fontSize: "0.625rem",
-                                height: 20,
-                                borderRadius: 1,
-                              }}
-                            />
-                          )}
-                        </Box>
-                        {s.fundingAgency && (
-                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
-                            Funding Agency: {s.fundingAgency}
-                          </Typography>
-                        )}
-                        <Typography variant="caption" sx={{ color: "text.disabled", fontWeight: 600, mt: "auto" }}>
-                          Timeline: {s.startDate ? new Date(s.startDate).getFullYear() : "N/A"} -{" "}
-                          {s.endDate ? new Date(s.endDate).getFullYear() : "Present"}
-                        </Typography>
-                      </Box>
-                      </Card>
-                    </Link>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
+            <RelatedScholarships scholarships={scholarships} layout="grid" />
           )}
 
           {/* 5. Associated Publications */}

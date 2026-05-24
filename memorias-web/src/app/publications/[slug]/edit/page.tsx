@@ -34,17 +34,36 @@ export default async function EditPublicationPage({ params }: { params: Params }
   }
 
   const members = await prisma.member.findMany({
-    select: { id: true, firstName: true, lastName: true },
+    select: { id: true, firstName: true, lastName: true, endDate: true },
     orderBy: { lastName: "asc" },
   });
 
   const projects = await prisma.project.findMany({
-    select: { id: true, title: true, code: true },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      code: true,
+      director: true,
+      coDirector: true,
+      startDate: true,
+      endDate: true,
+    },
     orderBy: { endDate: "desc" },
   });
 
   const theses = await prisma.thesis.findMany({
-    select: { id: true, title: true, student: true },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      level: true,
+      student: true,
+      director: true,
+      coDirector: true,
+      startDate: true,
+      endDate: true,
+    },
     orderBy: { endDate: "desc" },
   });
 

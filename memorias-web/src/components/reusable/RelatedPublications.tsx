@@ -42,7 +42,7 @@ export function RelatedPublications({ publications }: RelatedPublicationsProps) 
   if (!publications || publications.length === 0) return null;
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box data-component-semantics="Related publications" sx={{ width: "100%" }}>
       {/* Header and Style Selector */}
       <Box
         sx={{

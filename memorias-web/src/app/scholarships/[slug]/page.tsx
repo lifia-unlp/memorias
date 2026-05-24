@@ -312,7 +312,7 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
 
             {/* Related Theses */}
             {scholarship.theses.length > 0 && (
-              <Card sx={{ p: 1 }}>
+              <Card data-component-semantics="Related theses" sx={{ p: 1 }}>
                 <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                   <Typography
                     variant="h3"
