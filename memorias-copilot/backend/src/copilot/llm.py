@@ -10,15 +10,21 @@ from copilot.models import Message
 
 
 def _load_system_prompt() -> str | None:
+    from datetime import date
     from copilot.config import Settings
 
     settings = Settings()
     base_url = settings.memorias_web_base_url.rstrip("/")
+    current_date_str = date.today().isoformat()
 
     path = Path(__file__).parent / "prompts" / "system_prompt.md"
     try:
         raw_prompt = path.read_text(encoding="utf-8").strip()
-        return raw_prompt.replace("{base_url}", base_url).replace("{lab_name}", settings.lab_name)
+        return (
+            raw_prompt.replace("{base_url}", base_url)
+            .replace("{lab_name}", settings.lab_name)
+            .replace("{current_date}", current_date_str)
+        )
     except Exception:
         return None
 
