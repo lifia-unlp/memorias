@@ -42,6 +42,11 @@ class DatabaseAdapter(ABC):
     async def get_tag_cloud(self) -> dict[str, int]:
         pass
 
+    # --- Complete Group Lists ---
+    @abstractmethod
+    async def get_all_members(self) -> list[Member]:
+        pass
+
     # --- Detail Retrieval Methods ---
     @abstractmethod
     async def get_member_by_id_or_slug(self, id_or_slug: str) -> Member | None:
@@ -254,6 +259,13 @@ class PostgresDatabaseAdapter(DatabaseAdapter):
         """
         records = await self._fetch(sql)
         return {r["tag"]: int(r["count"]) for r in records}
+
+    # --- Complete Group Lists ---
+    @override
+    async def get_all_members(self) -> list[Member]:
+        sql = 'SELECT * FROM "Member" ORDER BY "lastName" ASC, "firstName" ASC'
+        records = await self._fetch(sql)
+        return [Member(**r) for r in records]
 
     # --- Detail Retrieval Methods ---
     @override

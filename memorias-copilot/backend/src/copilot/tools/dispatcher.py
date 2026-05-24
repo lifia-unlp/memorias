@@ -42,6 +42,10 @@ class ToolDispatcher:
                 tags = await self._db.get_tag_cloud()
                 return json.dumps(tags)
 
+            elif name == "get_all_members":
+                members = await self._db.get_all_members()
+                return json.dumps([m.model_dump(mode="json") for m in members])
+
             # --- Detail Retrieval Tools ---
             elif name == "get_member_by_id_or_slug":
                 member = await self._db.get_member_by_id_or_slug(

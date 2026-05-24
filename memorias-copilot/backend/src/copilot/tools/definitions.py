@@ -99,6 +99,17 @@ TOOLS: Final[list[dict[str, Any]]] = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_all_members",
+            "description": "Retrieve the complete list of all lab members (researchers, students, postdocs, admin, etc.) in the database, including their names, slugs, positions, and active dates (startDate and endDate). Use this when the user asks to list all members, find past members (alumni), ex-members, or to filter members by their active periods.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+            },
+        },
+    },
     # --- Detail Retrieval Tools ---
     {
         "type": "function",
