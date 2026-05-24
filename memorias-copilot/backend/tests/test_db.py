@@ -150,8 +150,27 @@ class MockDatabaseAdapter(DatabaseAdapter):
         return []
 
     @override
+    async def get_tag_cloud(self) -> dict[str, int]:
+        return {"hic": 5, "ux": 3, "semantic-web": 1}
+
+    @override
+    async def get_all_members(self) -> list[Member]:
+        return [
+            Member(
+                id="member-1",
+                firstName="Jane",
+                lastName="Doe",
+                slug="dr-jane-doe",
+                createdAt=datetime.now(),
+                updatedAt=datetime.now(),
+            )
+        ]
+
+    @override
     async def get_thesis_publications(self, thesis_id: str) -> list[Publication]:
         return []
+
+
 
 
 @pytest.mark.asyncio
