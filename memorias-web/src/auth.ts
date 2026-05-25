@@ -80,6 +80,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             avatarUrl: true,
             digestEmails: true,
             immediateNotifications: true,
+            memberId: true,
           },
         });
         if (dbUser) {
@@ -89,6 +90,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.avatarUrl = dbUser.avatarUrl;
           token.digestEmails = dbUser.digestEmails;
           token.immediateNotifications = dbUser.immediateNotifications;
+          token.memberId = dbUser.memberId;
         } else {
           // Invalidate the session if the user was deleted from the database
           token.role = undefined;
@@ -109,6 +111,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.avatarUrl = token.avatarUrl as string | null | undefined;
         session.user.digestEmails = token.digestEmails as boolean | undefined;
         session.user.immediateNotifications = token.immediateNotifications as boolean | undefined;
+        session.user.memberId = token.memberId as string | null | undefined;
       }
       return session;
     },

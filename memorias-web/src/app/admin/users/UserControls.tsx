@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { toggleUserActivationAction, updateUserRoleAction, deleteUserAction } from "./actions";
+import { toggleUserActivationAction, updateUserRoleAction, deleteUserAction, updateUserMemberAction } from "./actions";
 import {
   Box,
   Select,
@@ -172,6 +172,86 @@ export function DeleteUserButton({
         }}
       >
         {isDeleting ? "Deleting..." : "Delete"}
+      </Button>
+    </Box>
+  );
+}
+
+export function MemberSelector({
+  userId,
+  initialMemberId,
+  members,
+}: {
+  userId: string;
+  initialMemberId: string | null;
+  members: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    user: { id: string; email: string } | null;
+  }[];
+}) {
+  const [memberId, setMemberId] = useState(initialMemberId || "");
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      const formData = new FormData();
+      formData.append("userId", userId);
+      formData.append("memberId", memberId);
+      await updateUserMemberAction(formData);
+    } catch (err) {
+      console.error("Failed to update user member mapping:", err);
+      alert(err instanceof Error ? err.message : "Failed to update member mapping.");
+      setMemberId(initialMemberId || "");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <Box component="form" onSubmit={handleSave} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <FormControl size="small">
+        <Select
+          value={memberId}
+          onChange={(e) => setMemberId(e.target.value)}
+          disabled={isSaving}
+          sx={{ fontSize: "0.75rem", minWidth: 150, borderRadius: 2 }}
+        >
+          <MenuItem value=""><em>None / Unassigned</em></MenuItem>
+          {members.map((m) => {
+            const isAssignedToOther = m.user && m.user.id !== userId;
+            const assignedEmail = isAssignedToOther && m.user ? m.user.email : "";
+            return (
+              <MenuItem
+                key={m.id}
+                value={m.id}
+                disabled={!!isAssignedToOther}
+                sx={{ fontSize: "0.85rem" }}
+              >
+                {m.lastName}, {m.firstName} {assignedEmail ? `(Assigned to ${assignedEmail})` : ""}
+              </MenuItem>
+            );
+          })}
+        </Select>
+      </FormControl>
+      <Button
+        type="submit"
+        variant="outlined"
+        size="small"
+        disabled={isSaving || memberId === (initialMemberId || "")}
+        sx={{
+          fontSize: "0.625rem",
+          fontWeight: "black",
+          textTransform: "uppercase",
+          py: 0.75,
+          px: 1.5,
+          borderRadius: 2,
+        }}
+      >
+        {isSaving ? "Saving..." : "Save"}
       </Button>
     </Box>
   );

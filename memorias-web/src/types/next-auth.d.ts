@@ -9,6 +9,7 @@ declare module "next-auth" {
       avatarUrl?: string | null;
       digestEmails?: boolean;
       immediateNotifications?: boolean;
+      memberId?: string | null;
     } & DefaultSession["user"];
   }
 
@@ -19,5 +20,6 @@ declare module "next-auth" {
     avatarUrl?: string | null;
     digestEmails?: boolean;
     immediateNotifications?: boolean;
+    memberId?: string | null;
   }
 }

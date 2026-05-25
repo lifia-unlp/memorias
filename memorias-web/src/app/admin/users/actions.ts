@@ -67,3 +67,34 @@ export async function deleteUserAction(formData: FormData) {
 
   revalidatePath("/admin/users");
 }
+
+export async function updateUserMemberAction(formData: FormData) {
+  await ensureAdmin();
+  
+  const userId = formData.get("userId") as string;
+  const memberId = (formData.get("memberId") as string) || null;
+  
+  if (!userId) throw new Error("User ID is required");
+
+  // Check if memberId is already assigned to another user
+  if (memberId) {
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        memberId,
+        id: { not: userId },
+      },
+    });
+    if (existingUser) {
+      throw new Error(`This member is already assigned to user: ${existingUser.email}`);
+    }
+  }
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      memberId: memberId || null,
+    },
+  });
+
+  revalidatePath("/admin/users");
+}

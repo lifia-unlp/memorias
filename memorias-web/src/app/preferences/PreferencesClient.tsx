@@ -22,9 +22,10 @@ import { updateUserPreferences } from "./actions";
 
 interface PreferencesClientProps {
   session: any;
+  mappedMember?: { id: string; firstName: string; lastName: string } | null;
 }
 
-export default function PreferencesClient({ session }: PreferencesClientProps) {
+export default function PreferencesClient({ session, mappedMember }: PreferencesClientProps) {
   const { themeMode, customColors, setThemeMode, setCustomColors } = useAppTheme();
 
   // Form states
@@ -176,6 +177,23 @@ export default function PreferencesClient({ session }: PreferencesClientProps) {
                     value={avatarUrl}
                     onChange={(e) => setAvatarUrl(e.target.value)}
                     helperText="Paste a URL to set a custom profile avatar."
+                  />
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <TextField
+                    fullWidth
+                    label="Associated Laboratory Member Profile"
+                    value={
+                      mappedMember
+                        ? `${mappedMember.lastName}, ${mappedMember.firstName}`
+                        : "None (Unassociated)"
+                    }
+                    slotProps={{ input: { readOnly: true } }}
+                    helperText={
+                      mappedMember
+                        ? "This account is linked to your official member profile (Read-Only)."
+                        : "This account is not linked to any member profile. Please contact an administrator to link your profile."
+                    }
                   />
                 </Grid>
               </Grid>
