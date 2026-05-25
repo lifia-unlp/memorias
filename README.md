@@ -23,15 +23,16 @@ We invite researchers, developers, and visitors to learn both about the **scient
 
 Interested in deploying Memorias for your own research laboratory, academic department, or study group? Or are you curious about exploring our agent-driven development workflows?
 
-We warmly invite you to explore, clone, and use our open-source codebase! You can find the repository on GitHub:
-👉 **[lifia-unlp/memorias](https://github.com/lifia-unlp/memorias)**
+We warmly invite you to explore, clone, and use our open-source codebase! You can find the repositories on GitHub:
+- **[lifia-unlp/memorias](https://github.com/lifia-unlp/memorias)** (Primary repository)
+- **[lifia-unlp/memorias-legacy](https://github.com/lifia-unlp/memorias-legacy)** (Legacy repository where the Pharo version resides)
 
 Feel free to fork the project, use it for your lab, submit issue reports, or share feedback on your own experiences with agent-built software systems!
 
 ---
 ## Few notes about the experience
 
-It all started with a repo containing only the memorias-legacy folder; a dump of the Pharo/Seaside/VoyageMongo of [Memorias](https://github.com/lifia-unlp/memorias) and a locally running MongoDB with a replica of a Memorias production DB. My goal was to see what Antigravity could do with it. I did not expect much. Just told it something like "We have to migrate Memorias, built in Pharo/Seaside/VoyageMongo to something newer; you've got a real MongoDB running on localhost that we have to migrate". It was about 10 am on a Sunday. By 10 pm, I had (besides a terrible neck pain) the migrated site up and running (working data migration scripts too). Monday, Tuesday, Wednesday, some more hours to fine-tune the UI, add some functionality the original version did not have, and deploy it. I did not run out of credits, nor did I hit one of those "wait for five hours to continue". Let's say, 20 hrs in total. 
+It all started with a repo containing only the memorias-legacy folder; a dump of the Pharo/Seaside/VoyageMongo of [Memorias](https://github.com/lifia-unlp/memorias-legacy) and a locally running MongoDB with a replica of a Memorias production DB. My goal was to see what Antigravity could do with it. I did not expect much. Just told it something like "We have to migrate Memorias, built in Pharo/Seaside/VoyageMongo to something newer; you've got a real MongoDB running on localhost that we have to migrate". It was about 10 am on a Sunday. By 10 pm, I had (besides a terrible neck pain) the migrated site up and running (working data migration scripts too). Monday, Tuesday, Wednesday, some more hours to fine-tune the UI, add some functionality the original version did not have, and deploy it. I did not run out of credits, nor did I hit one of those "wait for five hours to continue". Let's say, 20 hrs in total. 
 
 For Thursday, I had something more challenging planned. Completely migrate the UI to Material Design (eliminating Tailwind), improve the code design (not sure that matters), and achieve greater UI consistency. I first asked it to create a plain HTML mockup to make sure there was something good to base the migration on. Surprisingly, this required much more back-and-forth interaction than the previous phase. Then, I explained my goals (in a copilot-plan.md file) and asked it for feedback and to identify risks. After a few clarifications, I gave it the green light. It took the AI about 15 minutes to make most of the changes and use all of my allotted Gemini credit. I handed the task over to Claude models (I had some credit left). After a few more minutes, it finished implementing the changes and started a round of build-fix cycle. About then of these until it ran out of Claude credits. Most of the problems were due to version mismatches between the code it wrote and the current versions of the libraries it uses (or so it reports). Not sure I could have given better instructions to avoid hitting these problems that late in the cycle. Let's see what happens when I get my credits replenished, and ask the AI to continue ... 
 
@@ -68,7 +69,7 @@ graph TD
 ### Module Breakdown:
 1. **[memorias-web](file:///Volumes/X-Wing/casco/Development/memorias-migration-antigrativy/memorias-web)**: The primary research portal web application. Built with Next.js (TypeScript), Material UI design system, Prisma ORM, and PostgreSQL. It contains data migration translation scripts from legacy database engines.
 2. **[memorias-copilot](file:///Volumes/X-Wing/casco/Development/memorias-migration-antigrativy/memorias-copilot)**: The intelligent research assistant. Built with Python FastAPI, Astral `uv`, and OpenAI API as the backend, and standard ES-Module Vanilla JS/CSS as the front-end chat interface.
-3. **[memorias-legacy](file:///Volumes/X-Wing/casco/Development/memorias-migration-antigrativy/memorias-legacy)**: Historical codebase (Pharo / Seaside Smalltalk & Voyage MongoDB) preserved for references and legacy compliance.
+3. **[memorias-legacy](file:///Volumes/X-Wing/casco/Development/memorias-migration-antigrativy/memorias-legacy)**: Historical codebase (Pharo / Seaside Smalltalk & Voyage MongoDB) preserved for references and legacy compliance. The original Pharo repository is hosted at **[lifia-unlp/memorias-legacy](https://github.com/lifia-unlp/memorias-legacy)**.
 
 ---
 
