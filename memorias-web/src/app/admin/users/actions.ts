@@ -118,9 +118,8 @@ export async function sendUserEmailAction(formData: FormData) {
 
   const htmlContent = `
     <div style="font-family: sans-serif; font-size: 14px; line-height: 1.5; color: #111111;">
-      <p><strong>${labName} Memorias Notification</strong></p>
-      <div style="margin-top: 15px; margin-bottom: 25px; white-space: pre-wrap;">${message}</div>
-      <p style="margin-top: 20px; border-top: 1px solid #dddddd; padding-top: 15px; font-size: 12px; color: #666666;">
+      <div style="white-space: pre-wrap;">${message}</div>
+      <p style="margin-top: 25px; border-top: 1px solid #dddddd; padding-top: 15px; font-size: 12px; color: #666666;">
         This email was sent by an administrator from the ${labName} Memorias Portal.<br />
         If you wish to stop receiving these updates, you can customize your alert settings at any time in your <a href="${portalUrl}/preferences" style="color: #1976d2; text-decoration: underline;">User Preferences</a>.
       </p>
