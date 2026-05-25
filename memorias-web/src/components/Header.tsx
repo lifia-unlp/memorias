@@ -15,11 +15,14 @@ export async function Header({ activeTab }: HeaderProps) {
     .catch(() => null);
   const logoUrl = logoSetting?.value || null;
 
+  const copilotUrl = process.env.COPILOT_URL || process.env.NEXT_PUBLIC_COPILOT_URL || null;
+
   return (
     <HeaderClient
       session={session}
       logoUrl={logoUrl}
       activeTab={activeTab}
+      copilotUrl={copilotUrl}
     />
   );
 }

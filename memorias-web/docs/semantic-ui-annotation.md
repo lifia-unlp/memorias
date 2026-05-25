@@ -206,6 +206,30 @@ The component presenting the list of scientific publications related to a specif
 
 A subtle color-coded badge displaying taxonomy keywords, research topics, or tags that help filter or categorize resources.
 
+### Statistics dashboard
+
+The main dashboard container page showing the lab's academic statistics, charts, and summaries.
+
+### Scientific production chart
+
+The reusable component presenting yearly scientific publication counts categorized by publication type.
+
+### Scholarships and grants chart
+
+The reusable component presenting active scholarship counts over a 10-year timeline.
+
+### Qualifications and seniority chart
+
+The reusable component presenting the active lab member distribution by highest degree and lab position.
+
+### Active projects chart
+
+The reusable component presenting active investigation/research projects over a 10-year timeline.
+
+### Funding agency chart
+
+The reusable component presenting the distribution of research projects by funding agency.
+
 ## Developer Tooling: Visual Semantic Highlights
 
 To inspect or verify semantically annotated components in the browser during development, a non-intrusive hover highlight tool is available.

@@ -25,9 +25,10 @@ interface HeaderClientProps {
   session: any;
   logoUrl: string | null;
   activeTab?: "members" | "projects" | "theses" | "scholarships" | "publications";
+  copilotUrl?: string | null;
 }
 
-export function HeaderClient({ session, logoUrl, activeTab }: HeaderClientProps) {
+export function HeaderClient({ session, logoUrl, activeTab, copilotUrl }: HeaderClientProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [reportsAnchor, setReportsAnchor] = useState<null | HTMLElement>(null);
   const [adminAnchor, setAdminAnchor] = useState<null | HTMLElement>(null);
@@ -171,6 +172,18 @@ export function HeaderClient({ session, logoUrl, activeTab }: HeaderClientProps)
                     >
                       Report Builder
                     </MenuItem>
+                    {copilotUrl && (
+                      <MenuItem
+                        component="a"
+                        href={copilotUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setReportsAnchor(null)}
+                        sx={{ fontSize: "0.75rem", fontWeight: "bold" }}
+                      >
+                        Copilot
+                      </MenuItem>
+                    )}
                   </Menu>
                 </Box>
               )}
@@ -445,6 +458,23 @@ export function HeaderClient({ session, logoUrl, activeTab }: HeaderClientProps)
                   }}
                 />
               </ListItemButton>
+              {copilotUrl && (
+                <ListItemButton
+                  component="a"
+                  href={copilotUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileOpen(false)}
+                  sx={{ borderRadius: 1.5, my: 0.25 }}
+                >
+                  <ListItemText
+                    primary="Copilot"
+                    slotProps={{
+                      primary: { sx: { fontSize: "0.8rem", fontWeight: "bold" } }
+                    }}
+                  />
+                </ListItemButton>
+              )}
             </List>
           </>
         )}
