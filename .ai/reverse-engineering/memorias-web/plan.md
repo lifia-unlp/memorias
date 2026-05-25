@@ -67,22 +67,22 @@ Instead of analyzing the application at a high level, the functional specs will 
 #### Module G: Custom Report Builder & Layout Engine
 * **Target Files**: `src/app/reports/`, `src/components/reports/`.
 * **Tasks**:
-  - [ ] Extract how custom reports are assembled using the JSON block configuration (`blocks`).
-  - [ ] Map block types (text, cards, lists), filters, sorting parameters, and user permissions.
-  - [ ] Scenarios: *Assemble Custom Report*, *Apply Dynamic Filter to Block*.
+  - [x] Extract how custom reports are assembled using the JSON block configuration (`blocks`).
+  - [x] Map block types (text, cards, lists), filters, sorting parameters, and user permissions.
+  - [x] Scenarios: *Assemble Custom Report*, *Apply Dynamic Filter to Block*.
 
 #### Module H: Administration & System Options Editor
 * **Target Files**: `src/app/admin/`, `src/app/tags/`.
 * **Tasks**:
-  - [ ] Map the activation/deactivation dashboards for user accounts.
-  - [ ] Analyze the list option editor (`SystemOption`) for positions and academic levels.
-  - [ ] Map the Audit Log visualizer and the system settings panel.
-  - [ ] Scenarios: *Activate Pending User*, *Edit System Options*, *View Audit Log entries*.
+  - [x] Map the activation/deactivation dashboards for user accounts.
+  - [x] Analyze the list option editor (`SystemOption`) for positions and academic levels.
+  - [x] Map the Audit Log visualizer and the system settings panel.
+  - [x] Scenarios: *Activate Pending User*, *Edit System Options*, *View Audit Log entries*.
 
 ---
 
 ### 🚀 Phase 3: Traceability Verification & Wiki Publishing
 * **Tasks**:
-  - [ ] Review all generated sections for 100% compliance with Hyperlink Traceability (`[Term](Shared-Domain-Glossary#term)`).
-  - [ ] Assemble the full, verified document.
-  - [ ] Publish the specification directly to [`memorias-wiki/Requirements-Specification-Memorias-Web.md`](../../memorias-wiki/Requirements-Specification-Memorias-Web.md).
+  - [x] Review all generated sections for 100% compliance with Hyperlink Traceability (`[Term](Shared-Domain-Glossary#term)`).
+  - [x] Assemble the full, verified document.
+  - [x] Publish the specification directly to [`memorias-wiki/Requirements-Specification-Memorias-Web.md`](../../memorias-wiki/Requirements-Specification-Memorias-Web.md).
