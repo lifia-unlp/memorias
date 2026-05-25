@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { triggerImmediateNotification } from "@/lib/notifications";
 
 export async function logAction(
   action: "CREATE" | "UPDATE" | "DELETE",
@@ -21,6 +22,13 @@ export async function logAction(
         details,
       },
     });
+
+    // Central Hook: trigger immediate alerts for mapped users
+    try {
+      await triggerImmediateNotification(action, entityType, entityId, entitySlug, details);
+    } catch (notifErr) {
+      console.error("Failed to trigger immediate notification:", notifErr);
+    }
   } catch (err) {
     console.error("Failed to write audit log:", err);
   }
