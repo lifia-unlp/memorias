@@ -7,24 +7,41 @@ This living document tracks active status, findings, and handoffs between AI ses
 ## Current Status
 * **Active Phase**: Phase 2 (Modular Functionality & Requirements Analysis)
 * **Last Updated**: 2026-05-25
-* **Overall Progress**: 15% completed
+* **Overall Progress**: 25% completed
 
 ---
 
 ## Session Logs
 
-### Session 2 (2026-05-25)
-* **Goal**: Execute Phase 1: Domain Model & Schema Extraction.
+### Session 3 (2026-05-25)
+* **Goal**: Execute Module A: Authentication, Access Control, and Preferences.
 * **Accomplished**:
-  * Analyzed `prisma/schema.prisma` and mapped out the 10 core system entities.
-  * Formulated the authoritative definitions, database attributes, unique constraints, and relationships for each model.
-  * Created the standalone public wiki index and populated the [`Shared-Domain-Glossary.md`](../../memorias-wiki/Shared-Domain-Glossary.md) with complete relative traceability links.
+  * Reverse-engineered OAuth setup (GitHub, Google, Microsoft, and ORCID provider logic) and credentials dev backdoor.
+  * Extracted complete role behaviors (ADMIN, EDITOR, USER), screen widgets, and layouts.
+  * Formulated five high-fidelity narrative requirements scenarios with perfect glossary relative links.
+  * Drafted five strict system business rules (Credentials Isolation, First-User Admin Bootstrap, Admin Approval Enforcement, Real-time JWT Sync, and Session invalidation).
+  * Initialized and published the [`Requirements-Specification-Memorias-Web.md`](../../memorias-wiki/Requirements-Specification-Memorias-Web.md) page in the Wiki.
 * **Discovered**:
-  * The core business domain revolves around Member profiles, academic deliverables (Projects, Theses, Scholarships, Publications), and support entities (SystemOptions, SystemSettings, AuditLogs, Reports).
+  * Found that ORCID uses customized OIDC sandboxing with a specialized OIDC callback mappings.
+  * Observed real-time JWT syncing directly queries database records to apply permission updates instantly.
 * **Blocked Items**:
   * None.
 * **Next Steps**:
-  * Initiate **Module A: Authentication, Access Control, and Preferences** functional analysis.
+  * Initiate **Module B: Member Profiles & CV Management** functional analysis.
+
+---
+
+## Session 2 (2026-05-25)
+* **Goal**: Execute Phase 1: Domain Model & Schema Extraction.
+* **Accomplished**:
+  * Mapped out schema database enums, constraints, and relationships.
+  * Initialized the public Wiki landing index and glossary.
+* **Discovered**:
+  * The core business domain revolves around Member profiles and academic deliverables.
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Initiate **Module A** functional analysis.
 
 ---
 
