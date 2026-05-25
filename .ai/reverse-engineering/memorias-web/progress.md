@@ -7,11 +7,30 @@ This living document tracks active status, findings, and handoffs between AI ses
 ## Current Status
 * **Active Phase**: Phase 2 (Modular Functionality & Requirements Analysis)
 * **Last Updated**: 2026-05-25
-* **Overall Progress**: 35% completed
+* **Overall Progress**: 45% completed
 
 ---
 
 ## Session Logs
+
+### Session 5 (2026-05-25)
+* **Goal**: Execute Module C: Projects & Funding Management.
+* **Accomplished**:
+  * Analyzed `createProject` and `updateProject` Server Actions detailing title duplicate interceptors and client bypasses (`ignoreDuplicateCheck`).
+  * Mapped `deleteProject` referential integrity checks that block deletion if theses, scholarships, or publications associate with the project ID, triggering the UI Referral Block Dialog.
+  * Mapped list catalog (`/projects`), details (`/projects/[slug]`), and curation form (`ProjectForm`) screens.
+  * Formulated five comprehensive, relative-linked narrative scenarios, seven strict business rules, and complete data contracts.
+  * Appended specifications directly to the master `Requirements-Specification-Memorias-Web.md` document in the Wiki.
+* **Discovered**:
+  * Confirmed plural comma-separated legacy DB constraints for the `director` and `coDirector` fields.
+  * Noted that budgets (`amount`) are kept as plain strings without numeric currency normalizations.
+  * Re-verified masking of the amount field in Copilot schemas for privacy.
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Initiate **Module D: Theses & Career Tracking** functional analysis.
+
+---
 
 ### Session 4 (2026-05-25)
 * **Goal**: Execute Module B: Member Profiles & CV Management.

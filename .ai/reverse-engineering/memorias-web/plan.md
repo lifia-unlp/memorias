@@ -36,10 +36,10 @@ Instead of analyzing the application at a high level, the functional specs will 
 #### Module C: Projects & Funding Management
 * **Target Files**: `src/app/projects/`, `src/components/projects/`.
 * **Tasks**:
-  - [ ] Analyze the project dashboard, search filters, and detail pages.
-  - [ ] Document fields (directors, funding agencies, amount, duration) and relationships.
-  - [ ] Detail how members are associated with projects, and the "featured project" flag.
-  - [ ] Scenarios: *Register Project*, *Associate Project Members*, *Toggle Featured Project*.
+  - [x] Analyze the project dashboard, search filters, and detail pages.
+  - [x] Document fields (directors, funding agencies, amount, duration) and relationships.
+  - [x] Detail how members are associated with projects, and the "featured project" flag.
+  - [x] Scenarios: *Register Project*, *Associate Project Members*, *Toggle Featured Project*.
 
 #### Module D: Theses & Career Tracking
 * **Target Files**: `src/app/theses/`, `src/components/theses/`.
