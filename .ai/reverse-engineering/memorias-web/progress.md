@@ -7,13 +7,32 @@ This living document tracks active status, findings, and handoffs between AI ses
 ## Current Status
 * **Active Phase**: Phase 2 (Modular Functionality & Requirements Analysis)
 * **Last Updated**: 2026-05-25
-* **Overall Progress**: 25% completed
+* **Overall Progress**: 35% completed
 
 ---
 
 ## Session Logs
 
-### Session 3 (2026-05-25)
+### Session 4 (2026-05-25)
+* **Goal**: Execute Module B: Member Profiles & CV Management.
+* **Accomplished**:
+  * Reverse-engineered profile list directory search (`hideFormer` toggle, tags/keyword search, pagination logic).
+  * Analyzed `MemberForm` (auto slug generators, dynamic dropdowns from `SystemOption`).
+  * Mapped detailed profile pages (`CvTabs` bilingual summaries, delete button logic).
+  * Mapped referential integrity checks blocking deletions if members are associated with projects, theses, scholarships, or publications.
+  * Formulated four high-fidelity requirements scenarios and five strict business rules.
+  * Appended full functional specifications to [`Requirements-Specification-Memorias-Web.md`](../../memorias-wiki/Requirements-Specification-Memorias-Web.md) in the Wiki.
+* **Discovered**:
+  * Identified the referential integrity protection workflow returning `REFERENTIAL_BLOCK` with complete direct navigation lists for admins.
+  * Confirmed that `personalEmail`, `phone`, and `notes` are restricted in Copilot model mapping for privacy.
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Initiate **Module C: Projects & Funding Management** functional analysis.
+
+---
+
+## Session 3 (2026-05-25)
 * **Goal**: Execute Module A: Authentication, Access Control, and Preferences.
 * **Accomplished**:
   * Reverse-engineered OAuth setup (GitHub, Google, Microsoft, and ORCID provider logic) and credentials dev backdoor.
