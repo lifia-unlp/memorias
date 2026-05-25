@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { sendEmail } from "@/lib/email";
+import { getLabName } from "@/lib/config";
 
 async function ensureAdmin() {
   const session = await auth();
@@ -111,13 +112,15 @@ export async function sendUserEmailAction(formData: FormData) {
     throw new Error("Recipient type, subject, and message are required.");
   }
 
+  const labName = await getLabName();
+
   const htmlContent = `
     <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
-      <h2 style="color: #1976d2; margin-top: 0; border-bottom: 2px solid #1976d2; padding-bottom: 10px;">LIFIA Memorias Notification</h2>
+      <h2 style="color: #1976d2; margin-top: 0; border-bottom: 2px solid #1976d2; padding-bottom: 10px;">${labName} Memorias Notification</h2>
       <div style="margin-top: 20px; white-space: pre-wrap;">${message}</div>
       <hr style="border: 0; border-top: 1px solid #eeeeee; margin-top: 30px;" />
       <p style="font-size: 0.8rem; color: #777777; text-align: center; margin-bottom: 0;">
-        This email was sent by an administrator from the LIFIA Memorias Portal.
+        This email was sent by an administrator from the ${labName} Memorias Portal.
       </p>
     </div>
   `;
