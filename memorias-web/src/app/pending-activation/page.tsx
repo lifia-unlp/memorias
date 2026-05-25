@@ -106,10 +106,10 @@ export default async function PendingActivationPage() {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-            {session.user.image ? (
+            {session.user.avatarUrl || session.user.image ? (
               // eslint-disable-next-line @next/next/no-img-element
               (<img
-                src={session.user.image}
+                src={session.user.avatarUrl || session.user.image || undefined}
                 alt="Profile"
                 style={{
                   width: 40,

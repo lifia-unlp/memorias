@@ -289,7 +289,7 @@ export function HeaderClient({ session, logoUrl, activeTab, copilotUrl }: Header
                   }}
                 >
                   <Avatar
-                    src={session.user?.image || undefined}
+                    src={session.user?.avatarUrl || session.user?.image || undefined}
                     sx={{
                       width: 28,
                       height: 28,
