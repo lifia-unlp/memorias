@@ -36,3 +36,6 @@
 
 # Copilot Backend Logs
 /memorias-copilot/backend/logs/
+
+# Wiki repository clone
+/memorias-wiki/
