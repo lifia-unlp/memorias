@@ -1,5 +1,10 @@
 # Memorias Copilot
 
+> [!TIP]
+> **Unified Guides**: For the centralized setup and deployment guides covering the entire ecosystem (Next.js Portal + PostgreSQL + Copilot), please see:
+> - 💻 **[Root DEVELOPMENT.md](../DEVELOPMENT.md)** — Local development server setups.
+> - 🚀 **[Root DEPLOYMENT.md](../DEPLOYMENT.md)** — Production container deployments.
+
 Memorias Copilot is a research lab assistant designed to help users explore the contents of the Memorias database through natural-language conversation.
 
 This directory contains the codebase for both the backend (FastAPI) and the frontend (Vanilla HTML/JS/CSS).

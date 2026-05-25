@@ -35,4 +35,52 @@ It all started with a repo containing only the memorias-legacy folder; a dump of
 
 For Thursday, I had something more challenging planned. Completely migrate the UI to Material Design (eliminating Tailwind), improve the code design (not sure that matters), and achieve greater UI consistency. I first asked it to create a plain HTML mockup to make sure there was something good to base the migration on. Surprisingly, this required much more back-and-forth interaction than the previous phase. Then, I explained my goals (in a copilot-plan.md file) and asked it for feedback and to identify risks. After a few clarifications, I gave it the green light. It took the AI about 15 minutes to make most of the changes and use all of my allotted Gemini credit. I handed the task over to Claude models (I had some credit left). After a few more minutes, it finished implementing the changes and started a round of build-fix cycle. About then of these until it ran out of Claude credits. Most of the problems were due to version mismatches between the code it wrote and the current versions of the libraries it uses (or so it reports). Not sure I could have given better instructions to avoid hitting these problems that late in the cycle. Let's see what happens when I get my credits replenished, and ask the AI to continue ... 
 
+---
 
+## 🗺️ Project Blueprint & Architecture
+
+The Memorias workspace is organized as a monorepo consisting of three main modules:
+
+```mermaid
+graph TD
+    subgraph Client [Client Browsers]
+        UI[Next.js App Portal UI]
+        Chat[Copilot Conversational UI]
+    end
+
+    subgraph AppServer [Application Services]
+        Web[memorias-web: Next.js Node server]
+        Copilot[memorias-copilot: FastAPI Python server]
+    end
+
+    subgraph Database [Storage Layer]
+        PG[(PostgreSQL Database)]
+        LegacyMongo[(Temporary/Legacy MongoDB)]
+    end
+
+    UI -->|HTTP / JSON API| Web
+    Chat -->|HTTP / SSE API| Copilot
+    Web -->|Prisma Client| PG
+    Copilot -->|SQL queries| PG
+    Web -->|Data Migration Script| LegacyMongo
+```
+
+### Module Breakdown:
+1. **[memorias-web](file:///Volumes/X-Wing/casco/Development/memorias-migration-antigrativy/memorias-web)**: The primary research portal web application. Built with Next.js (TypeScript), Material UI design system, Prisma ORM, and PostgreSQL. It contains data migration translation scripts from legacy database engines.
+2. **[memorias-copilot](file:///Volumes/X-Wing/casco/Development/memorias-migration-antigrativy/memorias-copilot)**: The intelligent research assistant. Built with Python FastAPI, Astral `uv`, and OpenAI API as the backend, and standard ES-Module Vanilla JS/CSS as the front-end chat interface.
+3. **[memorias-legacy](file:///Volumes/X-Wing/casco/Development/memorias-migration-antigrativy/memorias-legacy)**: Historical codebase (Pharo / Seaside Smalltalk & Voyage MongoDB) preserved for references and legacy compliance.
+
+---
+
+## 🚦 Quick Navigation Map
+
+Use the index below to instantly locate instructions for deployment, local development, and core system functionalities:
+
+| What are you trying to do? | Document & Location | Description |
+|---|---|---|
+| 🚀 **Deploy in Production** | **[DEPLOYMENT.md](file:///Volumes/X-Wing/casco/Development/memorias-migration-antigrativy/DEPLOYMENT.md)** | Step-by-step production deployment using Docker / Docker Compose. |
+| 💻 **Set up Local Development** | **[DEVELOPMENT.md](file:///Volumes/X-Wing/casco/Development/memorias-migration-antigrativy/DEVELOPMENT.md)** | Comprehensive instructions for local database running, local servers, and linting. |
+| 🔄 **Run Data Migration** | **[migration.md](file:///Volumes/X-Wing/casco/Development/memorias-migration-antigrativy/memorias-web/docs/migration.md)** | Technical detail of the MongoDB-to-PostgreSQL two-pass translation engine. |
+| 🤖 **Develop the AI Copilot** | **[copilot/README.md](file:///Volumes/X-Wing/casco/Development/memorias-migration-antigrativy/memorias-copilot/README.md)** | Setup commands, FastAPI endpoints, design guidelines, and rules for the copilot. |
+| 📝 **Check Metadata Fields** | **[bibtex-fields.md](file:///Volumes/X-Wing/casco/Development/memorias-migration-antigrativy/memorias-web/docs/bibtex-fields.md)** | Specifications of BibTeX schemas and data validation for academic records. |
+| 🧪 **Read Testing Strategy** | **[testing-strategy.md](file:///Volumes/X-Wing/casco/Development/memorias-migration-antigrativy/memorias-web/docs/testing-strategy.md)** | Overview of Playwright, Vitest, and backend coverage suites. |

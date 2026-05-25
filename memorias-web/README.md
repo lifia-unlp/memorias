@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Memorias Web Portal
 
-## Getting Started
+This directory contains the main web application and repository portal for **Memorias**. It is a modern, responsive academic and laboratory management platform built to catalog research publications, defended theses, active projects, scholarships, and members' profiles.
 
-First, run the development server:
+---
+
+## 🛠️ Technology Stack
+
+- **Framework**: Next.js 15 (App Router with TypeScript)
+- **Database Access**: Prisma ORM (v7+)
+- **Database**: PostgreSQL (configured with `@prisma/adapter-pg` pool connection)
+- **UI Design System**: Material UI (MUI) for a premium, clean user interface
+- **Testing**: Vitest (Unit/Integration) and Playwright (End-to-End browser tests)
+
+---
+
+## 🚦 Getting Started
+
+For the complete guide on environment variables, Prisma PostgreSQL database sandboxes, and full-stack local setup, please see the master documentation at the root of the project:
+👉 **[Root DEVELOPMENT.md](../../DEVELOPMENT.md)**
+
+### Key Package Commands
+
+To run commands within the `memorias-web` directory:
 
 ```bash
+# 1. Install Node modules
+npm install
+
+# 2. Run local Next.js development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# 3. Build optimized production bundle
+npm run build
+
+# 4. Start production server
+npm run start
+
+# 5. Run type checks and code linting
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🧪 Testing Suites
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Run unit and integration tests (Vitest)
+npm run test
 
-## Learn More
+# Run tests in UI watch mode
+npx vitest
 
-To learn more about Next.js, take a look at the following resources:
+# Run Playwright End-to-End browser tests
+npx playwright test
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📂 Deep-Dive Module Documentation
 
-## Deploy on Vercel
+This module contains specialized guides inside the **`docs/`** folder:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **[migration.md](docs/migration.md)**: Details the design of the MongoDB-to-PostgreSQL two-pass translation engine and transformation rules.
+- **[deployment_guide.md](docs/deployment_guide.md)**: Deep-dive deployment instructions for Proxmox and Ubuntu server hosts.
+- **[local_development.md](docs/local_development.md)**: Deep-dive local Prisma Postgres database management operations (sandbox listing, detaching, reconstructing).
+- **[bibtex-fields.md](docs/bibtex-fields.md)**: Metadata structure, required keys, and JSON models for BibTeX academic publications.
+- **[testing-strategy.md](docs/testing-strategy.md)**: Detailed QA walkthrough covering mock authenticators and headless browser runs.
+- **[semantic-ui-annotation.md](docs/semantic-ui-annotation.md)**: Rationale and guidelines behind the UI migration to Material design standards.

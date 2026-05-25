@@ -1,5 +1,8 @@
 # Production Docker Deployment & MongoDB Migration Guide
 
+> [!TIP]
+> **Unified Stack Deployment**: For the master deployment guide covering the entire ecosystem (Web Portal + PostgreSQL + AI Copilot containers), see the root **[DEPLOYMENT.md](../../DEPLOYMENT.md)**.
+
 This guide describes how to deploy the modernized **Memorias Research Portal** in a Proxmox environment (running an Ubuntu Server VM or LXC container) using Docker containers, and how to execute the database migrations from a live MongoDB instance or a local database dump.
 
 ---

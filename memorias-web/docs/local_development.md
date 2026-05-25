@@ -1,5 +1,8 @@
 # Local Development & Database Management Guide
 
+> [!TIP]
+> **Unified Stack Development**: For the master setup guide covering the entire ecosystem (Web Portal + local PostgreSQL sandbox + AI Copilot environment), see the root **[DEVELOPMENT.md](../../DEVELOPMENT.md)**.
+
 This guide explains how to manage your local **Prisma Postgres** database sandbox and run the Next.js portal on your local machine.
 
 ---
