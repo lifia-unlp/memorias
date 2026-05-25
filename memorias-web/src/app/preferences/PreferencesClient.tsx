@@ -39,7 +39,7 @@ export default function PreferencesClient({ session, mappedMember }: Preferences
     session?.user?.avatarUrl || ""
   );
   const [digestEmails, setDigestEmails] = useState(
-    session?.user?.digestEmails !== undefined ? session.user.digestEmails : true
+    session?.user?.digestEmails !== undefined ? session.user.digestEmails : false
   );
   const [immediateNotifications, setImmediateNotifications] = useState(
     session?.user?.immediateNotifications !== undefined ? session.user.immediateNotifications : true

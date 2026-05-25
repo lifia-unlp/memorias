@@ -23,7 +23,7 @@ model User {
   // New Preferences Fields
   notificationEmail      String?
   avatarUrl              String?
-  digestEmails           Boolean   @default(true)
+  digestEmails           Boolean   @default(false)
   immediateNotifications Boolean   @default(true)
   
   memberId      String?   @unique
