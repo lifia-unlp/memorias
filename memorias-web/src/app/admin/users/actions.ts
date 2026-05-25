@@ -114,13 +114,15 @@ export async function sendUserEmailAction(formData: FormData) {
 
   const labName = await getLabName();
 
+  const portalUrl = process.env.AUTH_URL || "http://localhost:3000";
+
   const htmlContent = `
-    <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
-      <h2 style="color: #1976d2; margin-top: 0; border-bottom: 2px solid #1976d2; padding-bottom: 10px;">${labName} Memorias Notification</h2>
-      <div style="margin-top: 20px; white-space: pre-wrap;">${message}</div>
-      <hr style="border: 0; border-top: 1px solid #eeeeee; margin-top: 30px;" />
-      <p style="font-size: 0.8rem; color: #777777; text-align: center; margin-bottom: 0;">
-        This email was sent by an administrator from the ${labName} Memorias Portal.
+    <div style="font-family: sans-serif; font-size: 14px; line-height: 1.5; color: #111111;">
+      <p><strong>${labName} Memorias Notification</strong></p>
+      <div style="margin-top: 15px; margin-bottom: 25px; white-space: pre-wrap;">${message}</div>
+      <p style="margin-top: 20px; border-top: 1px solid #dddddd; padding-top: 15px; font-size: 12px; color: #666666;">
+        This email was sent by an administrator from the ${labName} Memorias Portal.<br />
+        If you wish to stop receiving these updates, you can customize your alert settings at any time in your <a href="${portalUrl}/preferences" style="color: #1976d2; text-decoration: underline;">User Preferences</a>.
       </p>
     </div>
   `;
