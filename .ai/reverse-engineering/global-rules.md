@@ -2,6 +2,9 @@
 
 This document outlines the authoritative rules, analysis guidelines, delivery standards, and glossary to be maintained across all reverse-engineering sessions for **memorias-web** and **memorias-copilot**. All agent activities, plan documents, and generated specifications must conform strictly to these standards.
 
+### 🏛️ Adherence to Domain-Driven Design (DDD)
+The Memorias ecosystem prioritizes **Domain-Driven Design (DDD)** principles to separate the **Core Bounded Context** (the core business domain shared by the Web app and Copilot, such as Members, Projects, and Publications) from supporting, generic subdomains (such as identity systems, user permissions, audit logs, and configurations). Agents must preserve these boundaries across all documentation and analysis artifacts.
+
 ---
 
 ## 1. Core Principles & Philosophy
