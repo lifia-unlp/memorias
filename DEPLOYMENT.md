@@ -169,6 +169,14 @@ services:
       # Microsoft OAuth (Entra ID) Credentials (Optional)
       - AUTH_MICROSOFT_ENTRA_ID_ID=your_microsoft_client_id
       - AUTH_MICROSOFT_ENTRA_ID_SECRET=your_microsoft_client_secret
+      # SMTP Mail Settings (Google/Office 365)
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_SECURE=false
+      - SMTP_USER=your-email@gmail.com
+      - SMTP_PASS=your-app-password
+      - SMTP_FROM_NAME=LIFIA Memorias
+      - SMTP_FROM_EMAIL=noreply@lifia.info.unlp.edu.ar
     networks:
       - memorias-network
 
@@ -332,7 +340,30 @@ Only the identity providers that have **both** their Client ID and Client Secret
 
 ---
 
-## 🔒 Step 8: Database Backups & Recovery
+## ✉️ Step 8: Configuring SMTP Email Notifications
+
+The portal includes an email notification service capable of sending targeted updates and administrator broadcasts. This service is fully compatible with standard third-party SMTP providers like Google (Gmail) and Microsoft (Office 365 / Outlook).
+
+### 1. Setup Environment Variables
+Configure the mail parameters within the `new-memorias` application environment block inside your `/opt/memorias/docker-compose.app.yml` file:
+
+```yaml
+- SMTP_HOST=smtp.gmail.com           # Use smtp.office365.com for Microsoft
+- SMTP_PORT=587                      # Standard STARTTLS port
+- SMTP_SECURE=false                  # set "true" for port 465, or "false" for 587
+- SMTP_USER=your-email@gmail.com     # SMTP username
+- SMTP_PASS=your-app-password        # Google App Password or Office App Password
+- SMTP_FROM_NAME=LIFIA Memorias      # Display name of the sender
+- SMTP_FROM_EMAIL=custom@domain.com  # Sender email address envelope
+```
+
+### 2. Provider-Specific Recommendations
+* **Google Gmail**: Do not use your primary account password. You must generate a secure **App Password** from your Google Account settings (Security > 2-Step Verification > App passwords) to authenticate with Gmail SMTP.
+* **Microsoft Office 365 / Exchange**: Ensure SMTP AUTH is enabled for the specific mailbox in your Exchange Admin Center. If MFA is active, generate a Microsoft App Password.
+
+---
+
+## 🔒 Step 9: Database Backups & Recovery
 
 ### 1. Backing Up the Database
 Run this command from your host machine to generate a compressed custom-format PG backup file:

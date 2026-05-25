@@ -1,13 +1,20 @@
 "use client";
 
 import React, { useState } from "react";
-import { toggleUserActivationAction, updateUserRoleAction, deleteUserAction, updateUserMemberAction } from "./actions";
+import { toggleUserActivationAction, updateUserRoleAction, deleteUserAction, updateUserMemberAction, sendUserEmailAction } from "./actions";
 import {
   Box,
   Select,
   MenuItem,
   Button,
   FormControl,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Typography,
+  Alert,
 } from "@mui/material";
 
 export function RoleSelector({
@@ -254,5 +261,204 @@ export function MemberSelector({
         {isSaving ? "Saving..." : "Save"}
       </Button>
     </Box>
+  );
+}
+
+export function SendEmailDialog({
+  open,
+  onClose,
+  recipientType,
+  userId,
+  userEmail,
+}: {
+  open: boolean;
+  onClose: () => void;
+  recipientType: "individual" | "all_active";
+  userId?: string;
+  userEmail?: string;
+}) {
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!subject.trim() || !message.trim()) {
+      setError("Subject and message are required.");
+      return;
+    }
+
+    setIsSending(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("recipientType", recipientType);
+      formData.append("subject", subject);
+      formData.append("message", message);
+      if (recipientType === "individual" && userId) {
+        formData.append("userId", userId);
+      }
+
+      const res = await sendUserEmailAction(formData);
+      if (res && res.success) {
+        setSuccess(`Successfully sent ${res.count} email(s).`);
+        setSubject("");
+        setMessage("");
+        setTimeout(() => {
+          onClose();
+          setSuccess(null);
+        }, 1500);
+      }
+    } catch (err: any) {
+      console.error("Failed to send email:", err);
+      setError(err instanceof Error ? err.message : "Failed to send email.");
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={isSending ? undefined : onClose} fullWidth maxWidth="sm">
+      <DialogTitle sx={{ fontWeight: 800, pb: 1 }}>
+        {recipientType === "all_active" ? "Broadcast Email Announcement" : "Send Direct Email"}
+      </DialogTitle>
+      <Box component="form" onSubmit={handleSend}>
+        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
+          {error && <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>}
+          {success && <Alert severity="success" sx={{ borderRadius: 2 }}>{success}</Alert>}
+          
+          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: "bold" }}>
+            Recipient:{" "}
+            <Typography component="span" variant="body2" color="primary.main" sx={{ fontWeight: "bold" }}>
+              {recipientType === "all_active"
+                ? "All Active Portal Users"
+                : userEmail || "Individual User"}
+            </Typography>
+          </Typography>
+
+          <TextField
+            fullWidth
+            label="Subject"
+            variant="outlined"
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            disabled={isSending || !!success}
+            required
+            size="small"
+            slotProps={{ htmlInput: { sx: { fontSize: "0.85rem" } } }}
+          />
+
+          <TextField
+            fullWidth
+            label="Message Body"
+            variant="outlined"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            disabled={isSending || !!success}
+            required
+            multiline
+            rows={6}
+            placeholder="Write your email body here..."
+            size="small"
+            slotProps={{ htmlInput: { sx: { fontSize: "0.85rem" } } }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
+          <Button onClick={onClose} disabled={isSending} variant="outlined" size="small" sx={{ borderRadius: 2 }}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={isSending || !!success}
+            variant="contained"
+            color="primary"
+            size="small"
+            sx={{ borderRadius: 2, minWidth: 100 }}
+          >
+            {isSending ? "Sending..." : "Send Email"}
+          </Button>
+        </DialogActions>
+      </Box>
+    </Dialog>
+  );
+}
+
+export function BroadcastEmailButton() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <Button
+        variant="contained"
+        color="primary"
+        size="small"
+        onClick={() => setOpen(true)}
+        sx={{
+          fontWeight: "bold",
+          textTransform: "none",
+          borderRadius: 2,
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          px: 2.5,
+          py: 0.75,
+        }}
+      >
+        <svg style={{ width: 16, height: 16 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+        Broadcast to Active Users
+      </Button>
+      <SendEmailDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        recipientType="all_active"
+      />
+    </>
+  );
+}
+
+export function EmailUserButton({
+  userId,
+  userEmail,
+}: {
+  userId: string;
+  userEmail: string;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <Button
+        variant="outlined"
+        size="small"
+        color="primary"
+        onClick={() => setOpen(true)}
+        sx={{
+          minWidth: 0,
+          p: 0.75,
+          borderRadius: 2,
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        title={`Email ${userEmail}`}
+      >
+        <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      </Button>
+      <SendEmailDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        recipientType="individual"
+        userId={userId}
+        userEmail={userEmail}
+      />
+    </>
   );
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { prisma } from "@/lib/prisma";
-import { RoleSelector, ActivationButton, DeleteUserButton, MemberSelector } from "./UserControls";
+import { RoleSelector, ActivationButton, DeleteUserButton, MemberSelector, BroadcastEmailButton, EmailUserButton } from "./UserControls";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
@@ -95,13 +95,16 @@ export default async function AdminUsersPage() {
               Authorize user sign-ups, activate editor privileges, or assign system administrators.
             </Typography>
           </Box>
-          <Chip
-            label={`Authorized Session: ${session.user?.name || ""}`}
-            color="primary"
-            variant="outlined"
-            size="small"
-            sx={{ fontWeight: "bold", alignSelf: { xs: "flex-start", md: "center" } }}
-          />
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, alignSelf: { xs: "flex-start", md: "center" } }}>
+            <BroadcastEmailButton />
+            <Chip
+              label={`Authorized Session: ${session.user?.name || ""}`}
+              color="primary"
+              variant="outlined"
+              size="small"
+              sx={{ fontWeight: "bold" }}
+            />
+          </Box>
         </Box>
 
         {/* Users Table / Grid */}
@@ -172,6 +175,7 @@ export default async function AdminUsersPage() {
                   {/* Actions */}
                   <TableCell align="right">
                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 1 }}>
+                      <EmailUserButton userId={u.id} userEmail={u.email} />
                       <ActivationButton userId={u.id} initialActive={u.active} />
                       <DeleteUserButton userId={u.id} currentUserId={session.user?.id} />
                     </Box>

@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { sendEmail } from "@/lib/email";
 
 async function ensureAdmin() {
   const session = await auth();
@@ -97,4 +98,85 @@ export async function updateUserMemberAction(formData: FormData) {
   });
 
   revalidatePath("/admin/users");
+}
+
+export async function sendUserEmailAction(formData: FormData) {
+  await ensureAdmin();
+
+  const recipientType = formData.get("recipientType") as "individual" | "all_active";
+  const subject = formData.get("subject") as string;
+  const message = formData.get("message") as string;
+
+  if (!recipientType || !subject || !message) {
+    throw new Error("Recipient type, subject, and message are required.");
+  }
+
+  const htmlContent = `
+    <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+      <h2 style="color: #1976d2; margin-top: 0; border-bottom: 2px solid #1976d2; padding-bottom: 10px;">LIFIA Memorias Notification</h2>
+      <div style="margin-top: 20px; white-space: pre-wrap;">${message}</div>
+      <hr style="border: 0; border-top: 1px solid #eeeeee; margin-top: 30px;" />
+      <p style="font-size: 0.8rem; color: #777777; text-align: center; margin-bottom: 0;">
+        This email was sent by an administrator from the LIFIA Memorias Portal.
+      </p>
+    </div>
+  `;
+
+  if (recipientType === "individual") {
+    const userId = formData.get("userId") as string;
+    if (!userId) throw new Error("User ID is required for direct email.");
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true },
+    });
+
+    if (!user) throw new Error("User not found.");
+
+    const res = await sendEmail({
+      to: user.email,
+      subject,
+      html: htmlContent,
+    });
+
+    if (!res.success) {
+      throw new Error(res.error?.message || "Failed to send email.");
+    }
+
+    return { success: true, count: 1 };
+  } else if (recipientType === "all_active") {
+    const activeUsers = await prisma.user.findMany({
+      where: { active: true },
+      select: { email: true },
+    });
+
+    if (activeUsers.length === 0) {
+      return { success: true, count: 0 };
+    }
+
+    const sendPromises = activeUsers.map(async (u) => {
+      try {
+        const res = await sendEmail({
+          to: u.email,
+          subject,
+          html: htmlContent,
+        });
+        return { email: u.email, success: res.success };
+      } catch (err) {
+        console.error(`Failed to send email to ${u.email}:`, err);
+        return { email: u.email, success: false };
+      }
+    });
+
+    const results = await Promise.all(sendPromises);
+    const successCount = results.filter((r) => r.success).length;
+
+    if (successCount === 0 && activeUsers.length > 0) {
+      throw new Error("Failed to send broadcast emails to any active users.");
+    }
+
+    return { success: true, count: successCount };
+  } else {
+    throw new Error("Invalid recipient type specified.");
+  }
 }

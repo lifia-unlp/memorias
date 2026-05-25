@@ -206,3 +206,57 @@ Navigate to `memorias-copilot/backend` and run:
   ```bash
   uv run ruff format --check . && uv run ruff check . && uv run mypy . && uv run pytest
   ```
+
+---
+
+## 👥 6. Core Concepts: User & Member Relationship
+
+In the Memorias portal, authentication and academic profiles are separated to maintain clean data boundary control:
+
+1. **User Model (`User`)**: Represents a registered account with login credentials, role assignments (USER, EDITOR, ADMIN), and notification preferences.
+2. **Member Model (`Member`)**: Represents a physical academic or researcher profile listing their publications, projects, defended theses, biography, UNLP courses, and affiliations.
+
+### The One-to-One Mapping:
+* **The Relationship**: A `User` can be linked to exactly one `Member` profile via the `memberId` field (which is a unique one-to-one constraint in the database).
+* **Security & Modification**:
+  * **Admin Only**: Only administrators have authorization to change these mappings via the **User Administration** dashboard (`/admin/users`).
+  * **Read-Only Display**: Normal users can view their associated Member profile name as a read-only field under **User Preferences** (`/preferences`), but cannot alter it.
+* **Benefits & Contexts**:
+  * **Targeted Alerts**: Enables sending immediate email digests or notifications specifically to the logged-in user when publications or defended theses connected to their `Member` profile are updated.
+  * **Pre-Filtered Reporting**: Streamlines report creation by automatically selecting the user's mapped researcher profile in search builder forms.
+
+---
+
+## ✉️ 7. Configuring & Testing Email Sends
+
+The email notification service uses secure SMTP connections fully compatible with standard third-party hosts like Google Gmail and Microsoft Office 365/Outlook.
+
+### A. Local SMTP Configuration
+To set up email notifications, add the following variables to your local `memorias-web/.env` file:
+
+```env
+# SMTP Mail Delivery Settings
+SMTP_HOST="smtp.gmail.com"  # Use smtp.office365.com for Office 365
+SMTP_PORT="587"             # STARTTLS port
+SMTP_SECURE="false"         # set "true" for port 465 (SSL/TLS), or "false" for 587 (STARTTLS)
+SMTP_USER="your-email@gmail.com"
+SMTP_PASS="your-app-password"
+SMTP_FROM_NAME="LIFIA Memorias"
+SMTP_FROM_EMAIL="noreply@lifia.info.unlp.edu.ar"
+```
+
+> [!IMPORTANT]
+> When using Google Gmail, you must generate a secure **App Password** from your Google Account settings instead of using your primary account password. Similarly, for Microsoft Outlook/Office 365, ensure SMTP AUTH is enabled for the mailbox and use an app-specific password if Multi-Factor Authentication is active.
+
+### B. Fallback / Development Mode
+* If any of `SMTP_HOST`, `SMTP_USER`, or `SMTP_PASS` are unconfigured in your `.env` file, the email service will automatically fall back to **JSON logging mode**.
+* In this mode, no real emails are sent. Instead, standard logs and message payloads are printed directly to the terminal where Next.js is running, allowing you to debug and verify layout strings easily.
+
+### C. Isolated Testing (Vitest)
+When running tests, the email service automatically intercepts all email-sending operations and redirects them to an in-memory stream transport. This ensures tests are self-contained and run extremely quickly without needing internet access or real credentials.
+
+To run the full suite of email service tests locally, navigate to `memorias-web` and execute:
+```bash
+npx vitest run src/lib/__tests__/email.test.ts
+```
+
