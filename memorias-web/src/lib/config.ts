@@ -5,9 +5,9 @@ export async function getLabName(): Promise<string> {
     const setting = await prisma.systemSetting.findUnique({
       where: { key: "lab_name" },
     });
-    return setting?.value || process.env.LAB_NAME || "LIFIA";
+    return setting?.value || process.env.LAB_NAME || "Laboratory";
   } catch {
-    return process.env.LAB_NAME || "LIFIA";
+    return process.env.LAB_NAME || "Laboratory";
   }
 }
 
