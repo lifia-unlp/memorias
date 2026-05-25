@@ -24,7 +24,7 @@ We invite researchers, developers, and visitors to learn both about the **scient
 Interested in deploying Memorias for your own research laboratory, academic department, or study group? Or are you curious about exploring our agent-driven development workflows?
 
 We warmly invite you to explore, clone, and use our open-source codebase! You can find the repository on GitHub:
-👉 **[casco/memorias-migration-antigrativy](https://github.com/casco/memorias-migration-antigrativy)**
+👉 **[lifia-unlp/memorias](https://github.com/lifia-unlp/memorias)**
 
 Feel free to fork the project, use it for your lab, submit issue reports, or share feedback on your own experiences with agent-built software systems!
 

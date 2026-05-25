@@ -59,7 +59,7 @@ export async function Footer() {
           <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
             <Button
               component="a"
-              href="https://github.com/casco/memorias-migration-antigrativy/blob/main/README.md"
+              href="https://github.com/lifia-unlp/memorias/blob/main/README.md"
               target="_blank"
               rel="noopener noreferrer"
               size="small"

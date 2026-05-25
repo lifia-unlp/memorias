@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 // Server-side function to read and fetch ABOUT.md contents
 async function getAboutContent(): Promise<string> {
   const githubUrl =
-    "https://raw.githubusercontent.com/casco/memorias-migration-antigrativy/main/ABOUT.md";
+    "https://raw.githubusercontent.com/lifia-unlp/memorias/main/ABOUT.md";
   
   try {
     const res = await fetch(githubUrl, {

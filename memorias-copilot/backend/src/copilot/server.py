@@ -193,7 +193,7 @@ async def get_info() -> dict[str, Any]:
     return {
         "lab_name": settings.lab_name,
         "conversations_count": count,
-        "repo_url": "https://github.com/casco/memorias-migration-antigrativy",
+        "repo_url": "https://github.com/lifia-unlp/memorias",
     }
 
 
