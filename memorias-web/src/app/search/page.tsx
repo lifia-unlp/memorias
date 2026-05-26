@@ -69,69 +69,72 @@ export default async function SearchPage({
     prisma.publication.findMany(),
   ]);
 
-  const lowerQ = q.trim().toLowerCase();
+  // Helper to normalize strings by removing accents/diacritics and converting to lowercase
+  const normalizeText = (val: string | null | undefined): string => {
+    if (!val) return "";
+    return val
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  };
+
+  const normalizedQ = normalizeText(q.trim());
 
   // Search filter implementation
-  const matchedMembers = lowerQ
+  const matchedMembers = normalizedQ
     ? members.filter(
         (m) =>
-          m.firstName.toLowerCase().includes(lowerQ) ||
-          m.lastName.toLowerCase().includes(lowerQ) ||
-          (m.positionAtLab && m.positionAtLab.toLowerCase().includes(lowerQ)) ||
-          (m.positionAtUnlp && m.positionAtUnlp.toLowerCase().includes(lowerQ)) ||
-          (m.category && m.category.toLowerCase().includes(lowerQ)) ||
-          (m.shortCvInSpanish && m.shortCvInSpanish.toLowerCase().includes(lowerQ)) ||
-          (m.shortCvInEnglish && m.shortCvInEnglish.toLowerCase().includes(lowerQ)) ||
-          m.tags.some((t) => t.toLowerCase().includes(lowerQ))
+          normalizeText(m.firstName).includes(normalizedQ) ||
+          normalizeText(m.lastName).includes(normalizedQ) ||
+          m.tags.some((t) => normalizeText(t).includes(normalizedQ))
       )
     : members;
 
-  const matchedProjects = lowerQ
+  const matchedProjects = normalizedQ
     ? projects.filter(
         (p) =>
-          p.title.toLowerCase().includes(lowerQ) ||
-          (p.code && p.code.toLowerCase().includes(lowerQ)) ||
-          (p.director && p.director.toLowerCase().includes(lowerQ)) ||
-          (p.coDirector && p.coDirector.toLowerCase().includes(lowerQ)) ||
-          (p.summary && p.summary.toLowerCase().includes(lowerQ)) ||
-          (p.fundingAgency && p.fundingAgency.toLowerCase().includes(lowerQ)) ||
-          p.tags.some((t) => t.toLowerCase().includes(lowerQ))
+          normalizeText(p.title).includes(normalizedQ) ||
+          normalizeText(p.code).includes(normalizedQ) ||
+          normalizeText(p.director).includes(normalizedQ) ||
+          normalizeText(p.coDirector).includes(normalizedQ) ||
+          normalizeText(p.summary).includes(normalizedQ) ||
+          normalizeText(p.fundingAgency).includes(normalizedQ) ||
+          p.tags.some((t) => normalizeText(t).includes(normalizedQ))
       )
     : projects;
 
-  const matchedTheses = lowerQ
+  const matchedTheses = normalizedQ
     ? theses.filter(
         (t) =>
-          t.title.toLowerCase().includes(lowerQ) ||
-          (t.student && t.student.toLowerCase().includes(lowerQ)) ||
-          (t.director && t.director.toLowerCase().includes(lowerQ)) ||
-          (t.coDirector && t.coDirector.toLowerCase().includes(lowerQ)) ||
-          (t.summary && t.summary.toLowerCase().includes(lowerQ)) ||
-          (t.career && t.career.toLowerCase().includes(lowerQ)) ||
-          t.tags.some((tag) => tag.toLowerCase().includes(lowerQ))
+          normalizeText(t.title).includes(normalizedQ) ||
+          normalizeText(t.student).includes(normalizedQ) ||
+          normalizeText(t.director).includes(normalizedQ) ||
+          normalizeText(t.coDirector).includes(normalizedQ) ||
+          normalizeText(t.summary).includes(normalizedQ) ||
+          normalizeText(t.career).includes(normalizedQ) ||
+          t.tags.some((tag) => normalizeText(tag).includes(normalizedQ))
       )
     : theses;
 
-  const matchedScholarships = lowerQ
+  const matchedScholarships = normalizedQ
     ? scholarships.filter(
         (s) =>
-          s.title.toLowerCase().includes(lowerQ) ||
-          (s.student && s.student.toLowerCase().includes(lowerQ)) ||
-          (s.director && s.director.toLowerCase().includes(lowerQ)) ||
-          (s.coDirector && s.coDirector.toLowerCase().includes(lowerQ)) ||
-          (s.summary && s.summary.toLowerCase().includes(lowerQ)) ||
-          (s.type && s.type.toLowerCase().includes(lowerQ)) ||
-          s.tags.some((tag) => tag.toLowerCase().includes(lowerQ))
+          normalizeText(s.title).includes(normalizedQ) ||
+          normalizeText(s.student).includes(normalizedQ) ||
+          normalizeText(s.director).includes(normalizedQ) ||
+          normalizeText(s.coDirector).includes(normalizedQ) ||
+          normalizeText(s.summary).includes(normalizedQ) ||
+          normalizeText(s.type).includes(normalizedQ) ||
+          s.tags.some((tag) => normalizeText(tag).includes(normalizedQ))
       )
     : scholarships;
 
-  const matchedPublications = lowerQ
+  const matchedPublications = normalizedQ
     ? publications.filter(
         (p) =>
-          p.title.toLowerCase().includes(lowerQ) ||
-          p.authors.toLowerCase().includes(lowerQ) ||
-          (p.ranking && p.ranking.toLowerCase().includes(lowerQ)) ||
-          p.tags.some((tag) => tag.toLowerCase().includes(lowerQ))
+          normalizeText(p.title).includes(normalizedQ) ||
+          normalizeText(p.authors).includes(normalizedQ) ||
+          p.tags.some((tag) => normalizeText(tag).includes(normalizedQ))
       )
     : publications;
 
