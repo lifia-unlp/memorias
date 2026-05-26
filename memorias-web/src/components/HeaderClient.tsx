@@ -19,10 +19,11 @@ import {
   ListItemText,
   Divider,
   Container,
+  InputBase,
 } from "@mui/material";
 
 interface HeaderClientProps {
-  session: any;
+  session: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   logoUrl: string | null;
   activeTab?: "members" | "projects" | "theses" | "scholarships" | "publications";
   copilotUrl?: string | null;
@@ -274,6 +275,45 @@ export function HeaderClient({ session, logoUrl, activeTab, copilotUrl }: Header
 
           {/* User Section & Mobile Toggle */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            {/* Search Input Box */}
+            <Box
+              component="form"
+              action="/search"
+              method="GET"
+              sx={{
+                display: { xs: "none", sm: "flex" },
+                alignItems: "center",
+                bgcolor: "action.hover",
+                borderRadius: 2,
+                px: 1.5,
+                py: 0.5,
+                border: "1px solid",
+                borderColor: "divider",
+                "&:focus-within": {
+                  borderColor: "primary.main",
+                  boxShadow: "0 0 0 1px var(--mui-palette-primary-main)",
+                },
+                transition: "all 0.2s ease-in-out",
+              }}
+            >
+              <svg style={{ width: 16, height: 16, color: "var(--mui-palette-text-secondary)", marginRight: 8 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <InputBase
+                name="q"
+                placeholder="Search..."
+                sx={{
+                  fontSize: "0.85rem",
+                  color: "text.primary",
+                  width: 140,
+                  transition: "width 0.2s ease-in-out",
+                  "&:focus": {
+                    width: 200,
+                  },
+                }}
+              />
+            </Box>
+
             {isLoggedIn ? (
               <Box>
                 <Button
@@ -403,6 +443,38 @@ export function HeaderClient({ session, logoUrl, activeTab, copilotUrl }: Header
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </IconButton>
+        </Box>
+        <Divider />
+        <Box sx={{ px: 2, py: 1.5 }}>
+          <Box
+            component="form"
+            action="/search"
+            method="GET"
+            onSubmit={() => setMobileOpen(false)}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              bgcolor: "action.hover",
+              borderRadius: 2,
+              px: 1.5,
+              py: 0.75,
+              border: "1px solid",
+              borderColor: "divider",
+              "&:focus-within": {
+                borderColor: "primary.main",
+              },
+            }}
+          >
+            <svg style={{ width: 16, height: 16, color: "var(--mui-palette-text-secondary)", marginRight: 8 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <InputBase
+              name="q"
+              placeholder="Search..."
+              fullWidth
+              sx={{ fontSize: "0.85rem", color: "text.primary" }}
+            />
+          </Box>
         </Box>
         <Divider />
         <List sx={{ px: 1 }}>
