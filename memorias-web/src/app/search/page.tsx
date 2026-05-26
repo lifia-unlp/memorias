@@ -17,19 +17,21 @@ import {
   FormControl,
   Select,
   MenuItem,
+  LinearProgress,
+  Avatar,
 } from "@mui/material";
+import { jsonToBibtex } from "@/lib/bibtex";
+import { formatCitation } from "@/lib/citations";
+import { CopyCitationButton } from "../publications/CopyCitationButton";
 
 type SearchParams = Promise<{ q?: string; type?: string; page?: string; limit?: string }>;
 
 interface SearchResultItem {
   id: string;
   type: "member" | "project" | "thesis" | "scholarship" | "publication";
-  title: string;
-  subtitle: string;
-  description: string;
   slug: string;
   updatedAt: Date;
-  tags: string[];
+  original: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 export const metadata = {
@@ -51,7 +53,17 @@ export default async function SearchPage({
   // Fetch all objects to search in memory (enabling deep partial matching and case insensitivity)
   const [members, projects, theses, scholarships, publications] = await Promise.all([
     prisma.member.findMany(),
-    prisma.project.findMany(),
+    prisma.project.findMany({
+      include: {
+        members: {
+          select: {
+            firstName: true,
+            lastName: true,
+            slug: true,
+          },
+        },
+      },
+    }),
     prisma.thesis.findMany(),
     prisma.scholarship.findMany(),
     prisma.publication.findMany(),
@@ -142,56 +154,41 @@ export default async function SearchPage({
   const mappedMembers: SearchResultItem[] = matchedMembers.map((m) => ({
     id: m.id,
     type: "member",
-    title: `${m.firstName} ${m.lastName}`,
-    subtitle: m.positionAtLab || m.positionAtUnlp || "Researcher",
-    description: m.shortCvInSpanish || m.shortCvInEnglish || m.notes || "",
     slug: m.slug,
     updatedAt: m.updatedAt,
-    tags: m.tags,
+    original: m,
   }));
 
   const mappedProjects: SearchResultItem[] = matchedProjects.map((p) => ({
     id: p.id,
     type: "project",
-    title: p.title,
-    subtitle: p.code ? `Project Code: ${p.code}` : "Research Project",
-    description: p.summary || "",
     slug: p.slug,
     updatedAt: p.updatedAt,
-    tags: p.tags,
+    original: p,
   }));
 
   const mappedTheses: SearchResultItem[] = matchedTheses.map((t) => ({
     id: t.id,
     type: "thesis",
-    title: t.title,
-    subtitle: t.student ? `Thesis by ${t.student}` : "Thesis",
-    description: t.summary || "",
     slug: t.slug,
     updatedAt: t.updatedAt,
-    tags: t.tags,
+    original: t,
   }));
 
   const mappedScholarships: SearchResultItem[] = matchedScholarships.map((s) => ({
     id: s.id,
     type: "scholarship",
-    title: s.title,
-    subtitle: s.student ? `Scholarship for ${s.student}` : "Scholarship",
-    description: s.summary || "",
     slug: s.slug,
     updatedAt: s.updatedAt,
-    tags: s.tags,
+    original: s,
   }));
 
   const mappedPublications: SearchResultItem[] = matchedPublications.map((p) => ({
     id: p.id,
     type: "publication",
-    title: p.title,
-    subtitle: p.authors,
-    description: `${p.type.toUpperCase()}${p.year ? ` - ${p.year}` : ""}`,
     slug: p.slug,
     updatedAt: p.updatedAt,
-    tags: p.tags,
+    original: p,
   }));
 
   // Select filtered items based on active tab
@@ -225,59 +222,7 @@ export default async function SearchPage({
   const totalPages = Math.ceil(filteredResults.length / limit);
   const paginatedResults = filteredResults.slice((page - 1) * limit, page * limit);
 
-  // Define badge metadata (color, label, details link, icon/prefix)
-  const getBadgeMeta = (type: string) => {
-    switch (type) {
-      case "member":
-        return {
-          label: "Researcher",
-          bg: "primary.light",
-          color: "primary.main",
-          link: "/members",
-          border: "rgba(9, 58, 84, 0.15)",
-        };
-      case "project":
-        return {
-          label: "Project",
-          bg: "success.light",
-          color: "success.main",
-          link: "/projects",
-          border: "rgba(46, 125, 50, 0.15)",
-        };
-      case "thesis":
-        return {
-          label: "Thesis",
-          bg: "info.light",
-          color: "info.main",
-          link: "/theses",
-          border: "rgba(2, 136, 209, 0.15)",
-        };
-      case "scholarship":
-        return {
-          label: "Scholarship",
-          bg: "warning.light",
-          color: "warning.main",
-          link: "/scholarships",
-          border: "rgba(229, 98, 38, 0.15)",
-        };
-      case "publication":
-        return {
-          label: "Publication",
-          bg: "error.light",
-          color: "error.main",
-          link: "/publications",
-          border: "rgba(211, 47, 47, 0.15)",
-        };
-      default:
-        return {
-          label: "Object",
-          bg: "action.hover",
-          color: "text.secondary",
-          link: "/",
-          border: "divider",
-        };
-    }
-  };
+
 
   const filterTabs = [
     { label: "All", type: "all", count: counts.all },
@@ -450,203 +395,1156 @@ export default async function SearchPage({
           <Box>
             <Grid container spacing={3.5}>
               {paginatedResults.map((item) => {
-                const meta = getBadgeMeta(item.type);
-                const updatedStr = new Date(item.updatedAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                });
-
-                return (
-                  <Grid size={{ xs: 12 }} key={`${item.type}-${item.id}`}>
-                    <Card
-                      data-component-semantics="Search result card"
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        p: 3,
-                        position: "relative",
-                        overflow: "hidden",
-                        borderLeft: "5px solid",
-                        borderLeftColor: meta.color,
-                        "&::before": {
-                          content: '""',
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                          width: "100%",
-                          height: "100%",
-                          background: `linear-gradient(90deg, ${meta.bg} 0%, transparent 20%)`,
-                          opacity: 0,
-                          transition: "opacity 0.3s ease",
-                          pointerEvents: "none",
-                          zIndex: 1,
-                        },
-                        "&:hover::before": {
-                          opacity: 0.05,
-                        },
-                        "&:hover .search-result-title": {
-                          color: "primary.main",
-                          textDecoration: "underline",
-                        },
-                      }}
-                    >
-                      {/* Full-card link navigation */}
-                      <Link
-                        href={`/${item.type}s/${item.slug}`}
-                        style={{
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          zIndex: 2,
-                        }}
-                      />
-
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: { xs: "column", sm: "row" },
-                          justifyContent: "space-between",
-                          alignItems: { xs: "flex-start", sm: "center" },
-                          gap: 1.5,
-                          mb: 1.5,
-                        }}
-                      >
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                          <Chip
-                            label={meta.label}
-                            size="small"
-                            sx={{
-                              bgcolor: meta.bg,
-                              color: meta.color,
-                              fontWeight: "bold",
-                              fontSize: "0.65rem",
-                              height: 20,
-                              borderRadius: 1.25,
-                              border: "1px solid",
-                              borderColor: meta.border,
-                            }}
-                          />
-                          <Typography
-                            variant="caption"
-                            sx={{ color: "text.disabled", fontWeight: "bold" }}
-                          >
-                            Last updated: {updatedStr}
-                          </Typography>
-                        </Box>
-                      </Box>
-
-                      <Typography
-                        variant="h3"
-                        sx={{
-                          fontSize: "1.15rem",
-                          fontWeight: "bold",
-                          mb: 0.75,
-                        }}
-                      >
-                        <Box
-                          component="span"
-                          className="search-result-title"
-                          sx={{
-                            color: "text.primary",
-                            transition: "color 0.2s",
-                          }}
-                        >
-                          {item.title}
-                        </Box>
-                      </Typography>
-
-                      <Typography
-                        variant="subtitle2"
-                        sx={{
-                          color: "secondary.main",
-                          fontWeight: "bold",
-                          mb: 2,
-                          fontSize: "0.8rem",
-                          textTransform: "uppercase",
-                          letterSpacing: 0.5,
-                        }}
-                      >
-                        {item.subtitle}
-                      </Typography>
-
-                      {item.description && (
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{
-                            mb: 2.5,
-                            lineHeight: 1.6,
-                            fontSize: "0.825rem",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 3,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {item.description}
-                        </Typography>
-                      )}
-
-                      {/* Associated Tags */}
-                      {item.tags.length > 0 && (
-                        <Box
+                // Helper to render type-specific cards
+                const renderCard = () => {
+                  switch (item.type) {
+                    case "member": {
+                      const m = item.original;
+                      return (
+                        <Card
+                          data-component-semantics="Member search result card"
                           sx={{
                             display: "flex",
-                            flexWrap: "wrap",
-                            gap: 0.75,
-                            mt: "auto",
+                            flexDirection: "column",
+                            height: "100%",
+                            p: 3,
                             position: "relative",
-                            zIndex: 3, // Keep interactive above card overlay link
+                            overflow: "hidden",
+                            "&::before": {
+                              content: '""',
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              width: "100%",
+                              height: "4px",
+                              background: "linear-gradient(90deg, var(--mui-palette-secondary-main), var(--mui-palette-primary-main) 40%)",
+                              transform: "scaleX(0)",
+                              transformOrigin: "left",
+                              transition: "transform 0.3s ease",
+                              zIndex: 2,
+                            },
+                            "&:hover::before": {
+                              transform: "scaleX(1)",
+                            },
                           }}
                         >
-                          {item.tags.slice(0, 5).map((tag) => (
-                            <Link
-                              key={tag}
-                              href={`/tags/${tag}`}
-                              style={{ textDecoration: "none" }}
+                          <Link
+                            href={`/members/${m.slug}`}
+                            style={{
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              zIndex: 1,
+                            }}
+                          />
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2, position: "relative", zIndex: 2 }}>
+                            <Avatar
+                              src={m.avatarUrl || undefined}
+                              alt={`${m.firstName} ${m.lastName}`}
+                              sx={{
+                                width: 56,
+                                height: 56,
+                                bgcolor: "primary.light",
+                                color: "primary.main",
+                                fontWeight: "bold",
+                                border: "1px solid",
+                                borderColor: "divider",
+                              }}
                             >
+                              {!m.avatarUrl && `${m.firstName[0]}${m.lastName[0]}`}
+                            </Avatar>
+                            <Box sx={{ overflow: "hidden" }}>
+                              <Typography
+                                variant="h3"
+                                sx={{
+                                  fontSize: "1.05rem",
+                                  fontWeight: "bold",
+                                  mb: 0.5,
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  "&:hover": { color: "primary.main" },
+                                  transition: "color 0.2s",
+                                }}
+                              >
+                                {m.firstName} {m.lastName}
+                              </Typography>
+                              {m.positionAtLab && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    fontWeight: "bold",
+                                    color: "secondary.main",
+                                    textTransform: "uppercase",
+                                    letterSpacing: 1,
+                                    display: "block",
+                                  }}
+                                >
+                                  {m.positionAtLab}
+                                </Typography>
+                              )}
+                            </Box>
+                          </Box>
+
+                          <Box
+                            sx={{
+                              fontSize: "0.75rem",
+                              borderTop: "1px solid",
+                              borderColor: "divider",
+                              pt: 2,
+                              mb: 2,
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 0.75,
+                              position: "relative",
+                              zIndex: 2,
+                            }}
+                          >
+                            {m.highestDegree && (
+                              <Box sx={{ display: "flex", gap: 0.5, overflow: "hidden" }}>
+                                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                  Degree:
+                                </Typography>
+                                <Typography variant="caption" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                  {m.highestDegree}
+                                </Typography>
+                              </Box>
+                            )}
+                            {m.positionAtCONICET && (
+                              <Box sx={{ display: "flex", gap: 0.5, overflow: "hidden" }}>
+                                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                  CONICET:
+                                </Typography>
+                                <Typography variant="caption" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                  {m.positionAtCONICET}
+                                </Typography>
+                              </Box>
+                            )}
+                            {m.institutionalEmail && (
+                              <Box sx={{ display: "flex", gap: 0.5, overflow: "hidden" }}>
+                                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                  Email:
+                                </Typography>
+                                <Typography variant="caption" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "primary.main" }}>
+                                  {m.institutionalEmail}
+                                </Typography>
+                              </Box>
+                            )}
+                          </Box>
+
+                          {m.tags.length > 0 && (
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 0.5,
+                                mt: "auto",
+                                pt: 2,
+                                borderTop: "1px solid",
+                                borderColor: "divider",
+                                position: "relative",
+                                zIndex: 3,
+                              }}
+                            >
+                              {m.tags.slice(0, 3).map((tag: string, idx: number) => (
+                                <Link key={idx} href={`/tags/${tag}`} style={{ textDecoration: "none" }}>
+                                  <Chip
+                                    label={`#${tag}`}
+                                    size="small"
+                                    sx={{
+                                      fontSize: "0.625rem",
+                                      height: 18,
+                                      borderRadius: 1,
+                                      border: "1px solid",
+                                      borderColor: "primary.light",
+                                      bgcolor: "primary.light",
+                                      color: "primary.main",
+                                      fontWeight: "bold",
+                                      cursor: "pointer",
+                                      "&:hover": {
+                                        bgcolor: "primary.main",
+                                        color: "common.white",
+                                      },
+                                    }}
+                                    data-component-semantics="Tag badge"
+                                  />
+                                </Link>
+                              ))}
+                              {m.tags.length > 3 && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    fontSize: "0.625rem",
+                                    fontWeight: "bold",
+                                    color: "text.secondary",
+                                    alignSelf: "center",
+                                    ml: 0.5,
+                                  }}
+                                >
+                                  +{m.tags.length - 3} more
+                                </Typography>
+                              )}
+                            </Box>
+                          )}
+                        </Card>
+                      );
+                    }
+
+                    case "project": {
+                      const project = item.original;
+                      const startStr = project.startDate
+                        ? new Date(project.startDate).toLocaleDateString("en-US", { year: "numeric", month: "short" })
+                        : "N/D";
+                      const endStr = project.endDate
+                        ? new Date(project.endDate).toLocaleDateString("en-US", { year: "numeric", month: "short" })
+                        : "Ongoing";
+
+                      return (
+                        <Card
+                          data-component-semantics="Project search result card"
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            height: "100%",
+                            p: 3,
+                            position: "relative",
+                            overflow: "hidden",
+                            "&::before": {
+                              content: '""',
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              width: "100%",
+                              height: "4px",
+                              background: "linear-gradient(90deg, var(--mui-palette-primary-main), var(--mui-palette-secondary-main))",
+                              transform: "scaleX(0)",
+                              transformOrigin: "left",
+                              transition: "transform 0.3s ease",
+                              zIndex: 2,
+                            },
+                            "&:hover::before": {
+                              transform: "scaleX(1)",
+                            },
+                            "&:hover .project-card-title": {
+                              color: "primary.main",
+                              textDecoration: "underline",
+                            },
+                          }}
+                        >
+                          <Link
+                            href={`/projects/${project.slug}`}
+                            style={{
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              zIndex: 1,
+                            }}
+                          />
+
+                          <Box sx={{ mb: 2, display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 2, position: "relative", zIndex: 2 }}>
+                            <Typography
+                              variant="h3"
+                              sx={{
+                                fontSize: "1.1rem",
+                                fontWeight: "bold",
+                                lineHeight: 1.4,
+                              }}
+                            >
+                              <Box
+                                component="span"
+                                className="project-card-title"
+                                sx={{
+                                  color: "text.primary",
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: "vertical",
+                                  overflow: "hidden",
+                                  transition: "color 0.2s",
+                                }}
+                              >
+                                {project.title}
+                              </Box>
+                            </Typography>
+                            {project.code && (
                               <Chip
-                                label={`#${tag}`}
+                                label={`Code: ${project.code}`}
                                 size="small"
                                 sx={{
+                                  fontWeight: "bold",
                                   fontSize: "0.625rem",
                                   height: 18,
                                   borderRadius: 1,
                                   border: "1px solid",
-                                  borderColor: "primary.light",
-                                  bgcolor: "primary.light",
-                                  color: "primary.main",
-                                  fontWeight: "bold",
-                                  cursor: "pointer",
-                                  "&:hover": {
-                                    bgcolor: "primary.main",
-                                    color: "common.white",
-                                  },
+                                  borderColor: "divider",
+                                  bgcolor: "action.hover",
+                                  color: "text.secondary",
+                                  flexShrink: 0,
                                 }}
-                                data-component-semantics="Tag badge"
+                                data-component-semantics="Metadata badge"
                               />
-                            </Link>
-                          ))}
-                          {item.tags.length > 5 && (
+                            )}
+                          </Box>
+
+                          <Box
+                            sx={{
+                              bgcolor: "action.hover",
+                              p: 2,
+                              borderRadius: 2.5,
+                              border: "1px solid",
+                              borderColor: "divider",
+                              fontSize: "0.75rem",
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 1,
+                              mb: 2,
+                              position: "relative",
+                              zIndex: 2,
+                            }}
+                          >
+                            <Box sx={{ display: "flex", gap: 0.5, color: "text.secondary" }}>
+                              <Typography variant="caption" sx={{ fontWeight: "bold" }}>
+                                Timeline:
+                              </Typography>
+                              <Typography variant="caption">
+                                {startStr} - {endStr}
+                              </Typography>
+                            </Box>
+
+                            {(project.director || project.coDirector) && (
+                              <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 1, display: "flex", flexDirection: "column", gap: 0.5 }}>
+                                {project.director && (
+                                  <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                    <strong>Director:</strong> {project.director}
+                                  </Typography>
+                                )}
+                                {project.coDirector && (
+                                  <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                    <strong>Co-Director:</strong> {project.coDirector}
+                                  </Typography>
+                                )}
+                              </Box>
+                            )}
+                          </Box>
+
+                          {project.summary && (
                             <Typography
-                              variant="caption"
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{
+                                mb: 3,
+                                lineHeight: 1.6,
+                                fontSize: "0.8rem",
+                                display: "-webkit-box",
+                                WebkitLineClamp: 3,
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden",
+                                position: "relative",
+                                zIndex: 2,
+                              }}
+                            >
+                              {project.summary}
+                            </Typography>
+                          )}
+
+                          {project.members && project.members.length > 0 && (
+                            <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 2, mt: "auto", mb: project.tags.length > 0 ? 2 : 0, position: "relative", zIndex: 3 }}>
+                              <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", display: "block", mb: 0.5 }}>
+                                Associated Members:
+                              </Typography>
+                              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, alignItems: "center" }}>
+                                {project.members.map((member: any, i: number) => ( // eslint-disable-line @typescript-eslint/no-explicit-any
+                                  <React.Fragment key={member.slug}>
+                                    <Link
+                                      href={`/members/${member.slug}`}
+                                      style={{ textDecoration: "none", position: "relative", zIndex: 3 }}
+                                    >
+                                      <Typography
+                                        variant="caption"
+                                        sx={{
+                                          fontWeight: "bold",
+                                          color: "primary.main",
+                                          "&:hover": { textDecoration: "underline" },
+                                        }}
+                                      >
+                                        {member.firstName} {member.lastName}
+                                      </Typography>
+                                    </Link>
+                                    {i < project.members.length - 1 && (
+                                      <Typography variant="caption" color="text.secondary" sx={{ mr: 0.5 }}>
+                                        ,
+                                      </Typography>
+                                    )}
+                                  </React.Fragment>
+                                ))}
+                              </Box>
+                            </Box>
+                          )}
+
+                          {project.tags.length > 0 && (
+                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, pt: (project.members && project.members.length > 0) ? 0 : 2, mt: (project.members && project.members.length > 0) ? 0 : "auto", position: "relative", zIndex: 3 }}>
+                              {project.tags.slice(0, 4).map((tag: string) => (
+                                <Link key={tag} href={`/tags/${tag}`} style={{ textDecoration: "none" }}>
+                                  <Chip
+                                    label={`#${tag}`}
+                                    size="small"
+                                    sx={{
+                                      fontSize: "0.625rem",
+                                      height: 18,
+                                      borderRadius: 1,
+                                      border: "1px solid",
+                                      borderColor: "primary.light",
+                                      bgcolor: "primary.light",
+                                      color: "primary.main",
+                                      fontWeight: "bold",
+                                      cursor: "pointer",
+                                      "&:hover": {
+                                        bgcolor: "primary.main",
+                                        color: "common.white",
+                                      },
+                                    }}
+                                    data-component-semantics="Tag badge"
+                                  />
+                                </Link>
+                              ))}
+                            </Box>
+                          )}
+                        </Card>
+                      );
+                    }
+
+                    case "thesis": {
+                      const ths = item.original;
+                      const startYearStr = ths.startDate
+                        ? new Date(ths.startDate).getFullYear()
+                        : "N/D";
+                      const endYearStr = ths.endDate
+                        ? new Date(ths.endDate).getFullYear()
+                        : ths.progress === 100
+                        ? "Completed"
+                        : "Ongoing";
+
+                      return (
+                        <Card
+                          data-component-semantics="Thesis search result card"
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            height: "100%",
+                            p: 3,
+                            position: "relative",
+                            overflow: "hidden",
+                            "&::before": {
+                              content: '""',
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              width: "100%",
+                              height: "4px",
+                              background: "linear-gradient(90deg, var(--mui-palette-secondary-main), var(--mui-palette-primary-main) 40%)",
+                              transform: "scaleX(0)",
+                              transformOrigin: "left",
+                              transition: "transform 0.3s ease",
+                              zIndex: 2,
+                            },
+                            "&:hover::before": {
+                              transform: "scaleX(1)",
+                            },
+                            "&:hover .thesis-card-title": {
+                              color: "primary.main",
+                              textDecoration: "underline",
+                            },
+                          }}
+                        >
+                          <Link
+                            href={`/theses/${ths.slug}`}
+                            style={{
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              zIndex: 1,
+                            }}
+                          />
+
+                          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, mb: 1.5, position: "relative", zIndex: 2 }}>
+                            {ths.level && (
+                              <Chip
+                                label={ths.level}
+                                size="small"
+                                sx={{
+                                  fontSize: "0.625rem",
+                                  fontWeight: "bold",
+                                  border: "1px solid",
+                                  borderColor: "divider",
+                                  bgcolor: "action.hover",
+                                  color: "text.secondary",
+                                  textTransform: "uppercase",
+                                  height: 18,
+                                  borderRadius: 1,
+                                }}
+                                data-component-semantics="Metadata badge"
+                              />
+                            )}
+                            {ths.progress !== null && (
+                              <Chip
+                                label={ths.progress === 100 ? "Completed" : `${ths.progress}% Progress`}
+                                size="small"
+                                sx={{
+                                  fontSize: "0.625rem",
+                                  fontWeight: "bold",
+                                  border: "1px solid",
+                                  borderColor: ths.progress === 100 ? "success.main" : "warning.main",
+                                  bgcolor: ths.progress === 100 ? "success.light" : "warning.light",
+                                  color: ths.progress === 100 ? "success.dark" : "warning.dark",
+                                  height: 18,
+                                  borderRadius: 1,
+                                }}
+                                data-component-semantics="Status badge"
+                              />
+                            )}
+                          </Box>
+
+                          <Typography
+                            variant="h3"
+                            sx={{
+                              fontSize: "1.15rem",
+                              fontWeight: "bold",
+                              lineHeight: 1.3,
+                              mb: 2,
+                              position: "relative",
+                              zIndex: 2,
+                            }}
+                          >
+                            <Box
+                              component="span"
+                              className="thesis-card-title"
+                              sx={{
+                                color: "text.primary",
+                                transition: "color 0.2s",
+                              }}
+                            >
+                              {ths.title}
+                            </Box>
+                          </Typography>
+
+                          <Box
+                            sx={{
+                              fontSize: "0.75rem",
+                              bgcolor: "action.hover",
+                              border: "1px solid",
+                              borderColor: "divider",
+                              borderRadius: 2.5,
+                              p: 2,
+                              mb: 2,
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 1,
+                              position: "relative",
+                              zIndex: 2,
+                            }}
+                          >
+                            <Box sx={{ display: "flex", gap: 0.5 }}>
+                              <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                Timeline:
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                {startYearStr} – {endYearStr}
+                              </Typography>
+                            </Box>
+
+                            {ths.student && (
+                              <Box sx={{ display: "flex", gap: 0.5 }}>
+                                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                  Student:
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                  {ths.student}
+                                </Typography>
+                              </Box>
+                            )}
+
+                            {ths.director && (
+                              <Box sx={{ display: "flex", gap: 0.5 }}>
+                                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                  Director:
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                  {ths.director}
+                                </Typography>
+                              </Box>
+                            )}
+
+                            {ths.coDirector && (
+                              <Box sx={{ display: "flex", gap: 0.5 }}>
+                                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                  Co-Director:
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                  {ths.coDirector}
+                                </Typography>
+                              </Box>
+                            )}
+                          </Box>
+
+                          {ths.summary && (
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{
+                                display: "-webkit-box",
+                                WebkitLineClamp: 3,
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                lineHeight: 1.5,
+                                mb: 2,
+                                position: "relative",
+                                zIndex: 2,
+                              }}
+                            >
+                              {ths.summary}
+                            </Typography>
+                          )}
+
+                          {ths.progress !== null && ths.progress < 100 && (
+                            <Box sx={{ mt: "auto", mb: 2, position: "relative", zIndex: 2 }}>
+                              <LinearProgress
+                                variant="determinate"
+                                value={ths.progress}
+                                color="secondary"
+                                sx={{ height: 4, borderRadius: 1 }}
+                              />
+                            </Box>
+                          )}
+
+                          {ths.tags.length > 0 && (
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 0.5,
+                                mt: ths.progress !== null && ths.progress < 100 ? 0 : "auto",
+                                pt: 2,
+                                borderTop: "1px solid",
+                                borderColor: "divider",
+                                position: "relative",
+                                zIndex: 3,
+                              }}
+                            >
+                              {ths.tags.slice(0, 4).map((tag: string, idx: number) => (
+                                <Link key={idx} href={`/tags/${tag}`} style={{ textDecoration: "none" }}>
+                                  <Chip
+                                    label={`#${tag}`}
+                                    size="small"
+                                    sx={{
+                                      fontSize: "0.625rem",
+                                      height: 18,
+                                      borderRadius: 1,
+                                      border: "1px solid",
+                                      borderColor: "primary.light",
+                                      bgcolor: "primary.light",
+                                      color: "primary.main",
+                                      fontWeight: "bold",
+                                      cursor: "pointer",
+                                      "&:hover": {
+                                        bgcolor: "primary.main",
+                                        color: "common.white",
+                                      },
+                                    }}
+                                    data-component-semantics="Tag badge"
+                                  />
+                                </Link>
+                              ))}
+                              {ths.tags.length > 4 && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    fontSize: "0.625rem",
+                                    fontWeight: "bold",
+                                    color: "text.secondary",
+                                    alignSelf: "center",
+                                    ml: 0.5,
+                                  }}
+                                >
+                                  +{ths.tags.length - 4} more
+                                </Typography>
+                              )}
+                            </Box>
+                          )}
+                        </Card>
+                      );
+                    }
+
+                    case "scholarship": {
+                      const s = item.original;
+                      const now = new Date();
+                      const startYearStr = s.startDate
+                        ? new Date(s.startDate).getFullYear()
+                        : "N/D";
+                      const isCompleted = s.endDate && new Date(s.endDate) < now;
+                      const endYearStr = s.endDate
+                        ? new Date(s.endDate).getFullYear()
+                        : "Ongoing";
+
+                      return (
+                        <Card
+                          data-component-semantics="Scholarship search result card"
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            height: "100%",
+                            p: 3,
+                            position: "relative",
+                            overflow: "hidden",
+                            "&::before": {
+                              content: '""',
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              width: "100%",
+                              height: "4px",
+                              background: "linear-gradient(90deg, var(--mui-palette-secondary-main), var(--mui-palette-primary-main) 40%)",
+                              transform: "scaleX(0)",
+                              transformOrigin: "left",
+                              transition: "transform 0.3s ease",
+                              zIndex: 2,
+                            },
+                            "&:hover::before": {
+                              transform: "scaleX(1)",
+                            },
+                            "&:hover .scholarship-card-title": {
+                              color: "primary.main",
+                              textDecoration: "underline",
+                            },
+                          }}
+                        >
+                          <Link
+                            href={`/scholarships/${s.slug}`}
+                            style={{
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              zIndex: 1,
+                            }}
+                          />
+
+                          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, mb: 1.5, position: "relative", zIndex: 2 }}>
+                            {s.type && (
+                              <Chip
+                                label={s.type}
+                                size="small"
+                                sx={{
+                                  fontSize: "0.625rem",
+                                  fontWeight: "bold",
+                                  border: "1px solid",
+                                  borderColor: "divider",
+                                  bgcolor: "action.hover",
+                                  color: "text.secondary",
+                                  textTransform: "uppercase",
+                                  height: 18,
+                                  borderRadius: 1,
+                                }}
+                                data-component-semantics="Metadata badge"
+                              />
+                            )}
+                            <Chip
+                              label={isCompleted ? "Completed" : "Ongoing"}
+                              size="small"
                               sx={{
                                 fontSize: "0.625rem",
                                 fontWeight: "bold",
-                                color: "text.secondary",
-                                alignSelf: "center",
-                                ml: 0.5,
+                                border: "1px solid",
+                                borderColor: isCompleted ? "success.main" : "warning.main",
+                                bgcolor: isCompleted ? "success.light" : "warning.light",
+                                color: isCompleted ? "success.dark" : "warning.dark",
+                                height: 18,
+                                borderRadius: 1,
+                              }}
+                              data-component-semantics="Status badge"
+                            />
+                          </Box>
+
+                          <Typography
+                            variant="h3"
+                            sx={{
+                              fontSize: "1.15rem",
+                              fontWeight: "bold",
+                              lineHeight: 1.3,
+                              mb: 2,
+                              position: "relative",
+                              zIndex: 2,
+                            }}
+                          >
+                            <Box
+                              component="span"
+                              className="scholarship-card-title"
+                              sx={{
+                                color: "text.primary",
+                                transition: "color 0.2s",
                               }}
                             >
-                              +{item.tags.length - 5} more
+                              {s.title}
+                            </Box>
+                          </Typography>
+
+                          <Box
+                            sx={{
+                              fontSize: "0.75rem",
+                              bgcolor: "action.hover",
+                              border: "1px solid",
+                              borderColor: "divider",
+                              borderRadius: 2.5,
+                              p: 2,
+                              mb: 2,
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 1,
+                              position: "relative",
+                              zIndex: 2,
+                            }}
+                          >
+                            <Box sx={{ display: "flex", gap: 0.5 }}>
+                              <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                Timeline:
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                {startYearStr} – {endYearStr}
+                              </Typography>
+                            </Box>
+
+                            {s.student && (
+                              <Box sx={{ display: "flex", gap: 0.5 }}>
+                                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                  Student:
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                  {s.student}
+                                </Typography>
+                              </Box>
+                            )}
+
+                            {s.fundingAgency && (
+                              <Box sx={{ display: "flex", gap: 0.5 }}>
+                                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                  Funding Agency:
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                  {s.fundingAgency}
+                                </Typography>
+                              </Box>
+                            )}
+
+                            {s.director && (
+                              <Box sx={{ display: "flex", gap: 0.5 }}>
+                                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                  Director:
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                  {s.director}
+                                </Typography>
+                              </Box>
+                            )}
+
+                            {s.coDirector && (
+                              <Box sx={{ display: "flex", gap: 0.5 }}>
+                                <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                                  Co-Director:
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: "text.primary" }}>
+                                  {s.coDirector}
+                                </Typography>
+                              </Box>
+                            )}
+                          </Box>
+
+                          {s.summary && (
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{
+                                display: "-webkit-box",
+                                WebkitLineClamp: 3,
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                lineHeight: 1.5,
+                                mb: 2,
+                                position: "relative",
+                                zIndex: 2,
+                              }}
+                            >
+                              {s.summary}
                             </Typography>
                           )}
-                        </Box>
-                      )}
-                    </Card>
+
+                          {s.tags.length > 0 && (
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 0.5,
+                                mt: "auto",
+                                pt: 2,
+                                borderTop: "1px solid",
+                                borderColor: "divider",
+                                position: "relative",
+                                zIndex: 3,
+                              }}
+                            >
+                              {s.tags.slice(0, 4).map((tag: string, idx: number) => (
+                                <Link key={idx} href={`/tags/${tag}`} style={{ textDecoration: "none" }}>
+                                  <Chip
+                                    label={`#${tag}`}
+                                    size="small"
+                                    sx={{
+                                      fontSize: "0.625rem",
+                                      height: 18,
+                                      borderRadius: 1,
+                                      border: "1px solid",
+                                      borderColor: "primary.light",
+                                      bgcolor: "primary.light",
+                                      color: "primary.main",
+                                      fontWeight: "bold",
+                                      cursor: "pointer",
+                                      "&:hover": {
+                                        bgcolor: "primary.main",
+                                        color: "common.white",
+                                      },
+                                    }}
+                                    data-component-semantics="Tag badge"
+                                  />
+                                </Link>
+                              ))}
+                              {s.tags.length > 4 && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    fontSize: "0.625rem",
+                                    fontWeight: "bold",
+                                    color: "text.secondary",
+                                    alignSelf: "center",
+                                    ml: 0.5,
+                                  }}
+                                >
+                                  +{s.tags.length - 4} more
+                                </Typography>
+                              )}
+                            </Box>
+                          )}
+                        </Card>
+                      );
+                    }
+
+                    case "publication": {
+                      const pb = item.original;
+                      const citation = formatCitation(pb, "apa");
+                      const bibString = jsonToBibtex(pb);
+                      const bibDownloadUrl = bibString
+                        ? `data:text/plain;charset=utf-8,${encodeURIComponent(bibString)}`
+                        : null;
+
+                      return (
+                        <Card
+                          data-component-semantics="Publication search result card"
+                          sx={{
+                            width: "100%",
+                            position: "relative",
+                            overflow: "hidden",
+                            "&::before": {
+                              content: '""',
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              width: "100%",
+                              height: "4px",
+                              background: "linear-gradient(90deg, var(--mui-palette-secondary-main), var(--mui-palette-primary-main) 40%)",
+                              transform: "scaleX(0)",
+                              transformOrigin: "left",
+                              transition: "transform 0.3s ease",
+                              zIndex: 2,
+                            },
+                            "&:hover::before": {
+                              transform: "scaleX(1)",
+                            },
+                          }}
+                        >
+                          <Link
+                            href={`/publications/${pb.slug}`}
+                            style={{
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              zIndex: 1,
+                            }}
+                          />
+                          <Box sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
+                            <Box
+                              sx={{
+                                fontSize: "0.9rem",
+                                lineHeight: 1.6,
+                                color: "text.primary",
+                                position: "relative",
+                                zIndex: 2,
+                                "& a": {
+                                  color: "primary.main",
+                                  textDecoration: "none",
+                                  "&:hover": { textDecoration: "underline" },
+                                },
+                              }}
+                              dangerouslySetInnerHTML={{ __html: citation.html }}
+                            />
+
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                gap: 2,
+                                pt: 1,
+                                borderTop: "1px solid",
+                                borderColor: "divider",
+                                position: "relative",
+                                zIndex: 3,
+                              }}
+                            >
+                              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75, alignItems: "center" }}>
+                                <Chip
+                                  label={pb.type}
+                                  size="small"
+                                  sx={{
+                                    fontWeight: "bold",
+                                    fontSize: "0.625rem",
+                                    height: 18,
+                                    borderRadius: 1,
+                                    textTransform: "uppercase",
+                                    border: "1px solid",
+                                    borderColor: "divider",
+                                    bgcolor: "action.hover",
+                                    color: "text.secondary",
+                                  }}
+                                  data-component-semantics="Metadata badge"
+                                />
+                                {pb.ranking && (
+                                  <Chip
+                                    label={`Ranking: ${pb.ranking}`}
+                                    size="small"
+                                    sx={{
+                                      fontWeight: "bold",
+                                      fontSize: "0.625rem",
+                                      height: 18,
+                                      borderRadius: 1,
+                                      textTransform: "uppercase",
+                                      border: "1px solid",
+                                      borderColor: "divider",
+                                      bgcolor: "action.hover",
+                                      color: "text.secondary",
+                                    }}
+                                    data-component-semantics="Metadata badge"
+                                  />
+                                )}
+                                {pb.tags.map((tag: string) => (
+                                  <Link key={tag} href={`/tags/${tag}`} style={{ textDecoration: "none" }}>
+                                    <Chip
+                                      label={`#${tag}`}
+                                      size="small"
+                                      sx={{
+                                        fontSize: "0.625rem",
+                                        height: 18,
+                                        borderRadius: 1,
+                                        border: "1px solid",
+                                        borderColor: "primary.light",
+                                        bgcolor: "primary.light",
+                                        color: "primary.main",
+                                        fontWeight: "bold",
+                                        cursor: "pointer",
+                                        "&:hover": {
+                                          bgcolor: "primary.main",
+                                          color: "common.white",
+                                        },
+                                      }}
+                                      data-component-semantics="Tag badge"
+                                    />
+                                  </Link>
+                                ))}
+                              </Box>
+
+                              <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5 }}>
+                                {pb.selfArchivingUrl && (
+                                  <Button
+                                    component="a"
+                                    href={pb.selfArchivingUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    size="small"
+                                    sx={{
+                                      fontSize: "0.625rem",
+                                      fontWeight: 750,
+                                      py: 0.25,
+                                      px: 1,
+                                      height: 24,
+                                      borderRadius: 1.5,
+                                      position: "relative",
+                                      zIndex: 4,
+                                    }}
+                                  >
+                                    PDF
+                                  </Button>
+                                )}
+
+                                {bibDownloadUrl && (
+                                  <Button
+                                    component="a"
+                                    href={bibDownloadUrl}
+                                    download={`${pb.slug || "citation"}.bib`}
+                                    size="small"
+                                    color="inherit"
+                                    sx={{
+                                      fontSize: "0.625rem",
+                                      fontWeight: 750,
+                                      py: 0.25,
+                                      px: 1,
+                                      height: 24,
+                                      borderRadius: 1.5,
+                                      color: "text.secondary",
+                                      borderColor: "divider",
+                                      border: "1px solid",
+                                      "&:hover": { bgcolor: "action.hover", borderColor: "text.primary" },
+                                      position: "relative",
+                                      zIndex: 4,
+                                    }}
+                                  >
+                                    BibTeX
+                                  </Button>
+                                )}
+
+                                <Box sx={{ position: "relative", zIndex: 4 }}>
+                                  <CopyCitationButton textToCopy={citation.text} />
+                                </Box>
+                              </Box>
+                            </Box>
+                          </Box>
+                        </Card>
+                      );
+                    }
+
+                    default:
+                      return null;
+                  }
+                };
+
+                return (
+                  <Grid size={{ xs: 12 }} key={`${item.type}-${item.id}`}>
+                    {renderCard()}
                   </Grid>
                 );
               })}
