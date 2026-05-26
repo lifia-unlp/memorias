@@ -413,6 +413,7 @@ export default async function SearchPage({
                             p: 3,
                             position: "relative",
                             overflow: "hidden",
+                            cursor: "pointer",
                             "&::before": {
                               content: '""',
                               position: "absolute",
@@ -439,7 +440,7 @@ export default async function SearchPage({
                               left: 0,
                               right: 0,
                               bottom: 0,
-                              zIndex: 1,
+                              zIndex: 3,
                             }}
                           />
                           <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2, position: "relative", zIndex: 2 }}>
@@ -548,7 +549,7 @@ export default async function SearchPage({
                                 borderTop: "1px solid",
                                 borderColor: "divider",
                                 position: "relative",
-                                zIndex: 3,
+                                zIndex: 4,
                               }}
                             >
                               {m.tags.slice(0, 3).map((tag: string, idx: number) => (
@@ -614,6 +615,7 @@ export default async function SearchPage({
                             p: 3,
                             position: "relative",
                             overflow: "hidden",
+                            cursor: "pointer",
                             "&::before": {
                               content: '""',
                               position: "absolute",
@@ -644,7 +646,7 @@ export default async function SearchPage({
                               left: 0,
                               right: 0,
                               bottom: 0,
-                              zIndex: 1,
+                              zIndex: 3,
                             }}
                           />
 
@@ -754,7 +756,7 @@ export default async function SearchPage({
                           )}
 
                           {project.members && project.members.length > 0 && (
-                            <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 2, mt: "auto", mb: project.tags.length > 0 ? 2 : 0, position: "relative", zIndex: 3 }}>
+                            <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 2, mt: "auto", mb: project.tags.length > 0 ? 2 : 0, position: "relative", zIndex: 4 }}>
                               <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.primary", display: "block", mb: 0.5 }}>
                                 Associated Members:
                               </Typography>
@@ -763,7 +765,7 @@ export default async function SearchPage({
                                   <React.Fragment key={member.slug}>
                                     <Link
                                       href={`/members/${member.slug}`}
-                                      style={{ textDecoration: "none", position: "relative", zIndex: 3 }}
+                                      style={{ textDecoration: "none", position: "relative", zIndex: 4 }}
                                     >
                                       <Typography
                                         variant="caption"
@@ -788,7 +790,7 @@ export default async function SearchPage({
                           )}
 
                           {project.tags.length > 0 && (
-                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, pt: (project.members && project.members.length > 0) ? 0 : 2, mt: (project.members && project.members.length > 0) ? 0 : "auto", position: "relative", zIndex: 3 }}>
+                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, pt: (project.members && project.members.length > 0) ? 0 : 2, mt: (project.members && project.members.length > 0) ? 0 : "auto", position: "relative", zIndex: 4 }}>
                               {project.tags.slice(0, 4).map((tag: string) => (
                                 <Link key={tag} href={`/tags/${tag}`} style={{ textDecoration: "none" }}>
                                   <Chip
@@ -840,6 +842,7 @@ export default async function SearchPage({
                             p: 3,
                             position: "relative",
                             overflow: "hidden",
+                            cursor: "pointer",
                             "&::before": {
                               content: '""',
                               position: "absolute",
@@ -870,7 +873,7 @@ export default async function SearchPage({
                               left: 0,
                               right: 0,
                               bottom: 0,
-                              zIndex: 1,
+                              zIndex: 3,
                             }}
                           />
 
@@ -1036,7 +1039,7 @@ export default async function SearchPage({
                                 borderTop: "1px solid",
                                 borderColor: "divider",
                                 position: "relative",
-                                zIndex: 3,
+                                zIndex: 4,
                               }}
                             >
                               {ths.tags.slice(0, 4).map((tag: string, idx: number) => (
@@ -1104,6 +1107,7 @@ export default async function SearchPage({
                             p: 3,
                             position: "relative",
                             overflow: "hidden",
+                            cursor: "pointer",
                             "&::before": {
                               content: '""',
                               position: "absolute",
@@ -1134,7 +1138,7 @@ export default async function SearchPage({
                               left: 0,
                               right: 0,
                               bottom: 0,
-                              zIndex: 1,
+                              zIndex: 3,
                             }}
                           />
 
@@ -1298,7 +1302,7 @@ export default async function SearchPage({
                                 borderTop: "1px solid",
                                 borderColor: "divider",
                                 position: "relative",
-                                zIndex: 3,
+                                zIndex: 4,
                               }}
                             >
                               {s.tags.slice(0, 4).map((tag: string, idx: number) => (
@@ -1360,6 +1364,7 @@ export default async function SearchPage({
                             width: "100%",
                             position: "relative",
                             overflow: "hidden",
+                            cursor: "pointer",
                             "&::before": {
                               content: '""',
                               position: "absolute",
@@ -1386,7 +1391,7 @@ export default async function SearchPage({
                               left: 0,
                               right: 0,
                               bottom: 0,
-                              zIndex: 1,
+                              zIndex: 3,
                             }}
                           />
                           <Box sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
@@ -1417,7 +1422,7 @@ export default async function SearchPage({
                                 borderTop: "1px solid",
                                 borderColor: "divider",
                                 position: "relative",
-                                zIndex: 3,
+                                zIndex: 4,
                               }}
                             >
                               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75, alignItems: "center" }}>
