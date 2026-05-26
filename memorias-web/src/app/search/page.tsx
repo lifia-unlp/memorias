@@ -603,29 +603,32 @@ export default async function SearchPage({
                           }}
                         >
                           {item.tags.slice(0, 5).map((tag) => (
-                            <Chip
+                            <Link
                               key={tag}
-                              label={`#${tag}`}
-                              size="small"
-                              component={Link}
                               href={`/tags/${tag}`}
-                              clickable
-                              sx={{
-                                fontSize: "0.625rem",
-                                height: 18,
-                                borderRadius: 1,
-                                border: "1px solid",
-                                borderColor: "primary.light",
-                                bgcolor: "primary.light",
-                                color: "primary.main",
-                                fontWeight: "bold",
-                                "&:hover": {
-                                  bgcolor: "primary.main",
-                                  color: "common.white",
-                                },
-                              }}
-                              data-component-semantics="Tag badge"
-                            />
+                              style={{ textDecoration: "none" }}
+                            >
+                              <Chip
+                                label={`#${tag}`}
+                                size="small"
+                                sx={{
+                                  fontSize: "0.625rem",
+                                  height: 18,
+                                  borderRadius: 1,
+                                  border: "1px solid",
+                                  borderColor: "primary.light",
+                                  bgcolor: "primary.light",
+                                  color: "primary.main",
+                                  fontWeight: "bold",
+                                  cursor: "pointer",
+                                  "&:hover": {
+                                    bgcolor: "primary.main",
+                                    color: "common.white",
+                                  },
+                                }}
+                                data-component-semantics="Tag badge"
+                              />
+                            </Link>
                           ))}
                           {item.tags.length > 5 && (
                             <Typography
