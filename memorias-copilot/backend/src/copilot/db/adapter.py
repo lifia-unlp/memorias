@@ -120,6 +120,17 @@ class PostgresDatabaseAdapter(DatabaseAdapter):
                 )
                 await self._pool.open()
                 self._connection_error = None
+
+                # Automatically ensure unaccent extension is enabled
+                try:
+                    async with self._pool.connection() as conn:
+                        async with conn.cursor() as cur:
+                            await cur.execute("CREATE EXTENSION IF NOT EXISTS unaccent;")
+                        await conn.commit()
+                except Exception as db_err:
+                    # Gracefully handle situations where CREATE EXTENSION is not permitted (e.g. AWS RDS or GCP Cloud SQL)
+                    # as long as it's already installed or if fallback is needed.
+                    print(f"Warning: Could not ensure 'unaccent' extension is created: {db_err}")
             except Exception as e:
                 self._connection_error = e
                 if self._pool is not None:
@@ -158,83 +169,151 @@ class PostgresDatabaseAdapter(DatabaseAdapter):
     # --- Search Methods ---
     @override
     async def search_members(self, query: str) -> list[Member]:
-        sql = """
+        tokens = [t.strip() for t in query.split() if t.strip()]
+        if not tokens:
+            return []
+
+        conditions = []
+        params = {}
+        for i, token in enumerate(tokens):
+            param_name = f"token_{i}"
+            conditions.append(f"""
+                (unaccent("firstName") ILIKE unaccent(%({param_name})s)
+                OR unaccent("lastName") ILIKE unaccent(%({param_name})s)
+                OR unaccent("slug") ILIKE unaccent(%({param_name})s)
+                OR unaccent("positionAtLab") ILIKE unaccent(%({param_name})s)
+                OR unaccent("shortCvInSpanish") ILIKE unaccent(%({param_name})s)
+                OR unaccent("shortCvInEnglish") ILIKE unaccent(%({param_name})s)
+                OR unaccent("interestsInSpanish") ILIKE unaccent(%({param_name})s)
+                OR unaccent("interestsInEnglish") ILIKE unaccent(%({param_name})s))
+            """)
+            params[param_name] = f"%{token}%"
+
+        where_clause = " AND ".join(conditions)
+        sql = f"""
             SELECT * FROM "Member"
-            WHERE "firstName" ILIKE %(q)s
-               OR "lastName" ILIKE %(q)s
-               OR ("firstName" || ' ' || "lastName") ILIKE %(q)s
-               OR ("lastName" || ' ' || "firstName") ILIKE %(q)s
-               OR "slug" ILIKE %(q)s
-               OR "positionAtLab" ILIKE %(q)s
-               OR "shortCvInSpanish" ILIKE %(q)s
-               OR "shortCvInEnglish" ILIKE %(q)s
-               OR "interestsInSpanish" ILIKE %(q)s
-               OR "interestsInEnglish" ILIKE %(q)s
+            WHERE {where_clause}
             ORDER BY "lastName" ASC, "firstName" ASC
             LIMIT 50
         """
-        records = await self._fetch(sql, {"q": f"%{query}%"})
+        records = await self._fetch(sql, params)
         return [Member(**r) for r in records]
 
     @override
     async def search_projects(self, query: str) -> list[Project]:
-        sql = """
+        tokens = [t.strip() for t in query.split() if t.strip()]
+        if not tokens:
+            return []
+
+        conditions = []
+        params = {}
+        for i, token in enumerate(tokens):
+            param_name = f"token_{i}"
+            conditions.append(f"""
+                (unaccent("title") ILIKE unaccent(%({param_name})s)
+                OR unaccent("code") ILIKE unaccent(%({param_name})s)
+                OR unaccent("summary") ILIKE unaccent(%({param_name})s)
+                OR unaccent("slug") ILIKE unaccent(%({param_name})s))
+            """)
+            params[param_name] = f"%{token}%"
+
+        where_clause = " AND ".join(conditions)
+        sql = f"""
             SELECT * FROM "Project"
-            WHERE "title" ILIKE %(q)s
-               OR "code" ILIKE %(q)s
-               OR "summary" ILIKE %(q)s
-               OR "slug" ILIKE %(q)s
+            WHERE {where_clause}
             ORDER BY "startDate" DESC NULLS LAST
             LIMIT 50
         """
-        records = await self._fetch(sql, {"q": f"%{query}%"})
+        records = await self._fetch(sql, params)
         return [Project(**r) for r in records]
 
     @override
     async def search_theses(self, query: str) -> list[Thesis]:
-        sql = """
+        tokens = [t.strip() for t in query.split() if t.strip()]
+        if not tokens:
+            return []
+
+        conditions = []
+        params = {}
+        for i, token in enumerate(tokens):
+            param_name = f"token_{i}"
+            conditions.append(f"""
+                (unaccent("title") ILIKE unaccent(%({param_name})s)
+                OR unaccent("career") ILIKE unaccent(%({param_name})s)
+                OR unaccent("student") ILIKE unaccent(%({param_name})s)
+                OR unaccent("director") ILIKE unaccent(%({param_name})s)
+                OR unaccent("coDirector") ILIKE unaccent(%({param_name})s)
+                OR unaccent("summary") ILIKE unaccent(%({param_name})s))
+            """)
+            params[param_name] = f"%{token}%"
+
+        where_clause = " AND ".join(conditions)
+        sql = f"""
             SELECT * FROM "Thesis"
-            WHERE "title" ILIKE %(q)s
-               OR "career" ILIKE %(q)s
-               OR "student" ILIKE %(q)s
-               OR "director" ILIKE %(q)s
-               OR "coDirector" ILIKE %(q)s
-               OR "summary" ILIKE %(q)s
+            WHERE {where_clause}
             ORDER BY "startDate" DESC NULLS LAST
             LIMIT 50
         """
-        records = await self._fetch(sql, {"q": f"%{query}%"})
+        records = await self._fetch(sql, params)
         return [Thesis(**r) for r in records]
 
     @override
     async def search_scholarships(self, query: str) -> list[Scholarship]:
-        sql = """
+        tokens = [t.strip() for t in query.split() if t.strip()]
+        if not tokens:
+            return []
+
+        conditions = []
+        params = {}
+        for i, token in enumerate(tokens):
+            param_name = f"token_{i}"
+            conditions.append(f"""
+                (unaccent("title") ILIKE unaccent(%({param_name})s)
+                OR unaccent("type") ILIKE unaccent(%({param_name})s)
+                OR unaccent("student") ILIKE unaccent(%({param_name})s)
+                OR unaccent("director") ILIKE unaccent(%({param_name})s)
+                OR unaccent("coDirector") ILIKE unaccent(%({param_name})s)
+                OR unaccent("summary") ILIKE unaccent(%({param_name})s))
+            """)
+            params[param_name] = f"%{token}%"
+
+        where_clause = " AND ".join(conditions)
+        sql = f"""
             SELECT * FROM "Scholarship"
-            WHERE "title" ILIKE %(q)s
-               OR "type" ILIKE %(q)s
-               OR "student" ILIKE %(q)s
-               OR "director" ILIKE %(q)s
-               OR "coDirector" ILIKE %(q)s
-               OR "summary" ILIKE %(q)s
+            WHERE {where_clause}
             ORDER BY "startDate" DESC NULLS LAST
             LIMIT 50
         """
-        records = await self._fetch(sql, {"q": f"%{query}%"})
+        records = await self._fetch(sql, params)
         return [Scholarship(**r) for r in records]
 
     @override
     async def search_publications(self, query: str) -> list[Publication]:
-        sql = """
+        tokens = [t.strip() for t in query.split() if t.strip()]
+        if not tokens:
+            return []
+
+        conditions = []
+        params = {}
+        for i, token in enumerate(tokens):
+            param_name = f"token_{i}"
+            conditions.append(f"""
+                (unaccent("title") ILIKE unaccent(%({param_name})s)
+                OR unaccent("authors") ILIKE unaccent(%({param_name})s)
+                OR unaccent("type") ILIKE unaccent(%({param_name})s)
+                OR unaccent("ranking") ILIKE unaccent(%({param_name})s)
+                OR unaccent("year"::text) ILIKE unaccent(%({param_name})s))
+            """)
+            params[param_name] = f"%{token}%"
+
+        where_clause = " AND ".join(conditions)
+        sql = f"""
             SELECT * FROM "Publication"
-            WHERE "title" ILIKE %(q)s
-               OR "authors" ILIKE %(q)s
-               OR "type" ILIKE %(q)s
-               OR "ranking" ILIKE %(q)s
-               OR "year"::text ILIKE %(q)s
+            WHERE {where_clause}
             ORDER BY "year" DESC
             LIMIT 50
         """
-        records = await self._fetch(sql, {"q": f"%{query}%"})
+        records = await self._fetch(sql, params)
         return [Publication(**r) for r in records]
 
     # --- Tag Cloud / Topic Exploration ---

@@ -5,13 +5,27 @@ This living document tracks active status, findings, and handoffs between AI ses
 ---
 
 ## Current Status
-* **Active Phase**: Phase 3 Complete (Traceability Verification & Wiki Publishing)
-* **Last Updated**: 2026-05-25
-* **Overall Progress**: 100% completed
+* **Active Phase**: Phase 3 Complete (Traceability Verification & Wiki Publishing) & Active Maintenance (Search Enhancements)
+* **Last Updated**: 2026-05-26
+* **Overall Progress**: 100% completed (Maintenance active)
 
 ---
 
 ## Session Logs
+
+### Session 4 (2026-05-26)
+* **Goal**: Investigate and resolve the search failure for "Andrés Rodriguez" vs "Andrés" in copilot member searches.
+* **Accomplished**:
+  * Identified that the PostgreSQL `ILIKE` operator is case-insensitive but accent-sensitive (diacritic-sensitive), causing "Andrés Rodriguez" to fail matching the database record "Andrés Rodríguez" because of the accent mismatch on the "i".
+  * Integrated the PostgreSQL `unaccent` extension into the `PostgresDatabaseAdapter` connection setup with a graceful fallback for restricted cloud permissions.
+  * Re-implemented all search methods (`search_members`, `search_projects`, `search_theses`, `search_scholarships`, `search_publications`) to utilize `unaccent()` for diacritic-insensitive searches.
+  * Added token-based keyword splitting (multi-word match support), enabling searches with out-of-order partial name tokens (e.g., both "Andrés Rodriguez" and "Rodriguez Andres" successfully match).
+  * Validated that all 11 backend test suites continue to pass successfully.
+  * Manually verified search results against the local Prisma dev database sandbox.
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Monitor copilot session logs for any other potential edge-case queries.
 
 ### Session 3 (2026-05-25)
 * **Goal**: Execute Phase 2 (Modular Functionality & Requirements Analysis for Modules A to D) and Phase 3 (Traceability Verification & Wiki Publishing) for `memorias-copilot`.
