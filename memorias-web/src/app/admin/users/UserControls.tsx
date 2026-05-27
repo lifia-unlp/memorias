@@ -22,7 +22,7 @@ export function RoleSelector({
   initialRole,
 }: {
   userId: string;
-  initialRole: "USER" | "EDITOR" | "ADMIN";
+  initialRole: "USER" | "EDITOR" | "POWER_EDITOR" | "ADMIN";
 }) {
   const [role, setRole] = useState(initialRole);
   const [isSaving, setIsSaving] = useState(false);
@@ -54,6 +54,7 @@ export function RoleSelector({
         >
           <MenuItem value="USER">USER</MenuItem>
           <MenuItem value="EDITOR">EDITOR</MenuItem>
+          <MenuItem value="POWER_EDITOR">POWER_EDITOR</MenuItem>
           <MenuItem value="ADMIN">ADMIN</MenuItem>
         </Select>
       </FormControl>

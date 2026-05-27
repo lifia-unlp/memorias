@@ -2,6 +2,9 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getDistinctTags } from "@/lib/tags";
+import fs from "fs";
+import path from "path";
 
 export async function ensureActiveUser() {
   const session = await auth();
@@ -92,12 +95,15 @@ export async function getReportInitData() {
     ])
   ).filter(Boolean) as string[];
 
+  const tags = await getDistinctTags();
+
   return {
     members,
     publicationYears,
     publicationTypes,
     scholarshipTypes,
     thesisLevels,
+    tags,
   };
 }
 
@@ -110,12 +116,14 @@ interface PublicationFilters {
   style?: string; // "apa" | "vancouver" | "harvard"
   startYear?: number;
   endYear?: number;
+  tags?: string[];
 }
 
 interface ProjectFilters {
   memberIds?: string[];
   startYear?: number;
   endYear?: number;
+  tags?: string[];
 }
 
 interface ScholarshipFilters {
@@ -123,6 +131,7 @@ interface ScholarshipFilters {
   types?: string[];
   startYear?: number;
   endYear?: number;
+  tags?: string[];
 }
 
 interface ThesisFilters {
@@ -130,6 +139,7 @@ interface ThesisFilters {
   levels?: string[];
   startYear?: number;
   endYear?: number;
+  tags?: string[];
 }
 
 interface SortConfig {
@@ -143,7 +153,7 @@ interface SortConfig {
 export async function queryPublications(filters: PublicationFilters, sort: SortConfig) {
   await ensureActiveUser();
 
-  const { memberIds, types, year, style, startYear, endYear } = filters;
+  const { memberIds, types, year, style, startYear, endYear, tags } = filters;
   const where: any = {};
 
   if (memberIds && memberIds.length > 0) {
@@ -156,6 +166,16 @@ export async function queryPublications(filters: PublicationFilters, sort: SortC
 
   if (types && types.length > 0) {
     where.type = { in: types };
+  }
+
+  if (tags && tags.length > 0) {
+    const allDistinctTags = await getDistinctTags();
+    const isAllSelected = allDistinctTags.every((t) => tags.includes(t));
+    if (!isAllSelected) {
+      where.tags = {
+        hasSome: tags,
+      };
+    }
   }
 
   if (year && year !== "all") {
@@ -249,7 +269,7 @@ function buildActiveYearFilters(startYear?: number, endYear?: number) {
 export async function queryProjects(filters: ProjectFilters, sort: SortConfig) {
   await ensureActiveUser();
 
-  const { memberIds, startYear, endYear } = filters;
+  const { memberIds, startYear, endYear, tags } = filters;
   const where: any = {};
 
   if (memberIds && memberIds.length > 0) {
@@ -258,6 +278,16 @@ export async function queryProjects(filters: ProjectFilters, sort: SortConfig) {
         id: { in: memberIds },
       },
     };
+  }
+
+  if (tags && tags.length > 0) {
+    const allDistinctTags = await getDistinctTags();
+    const isAllSelected = allDistinctTags.every((t) => tags.includes(t));
+    if (!isAllSelected) {
+      where.tags = {
+        hasSome: tags,
+      };
+    }
   }
 
   const andFilters = buildActiveYearFilters(startYear, endYear);
@@ -297,7 +327,7 @@ export async function queryProjects(filters: ProjectFilters, sort: SortConfig) {
 export async function queryScholarships(filters: ScholarshipFilters, sort: SortConfig) {
   await ensureActiveUser();
 
-  const { memberIds, types, startYear, endYear } = filters;
+  const { memberIds, types, startYear, endYear, tags } = filters;
   const where: any = {};
 
   if (memberIds && memberIds.length > 0) {
@@ -310,6 +340,16 @@ export async function queryScholarships(filters: ScholarshipFilters, sort: SortC
 
   if (types && types.length > 0) {
     where.type = { in: types };
+  }
+
+  if (tags && tags.length > 0) {
+    const allDistinctTags = await getDistinctTags();
+    const isAllSelected = allDistinctTags.every((t) => tags.includes(t));
+    if (!isAllSelected) {
+      where.tags = {
+        hasSome: tags,
+      };
+    }
   }
 
   const andFilters = buildActiveYearFilters(startYear, endYear);
@@ -349,7 +389,7 @@ export async function queryScholarships(filters: ScholarshipFilters, sort: SortC
 export async function queryTheses(filters: ThesisFilters, sort: SortConfig) {
   await ensureActiveUser();
 
-  const { memberIds, levels, startYear, endYear } = filters;
+  const { memberIds, levels, startYear, endYear, tags } = filters;
   const where: any = {};
 
   if (memberIds && memberIds.length > 0) {
@@ -362,6 +402,16 @@ export async function queryTheses(filters: ThesisFilters, sort: SortConfig) {
 
   if (levels && levels.length > 0) {
     where.level = { in: levels };
+  }
+
+  if (tags && tags.length > 0) {
+    const allDistinctTags = await getDistinctTags();
+    const isAllSelected = allDistinctTags.every((t) => tags.includes(t));
+    if (!isAllSelected) {
+      where.tags = {
+        hasSome: tags,
+      };
+    }
   }
 
   const andFilters = buildActiveYearFilters(startYear, endYear);
@@ -536,4 +586,82 @@ export async function deleteReport(id: string) {
   });
   
   return { success: true };
+}
+
+/**
+ * Generates AI content for a report block based on user prompt, context, and max length constraints.
+ * Restricted strictly for POWER_EDITOR and ADMIN roles.
+ */
+export async function generateReportAIContent(params: {
+  prompt: string;
+  maxLength: number;
+  inputContent: string;
+}) {
+  const session = await auth();
+  if (!session || !session.user?.active) {
+    throw new Error("Unauthorized. Active session required.");
+  }
+
+  const isAuthorized = session.user.role === "ADMIN" || session.user.role === "POWER_EDITOR";
+  if (!isAuthorized) {
+    throw new Error("Unauthorized. GenAI blocks are restricted to Power Editors and Administrators.");
+  }
+
+  const { prompt, maxLength, inputContent } = params;
+  if (!prompt.trim()) {
+    return { content: "" };
+  }
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error("OpenAI API key is missing. Please contact system administrator.");
+  }
+
+  let systemPrompt = "";
+  try {
+    const promptPath = path.join(process.cwd(), "src/lib/ai/system-prompt.txt");
+    const systemPromptText = fs.readFileSync(promptPath, "utf-8");
+    systemPrompt = systemPromptText.replace("{{MAX_LENGTH}}", maxLength.toString());
+  } catch (readErr) {
+    console.warn("Failed to read system prompt file, falling back to default.", readErr);
+    systemPrompt = `You are an expert scientific reporting assistant for an R&D laboratory.
+Analyze the academic data context provided by the user (which may contain lists of publications, projects, scholarships, theses, or text) and execute the requested instruction.
+
+CRITICAL INSTRUCTIONS:
+1. Format your response strictly in clean Markdown (using markdown headings, lists, bold text, etc.). Do NOT output any HTML tags under any circumstances.
+2. Adhere strictly to the prompt instructions.
+3. Rely only on the provided data context. Do not invent outputs.
+4. Limit your output to at most ${maxLength} words.`;
+  }
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Context:\n${inputContent || "(No context blocks provided)"}\n\nTask: ${prompt}` }
+        ],
+        temperature: 0.3,
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("OpenAI GenAI Report Generation failed:", errText);
+      throw new Error(`LLM Generation failed: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || "";
+    return { content };
+  } catch (err: any) {
+    console.error("Failed to generate AI content:", err);
+    throw new Error(err.message || "Failed to generate AI content.");
+  }
 }

@@ -15,7 +15,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       name: "Development Backdoor",
       credentials: {
         email: { label: "Email", type: "text", placeholder: "admin@example.com" },
-        role: { label: "Role (USER/EDITOR/ADMIN)", type: "text", placeholder: "ADMIN" },
+        role: { label: "Role (USER/EDITOR/POWER_EDITOR/ADMIN)", type: "text", placeholder: "ADMIN" },
       },
       async authorize(credentials) {
         if (process.env.NODE_ENV !== "development") {
@@ -104,7 +104,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       // Map fields from the JWT token (populated in the jwt callback above)
       if (session.user && token) {
-        session.user.role = token.role as "USER" | "EDITOR" | "ADMIN" | undefined;
+        session.user.role = token.role as "USER" | "EDITOR" | "POWER_EDITOR" | "ADMIN" | undefined;
         session.user.active = token.active as boolean | undefined;
         session.user.id = token.sub as string;
         session.user.notificationEmail = token.notificationEmail as string | null | undefined;

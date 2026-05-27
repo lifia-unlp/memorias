@@ -28,11 +28,12 @@ import {
   saveReport,
   getReports,
   deleteReport,
+  generateReportAIContent,
 } from "../actions";
 
 interface Block {
   id: string;
-  type: "markdown" | "publications" | "projects" | "scholarships" | "theses";
+  type: "markdown" | "publications" | "projects" | "scholarships" | "theses" | "genai";
   content?: string;
   filters: {
     memberIds: string[];
@@ -42,12 +43,25 @@ interface Block {
     endYear: string;
     style: string; // apa, vancouver, harvard
     showSummary: boolean;
+    tags?: string[];
+
+    // GenAI specifics
+    prompt?: string;
+    maxLength?: number;
+    inputBlockIds?: string[];
   };
   sort: {
     field: "year" | "title";
     direction: "asc" | "desc";
   };
   compiledItems: any[];
+  isGenerating?: boolean;
+  lastGeneratedConfig?: {
+    prompt: string;
+    maxLength: number;
+    inputBlockIds: string[];
+    inputContent: string;
+  };
 }
 
 interface InitData {
@@ -56,9 +70,10 @@ interface InitData {
   publicationTypes: string[];
   scholarshipTypes: string[];
   thesisLevels: string[];
+  tags: string[];
 }
 
-export default function ReportBuilderClient() {
+export default function ReportBuilderClient({ userRole }: { userRole?: string }) {
   const [initData, setInitData] = useState<InitData | null>(null);
   const [blocks, setBlocks] = useState<Block[]>([
     {
@@ -78,6 +93,25 @@ export default function ReportBuilderClient() {
   const [reportId, setReportId] = useState<string | null>(null);
   const [reportTitle, setReportTitle] = useState("My Research Report");
   const [isLoadingReports, setIsLoadingReports] = useState(false);
+
+  const activeRequestsRef = React.useRef<Record<string, string>>({});
+
+  const cancelGenAIUpdate = (id: string) => {
+    if (activeRequestsRef.current[id]) {
+      delete activeRequestsRef.current[id];
+    }
+    setBlocks((prev) =>
+      prev.map((b) =>
+        b.id === id
+          ? {
+              ...b,
+              isGenerating: false,
+              content: "### Generation Cancelled\nGenAI block updates were stopped by the user.",
+            }
+          : b
+      )
+    );
+  };
 
   const fetchSavedReports = async () => {
     setIsLoadingReports(true);
@@ -104,12 +138,13 @@ export default function ReportBuilderClient() {
     }
     setIsCompiling(true);
     try {
-      const blocksToSave = blocks.map(({ id, type, content, filters, sort }) => ({
+      const blocksToSave = blocks.map(({ id, type, content, filters, sort, lastGeneratedConfig }) => ({
         id,
         type,
         content,
         filters,
         sort,
+        lastGeneratedConfig,
       }));
 
       const response = await saveReport({
@@ -177,6 +212,14 @@ export default function ReportBuilderClient() {
     setReportTitle(report.title);
     const parsedBlocks = (report.blocks as any[]).map(block => ({
       ...block,
+      filters: {
+        ...block.filters,
+        tags: block.filters?.tags ?? [],
+        prompt: block.type === "genai" ? (block.filters?.prompt ?? "Summarize the major highlights.") : undefined,
+        maxLength: block.type === "genai" ? (block.filters?.maxLength ?? 300) : undefined,
+        inputBlockIds: block.type === "genai" ? (block.filters?.inputBlockIds ?? []) : undefined,
+      },
+      lastGeneratedConfig: block.lastGeneratedConfig,
       compiledItems: []
     }));
     setBlocks(parsedBlocks);
@@ -207,6 +250,14 @@ export default function ReportBuilderClient() {
     setReportTitle(report.title);
     const parsedBlocks = (report.blocks as any[]).map(block => ({
       ...block,
+      filters: {
+        ...block.filters,
+        tags: block.filters?.tags ?? [],
+        prompt: block.type === "genai" ? (block.filters?.prompt ?? "Summarize the major highlights.") : undefined,
+        maxLength: block.type === "genai" ? (block.filters?.maxLength ?? 300) : undefined,
+        inputBlockIds: block.type === "genai" ? (block.filters?.inputBlockIds ?? []) : undefined,
+      },
+      lastGeneratedConfig: block.lastGeneratedConfig,
       compiledItems: []
     }));
     setBlocks(parsedBlocks);
@@ -329,19 +380,108 @@ export default function ReportBuilderClient() {
     return parts.join(", ") + ".";
   };
 
+  // Helper to serialize any block's compiled content to plain markdown text for LLM context
+  const getBlockMarkdownContext = (block: Block): string => {
+    if (block.type === "markdown") return block.content || "";
+    if (block.type === "publications") {
+      if (block.compiledItems.length === 0) return "*No publications matched.*";
+      return block.compiledItems.map((pub) => pub.citationText).join("\n\n");
+    }
+    if (block.type === "projects") {
+      if (block.compiledItems.length === 0) return "*No projects matched.*";
+      return block.compiledItems.map((proj) => {
+        let text = `### Project: ${proj.title} ${proj.code ? `(${proj.code})` : ""}\n${buildProjectSentence(proj)}`;
+        if (proj.summary) text += `\nSummary: ${proj.summary}`;
+        return text;
+      }).join("\n\n");
+    }
+    if (block.type === "scholarships") {
+      if (block.compiledItems.length === 0) return "*No scholarships matched.*";
+      return block.compiledItems.map((schol) => {
+        let text = `### Scholarship: ${schol.title} ${schol.type ? `(${schol.type})` : ""}\n${buildScholarshipSentence(schol)}`;
+        if (schol.summary) text += `\nSummary: ${schol.summary}`;
+        return text;
+      }).join("\n\n");
+    }
+    if (block.type === "theses") {
+      if (block.compiledItems.length === 0) return "*No theses matched.*";
+      return block.compiledItems.map((thesis) => {
+        let text = `### Thesis: ${thesis.title} ${thesis.level ? `(${thesis.level})` : ""}\n${buildThesisSentence(thesis)}`;
+        if (thesis.summary) text += `\nSummary: ${thesis.summary}`;
+        return text;
+      }).join("\n\n");
+    }
+    return "";
+  };
+
+  const getInputBlocksContent = (block: Block, allBlocks: Block[]): string => {
+    const inputBlockIds = block.filters.inputBlockIds || [];
+    const contextParts: string[] = [];
+    inputBlockIds.forEach((id) => {
+      const refBlock = allBlocks.find((b) => b.id === id);
+      if (refBlock) {
+        contextParts.push(`--- Block (${refBlock.type}) ---\n${getBlockMarkdownContext(refBlock)}`);
+      }
+    });
+    return contextParts.join("\n\n");
+  };
+
+  const isGenAIDirty = (block: Block, allBlocks: Block[]): boolean => {
+    if (!block.lastGeneratedConfig) {
+      return true; // Never generated
+    }
+    const currentPrompt = block.filters.prompt || "";
+    const currentMaxLength = block.filters.maxLength || 300;
+    const currentInputBlockIds = block.filters.inputBlockIds || [];
+    const currentInputContent = getInputBlocksContent(block, allBlocks);
+
+    const last = block.lastGeneratedConfig;
+    
+    // Check prompt
+    if (currentPrompt !== last.prompt) return true;
+    
+    // Check maxLength
+    if (currentMaxLength !== last.maxLength) return true;
+    
+    // Check input ids length/contents
+    if (currentInputBlockIds.length !== last.inputBlockIds.length) return true;
+    for (let i = 0; i < currentInputBlockIds.length; i++) {
+      if (currentInputBlockIds[i] !== last.inputBlockIds[i]) return true;
+    }
+    
+    // Check compiled input content
+    if (currentInputContent !== last.inputContent) return true;
+
+    return false;
+  };
+
+  const getSelectedContextLength = (block: Block): number => {
+    const inputBlockIds = block.filters.inputBlockIds || [];
+    let len = 0;
+    inputBlockIds.forEach((id) => {
+      const refBlock = blocks.find((b) => b.id === id);
+      if (refBlock) {
+        len += getBlockMarkdownContext(refBlock).length;
+      }
+    });
+    return len;
+  };
+
   // Compile individual blocks using server actions
-  const compileReport = async (currentBlocks: Block[] = blocks) => {
+  const compileReport = async (currentBlocks: Block[] = blocks, forceGenAIBlockId?: string) => {
     setIsCompiling(true);
     try {
-      const compiled = await Promise.all(
+      // Phase 1: Compile all static/dynamic non-GenAI blocks in parallel
+      const compiledNonAI = await Promise.all(
         currentBlocks.map(async (block) => {
-          if (block.type === "markdown") {
-            return { ...block, compiledItems: [] };
+          if (block.type === "markdown" || block.type === "genai") {
+            return { ...block };
           }
 
           const memberIds = block.filters.memberIds;
           const startY = block.filters.startYear ? parseInt(block.filters.startYear, 10) : undefined;
           const endY = block.filters.endYear ? parseInt(block.filters.endYear, 10) : undefined;
+          const tags = block.filters.tags;
 
           let items: any[] = [];
           if (block.type === "publications") {
@@ -349,10 +489,11 @@ export default function ReportBuilderClient() {
               {
                 memberIds,
                 types: block.filters.types,
-                year: "all", // always filter strictly by year range
+                year: "all",
                 style: block.filters.style || "apa",
                 startYear: startY,
                 endYear: endY,
+                tags,
               },
               block.sort
             );
@@ -362,6 +503,7 @@ export default function ReportBuilderClient() {
                 memberIds,
                 startYear: startY,
                 endYear: endY,
+                tags,
               },
               block.sort
             );
@@ -372,6 +514,7 @@ export default function ReportBuilderClient() {
                 types: block.filters.types,
                 startYear: startY,
                 endYear: endY,
+                tags,
               },
               block.sort
             );
@@ -382,6 +525,7 @@ export default function ReportBuilderClient() {
                 levels: block.filters.types,
                 startYear: startY,
                 endYear: endY,
+                tags,
               },
               block.sort
             );
@@ -390,7 +534,87 @@ export default function ReportBuilderClient() {
           return { ...block, compiledItems: items };
         })
       );
-      setBlocks(compiled);
+
+      // Phase 2: Compile GenAI blocks sequentially based on Phase 1 output
+      const finalBlocks: Block[] = [];
+      for (const block of compiledNonAI) {
+        if (block.type !== "genai") {
+          finalBlocks.push(block);
+          continue;
+        }
+
+        // We only generate if explicitly forced via the "Regenerate" button
+        const shouldGenerate = forceGenAIBlockId === block.id;
+
+        if (!shouldGenerate) {
+          finalBlocks.push(block);
+          continue;
+        }
+
+        // Get context from referenced blocks
+        const inputBlockIds = block.filters.inputBlockIds || [];
+        const contextParts: string[] = [];
+        inputBlockIds.forEach((id) => {
+          const refBlock = compiledNonAI.find((b) => b.id === id);
+          if (refBlock) {
+            contextParts.push(`--- Block (${refBlock.type}) ---\n${getBlockMarkdownContext(refBlock)}`);
+          }
+        });
+        let inputContent = contextParts.join("\n\n");
+        const MAX_CONTEXT_LENGTH = 15000; // character limit (roughly 2500 words)
+        if (inputContent.length > MAX_CONTEXT_LENGTH) {
+          inputContent = inputContent.substring(0, MAX_CONTEXT_LENGTH) + "\n\n[Context truncated due to size limits]";
+        }
+
+        // Set to generating status on the client canvas
+        block.isGenerating = true;
+        const requestId = Math.random().toString(36).substring(2, 9);
+        activeRequestsRef.current[block.id] = requestId;
+
+        setBlocks([...finalBlocks, block, ...compiledNonAI.slice(finalBlocks.length + 1)]);
+
+        try {
+          const res = await generateReportAIContent({
+            prompt: block.filters.prompt || "",
+            maxLength: block.filters.maxLength || 300,
+            inputContent,
+          });
+          
+          if (activeRequestsRef.current[block.id] === requestId) {
+            block.content = res.content;
+            block.lastGeneratedConfig = {
+              prompt: block.filters.prompt || "",
+              maxLength: block.filters.maxLength || 300,
+              inputBlockIds: [...inputBlockIds],
+              inputContent: inputContent,
+            };
+            block.isGenerating = false;
+            delete activeRequestsRef.current[block.id];
+          } else {
+            // Request was cancelled, keep the cancelled text and continue
+            block.isGenerating = false;
+            block.content = "### Generation Cancelled\nGenAI block updates were stopped by the user.";
+            finalBlocks.push(block);
+            continue;
+          }
+        } catch (aiErr) {
+          if (activeRequestsRef.current[block.id] === requestId) {
+            console.error("AI Generation failed for block", block.id, aiErr);
+            block.content = `### Error during generation\n${aiErr instanceof Error ? aiErr.message : "An unexpected error occurred."}`;
+            block.isGenerating = false;
+            delete activeRequestsRef.current[block.id];
+          } else {
+            block.isGenerating = false;
+            block.content = "### Generation Cancelled\nGenAI block updates were stopped by the user.";
+            finalBlocks.push(block);
+            continue;
+          }
+        }
+
+        finalBlocks.push(block);
+      }
+
+      setBlocks(finalBlocks);
     } catch (err) {
       console.error("Compilation error", err);
     } finally {
@@ -410,7 +634,7 @@ export default function ReportBuilderClient() {
     const newBlock: Block = {
       id: Math.random().toString(36).substring(2, 9),
       type,
-      content: type === "markdown" ? "### Heading\nType your markdown content here." : undefined,
+      content: type === "markdown" ? "### Heading\nType your markdown content here." : type === "genai" ? "### GenAI Compilation\nClick 'Regenerate' or update filters to create dynamic text." : undefined,
       filters: {
         memberIds: [],
         types: [],
@@ -419,6 +643,10 @@ export default function ReportBuilderClient() {
         endYear: "",
         style: "apa",
         showSummary: true,
+        tags: [],
+        prompt: type === "genai" ? "Summarize the major highlights." : undefined,
+        maxLength: type === "genai" ? 300 : undefined,
+        inputBlockIds: type === "genai" ? [] : undefined,
       },
       sort: {
         field: "year",
@@ -434,7 +662,19 @@ export default function ReportBuilderClient() {
   };
 
   const removeBlock = (id: string) => {
-    const updated = blocks.filter((b) => b.id !== id);
+    const remaining = blocks.filter((b) => b.id !== id);
+    const updated = remaining.map((b) => {
+      if (b.type === "genai" && b.filters.inputBlockIds?.includes(id)) {
+        return {
+          ...b,
+          filters: {
+            ...b.filters,
+            inputBlockIds: b.filters.inputBlockIds.filter((refId) => refId !== id),
+          },
+        };
+      }
+      return b;
+    });
     setBlocks(updated);
   };
 
@@ -472,7 +712,7 @@ export default function ReportBuilderClient() {
     setBlocks(updated);
     // Auto-recompile dynamic blocks on filter change
     const changedBlock = updated.find((b) => b.id === id);
-    if (changedBlock && changedBlock.type !== "markdown") {
+    if (changedBlock && changedBlock.type !== "markdown" && changedBlock.type !== "genai") {
       compileReport(updated);
     }
   };
@@ -492,7 +732,7 @@ export default function ReportBuilderClient() {
     });
     setBlocks(updated);
     const changedBlock = updated.find((b) => b.id === id);
-    if (changedBlock && changedBlock.type !== "markdown") {
+    if (changedBlock && changedBlock.type !== "markdown" && changedBlock.type !== "genai") {
       compileReport(updated);
     }
   };
@@ -501,7 +741,7 @@ export default function ReportBuilderClient() {
   const exportMarkdown = () => {
     let md = "";
     blocks.forEach((block) => {
-      if (block.type === "markdown") {
+      if (block.type === "markdown" || block.type === "genai") {
         md += `${block.content}\n\n`;
       } else if (block.type === "publications") {
         if (block.compiledItems.length === 0) {
@@ -685,9 +925,17 @@ export default function ReportBuilderClient() {
         {/* The Actual Plain Page Render */}
         <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {blocks.map((block) => {
-            if (block.type === "markdown") {
+            if (block.type === "markdown" || block.type === "genai") {
               return (
-                <Box key={block.id} sx={{ color: "text.primary" }}>
+                <Box key={block.id} sx={{ position: "relative", color: "text.primary" }}>
+                  {block.type === "genai" && block.isGenerating && (
+                    <Box sx={{ p: 2.5, border: "1px dashed", borderColor: "primary.main", borderRadius: 3, display: "flex", alignItems: "center", gap: 2, bgcolor: "action.hover", mb: 2 }}>
+                      <CircularProgress size={20} />
+                      <Typography variant="body2" sx={{ fontWeight: "bold" }} color="primary.main">
+                        GenAI Block: Compiling AI summary...
+                      </Typography>
+                    </Box>
+                  )}
                   {renderMarkdownText(block.content || "")}
                 </Box>
               );
@@ -990,7 +1238,13 @@ export default function ReportBuilderClient() {
                 { label: "Projects Block", type: "projects" },
                 { label: "Scholarships Block", type: "scholarships" },
                 { label: "Thesis Block", type: "theses" },
-              ].map((item) => (
+                { label: "GenAI Block", type: "genai" },
+              ].filter((item) => {
+                if (item.type === "genai") {
+                  return userRole === "ADMIN" || userRole === "POWER_EDITOR";
+                }
+                return true;
+              }).map((item) => (
                 <Button
                   key={item.type}
                   variant="outlined"
@@ -1078,6 +1332,138 @@ export default function ReportBuilderClient() {
                       </Box>
                     )}
 
+                    {block.type === "genai" && (
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+                        {/* Token Warning Alert */}
+                        <Box sx={{ p: 2, borderRadius: 2, bgcolor: "#fffbe6", border: "1px solid #ffe58f", display: "flex", flexDirection: "column", gap: 0.5 }}>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#d48806" }}>
+                            Generative AI System Warning
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: "text.secondary", lineHeight: 1.5 }}>
+                            This block dynamically invokes Natural Language Processing. It automatically regenerates on report saves, full views, and exports. Because this consumes third-party AI tokens and adds processing latency to the report builder compiler, please use AI blocks sparingly.
+                          </Typography>
+                        </Box>
+
+                        {/* Instruction Prompt */}
+                        <Box>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", mb: 1, display: "block" }}>
+                            GenAI Synthesis Instruction Prompt
+                          </Typography>
+                          <TextField
+                            fullWidth
+                            multiline
+                            rows={3}
+                            value={block.filters.prompt || ""}
+                            onChange={(e) => updateBlockFilter(block.id, "prompt", e.target.value)}
+                            placeholder="e.g. Summarize the main topics of these publications and suggest future lines of work."
+                            size="small"
+                          />
+                        </Box>
+
+                        {/* Maximum Word Length */}
+                        <Box>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", mb: 1, display: "block" }}>
+                            Maximum generated text length (words)
+                          </Typography>
+                          <TextField
+                            fullWidth
+                            type="number"
+                            size="small"
+                            value={block.filters.maxLength || 300}
+                            onChange={(e) => updateBlockFilter(block.id, "maxLength", parseInt(e.target.value, 10) || 100)}
+                            placeholder="300"
+                          />
+                        </Box>
+
+                        {/* Context Checklist */}
+                        <Box>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", mb: 1, display: "block" }}>
+                            Select Input Blocks to Feed as Context
+                          </Typography>
+                          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, p: 1.5, border: "1px solid", borderColor: "divider", borderRadius: 2, maxHeight: 150, overflowY: "auto" }}>
+                            {blocks.filter((b) => b.id !== block.id && b.type !== "genai").length === 0 ? (
+                              <Typography variant="caption" color="text.secondary" sx={{ fontStyle: "italic" }}>
+                                No other static or dynamic blocks available to serve as context.
+                              </Typography>
+                            ) : (
+                              blocks
+                                .filter((b) => b.id !== block.id && b.type !== "genai")
+                                .map((b) => {
+                                  const actualIndex = blocks.findIndex((item) => item.id === b.id);
+                                  const isSelected = (block.filters.inputBlockIds || []).includes(b.id);
+                                  return (
+                                    <FormControlLabel
+                                      key={b.id}
+                                      control={
+                                        <Checkbox
+                                          size="small"
+                                          checked={isSelected}
+                                          onChange={(e) => {
+                                            const curr = block.filters.inputBlockIds || [];
+                                            const next = e.target.checked
+                                              ? [...curr, b.id]
+                                              : curr.filter((id) => id !== b.id);
+                                            updateBlockFilter(block.id, "inputBlockIds", next);
+                                          }}
+                                        />
+                                      }
+                                      label={
+                                        <Typography variant="caption" sx={{ fontWeight: "bold" }}>
+                                          Block {actualIndex + 1} ({b.type.toUpperCase()})
+                                        </Typography>
+                                      }
+                                    />
+                                  );
+                                })
+                            )}
+                          </Box>
+                        </Box>
+
+                        {/* Dynamic Length Indicator */}
+                        {(() => {
+                          const contextLength = getSelectedContextLength(block);
+                          const isTruncated = contextLength > 15000;
+                          return (
+                            <Box sx={{ mt: 0.5 }}>
+                              <Typography variant="caption" sx={{ fontWeight: "bold" }} color={isTruncated ? "error.main" : "text.secondary"}>
+                                Combined Context Size: {contextLength.toLocaleString()} / 15,000 characters
+                              </Typography>
+                              {isTruncated && (
+                                <Typography variant="caption" sx={{ display: "block", color: "error.main", mt: 0.5, lineHeight: 1.4 }}>
+                                  Warning: Selected context blocks exceed 15,000 characters. Input will be automatically truncated, which may omit critical details. Consider narrowing input filter ranges.
+                                </Typography>
+                              )}
+                            </Box>
+                          );
+                        })()}
+
+                        {/* Regenerate AI Button */}
+                        <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mt: 1 }}>
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            size="small"
+                            disabled={block.isGenerating || !block.filters.prompt?.trim() || !isGenAIDirty(block, blocks)}
+                            onClick={() => compileReport(blocks, block.id)}
+                            sx={{ textTransform: "none", fontWeight: "bold" }}
+                          >
+                            {block.isGenerating ? "Generating Summary..." : "Regenerate AI Block Content"}
+                          </Button>
+                          {block.isGenerating && (
+                            <Button
+                              variant="outlined"
+                              color="error"
+                              size="small"
+                              onClick={() => cancelGenAIUpdate(block.id)}
+                              sx={{ textTransform: "none", fontWeight: "bold" }}
+                            >
+                              Stop
+                            </Button>
+                          )}
+                        </Box>
+                      </Box>
+                    )}
+
                     {block.type === "publications" && (
                       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                         <Grid container spacing={2}>
@@ -1149,7 +1535,7 @@ export default function ReportBuilderClient() {
                       </Box>
                     )}
 
-                    {block.type !== "markdown" && block.type !== "publications" && (
+                    {block.type !== "markdown" && block.type !== "publications" && block.type !== "genai" && (
                       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                         <Grid container spacing={2}>
                           <Grid size={{ xs: 12, sm: 6 }}>
@@ -1238,11 +1624,65 @@ export default function ReportBuilderClient() {
                       </Box>
                     )}
 
-                    {block.type !== "markdown" && (
+                    {block.type !== "markdown" && block.type !== "genai" && (
                       <Box sx={{ display: "flex", flexDirection: "column", gap: 2, borderTop: "1px solid", borderColor: "divider", pt: 2 }}>
                         <Box>
+                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                              Filter by research tags
+                            </Typography>
+                            <Box sx={{ display: "flex", gap: 1 }}>
+                              <Button
+                                size="small"
+                                sx={{ fontSize: "0.625rem", p: 0, minWidth: 0, textTransform: "none", fontWeight: "bold" }}
+                                onClick={() => updateBlockFilter(block.id, "tags", initData?.tags || [])}
+                              >
+                                Select All
+                              </Button>
+                              <Typography variant="caption" color="text.secondary">|</Typography>
+                              <Button
+                                size="small"
+                                color="error"
+                                sx={{ fontSize: "0.625rem", p: 0, minWidth: 0, textTransform: "none", fontWeight: "bold" }}
+                                onClick={() => updateBlockFilter(block.id, "tags", [])}
+                              >
+                                Clear All
+                              </Button>
+                            </Box>
+                          </Box>
+                          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, p: 1, border: "1px solid", borderColor: "divider", borderRadius: 2, maxHeight: 96, overflowY: "auto" }}>
+                            {initData?.tags && initData.tags.length === 0 ? (
+                              <Typography variant="caption" color="text.secondary" sx={{ fontStyle: "italic", p: 0.5 }}>
+                                No taxonomy tags available.
+                              </Typography>
+                            ) : (
+                              initData?.tags.map((tag) => {
+                                const isSelected = (block.filters.tags || []).includes(tag);
+                                return (
+                                  <Chip
+                                    key={tag}
+                                    label={tag}
+                                    size="small"
+                                    onClick={() => {
+                                      const curr = block.filters.tags || [];
+                                      const next = curr.includes(tag)
+                                        ? curr.filter((t) => t !== tag)
+                                        : [...curr, tag];
+                                      updateBlockFilter(block.id, "tags", next);
+                                    }}
+                                    color={isSelected ? "primary" : "default"}
+                                    variant={isSelected ? "filled" : "outlined"}
+                                    sx={{ fontWeight: "bold", fontSize: "0.625rem", borderRadius: 1 }}
+                                  />
+                                );
+                              })
+                            )}
+                          </Box>
+                        </Box>
+
+                        <Box>
                           <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", mb: 1, display: "block" }}>
-                            Member relation filter
+                            Filter by related members
                           </Typography>
                           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, p: 1, border: "1px solid", borderColor: "divider", borderRadius: 2, maxHeight: 96, overflowY: "auto" }}>
                             {initData?.members.map((member) => {
@@ -1299,7 +1739,7 @@ export default function ReportBuilderClient() {
                       </Box>
                     )}
 
-                    {block.type !== "markdown" && block.type !== "publications" && (
+                    {block.type !== "markdown" && block.type !== "publications" && block.type !== "genai" && (
                       <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 1.5 }}>
                         <FormControlLabel
                           control={
@@ -1315,7 +1755,7 @@ export default function ReportBuilderClient() {
                     )}
                   </Box>
 
-                  {block.type !== "markdown" && (
+                  {block.type !== "markdown" && block.type !== "genai" && (
                     <Typography variant="caption" sx={{ bgcolor: "action.hover", px: 1.5, py: 0.5, borderRadius: 1, border: "1px solid", borderColor: "divider", display: "inline-block", alignSelf: "flex-start", fontWeight: 500 }} color="text.secondary">
                       Items in preview: {block.compiledItems.length}
                     </Typography>

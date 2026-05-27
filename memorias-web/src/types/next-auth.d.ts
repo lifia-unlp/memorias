@@ -3,7 +3,7 @@ import { type DefaultSession, type DefaultUser } from "next-auth";
 declare module "next-auth" {
   interface Session {
     user: {
-      role?: "USER" | "EDITOR" | "ADMIN";
+      role?: "USER" | "EDITOR" | "POWER_EDITOR" | "ADMIN";
       active?: boolean;
       notificationEmail?: string | null;
       avatarUrl?: string | null;
@@ -14,7 +14,7 @@ declare module "next-auth" {
   }
 
   interface User extends DefaultUser {
-    role?: "USER" | "EDITOR" | "ADMIN";
+    role?: "USER" | "EDITOR" | "POWER_EDITOR" | "ADMIN";
     active?: boolean;
     notificationEmail?: string | null;
     avatarUrl?: string | null;

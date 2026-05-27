@@ -2,8 +2,12 @@ import React from "react";
 import { Header } from "@/components/Header";
 import ReportBuilderClient from "./ReportBuilderClient";
 import { Container, Box, Typography } from "@mui/material";
+import { auth } from "@/auth";
 
-export default function ReportBuilderPage() {
+export default async function ReportBuilderPage() {
+  const session = await auth();
+  const userRole = session?.user?.role || "USER";
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>
       
@@ -51,7 +55,7 @@ export default function ReportBuilderPage() {
 
       {/* Client-side Workspace */}
       <Container maxWidth="xl" sx={{ py: 6, flex: 1, display: "flex", flexDirection: "column" }}>
-        <ReportBuilderClient />
+        <ReportBuilderClient userRole={userRole} />
       </Container>
 
     </Box>

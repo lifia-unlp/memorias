@@ -6,12 +6,42 @@ This living document tracks active status, findings, and handoffs between AI ses
 
 ## Current Status
 * **Active Phase**: Phase 3 Complete (Traceability Verification & Wiki Publishing)
-* **Last Updated**: 2026-05-25
+* **Last Updated**: 2026-05-27
 * **Overall Progress**: 100% completed
 
 ---
 
 ## Session Logs
+
+### Session 7 (2026-05-27)
+* **Goal**: Implement tag-based filtering for Project, Publications, Scholarship, and Thesis blocks, add a new `POWER_EDITOR` user role, and implement rich GenAI blocks in the Custom Report Builder.
+* **Accomplished**:
+  * Extended report builder initial data (`getReportInitData`) to fetch and return system taxonomy tags via server actions.
+  * Added `tags` filter parameter in `PublicationFilters`, `ProjectFilters`, `ScholarshipFilters`, and `ThesisFilters` interfaces and database queries.
+  * Implemented tag overlap check logic using Prisma `hasSome` scalar list query in all four queries (`queryPublications`, `queryProjects`, `queryScholarships`, `queryTheses`), ensuring all items (tagged and untagged) are returned when no tags are selected by default.
+  * Configured block filters to support the `tags` array on the frontend `ReportBuilderClient.tsx` component, safely backfilling legacy report configurations and initializing new blocks with an empty selection `[]` (so all elements are included by default).
+  * Updated the "Member relation filter" label to "Filter by related members" in all dynamic report blocks.
+  * Rendered dynamic, interactive tags filter controls (multi-select Chips, "Select All", and "Clear All" buttons) under block configuration panels.
+  * Integrated a new database-level user role `POWER_EDITOR` (Prisma enum schema updates, database synchronization, NextAuth JWT session mappings, and admin user administration promotion dropdown selectors).
+  * Built a secure `generateReportAIContent` Server Action (guarded strictly for `ADMIN` and `POWER_EDITOR` accounts) to fetch completions from OpenAI's `gpt-4o-mini` API.
+  * Implemented **Dual-Phase Compilation**: Phase 1 compiles static blocks, Phase 2 compiles GenAI blocks sequentially using static blocks as context prompts while showing an animated skeleton loader on the preview canvas.
+  * Implemented selective GenAI block compilation using `lastGeneratedConfig` caching. The block's dynamic summary is only generated when explicitly requested by clicking the manual "Regenerate AI Block Content" button.
+  * Programmed state tracking: the manual regeneration action button is enabled if and only if the active block prompt, word limit, or referenced input blocks configuration/compiled contents differ from the cached generation.
+  * Streamlined the GenAI editor interface by stripping out redundant and inapplicable fields (Timeline range, Research tags, Related members filters, Sort ordering options, Show summary checkmarks, and Items in preview count badges).
+  * Implemented context block size limits by truncating combined referenced markdown contexts at 15,000 characters to prevent extremely large payload submissions to the LLM.
+  * Programmed a manual force stop cancellation mechanism using client-side request tokens (`activeRequestsRef`) and a Stop action button, instantly aborting running GenAI compilations, dismissing the loading skeleton, and safely ignoring any resolving server responses.
+  * Implemented cascade deletion cleanups to remove deleted block IDs from dependent GenAI block filters to maintain referential integrity.
+  * Added scrollable checkboxes to pick context blocks (excluding all GenAI blocks and itself to prevent circular dependency cycles) and a premium warning banner detailing AI latency/token consciousness.
+  * Validated that the production Next.js compilation compiles without any type or routing errors.
+* **Discovered**:
+  * Found that Prisma handles scalar list checks on PostgreSQL cleanly using `hasSome` for arrays of strings.
+  * Realized that adding a role enum value in Prisma requires a database schema sync via `npx prisma db push` and Client regeneration via `npx prisma generate` to rebuild the TypeScript types.
+  * Verified that caching `lastGeneratedConfig` is easily persisted across database saves because builder configurations are saved in a dynamic PostgreSQL JSON column.
+  * Discovered that client-side request tokens are highly effective in managing async state in React, fully preventing race conditions when compilation is manually stopped.
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Deploy changes to staging, promote a user account to `POWER_EDITOR`, and execute end-to-end user validations.
 
 ### Session 6 (2026-05-25)
 * **Goal**: Execute Module G (Custom Report Builder & Layout Engine) and Module H (Administration & System Options Editor), verify traceability, and finalize wiki spec publishing.

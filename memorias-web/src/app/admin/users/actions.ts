@@ -38,7 +38,7 @@ export async function updateUserRoleAction(formData: FormData) {
   await ensureAdmin();
   
   const userId = formData.get("userId") as string;
-  const role = formData.get("role") as "USER" | "EDITOR" | "ADMIN";
+  const role = formData.get("role") as "USER" | "EDITOR" | "POWER_EDITOR" | "ADMIN";
   
   if (!userId || !role) throw new Error("User ID and Role are required");
   
