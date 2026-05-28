@@ -85,6 +85,11 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
     return !trimmed.startsWith("[") || !trimmed.endsWith("]");
   }, [initialData]);
 
+  // Solution D: Compute plain text full paths to store in interestsInSpanish as a search index
+  const plainTextPaths = useMemo(() => {
+    return acmInterests.map((id) => getAcmCcsPath(id).join(" > ")).join("\n");
+  }, [acmInterests]);
+
   // Auto-generate slug when name changes, unless overridden
   useEffect(() => {
     if (!isSlugOverridden) {
@@ -723,8 +728,8 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
               </Dialog>
             </Grid>
 
-            {/* Hidden input to preserve Spanish interests in DB without cluttering form */}
-            <input type="hidden" name="interestsInSpanish" value={initialData?.interestsInSpanish || ""} />
+            {/* Hidden input storing full taxonomy paths in interestsInSpanish as a search index */}
+            <input type="hidden" name="interestsInSpanish" value={plainTextPaths} />
 
             <Grid size={{ xs: 12 }}>
               <TextField
