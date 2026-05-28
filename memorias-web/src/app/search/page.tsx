@@ -72,7 +72,13 @@ export default async function SearchPage({
 
   // Search filter implementation using multi-word, accent-insensitive tokenized matching
   const matchedMembers = members.filter((m) =>
-    matchQueryTokens(q, [m.firstName, m.lastName, m.tags])
+    matchQueryTokens(q, [
+      m.firstName,
+      m.lastName,
+      m.tags,
+      m.interestsInEnglish,
+      m.interestsInSpanish,
+    ])
   );
 
   const matchedProjects = projects.filter((p) =>

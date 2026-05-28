@@ -76,6 +76,8 @@ export default async function MembersPage({
       m.positionAtLab,
       m.positionAtUnlp,
       m.tags,
+      m.interestsInEnglish,
+      m.interestsInSpanish,
     ]);
   });
 

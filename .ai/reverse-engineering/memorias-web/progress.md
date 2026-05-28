@@ -204,6 +204,21 @@ This living document tracks active status, findings, and handoffs between AI ses
 * **Next Steps**:
   * Request user review on the dynamic profile editor and detail view pages, and proceed to merge `feature/acm-ccs-interests` into the main branch.
 
+### Session 11 (2026-05-28)
+* **Goal**: Enable searching by research interests and ACM classifications in the global search page and member directory catalog.
+* **Accomplished**:
+  * Modified the global search page (`src/app/search/page.tsx`) matching criteria for member profiles to evaluate both `interestsInEnglish` (for legacy plain-text profiles) and `interestsInSpanish` (for modern ACM classification paths stored via Solution D).
+  * Modified the members directory catalog filtering logic (`src/app/members/page.tsx`) to search within both research interests columns.
+  * Verified successful search operation: looking up keywords like `"Creation"` correctly returns researcher records containing those keywords within their ACM classifications or legacy plain-text research interests.
+  * Verified 100% test suite compatibility (all 46/46 unit tests passing cleanly).
+  * Verified Next.js Turbopack production compilation builds without any TypeScript or routing errors.
+* **Discovered**:
+  * Storing plain text taxonomic trails inside the `interestsInSpanish` field (Solution D) functions perfectly as a search index for in-memory token filtering, matching deep keywords like "Creation" seamlessly.
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Proceed to reverse engineer the next module or address user feedback.
+
 ---
 
 ## Outstanding Questions & Blockers
