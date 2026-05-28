@@ -39,6 +39,8 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [startDateType, setStartDateType] = useState(initialData?.startDate ? "date" : "text");
+  const [endDateType, setEndDateType] = useState(initialData?.endDate ? "date" : "text");
 
   // Core States
   const [title, setTitle] = useState(initialData?.title || "");
@@ -274,11 +276,18 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
-                type="date"
+                type={startDateType}
                 label="Start Date"
                 name="startDate"
                 required
                 defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
+                placeholder="dd/mm/yyyy"
+                onFocus={() => setStartDateType("date")}
+                onBlur={(e) => {
+                  if (!e.target.value) {
+                    setStartDateType("text");
+                  }
+                }}
                 size="small"
                 slotProps={{ inputLabel: { shrink: true } }}
               />
@@ -287,11 +296,18 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
             <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
-                type="date"
+                type={endDateType}
                 label="End Date"
                 name="endDate"
                 required
                 defaultValue={initialData?.endDate ? new Date(initialData.endDate).toISOString().split("T")[0] : ""}
+                placeholder="dd/mm/yyyy"
+                onFocus={() => setEndDateType("date")}
+                onBlur={(e) => {
+                  if (!e.target.value) {
+                    setEndDateType("text");
+                  }
+                }}
                 size="small"
                 slotProps={{ inputLabel: { shrink: true } }}
               />
