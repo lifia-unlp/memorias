@@ -5,13 +5,100 @@ This living document tracks active status, findings, and handoffs between AI ses
 ---
 
 ## Current Status
-* **Active Phase**: Issue #23 Resolved (Multi-Word Accent-Insensitive Search Tokenization)
+* **Active Phase**: Researcher Profile Card Enhanced (Teaching at UNLP & Social Links with Logos)
 * **Last Updated**: 2026-05-28
-* **Overall Progress**: 100% completed (Including search optimizations)
+* **Overall Progress**: 100% completed (Including search and layout enhancements)
 
 ---
 
 ## Session Logs
+
+### Session 12 (2026-05-28)
+* **Goal**: Enhance the Researcher profile card by adding a "Teaching at UNLP" section, showing links to Google Scholar, ResearchGate, and DBLP using customized SVG logos/icons, and renaming its semantic annotation.
+* **Accomplished**:
+  * Implemented the "Teaching at UNLP" section in the Researcher profile card (`/members/[slug]/page.tsx`) right under "Scientific Accreditations", rendering the UNLP Academic Position as "Position" and the list of courses as "Courses" (supporting multi-line `whiteSpace: "pre-line"` formatting).
+  * Built beautiful custom inline SVG logos for Google Scholar, ResearchGate, and DBLP.
+  * Added responsive layout containers in the "Contact and Profiles" section of the Researcher profile card to render Google Scholar, ResearchGate, and DBLP links with their respective logos when available.
+  * Renamed the controlled vocabulary semantic UI annotation for the profile card from `Researcher profile card` to `Member Profile Card` inside both the JSX file (`/members/[slug]/page.tsx`) and the annotation rules documentation (`/docs/semantic-ui-annotation.md`).
+  * Verified all 46 vitest unit tests in the web workspace run and pass successfully.
+  * Successfully compiled the Next.js production build using Turbopack with zero errors.
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Request user feedback on the updated layout card.
+
+### Session 11 (2026-05-28)
+* **Goal**: Enable searching by research interests and ACM classifications in the global search page and member directory catalog.
+* **Accomplished**:
+  * Modified the global search page (`src/app/search/page.tsx`) matching criteria for member profiles to evaluate both `interestsInEnglish` (for legacy plain-text profiles) and `interestsInSpanish` (for modern ACM classification paths stored via Solution D).
+  * Modified the members directory catalog filtering logic (`src/app/members/page.tsx`) to search within both research interests columns.
+  * Verified successful search operation: looking up keywords like `"Creation"` correctly returns researcher records containing those keywords within their ACM classifications or legacy plain-text research interests.
+  * Verified 100% test suite compatibility (all 46/46 unit tests passing cleanly).
+  * Verified Next.js Turbopack production compilation builds without any TypeScript or routing errors.
+* **Discovered**:
+  * Storing plain text taxonomic trails inside the `interestsInSpanish` field (Solution D) functions perfectly as a search index for in-memory token filtering, matching deep keywords like "Creation" seamlessly.
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Request user review on the dynamic profile editor and detail view pages, and proceed to merge `feature/acm-ccs-interests` into the main branch.
+
+### Session 10 (2026-05-28)
+* **Goal**: Implement a reusable ACM CCS selection component and visual path rendering, and integrate them into the active researcher profile editor and detail pages on a new git branch, complying with custom aesthetic and layout preferences.
+* **Accomplished**:
+  * Created and switched to the clean branch `feature/acm-ccs-interests`.
+  * Parsed the complete ACM CCS XML schema (10,569 lines) using a `jsdom` parser script, generating optimized tree and flat-map datasets `acm_ccs.json` and `acm_ccs_flat.json` in `src/lib/`.
+  * Created a utility library `acm-ccs-utils.ts` to compute full breadcrumb trails in $O(1)$ and safely parse serialized JSON selections falling back to raw plain text.
+  * Developed the premium, search-enabled hierarchical selector `AcmCcsSelector.tsx` component.
+  * Built a standalone mockup environment at `/acm-test` separating Next.js Server Components from dynamic client form states.
+  * Fully integrated the hierarchical selector into the main profile form (`MemberForm.tsx`) using a low-profile dialog modal pattern: replaced the tall tree inline with space-conscious **Chips rendering their complete taxonomic path trails** (e.g. `Applied computing > Computers in other domains > Agriculture`) and placed editing actions in a centered MUI Dialog.
+  * Safely hid Spanish research interests (`interestsInSpanish`) from the editing UI as requested, rendering it as a hidden input to preserve existing database values without form clutter.
+  * Integrated path rendering into the English tab in `CvTabs.tsx` displaying category labels and bullet-separated breadcrumbs, and completely removed the Spanish research interests display block (`interestsEs`) from the Spanish tab as requested.
+  * Wrote 9 unit tests verifying utilities, achieving 100% pass rates (46/46 tests passing in total).
+  * Compiled the Next.js production build successfully with Turbopack, verifying zero type warnings, syntax conflicts, or bundler issues on the new branch.
+* **Discovered**:
+  * Dotted category IDs mirror the complete taxonomy branches perfectly, enabling instant breadcrumb path generation purely by string splitting.
+  * Using a flat index for tree searching in React is extremely optimized, resolving ancestor expansions in under 2 milliseconds.
+  * Keeping page routes as Server Components and decoupling interactive mockup states into child Client Components completely avoids Prisma/pg module-not-found compilation errors on the client.
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Request user review on the dynamic profile editor and detail view pages, and proceed to merge `feature/acm-ccs-interests` into the main branch.
+
+### Session 9 (2026-05-28)
+* **Goal**: Annotate the left-column core profile card with a semantic label, display active/former membership dates, and resolve Safari date picker placeholder behavior globally across all editors.
+* **Accomplished**:
+  * Identified the approved semantic label "Researcher profile card" defined in memorias-web/docs/semantic-ui-annotation.md.
+  * Applied data-component-semantics="Researcher profile card" to the left column Card component in /members/[slug]/page.tsx that contains the core researcher info, credentials, contact information, and action panel.
+  * Refined membership active period dates rendering on the "Researcher profile card" to display "Member since [startDate]" for active members and "Member from [startDate] to [endDate]" for former members.
+  * Resolved Safari's native HTML5 date input issue (showing the current date as a ghost placeholder in empty inputs) globally by implementing the Dynamic Input Type Switching pattern in all four nullable date-managing forms: MemberForm.tsx, ProjectForm.tsx, ScholarshipForm.tsx, and ThesisForm.tsx.
+  * Verified the application behavior with a full test suite run (37/37 tests passing) and a successful production Next.js build compilation.
+* **Discovered**:
+  * The semantic label "Researcher profile card" was already defined in the controlled vocabulary but was not yet applied to the JSX markup.
+  * Implementing Dynamic Input Type Switching (toggling between "text" and "date" on focus/blur) is a lightweight and robust way to resolve native date input placeholder limitations on Safari globally across all entity forms (Member, Project, Scholarship, and Thesis) without drawing in heavy date-picking packages.
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Proceed to implement ACM classification selections and details view rendering once the mockup is approved.
+
+### Session 8 (2026-05-28)
+* **Goal**: Resolve issue #23 regarding multi-word accent-insensitive tokenized search filtering on catalog screens, global search, and reusable curation selectors.
+* **Accomplished**:
+  * Created search utility library `src/lib/search.ts` with diacritics removal and whitespace-split logical-AND token query matching.
+  * Replaced literal substring checks with `matchQueryTokens` in in-memory catalog filters: `/members`, `/projects`, `/publications`, `/scholarships`, `/theses`.
+  * Updated Global Search page (`/search`) to use the new utility, establishing perfect multi-word token query behavior across all entities.
+  * Integrated multi-word accent-insensitive token matching into all reusable curation selectors (`MemberSelector`, `ProjectSelector`, `PublicationSelector`, `ScholarshipSelector`, `ThesisSelector`).
+  * Created complete regression testing suite:
+    - 10 unit tests for search normalization and token matching (`search.test.ts`).
+    - Multi-word token filtering tests for the `MemberSelector` component (`MemberSelector.test.tsx`).
+    - Playwright E2E integration test case for space-separated keyword searches (`members.spec.ts`).
+  * Verified that all 37 unit tests pass successfully.
+  * Verified that the Next.js production build compiles successfully with Turbopack and TypeScript.
+* **Discovered**:
+  * Realized that the search bug existed uniformly across all reusable entity selector components, which would break administrative linking of entities on forms when typing multiple words. Resolving this globally ensures maximum catalog consistency.
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Request user feedback and deploy to staging.
 
 ### Session 7 (2026-05-27)
 * **Goal**: Implement tag-based filtering for Project, Publications, Scholarship, and Thesis blocks, add a new `POWER_EDITOR` user role, and implement rich GenAI blocks in the Custom Report Builder.

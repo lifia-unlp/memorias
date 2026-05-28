@@ -2,7 +2,7 @@
 
 This application uses the HTML attribute `data-component-semantics` to identify meaningful UI components using a controlled vocabulary.
 
-The purpose of this attribute is to let developers and agents refer to complete UI components by explicit, human-readable names such as `"Researcher profile card"`, `"Main menu"`, or `"List of papers"`.
+The purpose of this attribute is to let developers and agents refer to complete UI components by explicit, human-readable names such as `"Member Profile Card"`, `"Main menu"`, or `"List of papers"`.
 
 ## Purpose
 
@@ -108,7 +108,7 @@ Each value should include:
 
 The primary navigation menu of the application.
 
-### Researcher profile card
+### Member Profile Card
 
 A compact card-like component that presents the main identifying and descriptive information about a researcher.
 

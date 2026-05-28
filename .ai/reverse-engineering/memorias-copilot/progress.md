@@ -6,12 +6,24 @@ This living document tracks active status, findings, and handoffs between AI ses
 
 ## Current Status
 * **Active Phase**: Phase 3 Complete (Traceability Verification & Wiki Publishing) & Active Maintenance (Search Enhancements)
-* **Last Updated**: 2026-05-26
+* **Last Updated**: 2026-05-28
 * **Overall Progress**: 100% completed (Maintenance active)
 
 ---
 
 ## Session Logs
+
+### Session 5 (2026-05-28)
+* **Goal**: Analyze the provided copilot session log `session_a0d7ff69-6f76-423c-b118-344be714f25b.json` and fix search shortcomings where users query members by courses taught or academic positions.
+* **Accomplished**:
+  * Identified that the Copilot failed to return relevant members for "profes de objetos I y objetos II" because `coursesAtUNLP` and `positionAtUnlp` were not searched in the `search_members` database adapter, and the tool's description did not inform the LLM of such capability.
+  * Enhanced `PostgresDatabaseAdapter.search_members` in `adapter.py` by adding `coursesAtUNLP` and `positionAtUnlp` fields into the case-insensitive, diacritic-insensitive `ILIKE` conditions.
+  * Updated the `search_members` tool definition and parameter descriptions in `definitions.py` to explicitly specify support for searching by courses taught (e.g. "Objetos I") and academic positions.
+  * Verified all 11 backend test suites run and pass cleanly using `uv run pytest`.
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Monitor copilot session logs for any other potential query search mismatches.
 
 ### Session 4 (2026-05-26)
 * **Goal**: Investigate and resolve the search failure for "Andrés Rodriguez" vs "Andrés" in copilot member searches.

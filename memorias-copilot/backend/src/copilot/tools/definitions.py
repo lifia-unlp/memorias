@@ -7,13 +7,13 @@ TOOLS: Final[list[dict[str, Any]]] = [
         "type": "function",
         "function": {
             "name": "search_members",
-            "description": "Search for research group members by name, slug, position, bio, or research interests.",
+            "description": "Search for research group members by name, slug, position, bio, research interests, or courses taught (e.g., 'Objetos I').",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "query": {
                         "type": "string",
-                        "description": "Search keyword (e.g. member name, role, research interest, position like POSTDOC or ADMIN)",
+                        "description": "Search keyword (e.g. member name, role, research interest, position like POSTDOC or ADMIN, or course taught like 'Objetos I')",
                     }
                 },
                 "required": ["query"],

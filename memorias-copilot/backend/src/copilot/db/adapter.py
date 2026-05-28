@@ -182,6 +182,8 @@ class PostgresDatabaseAdapter(DatabaseAdapter):
                 OR unaccent("lastName") ILIKE unaccent(%({param_name})s)
                 OR unaccent("slug") ILIKE unaccent(%({param_name})s)
                 OR unaccent("positionAtLab") ILIKE unaccent(%({param_name})s)
+                OR unaccent("positionAtUnlp") ILIKE unaccent(%({param_name})s)
+                OR unaccent("coursesAtUNLP") ILIKE unaccent(%({param_name})s)
                 OR unaccent("shortCvInSpanish") ILIKE unaccent(%({param_name})s)
                 OR unaccent("shortCvInEnglish") ILIKE unaccent(%({param_name})s)
                 OR unaccent("interestsInSpanish") ILIKE unaccent(%({param_name})s)
