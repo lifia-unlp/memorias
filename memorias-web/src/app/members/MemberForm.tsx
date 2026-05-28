@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { createMember, updateMember } from "./actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TagWidget } from "@/components/TagWidget";
+import { AcmCcsSelector } from "@/components/AcmCcsSelector";
+import { getAcmCcsPath } from "@/lib/acm-ccs-utils";
+import flatLookup from "@/lib/acm_ccs_flat.json";
 import {
   Box,
   Card,
@@ -17,6 +20,8 @@ import {
   Alert,
   Chip,
   InputAdornment,
+  Dialog,
+  DialogContent,
 } from "@mui/material";
 
 interface MemberFormProps {
@@ -52,6 +57,33 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
   const [isSlugOverridden, setIsSlugOverridden] = useState(
     initialData ? true : false
   );
+
+  // ACM CCS Interests States
+  const [isAcmSelectorOpen, setIsAcmSelectorOpen] = useState(false);
+  const initialAcmIds = useMemo<string[]>(() => {
+    const value = initialData?.interestsInEnglish;
+    if (!value) return [];
+    const trimmed = value.trim();
+    if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) {
+          return parsed.filter((item): item is string => typeof item === "string");
+        }
+      } catch (e) {
+        // Fallback
+      }
+    }
+    return [];
+  }, [initialData]);
+  const [acmInterests, setAcmInterests] = useState<string[]>(initialAcmIds);
+
+  const isLegacyText = useMemo(() => {
+    const val = initialData?.interestsInEnglish;
+    if (!val) return false;
+    const trimmed = val.trim();
+    return !trimmed.startsWith("[") || !trimmed.endsWith("]");
+  }, [initialData]);
 
   // Auto-generate slug when name changes, unless overridden
   useEffect(() => {
@@ -548,30 +580,151 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
             </Grid>
 
             <Grid size={{ xs: 12, md: 6 }}>
-              <TextField
+              <Box
+                sx={{
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderRadius: 2,
+                  p: 2,
+                  bgcolor: "background.paper",
+                  minHeight: 140,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Box>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontWeight: "bold",
+                      color: "text.secondary",
+                      textTransform: "uppercase",
+                      display: "block",
+                      mb: 1,
+                    }}
+                  >
+                    Research Interests (English - ACM CCS Classification)
+                  </Typography>
+
+                  {/* Hidden form input holding serialized array for actual POST submit */}
+                  <input type="hidden" name="interestsInEnglish" value={JSON.stringify(acmInterests)} />
+
+                  {/* Display legacy warning if needed */}
+                  {isLegacyText && acmInterests.length === 0 ? (
+                    <Box
+                      sx={{
+                        p: 1.5,
+                        border: "1px solid",
+                        borderColor: "warning.light",
+                        bgcolor: "rgba(247, 144, 9, 0.03)",
+                        borderRadius: 1.5,
+                        mb: 1.5,
+                      }}
+                    >
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          fontWeight: "bold",
+                          color: "warning.dark",
+                          display: "block",
+                          mb: 0.5,
+                        }}
+                      >
+                        Legacy Text Interests Found:
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "text.primary",
+                          fontStyle: "italic",
+                          display: "block",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        "{initialData.interestsInEnglish}"
+                      </Typography>
+                    </Box>
+                  ) : null}
+
+                  {/* Active ACM Categories list */}
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 1 }}>
+                    {acmInterests.length === 0 && (!isLegacyText || acmInterests.length > 0) ? (
+                      <Typography variant="caption" sx={{ color: "text.secondary", fontStyle: "italic" }}>
+                        No categories selected.
+                      </Typography>
+                    ) : (
+                      acmInterests.map((id) => (
+                        <Chip
+                          key={id}
+                          label={getAcmCcsPath(id).join(" > ")}
+                          size="small"
+                          color="primary"
+                          variant="outlined"
+                          sx={{ height: 22, fontSize: "0.72rem", borderRadius: 1 }}
+                        />
+                      ))
+                    )}
+                  </Box>
+                </Box>
+
+                <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 1.5 }}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={() => setIsAcmSelectorOpen(true)}
+                    sx={{ textTransform: "none", fontWeight: "bold", fontSize: "0.72rem", py: 0.25 }}
+                  >
+                    {acmInterests.length > 0
+                      ? "Edit Classifications"
+                      : isLegacyText
+                      ? "Migrate to ACM Classification"
+                      : "Select ACM Categories"}
+                  </Button>
+                </Box>
+              </Box>
+
+              {/* Modal Dialog housing the Selector */}
+              <Dialog
+                open={isAcmSelectorOpen}
+                onClose={() => setIsAcmSelectorOpen(false)}
+                maxWidth="md"
                 fullWidth
-                multiline
-                rows={4}
-                label="Research Interests (English)"
-                name="interestsInEnglish"
-                defaultValue={initialData?.interestsInEnglish || ""}
-                placeholder="Summarize main research lines in English..."
-                size="small"
-              />
+                sx={{ "& .MuiDialog-paper": { borderRadius: 3 } }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                    p: 2,
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                    Select Research Interests (ACM CCS Taxonomy)
+                  </Typography>
+                  <Button
+                    onClick={() => setIsAcmSelectorOpen(false)}
+                    variant="contained"
+                    size="small"
+                    sx={{ textTransform: "none", fontWeight: "bold", borderRadius: 1.5 }}
+                  >
+                    Done
+                  </Button>
+                </Box>
+                <DialogContent sx={{ p: 3 }}>
+                  <AcmCcsSelector
+                    initialValue={JSON.stringify(acmInterests)}
+                    onChange={(newIds) => setAcmInterests(newIds)}
+                  />
+                </DialogContent>
+              </Dialog>
             </Grid>
 
-            <Grid size={{ xs: 12, md: 6 }}>
-              <TextField
-                fullWidth
-                multiline
-                rows={4}
-                label="Research Interests (Spanish)"
-                name="interestsInSpanish"
-                defaultValue={initialData?.interestsInSpanish || ""}
-                placeholder="Resuma las principales lineas de investigacion en Espanol..."
-                size="small"
-              />
-            </Grid>
+            {/* Hidden input to preserve Spanish interests in DB without cluttering form */}
+            <input type="hidden" name="interestsInSpanish" value={initialData?.interestsInSpanish || ""} />
 
             <Grid size={{ xs: 12 }}>
               <TextField

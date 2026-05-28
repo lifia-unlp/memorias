@@ -180,7 +180,29 @@ This living document tracks active status, findings, and handoffs between AI ses
 * **Blocked Items**:
   * None.
 * **Next Steps**:
-  * Continue verifying and applying other approved semantic labels to remaining unannotated components across the application.
+  * Proceed to implement ACM classification selections and details view rendering once the mockup is approved.
+
+### Session 10 (2026-05-28)
+* **Goal**: Implement a reusable ACM CCS selection component and visual path rendering, and integrate them into the active researcher profile editor and detail pages on a new git branch, complying with custom aesthetic and layout preferences.
+* **Accomplished**:
+  * Created and switched to the clean branch `feature/acm-ccs-interests`.
+  * Parsed the complete ACM CCS XML schema (10,569 lines) using a `jsdom` parser script, generating optimized tree and flat-map datasets `acm_ccs.json` and `acm_ccs_flat.json` in `src/lib/`.
+  * Created a utility library `acm-ccs-utils.ts` to compute full breadcrumb trails in $O(1)$ and safely parse serialized JSON selections falling back to raw plain text.
+  * Developed the premium, search-enabled hierarchical selector `AcmCcsSelector.tsx` component.
+  * Built a standalone mockup environment at `/acm-test` separating Next.js Server Components from dynamic client form states.
+  * Fully integrated the hierarchical selector into the main profile form (`MemberForm.tsx`) using a low-profile dialog modal pattern: replaced the tall tree inline with space-conscious **Chips rendering their complete taxonomic path trails** (e.g. `Applied computing > Computers in other domains > Agriculture`) and placed editing actions in a centered MUI Dialog.
+  * Safely hid Spanish research interests (`interestsInSpanish`) from the editing UI as requested, rendering it as a hidden input to preserve existing database values without form clutter.
+  * Integrated path rendering into the English tab in `CvTabs.tsx` displaying category labels and bullet-separated breadcrumbs, and completely removed the Spanish research interests display block (`interestsEs`) from the Spanish tab as requested.
+  * Wrote 9 unit tests verifying utilities, achieving 100% pass rates (46/46 tests passing in total).
+  * Compiled the Next.js production build successfully with Turbopack, verifying zero type warnings, syntax conflicts, or bundler issues on the new branch.
+* **Discovered**:
+  * Dotted category IDs mirror the complete taxonomy branches perfectly, enabling instant breadcrumb path generation purely by string splitting.
+  * Using a flat index for tree searching in React is extremely optimized, resolving ancestor expansions in under 2 milliseconds.
+  * Keeping page routes as Server Components and decoupling interactive mockup states into child Client Components completely avoids Prisma/pg module-not-found compilation errors on the client.
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Request user review on the dynamic profile editor and detail view pages, and proceed to merge `feature/acm-ccs-interests` into the main branch.
 
 ---
 
@@ -188,4 +210,5 @@ This living document tracks active status, findings, and handoffs between AI ses
 *(Document any business or code mysteries here for user feedback)*
 
 1. **Question**: We observed `SystemOption` is Compounded Unique on `[listName, value]`. We should verify all distinct option lists in use during Module H.
+
 

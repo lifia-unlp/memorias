@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Box, Tabs, Tab, Typography, Card } from "@mui/material";
+import { safeParseAcmInterests } from "@/lib/acm-ccs-utils";
 
 export function CvTabs({
   cvEs,
@@ -15,6 +16,8 @@ export function CvTabs({
   interestsEn: string | null;
 }) {
   const [tabValue, setTabValue] = useState(0); // 0 = English, 1 = Spanish
+  
+  const parsedAcmInterests = useMemo(() => safeParseAcmInterests(interestsEn), [interestsEn]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -79,7 +82,7 @@ export function CvTabs({
             )}
 
             {interestsEn && (
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1, pt: 3, borderTop: 1, borderColor: "divider" }}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, pt: 3, borderTop: 1, borderColor: "divider" }}>
                 <Typography
                   variant="caption"
                   sx={{
@@ -89,17 +92,50 @@ export function CvTabs({
                     letterSpacing: 1,
                   }}
                 >
-                  Research Interests
+                  Research Interests (
+                  <Box
+                    component="a"
+                    href="https://dl.acm.org/ccs"
+                    target="_blank"
+                    rel="noreferrer"
+                    sx={{
+                      color: "primary.main",
+                      textDecoration: "none",
+                      display: "inline",
+                      "&:hover": { textDecoration: "underline" },
+                      fontWeight: "bold",
+                    }}
+                  >
+                    ACM Classification
+                  </Box>
+                  )
                 </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    whiteSpace: "pre-line",
-                    color: "text.primary",
-                  }}
-                >
-                  {interestsEn}
-                </Typography>
+                {parsedAcmInterests ? (
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                    {parsedAcmInterests.map((interest) => (
+                      <Box key={interest.id} sx={{ display: "flex", flexDirection: "column", gap: 0.25 }}>
+                        <Typography variant="body2" sx={{ fontWeight: "bold", color: "primary.main" }}>
+                          {interest.label}
+                        </Typography>
+                        {interest.path.length > 1 && (
+                          <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                            {interest.path.slice(0, -1).join(" • ")}
+                          </Typography>
+                        )}
+                      </Box>
+                    ))}
+                  </Box>
+                ) : (
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      whiteSpace: "pre-line",
+                      color: "text.primary",
+                    }}
+                  >
+                    {interestsEn}
+                  </Typography>
+                )}
               </Box>
             )}
           </>
@@ -132,31 +168,6 @@ export function CvTabs({
               <Typography variant="body2" sx={{ fontStyle: "italic", color: "text.secondary" }}>
                 No Spanish biography provided.
               </Typography>
-            )}
-
-            {interestsEs && (
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1, pt: 3, borderTop: 1, borderColor: "divider" }}>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    fontWeight: "bold",
-                    color: "secondary.main",
-                    textTransform: "uppercase",
-                    letterSpacing: 1,
-                  }}
-                >
-                  Intereses de Investigacion
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    whiteSpace: "pre-line",
-                    color: "text.primary",
-                  }}
-                >
-                  {interestsEs}
-                </Typography>
-              </Box>
             )}
           </>
         )}
