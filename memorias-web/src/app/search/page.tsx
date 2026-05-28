@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Pagination } from "@/components/Pagination";
 import { LinkButton } from "@/components/reusable/LinkComponents";
+import { matchQueryTokens } from "@/lib/search";
 import Link from "next/link";
 import {
   Container,
@@ -69,74 +70,50 @@ export default async function SearchPage({
     prisma.publication.findMany(),
   ]);
 
-  // Helper to normalize strings by removing accents/diacritics and converting to lowercase
-  const normalizeText = (val: string | null | undefined): string => {
-    if (!val) return "";
-    return val
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase();
-  };
+  // Search filter implementation using multi-word, accent-insensitive tokenized matching
+  const matchedMembers = members.filter((m) =>
+    matchQueryTokens(q, [m.firstName, m.lastName, m.tags])
+  );
 
-  const normalizedQ = normalizeText(q.trim());
+  const matchedProjects = projects.filter((p) =>
+    matchQueryTokens(q, [
+      p.title,
+      p.code,
+      p.director,
+      p.coDirector,
+      p.summary,
+      p.fundingAgency,
+      p.tags,
+    ])
+  );
 
-  // Search filter implementation
-  const matchedMembers = normalizedQ
-    ? members.filter(
-        (m) =>
-          normalizeText(m.firstName).includes(normalizedQ) ||
-          normalizeText(m.lastName).includes(normalizedQ) ||
-          m.tags.some((t) => normalizeText(t).includes(normalizedQ))
-      )
-    : members;
+  const matchedTheses = theses.filter((t) =>
+    matchQueryTokens(q, [
+      t.title,
+      t.student,
+      t.director,
+      t.coDirector,
+      t.summary,
+      t.career,
+      t.tags,
+    ])
+  );
 
-  const matchedProjects = normalizedQ
-    ? projects.filter(
-        (p) =>
-          normalizeText(p.title).includes(normalizedQ) ||
-          normalizeText(p.code).includes(normalizedQ) ||
-          normalizeText(p.director).includes(normalizedQ) ||
-          normalizeText(p.coDirector).includes(normalizedQ) ||
-          normalizeText(p.summary).includes(normalizedQ) ||
-          normalizeText(p.fundingAgency).includes(normalizedQ) ||
-          p.tags.some((t) => normalizeText(t).includes(normalizedQ))
-      )
-    : projects;
+  const matchedScholarships = scholarships.filter((s) =>
+    matchQueryTokens(q, [
+      s.title,
+      s.student,
+      s.director,
+      s.coDirector,
+      s.summary,
+      s.type,
+      s.tags,
+    ])
+  );
 
-  const matchedTheses = normalizedQ
-    ? theses.filter(
-        (t) =>
-          normalizeText(t.title).includes(normalizedQ) ||
-          normalizeText(t.student).includes(normalizedQ) ||
-          normalizeText(t.director).includes(normalizedQ) ||
-          normalizeText(t.coDirector).includes(normalizedQ) ||
-          normalizeText(t.summary).includes(normalizedQ) ||
-          normalizeText(t.career).includes(normalizedQ) ||
-          t.tags.some((tag) => normalizeText(tag).includes(normalizedQ))
-      )
-    : theses;
-
-  const matchedScholarships = normalizedQ
-    ? scholarships.filter(
-        (s) =>
-          normalizeText(s.title).includes(normalizedQ) ||
-          normalizeText(s.student).includes(normalizedQ) ||
-          normalizeText(s.director).includes(normalizedQ) ||
-          normalizeText(s.coDirector).includes(normalizedQ) ||
-          normalizeText(s.summary).includes(normalizedQ) ||
-          normalizeText(s.type).includes(normalizedQ) ||
-          s.tags.some((tag) => normalizeText(tag).includes(normalizedQ))
-      )
-    : scholarships;
-
-  const matchedPublications = normalizedQ
-    ? publications.filter(
-        (p) =>
-          normalizeText(p.title).includes(normalizedQ) ||
-          normalizeText(p.authors).includes(normalizedQ) ||
-          p.tags.some((tag) => normalizeText(tag).includes(normalizedQ))
-      )
-    : publications;
+  const matchedPublications = publications.filter((p) =>
+    matchQueryTokens(q, [p.title, p.authors, p.tags])
+  );
 
   // Calculate dynamic category counts
   const counts = {

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { matchQueryTokens } from "@/lib/search";
 import {
   Box,
   Card,
@@ -65,7 +66,11 @@ export function ScholarshipSelector({
   });
 
   const filteredItems = sortedItems.filter((item) =>
-    `${item.title} ${item.student || ""}`.toLowerCase().includes(searchQuery.toLowerCase())
+    matchQueryTokens(searchQuery, [
+      item.title,
+      item.student,
+      item.type,
+    ])
   );
 
   if (layout === "list") {

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import Link from "next/link";
 import { Header } from "@/components/Header";
+import { matchQueryTokens } from "@/lib/search";
 import { Footer } from "@/components/Footer";
 import { jsonToBibtex } from "@/lib/bibtex";
 import { formatCitation } from "@/lib/citations";
@@ -61,17 +62,13 @@ export default async function PublicationsPage(props: {
   });
 
   // Filter in memory for keyword search
-  const lowerQ = q.trim().toLowerCase();
-  const filteredPublications = lowerQ
-    ? publications.filter((p) => {
-        const matchTitle = p.title.toLowerCase().includes(lowerQ);
-        const matchAuthors = p.authors.toLowerCase().includes(lowerQ);
-        const matchTags = p.tags.some((tag) =>
-          tag.toLowerCase().includes(lowerQ)
-        );
-        return matchTitle || matchAuthors || matchTags;
-      })
-    : publications;
+  const filteredPublications = publications.filter((p) =>
+    matchQueryTokens(q, [
+      p.title,
+      p.authors,
+      p.tags,
+    ])
+  );
 
   // Paginate final list
   const totalPages = Math.ceil(filteredPublications.length / limit);

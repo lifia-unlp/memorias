@@ -3,6 +3,7 @@ import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reu
 import { prisma } from "@/lib/prisma";
 import { MemberFilters } from "./MemberFilters";
 import { Header } from "@/components/Header";
+import { matchQueryTokens } from "@/lib/search";
 import { Footer } from "@/components/Footer";
 import { Pagination } from "@/components/Pagination";
 import Link from "next/link";
@@ -69,18 +70,13 @@ export default async function MembersPage({
     if (hideFormer && isFormer(m)) {
       return false;
     }
-    if (!query.trim()) return true;
-    const lowerQuery = query.trim().toLowerCase();
-    const matchName =
-      m.firstName.toLowerCase().includes(lowerQuery) ||
-      m.lastName.toLowerCase().includes(lowerQuery);
-    const matchPosition =
-      (m.positionAtLab && m.positionAtLab.toLowerCase().includes(lowerQuery)) ||
-      (m.positionAtUnlp && m.positionAtUnlp.toLowerCase().includes(lowerQuery));
-    const matchTags = m.tags.some((tag) =>
-      tag.toLowerCase().includes(lowerQuery)
-    );
-    return matchName || matchPosition || matchTags;
+    return matchQueryTokens(query, [
+      m.firstName,
+      m.lastName,
+      m.positionAtLab,
+      m.positionAtUnlp,
+      m.tags,
+    ]);
   });
 
   // Paginate final list

@@ -72,6 +72,24 @@ describe("MemberSelector Component", () => {
     expect(screen.queryByText("Bob Smith")).not.toBeInTheDocument();
   });
 
+  it("filters members using multi-word space-separated tokens and accent-insensitivity", () => {
+    const onChange = vi.fn();
+    render(<MemberSelector items={mockMembers} selectedIds={[]} onChange={onChange} layout="grid" />);
+
+    const searchInput = screen.getByPlaceholderText("Search members...");
+    
+    // Test multi-word query (Alice Smith)
+    fireEvent.change(searchInput, { target: { value: "Alice S" } });
+    expect(screen.getByText("Alice Smith")).toBeInTheDocument();
+    expect(screen.queryByText("Bob Smith")).not.toBeInTheDocument();
+    expect(screen.queryByText("Jane Doe")).not.toBeInTheDocument();
+
+    // Test order-independent query (Smith Bob)
+    fireEvent.change(searchInput, { target: { value: "Smith B" } });
+    expect(screen.getByText("Bob Smith")).toBeInTheDocument();
+    expect(screen.queryByText("Alice Smith")).not.toBeInTheDocument();
+  });
+
   it("invokes onChange callback when toggling checkbox list items", () => {
     const onChange = vi.fn();
     render(<MemberSelector items={mockMembers} selectedIds={[]} onChange={onChange} layout="grid" />);

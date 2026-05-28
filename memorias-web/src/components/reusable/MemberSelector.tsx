@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { matchQueryTokens } from "@/lib/search";
 import {
   Box,
   Card,
@@ -74,7 +75,11 @@ export function MemberSelector({
     if (hideFormer && isFormer(item) && !selectedIds.includes(item.id)) {
       return false;
     }
-    return `${item.firstName} ${item.lastName}`.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchQueryTokens(searchQuery, [
+      item.firstName,
+      item.lastName,
+      item.positionAtLab,
+    ]);
   });
 
   if (layout === "list") {

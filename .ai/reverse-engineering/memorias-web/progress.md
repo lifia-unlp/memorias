@@ -5,9 +5,9 @@ This living document tracks active status, findings, and handoffs between AI ses
 ---
 
 ## Current Status
-* **Active Phase**: Phase 3 Complete (Traceability Verification & Wiki Publishing)
-* **Last Updated**: 2026-05-27
-* **Overall Progress**: 100% completed
+* **Active Phase**: Issue #23 Resolved (Multi-Word Accent-Insensitive Search Tokenization)
+* **Last Updated**: 2026-05-28
+* **Overall Progress**: 100% completed (Including search optimizations)
 
 ---
 
@@ -145,6 +145,26 @@ This living document tracks active status, findings, and handoffs between AI ses
   * None.
 * **Next Steps**:
   * Analyze the main workspace structure of `memorias-web` to list primary entry points.
+
+### Session 8 (2026-05-28)
+* **Goal**: Resolve issue #23 regarding multi-word accent-insensitive tokenized search filtering on catalog screens, global search, and reusable curation selectors.
+* **Accomplished**:
+  * Created search utility library `src/lib/search.ts` with diacritics removal and whitespace-split logical-AND token query matching.
+  * Replaced literal substring checks with `matchQueryTokens` in in-memory catalog filters: `/members`, `/projects`, `/publications`, `/scholarships`, `/theses`.
+  * Updated Global Search page (`/search`) to use the new utility, establishing perfect multi-word token query behavior across all entities.
+  * Integrated multi-word accent-insensitive token matching into all reusable curation selectors (`MemberSelector`, `ProjectSelector`, `PublicationSelector`, `ScholarshipSelector`, `ThesisSelector`).
+  * Created complete regression testing suite:
+    - 10 unit tests for search normalization and token matching (`search.test.ts`).
+    - Multi-word token filtering tests for the `MemberSelector` component (`MemberSelector.test.tsx`).
+    - Playwright E2E integration test case for space-separated keyword searches (`members.spec.ts`).
+  * Verified that all 37 unit tests pass successfully.
+  * Verified that the Next.js production build compiles successfully with Turbopack and TypeScript.
+* **Discovered**:
+  * Realized that the search bug existed uniformly across all reusable entity selector components, which would break administrative linking of entities on forms when typing multiple words. Resolving this globally ensures maximum catalog consistency.
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Request user feedback and deploy to staging.
 
 ---
 

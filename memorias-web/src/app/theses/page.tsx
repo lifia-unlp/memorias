@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Header } from "@/components/Header";
+import { matchQueryTokens } from "@/lib/search";
 import { Footer } from "@/components/Footer";
 import { Pagination } from "@/components/Pagination";
 import { ThesisFilters } from "./ThesisFilters";
@@ -71,22 +72,17 @@ export default async function ThesesPage(props: {
   });
 
   // Filter in memory for keyword search
-  const lowerQ = q.trim().toLowerCase();
-  const filteredTheses = lowerQ
-    ? theses.filter((t) => {
-        const matchTitle = t.title.toLowerCase().includes(lowerQ);
-        const matchStudent = !!(t.student && t.student.toLowerCase().includes(lowerQ));
-        const matchAdvisors =
-          !!((t.director && t.director.toLowerCase().includes(lowerQ)) ||
-          (t.coDirector && t.coDirector.toLowerCase().includes(lowerQ)));
-        const matchCareer = !!(t.career && t.career.toLowerCase().includes(lowerQ));
-        const matchSummary = !!(t.summary && t.summary.toLowerCase().includes(lowerQ));
-        const matchTags = t.tags.some((tag) =>
-          tag.toLowerCase().includes(lowerQ)
-        );
-        return matchTitle || matchStudent || matchAdvisors || matchCareer || matchSummary || matchTags;
-      })
-    : theses;
+  const filteredTheses = theses.filter((t) =>
+    matchQueryTokens(q, [
+      t.title,
+      t.student,
+      t.director,
+      t.coDirector,
+      t.career,
+      t.summary,
+      t.tags,
+    ])
+  );
 
   // Paginate final list
   const totalPages = Math.ceil(filteredTheses.length / limit);

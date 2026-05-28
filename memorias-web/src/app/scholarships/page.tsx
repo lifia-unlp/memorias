@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Header } from "@/components/Header";
+import { matchQueryTokens } from "@/lib/search";
 import { Footer } from "@/components/Footer";
 import { Pagination } from "@/components/Pagination";
 import { ScholarshipFilters } from "./ScholarshipFilters";
@@ -73,22 +74,17 @@ export default async function ScholarshipsPage(props: {
   });
 
   // Filter in memory for keyword search
-  const lowerQ = q.trim().toLowerCase();
-  const filteredScholarships = lowerQ
-    ? scholarships.filter((s) => {
-        const matchTitle = s.title.toLowerCase().includes(lowerQ);
-        const matchStudent = !!(s.student && s.student.toLowerCase().includes(lowerQ));
-        const matchAdvisors =
-          !!((s.director && s.director.toLowerCase().includes(lowerQ)) ||
-          (s.coDirector && s.coDirector.toLowerCase().includes(lowerQ)));
-        const matchAgency = !!(s.fundingAgency && s.fundingAgency.toLowerCase().includes(lowerQ));
-        const matchSummary = !!(s.summary && s.summary.toLowerCase().includes(lowerQ));
-        const matchTags = s.tags.some((tag) =>
-          tag.toLowerCase().includes(lowerQ)
-        );
-        return matchTitle || matchStudent || matchAdvisors || matchAgency || matchSummary || matchTags;
-      })
-    : scholarships;
+  const filteredScholarships = scholarships.filter((s) =>
+    matchQueryTokens(q, [
+      s.title,
+      s.student,
+      s.director,
+      s.coDirector,
+      s.fundingAgency,
+      s.summary,
+      s.tags,
+    ])
+  );
 
   // Paginate final list
   const totalPages = Math.ceil(filteredScholarships.length / limit);

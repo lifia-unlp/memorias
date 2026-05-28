@@ -36,4 +36,25 @@ test.describe("Members Directory Page", () => {
     // 5. Verify that hideFormer parameter is removed from the URL (restored to default clean URL)
     await expect(page).not.toHaveURL(/hideFormer=false/);
   });
+
+  test("should filter members directory using multi-word space-separated tokens", async ({ page }) => {
+    // 1. Locate search input field
+    const searchInput = page.locator('input[placeholder*="Search members"]');
+    await expect(searchInput).toBeVisible();
+
+    // 2. Type "Diego T" (matching "Diego Torres")
+    await searchInput.fill("Diego T");
+
+    // 3. Verify that the URL updates or the filtered member card is visible
+    // Wait for the query parameter to update (debounce/transition)
+    await page.waitForTimeout(500);
+
+    // 4. Verify "Diego Torres" is visible
+    const diegoCard = page.locator('text="Diego Torres"');
+    await expect(diegoCard).toBeVisible();
+
+    // 5. Verify that another researcher (e.g. any other seed member name not matching "Diego T") is not shown
+    const otherCard = page.locator('text="Alice Smith"');
+    await expect(otherCard).not.toBeVisible();
+  });
 });

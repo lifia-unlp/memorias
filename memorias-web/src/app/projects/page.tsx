@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Header } from "@/components/Header";
+import { matchQueryTokens } from "@/lib/search";
 import { Footer } from "@/components/Footer";
 import { Pagination } from "@/components/Pagination";
 import {
@@ -52,22 +53,17 @@ export default async function ProjectsPage(props: {
   });
 
   // Filter in memory for maximum search flexibility (including partial, case-insensitive tag matching)
-  const lowerQ = q.trim().toLowerCase();
-  const filteredProjects = lowerQ
-    ? projects.filter((p) => {
-        const matchTitle = p.title.toLowerCase().includes(lowerQ);
-        const matchCode = !!(p.code && p.code.toLowerCase().includes(lowerQ));
-        const matchDirector =
-          !!((p.director && p.director.toLowerCase().includes(lowerQ)) ||
-          (p.coDirector && p.coDirector.toLowerCase().includes(lowerQ)));
-        const matchSummary = !!(p.summary && p.summary.toLowerCase().includes(lowerQ));
-        const matchAgency = !!(p.fundingAgency && p.fundingAgency.toLowerCase().includes(lowerQ));
-        const matchTags = p.tags.some((tag) =>
-          tag.toLowerCase().includes(lowerQ)
-        );
-        return matchTitle || matchCode || matchDirector || matchSummary || matchAgency || matchTags;
-      })
-    : projects;
+  const filteredProjects = projects.filter((p) =>
+    matchQueryTokens(q, [
+      p.title,
+      p.code,
+      p.director,
+      p.coDirector,
+      p.summary,
+      p.fundingAgency,
+      p.tags,
+    ])
+  );
 
   // Paginate final list
   const totalPages = Math.ceil(filteredProjects.length / limit);
