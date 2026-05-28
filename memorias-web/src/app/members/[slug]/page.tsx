@@ -108,6 +108,7 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
         {/* Left Column: Profile Card & Contacts */}
         <Box sx={{ width: { xs: "100%", lg: 320 }, flexShrink: 0, display: "flex", flexDirection: "column", gap: 3 }}>
           <Card
+            data-component-semantics="Researcher profile card"
             sx={{
               p: 3,
               position: "relative",
@@ -158,6 +159,27 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
                     }}
                   >
                     {member.positionAtLab}
+                  </Typography>
+                )}
+
+                {((member.startDate) || member.endDate) && (
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "text.secondary",
+                      display: "block",
+                      mt: 0.5,
+                      fontWeight: "medium",
+                    }}
+                  >
+                    {member.endDate ? (
+                      <>
+                        Member {member.startDate && `from ${new Date(member.startDate).toLocaleDateString("en-US", { year: "numeric", month: "short" })} `}
+                        to {new Date(member.endDate).toLocaleDateString("en-US", { year: "numeric", month: "short" })}
+                      </>
+                    ) : (
+                      member.startDate && `Member since ${new Date(member.startDate).toLocaleDateString("en-US", { year: "numeric", month: "short" })}`
+                    )}
                   </Typography>
                 )}
               </Box>

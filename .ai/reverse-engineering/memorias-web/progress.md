@@ -166,6 +166,22 @@ This living document tracks active status, findings, and handoffs between AI ses
 * **Next Steps**:
   * Request user feedback and deploy to staging.
 
+### Session 9 (2026-05-28)
+* **Goal**: Annotate the left-column core profile card with a semantic label, display active/former membership dates, and resolve Safari date picker placeholder behavior.
+* **Accomplished**:
+  * Identified the approved semantic label "Researcher profile card" defined in memorias-web/docs/semantic-ui-annotation.md.
+  * Applied data-component-semantics="Researcher profile card" to the left column Card component in /members/[slug]/page.tsx that contains the core researcher info, credentials, contact information, and action panel.
+  * Refined membership active period dates rendering on the "Researcher profile card" to display "Member since [startDate]" for active members and "Member from [startDate] to [endDate]" for former members.
+  * Resolved Safari's native HTML5 date input issue (showing the current date as a ghost placeholder in empty inputs) by implementing the Dynamic Input Type Switching pattern in MemberForm.tsx for both Joined/Left Lab fields.
+  * Verified the application behavior with a full test suite run (37/37 tests passing) and a successful production Next.js build compilation.
+* **Discovered**:
+  * The semantic label "Researcher profile card" was already defined in the controlled vocabulary but was not yet applied to the JSX markup.
+  * Implementing Dynamic Input Type Switching (toggling between "text" and "date" on focus/blur) is a lightweight and robust way to resolve native date input placeholder limitations on Safari without drawing in heavy date-picking packages.
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Continue verifying and applying other approved semantic labels to remaining unannotated components across the application.
+
 ---
 
 ## Outstanding Questions & Blockers
