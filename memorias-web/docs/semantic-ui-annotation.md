@@ -170,6 +170,26 @@ The card presenting full HTML citation formatting, bibtex export actions, and me
 
 The card presenting details of an academic scholarship (timeline, student, agency, director, and co-director) within the scholarships directory listing.
 
+### Member search result card
+
+The card presenting identifying and descriptive details of an academic researcher within the global search results listing.
+
+### Project search result card
+
+The card presenting details of an investigation or research project within the global search results listing.
+
+### Thesis search result card
+
+The card presenting metadata, students, directors, and progress status of an academic thesis within the global search results listing.
+
+### Scholarship search result card
+
+The card presenting details of an academic scholarship within the global search results listing.
+
+### Publication search result card
+
+The card presenting HTML citation, bibtex export actions, and metadata chips of a scientific publication within the global search results listing.
+
 ### Menubar
 
 The primary application header container containing logo navigation links, main menu bar components, and the session control interface.

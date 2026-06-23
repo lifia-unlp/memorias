@@ -56,7 +56,7 @@ test.describe("Reports Statistics Page Security & Layout", () => {
     const copilotOption = page.getByRole("menuitem", { name: "Copilot" });
     await expect(copilotOption).toBeVisible();
     await expect(copilotOption).toHaveAttribute("target", "_blank");
-    await expect(copilotOption).toHaveAttribute("href", "http://localhost:3001");
+    await expect(copilotOption).toHaveAttribute("href", process.env.COPILOT_URL || "http://localhost:3001");
     
     // Close reports menu
     await page.keyboard.press("Escape");
