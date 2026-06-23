@@ -5,13 +5,27 @@ This living document tracks active status, findings, and handoffs between AI ses
 ---
 
 ## Current Status
-* **Active Phase**: Researcher Profile Card Enhanced (Teaching at UNLP & Social Links with Logos)
-* **Last Updated**: 2026-05-28
-* **Overall Progress**: 100% completed (Including search and layout enhancements)
+* **Active Phase**: Search Page Optimization & UI Decomposition (Issue #29)
+* **Last Updated**: 2026-06-23
+* **Overall Progress**: 100% completed (Including database-level search optimization and DRY utilities refactoring)
 
 ---
 
 ## Session Logs
+
+### Session 14 (2026-06-23)
+* **Goal**: Optimize the global search page by moving query filtering from memory to the database level (PostgreSQL) using Prisma and decompose the search page UI by extracting reusable card components (Issue #29).
+* **Accomplished**:
+  * Decomposed the global search result card designs into 5 modular component files under `src/components/reusable/` (Member, Project, Thesis, Scholarship, and Publication search cards) with visual semantic annotations.
+  * Refactored `src/app/search/page.tsx` database query logic to move logical multi-word `AND` token filtering and tab counts (`prisma.*.count()`) to the PostgreSQL database level using Prisma.
+  * Added dynamic environment loading (`@next/env`) to playwright tests configuration to prevent configuration mismatches.
+  * Verified all unit and E2E tests pass (8/8 E2E tests, 51/51 unit tests).
+  * Successfully compiled the Next.js production build.
+  * Merged the changes from the `feature/global-search-optimization` branch into `main` and pushed to the remote repository.
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Proceed to the next prioritized refactoring issue (e.g. Issue #31: Decompose ReportBuilderClient).
 
 ### Session 13 (2026-06-23)
 * **Goal**: Analyze the technical debt of `/memorias-web` (Issue 28), compile a comprehensive report, and create a structured series of GitHub issues to coordinate the refactoring.
