@@ -8,6 +8,7 @@ import { TagWidget } from "@/components/TagWidget";
 import { MemberSelector } from "@/components/reusable/MemberSelector";
 import { ProjectSelector } from "@/components/reusable/ProjectSelector";
 import { ThesisSelector } from "@/components/reusable/ThesisSelector";
+import { slugify } from "@/lib/slugs";
 import {
   Box,
   Card,
@@ -92,13 +93,7 @@ export function ScholarshipForm({
   // Auto-generate slug from title
   useEffect(() => {
     if (!isSlugOverridden) {
-      const generated = title
-        .toLowerCase()
-        .trim()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "") // remove accents
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
+      const generated = slugify(title);
       setSlug(generated);
     }
   }, [title, isSlugOverridden]);
@@ -249,13 +244,7 @@ export function ScholarshipForm({
                           variant="outlined"
                           onClick={() => {
                             setIsSlugOverridden(false);
-                            const generated = title
-                              .toLowerCase()
-                              .trim()
-                              .normalize("NFD")
-                              .replace(/[\u0300-\u036f]/g, "")
-                              .replace(/[^a-z0-9]+/g, "-")
-                              .replace(/(^-|-$)/g, "");
+                            const generated = slugify(title);
                             setSlug(generated);
                           }}
                         >

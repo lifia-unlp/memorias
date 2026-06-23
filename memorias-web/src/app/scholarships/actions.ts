@@ -1,21 +1,11 @@
 "use server";
 
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { logAction } from "@/lib/audit";
 import { sanitizeTag } from "@/lib/tags";
-
-export async function ensureEditorOrAdmin() {
-  const session = await auth();
-  if (!session || !session.user?.active) {
-    throw new Error("Unauthorized. Active session required.");
-  }
-  const role = session.user.role;
-  if (role !== "EDITOR" && role !== "ADMIN") {
-    throw new Error("Unauthorized. Editor or Administrator role required.");
-  }
-}
+import { ensureEditorOrAdmin } from "@/lib/auth-helpers";
+import { slugify } from "@/lib/slugs";
 
 export async function createScholarship(formData: FormData) {
   try {
@@ -46,13 +36,7 @@ export async function createScholarship(formData: FormData) {
     }
 
     if (!slug) {
-      slug = title
-        .toLowerCase()
-        .trim()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "") // remove accents
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
+      slug = slugify(title);
     }
 
     // Ensure unique slug

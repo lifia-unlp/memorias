@@ -1,10 +1,11 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { logAction } from "@/lib/audit";
 import { sanitizeTag } from "@/lib/tags";
+import { ensureEditorOrAdmin } from "@/lib/auth-helpers";
+import { slugify } from "@/lib/slugs";
 
 // ---------------------------------------------------------
 // Helper: Clean and format individual BibTeX tag value
@@ -209,29 +210,6 @@ export async function resolveDoiAction(doiInput: string) {
 }
 
 // ---------------------------------------------------------
-// Helper: Role Check Utility
-// ---------------------------------------------------------
-async function verifyEditorOrAdmin() {
-  const session = await auth();
-  if (
-    !session?.user?.active ||
-    (session.user.role !== "EDITOR" && session.user.role !== "ADMIN")
-  ) {
-    throw new Error("Unauthorized: Insufficient administrative privileges");
-  }
-}
-
-// Helper: Clean slug format
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[\s_-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-// ---------------------------------------------------------
 // Server Actions: CRUD Operations
 // ---------------------------------------------------------
 
@@ -253,7 +231,7 @@ export async function createPublication(data: {
   featured?: boolean;
   ignoreDuplicateCheck?: boolean;
 }) {
-  await verifyEditorOrAdmin();
+  await ensureEditorOrAdmin();
 
   const title = data.title.trim();
   const authors = data.authors.trim();
@@ -360,7 +338,7 @@ export async function updatePublication(
     ignoreDuplicateCheck?: boolean;
   }
 ) {
-  await verifyEditorOrAdmin();
+  await ensureEditorOrAdmin();
 
   const title = data.title.trim();
   const authors = data.authors.trim();
@@ -453,7 +431,7 @@ export async function updatePublication(
 }
 
 export async function deletePublication(id: string) {
-  await verifyEditorOrAdmin();
+  await ensureEditorOrAdmin();
 
   try {
     const pub = await prisma.publication.delete({

@@ -10,6 +10,7 @@ import { ProjectSelector } from "@/components/reusable/ProjectSelector";
 import { ThesisSelector } from "@/components/reusable/ThesisSelector";
 import { ScholarshipSelector } from "@/components/reusable/ScholarshipSelector";
 import { PublicationSelector } from "@/components/reusable/PublicationSelector";
+import { slugify } from "@/lib/slugs";
 import {
   Box,
   Card,
@@ -111,13 +112,7 @@ export function ThesisForm({
   // Auto-generate slug from title
   useEffect(() => {
     if (!isSlugOverridden) {
-      const generated = title
-        .toLowerCase()
-        .trim()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "") // remove accents
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
+      const generated = slugify(title);
       setSlug(generated);
     }
   }, [title, isSlugOverridden]);
@@ -283,15 +278,9 @@ export function ThesisForm({
                           size="small"
                           variant="outlined"
                           onClick={() => {
-                            setIsSlugOverridden(false);
-                            const generated = title
-                              .toLowerCase()
-                              .trim()
-                              .normalize("NFD")
-                              .replace(/[\u0300-\u036f]/g, "")
-                              .replace(/[^a-z0-9]+/g, "-")
-                              .replace(/(^-|-$)/g, "");
-                            setSlug(generated);
+                             setIsSlugOverridden(false);
+                             const generated = slugify(title);
+                             setSlug(generated);
                           }}
                         >
                           Reset Auto

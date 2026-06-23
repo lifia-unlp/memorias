@@ -2,7 +2,7 @@ import React from "react";
 import { Header } from "@/components/Header";
 import { prisma } from "@/lib/prisma";
 import { ScholarshipForm } from "../ScholarshipForm";
-import { ensureEditorOrAdmin } from "../actions";
+import { ensureEditorOrAdmin } from "@/lib/auth-helpers";
 import { Container, Box, Typography } from "@mui/material";
 
 export default async function NewScholarshipPage() {

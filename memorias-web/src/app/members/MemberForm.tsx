@@ -8,6 +8,7 @@ import { TagWidget } from "@/components/TagWidget";
 import { AcmCcsSelector } from "@/components/AcmCcsSelector";
 import { getAcmCcsPath } from "@/lib/acm-ccs-utils";
 import flatLookup from "@/lib/acm_ccs_flat.json";
+import { slugify } from "@/lib/slugs";
 import {
   Box,
   Card,
@@ -93,13 +94,7 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
   // Auto-generate slug when name changes, unless overridden
   useEffect(() => {
     if (!isSlugOverridden) {
-      const generated = `${firstName} ${lastName}`
-        .toLowerCase()
-        .trim()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "") // remove accents
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
+      const generated = slugify(`${firstName} ${lastName}`);
       setSlug(generated);
     }
   }, [firstName, lastName, isSlugOverridden]);
@@ -199,13 +194,7 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
                           variant="outlined"
                           onClick={() => {
                             setIsSlugOverridden(false);
-                            const generated = `${firstName} ${lastName}`
-                              .toLowerCase()
-                              .trim()
-                              .normalize("NFD")
-                              .replace(/[\u0300-\u036f]/g, "")
-                              .replace(/[^a-z0-9]+/g, "-")
-                              .replace(/(^-|-$)/g, "");
+                            const generated = slugify(`${firstName} ${lastName}`);
                             setSlug(generated);
                           }}
                           sx={{ textTransform: "none", py: 0.25, px: 1, fontSize: "0.625rem", fontWeight: "bold" }}

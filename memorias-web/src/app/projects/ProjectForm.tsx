@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TagWidget } from "@/components/TagWidget";
 import { MemberSelector } from "@/components/reusable/MemberSelector";
+import { slugify } from "@/lib/slugs";
 import {
   Box,
   Card,
@@ -59,13 +60,7 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
   // Auto-generate slug when title changes, unless overridden
   useEffect(() => {
     if (!isSlugOverridden) {
-      const generated = title
-        .toLowerCase()
-        .trim()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "") // remove accents
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
+      const generated = slugify(title);
       setSlug(generated);
     }
   }, [title, isSlugOverridden]);
@@ -195,13 +190,7 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
                           variant="outlined"
                           onClick={() => {
                             setIsSlugOverridden(false);
-                            const generated = title
-                              .toLowerCase()
-                              .trim()
-                              .normalize("NFD")
-                              .replace(/[\u0300-\u036f]/g, "")
-                              .replace(/[^a-z0-9]+/g, "-")
-                              .replace(/(^-|-$)/g, "");
+                            const generated = slugify(title);
                             setSlug(generated);
                           }}
                           sx={{ textTransform: "none", py: 0.25, px: 1, fontSize: "0.625rem", fontWeight: "bold" }}

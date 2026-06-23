@@ -13,6 +13,29 @@ This living document tracks active status, findings, and handoffs between AI ses
 
 ## Session Logs
 
+### Session 13 (2026-06-23)
+* **Goal**: Analyze the technical debt of `/memorias-web` (Issue 28), compile a comprehensive report, and create a structured series of GitHub issues to coordinate the refactoring.
+* **Accomplished**:
+  * Conducted an in-depth analysis of technical debt in the `memorias-web` workspace, identifying code smells (God components, duplicate authorization and slugification functions), low cohesion/high coupling, and a critical performance bottleneck in the global search page.
+  * Created the artifact `technical_debt_analysis.md` documenting the findings and a prioritized refactoring roadmap.
+  * Formulated 5 GitHub issues (Epic index and 4 sub-issues) signed with "AG" and labeled with "technical debt".
+  * Successfully created the issues on GitHub:
+    * #29: `Search Page Optimization: Fix In-Memory Filtering and Decompose search/page.tsx`
+    * #30: `DRY Utilities: Centralize Authorization Checks and Slugification Logic`
+    * #31: `Decompose ReportBuilderClient: Modularize Block Editing, Preview Canvas, and AI hooks`
+    * #32: `Type Safety and Reusability: Unify Entity Selectors and Resolve Insecure casts`
+    * #33: `[Epic] Technical Debt Resolution in memorias-web` (Index Issue)
+  * Added detailed comments to each created GitHub issue, providing exact file paths, line ranges, and code samples for the identified code smells and duplication to assist development.
+  * Implemented and completed the DRY Utilities refactoring (**Issue #30**) in a new branch `feature/dry-utilities`:
+    * Created centralized utilities `src/lib/auth-helpers.ts` (role check) and `src/lib/slugs.ts` (slugification).
+    * Removed duplicate code and integrated imported helpers across 5 Server Action files, 4 client form files, and 4 page router files.
+    * Added comprehensive unit testing suite `slugs.test.ts` achieving 100% test coverage with 51/51 tests passing cleanly.
+    * Successfully compiled the Next.js production build (`npm run build`) confirming zero typescript or path routing conflicts.
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Request user review on the completed DRY Utilities refactoring, merge `feature/dry-utilities` into the main branch, and proceed to **Issue #29** (Search Page Optimization).
+
 ### Session 12 (2026-05-28)
 * **Goal**: Enhance the Researcher profile card by adding a "Teaching at UNLP" section, showing links to Google Scholar, ResearchGate, and DBLP using customized SVG logos/icons, and renaming its semantic annotation.
 * **Accomplished**:

@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { ThesisForm } from "../../ThesisForm";
-import { ensureEditorOrAdmin } from "../../actions";
+import { ensureEditorOrAdmin } from "@/lib/auth-helpers";
 import { Container, Box, Typography } from "@mui/material";
 
 type Params = Promise<{ slug: string }>;
