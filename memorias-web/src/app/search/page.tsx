@@ -38,7 +38,7 @@ export const metadata = {
 };
 
 // Helper functions to build Prisma search where filters
-const buildMemberWhere = (tokens: string[]) => {
+export const buildMemberWhere = (tokens: string[]) => {
   if (tokens.length === 0) return {};
   return {
     AND: tokens.map((token) => {
@@ -56,7 +56,7 @@ const buildMemberWhere = (tokens: string[]) => {
   };
 };
 
-const buildProjectWhere = (tokens: string[]) => {
+export const buildProjectWhere = (tokens: string[]) => {
   if (tokens.length === 0) return {};
   return {
     AND: tokens.map((token) => {
@@ -76,7 +76,7 @@ const buildProjectWhere = (tokens: string[]) => {
   };
 };
 
-const buildThesisWhere = (tokens: string[]) => {
+export const buildThesisWhere = (tokens: string[]) => {
   if (tokens.length === 0) return {};
   return {
     AND: tokens.map((token) => {
@@ -96,7 +96,7 @@ const buildThesisWhere = (tokens: string[]) => {
   };
 };
 
-const buildScholarshipWhere = (tokens: string[]) => {
+export const buildScholarshipWhere = (tokens: string[]) => {
   if (tokens.length === 0) return {};
   return {
     AND: tokens.map((token) => {
@@ -116,7 +116,7 @@ const buildScholarshipWhere = (tokens: string[]) => {
   };
 };
 
-const buildPublicationWhere = (tokens: string[]) => {
+export const buildPublicationWhere = (tokens: string[]) => {
   if (tokens.length === 0) return {};
   return {
     AND: tokens.map((token) => {
