@@ -7,19 +7,19 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ## Current Status
 * **Active Phase**: Technical Debt Resolution & Code Quality Audit (Issue #28)
 * **Last Updated**: 2026-07-08
-* **Overall Progress**: 100% completed (Including search page optimization, DRY utilities, ReportBuilderClient decomposition, type safety/selector unification, technical debt analysis report, TagsCurationClient modularization, HeaderClient decomposition, and MemberForm/PublicationForm modularization)
+* **Overall Progress**: 100% completed (Including search page optimization, DRY utilities, ReportBuilderClient decomposition, type safety/selector unification, technical debt analysis report, TagsCurationClient modularization, HeaderClient decomposition, MemberForm/PublicationForm modularization, and remaining forms modularization with test coverage)
 
 ---
 
 ## Session Logs
 
 ### Session 17 (2026-07-08)
-* **Goal**: Analizar la deuda técnica de `/memorias-web` (Issue #28), consolidar los cambios locales, crear nuevos issues para puntos remanentes y resolverlos todos: modularizar `TagsCurationClient.tsx` (Issue #37), descomponer `HeaderClient.tsx` (Issue #36) y modularizar `MemberForm.tsx` / `PublicationForm.tsx` (Issue #38).
+* **Goal**: Analizar la deuda técnica de `/memorias-web` (Issue #28), consolidar los cambios locales, crear nuevos issues para puntos remanentes y resolverlos todos: modularizar `TagsCurationClient.tsx` (Issue #37), descomponer `HeaderClient.tsx` (Issue #36), modularizar `MemberForm.tsx` / `PublicationForm.tsx` (Issue #38) y modularizar `ThesisForm.tsx` / `ScholarshipForm.tsx` / `ProjectForm.tsx` (Issue #39).
 * **Accomplished**:
   * Elaborado y guardado el reporte `technical_debt_analysis.md` cubriendo las observaciones de calidad.
   * Publicado el reporte en el Issue #28 y cerrado el issue formalmente en GitHub.
   * Realizado commit (`81e9405`) y push de los refactorings anteriores (descomposición de `ReportBuilderClient` y selectores genéricos con tipado estático seguro).
-  * Creados los nuevos issues de deuda técnica: #36 (HeaderClient), #37 (TagsCurationClient) y #38 (Forms).
+  * Creados los nuevos issues de deuda técnica: #36 (HeaderClient), #37 (TagsCurationClient), #38 (FormsPrincipales), #39 (FormsRestantes) y #40 (ServerActions).
   * Resuelto el **Issue #37** (Modularización de `TagsCurationClient.tsx`):
     * Creado el hook personalizado `useAutoTagger.ts` para aislar los estados, progreso y lógica de batch AI del Auto-Tagger.
     * Creado el componente `TagActionDialogs.tsx` para agrupar todos los modales e interfaces de diálogos CRUD de taxonomías.
@@ -29,16 +29,23 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
     * Creados los componentes dropdown de barra de navegación `ReportsDropdown`, `AdminDropdown` y `UserDropdown` en `HeaderDropdownMenu.tsx`.
     * Creado el componente lateral móvil `MobileNavigationDrawer.tsx` conteniendo la navegación y Drawer de visualización mobile.
     * Refactorizado `HeaderClient.tsx` para servir exclusivamente como plantilla contenedora de layout delegando el comportamiento a los nuevos subcomponentes.
-  * Resuelto el **Issue #38** (Modularización de `MemberForm.tsx` y `PublicationForm.tsx`):
+  * Resuelto el **Issue #38** (Modularización de `MemberForm.tsx` y `PublicationForm.tsx` con test coverage):
     * **MemberForm:** Extraído el hook `useMemberForm.ts` para encapsular estados, generación automática de slugs y persistencia, y creado `AcmCcsSection.tsx` para aislar las clasificaciones taxonómicas de ACM.
     * **PublicationForm:** Extraído el hook `usePublicationForm.ts` para agrupar la lógica de importación CrossRef/BibTeX y persistencia, y creado `PublicationWizard.tsx` para los flujos de configuración previos a la edición.
     * Removido código muerto de filtros que ya es manejado internamente por los selectores reutilizables unificados.
-  * Verificada la correcta compilación y el paso de las 51 pruebas con Vitest.
-  * Realizado commit (`41eab7c`) y push de los formularios modulares, comentando y cerrando formalmente el **Issue #38** en GitHub.
+    * Creadas las suites de pruebas unitarias unitarias `MemberForm.test.tsx` y `PublicationForm.test.tsx`.
+  * Resuelto el **Issue #39** (Modularización de los formularios restantes con test coverage):
+    * **ThesisForm:** Extraído el hook `useThesisForm.ts` para aislar lógica del formulario y persistencia, y creada la suite de pruebas unitarias `ThesisForm.test.tsx`.
+    * **ScholarshipForm:** Extraído el hook `useScholarshipForm.ts` para aislar la lógica del formulario, y creada la suite de pruebas unitarias `ScholarshipForm.test.tsx`.
+    * **ProjectForm:** Extraído el hook `useProjectForm.ts` para aislar la lógica de estado y guardado, y creada la suite de pruebas unitarias `ProjectForm.test.tsx`.
+    * Removido código muerto e inputs de búsqueda duplicados de los tres formularios.
+  * Agregada la directiva de seguridad de ejecución y escape de comandos, y la regla de requerimiento de cobertura de pruebas unitarias al archivo global `AGENTS.md` (commit `b4906d1`).
+  * Verificada la correcta compilación y el paso de las 77 pruebas unitarias de Vitest con 100% de éxito.
+  * Realizado commit (`2d4b18b`) y push de los formularios restantes modularizados y sus suites de pruebas, comentando y cerrando formalmente el **Issue #39** en GitHub.
 * **Blocked Items**:
   * Ninguno.
 * **Next Steps**:
-  * Coordinar con el desarrollador los próximos objetivos de ingeniería del software para memorias-web o memorias-copilot.
+  * Proceder con el **Issue #40** para desacoplar el acceso a la base de datos (Prisma) de los Server Actions del frontend.
 
 ---
 
