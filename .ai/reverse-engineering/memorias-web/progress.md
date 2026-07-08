@@ -7,7 +7,7 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ## Current Status
 * **Active Phase**: IN PROGRESS — Resolving Reopened Technical Debt (Issue #28)
 * **Last Updated**: 2026-07-08
-* **Overall Progress**: 66% completed (Reopened issues: #41, #42, #43, and #44 resolved; #45, #46 pending)
+* **Overall Progress**: 83% completed (Reopened issues: #41, #42, #43, #44, and #45 resolved; #46 pending)
 
 
 ---
@@ -15,7 +15,7 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ## Session Logs
 
 ### Session 20 (2026-07-08)
-* **Goal**: Resolver los issues de cobertura y refactorización del análisis de deuda: **Issue #41** (cobertura), **Issue #43** (extraer servicios de lectura), **Issue #42** (dependencia circular de PublicationForm) e **Issue #44** (descomponer useReportCompiler).
+* **Goal**: Resolver los issues de cobertura y refactorización del análisis de deuda: **Issue #41** (cobertura), **Issue #43** (extraer servicios de lectura), **Issue #42** (dependencia circular de PublicationForm), **Issue #44** (descomponer useReportCompiler) e **Issue #45** (descomponer TagsCurationClient).
 * **Accomplished**:
   * **Issue #41 (Pruebas unitarias de cobertura)**:
     * Creados tests unitarios para `useReportCompiler` (31 tests), `reports/actions` (25 tests), `search/page` (21 tests) y `TagsCurationClient` (14 tests).
@@ -40,9 +40,14 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
     * Creado `src/app/reports/builder/hooks/useSavedReports.ts` para delegar la persistencia de reportes (CRUD y viewStates).
     * Reducido y refactorizado `src/app/reports/builder/useReportCompiler.ts` para actuar como el orquestador principal que une ambos subhooks y maneja la compilación y orquestación GenAI.
     * Creados tests unitarios para ambos subhooks en `hooks/__tests__/` alcanzando 216 tests unitarios aprobados en verde (100% éxito).
+  * **Issue #45 (Descomposición de TagsCurationClient)**:
+    * Creado el hook personalizado `src/app/admin/tags/useTagsCuration.ts` para encapsular los estados de modal y notificaciones, así como los handlers de renombrado, borrado, combinación y adición.
+    * Creados subcomponentes independientes bajo `src/app/admin/tags/components/`: `TagsCurationHeader.tsx`, `TagsCurationStats.tsx`, `TagsCurationAutoTaggerPanel.tsx` y `TagsCurationTable.tsx`.
+    * Reducido `TagsCurationClient.tsx` a un ensamblador puro que compone los subcomponentes y utiliza `useTagsCuration`.
+    * Creados tests unitarios para el hook `useTagsCuration.test.ts` (4 tests) logrando 220 tests unitarios totales aprobados en verde (100% éxito).
 * **Blocked Items**: Ninguno.
 * **Next Steps**:
-  * Proceder con el **Issue #45** (descomponer `TagsCurationClient` en componentes y hook de acciones) para continuar reduciendo la deuda técnica.
+  * Proceder con el **Issue #46** (centralizar mappers `FormData` para Server Actions de entidades) para finalizar la deuda técnica identificada.
 
 ### Session 19 (2026-07-08)
 * **Goal**: Analizar la deuda técnica actual de `/memorias-web` enfocada en mantenibilidad, legibilidad, bajo acoplamiento y alta cohesión.
