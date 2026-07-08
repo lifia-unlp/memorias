@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
-import { resolveDoiAction, parseBibtex, createPublication, updatePublication } from "./actions";
 import { TagWidget } from "@/components/TagWidget";
 import { MemberSelector } from "@/components/reusable/MemberSelector";
 import { ProjectSelector } from "@/components/reusable/ProjectSelector";
 import { ThesisSelector } from "@/components/reusable/ThesisSelector";
+import { usePublicationForm } from "./usePublicationForm";
+import { PublicationWizard } from "./PublicationWizard";
 import {
   Box,
   Card,
@@ -16,14 +17,9 @@ import {
   TextField,
   Button,
   Alert,
-  Chip,
   FormControlLabel,
   Checkbox,
   MenuItem,
-  CircularProgress,
-  List,
-  ListItemButton,
-  ListItemText,
 } from "@mui/material";
 
 export const BIBTEX_FIELDS_MAP: Record<string, { label: string; required: string[]; optional: string[] }> = {
@@ -121,466 +117,71 @@ export function PublicationForm({
   theses,
 }: PublicationFormProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
 
-  // Ingestion path state: null = select wizard; 'doi' = doi mode; 'bibtex' = bibtex mode; 'form' = metadata form mode
-  const [ingestionMethod, setIngestionMethod] = useState<"select" | "doi" | "bibtex" | "form">(
-    publication ? "form" : "select"
-  );
+  // Form State custom hook
+  const {
+    ingestionMethod,
+    setIngestionMethod,
+    doiInput,
+    setDoiInput,
+    bibInput,
+    setBibInput,
+    ingestionError,
+    title,
+    setTitle,
+    authors,
+    setAuthors,
+    year,
+    setYear,
+    type,
+    setType,
+    ranking,
+    setRanking,
+    selfArchivingUrl,
+    setSelfArchivingUrl,
+    tags,
+    setTags,
+    citationKey,
+    setCitationKey,
+    doi,
+    setDoi,
+    abstract,
+    setAbstract,
+    customEntryTags,
+    setCustomEntryTags,
+    featured,
+    setFeatured,
+    selectedMembers,
+    setSelectedMembers,
+    selectedProjects,
+    setSelectedProjects,
+    selectedTheses,
+    setSelectedTheses,
+    formError,
+    isPending,
+    handleDoiImport,
+    handleBibtexParse,
+    handleSubmit,
+  } = usePublicationForm({ publication, router });
 
-  // Ingestion inputs
-  const [doiInput, setDoiInput] = useState("");
-  const [bibInput, setBibInput] = useState("");
-  const [ingestionError, setIngestionError] = useState("");
-
-  // Granular form inputs
-  const [title, setTitle] = useState(publication?.title || "");
-  const [authors, setAuthors] = useState(publication?.authors || "");
-  const [year, setYear] = useState<number>(publication?.year || new Date().getFullYear());
-  const [type, setType] = useState(publication?.type || "article");
-  const [ranking, setRanking] = useState(publication?.ranking || "");
-  const [selfArchivingUrl, setSelfArchivingUrl] = useState(publication?.selfArchivingUrl || "");
-  const [tags, setTags] = useState<string[]>(publication?.tags || []);
-  const [citationKey, setCitationKey] = useState(
-    publication?.bibtexData?.citationKey || ""
-  );
-  const [doi, setDoi] = useState(
-    publication?.bibtexData?.entryTags?.doi ||
-    publication?.bibtexData?.entryTags?.DOI ||
-    ""
-  );
-  const [abstract, setAbstract] = useState(
-    publication?.bibtexData?.entryTags?.abstract ||
-    publication?.bibtexData?.entryTags?.ABSTRACT ||
-    ""
-  );
-  const [customEntryTags, setCustomEntryTags] = useState<Record<string, string>>(
-    publication?.bibtexData?.entryTags || {}
-  );
-  const [featured, setFeatured] = useState<boolean>(publication?.featured || false);
-
-  // Relation selections
-  const [selectedMembers, setSelectedMembers] = useState<string[]>(
-    publication?.members?.map((m: any) => m.id) || []
-  );
-  const [selectedProjects, setSelectedProjects] = useState<string[]>(
-    publication?.projects?.map((p: any) => p.id) || []
-  );
-  const [selectedTheses, setSelectedTheses] = useState<string[]>(
-    publication?.theses?.map((t: any) => t.id) || []
-  );
-
-  // Search filters for lists
-  const [memberFilter, setMemberFilter] = useState("");
-  const [projectFilter, setProjectFilter] = useState("");
-  const [thesisFilter, setThesisFilter] = useState("");
-
-  const [formError, setFormError] = useState("");
-
-  // 1. Resolve DOI
-  const handleDoiImport = () => {
-    setIngestionError("");
-    if (!doiInput.trim()) {
-      setIngestionError("Please enter a valid DOI");
-      return;
-    }
-
-    startTransition(async () => {
-      const res = await resolveDoiAction(doiInput);
-      if (res.success && res.data) {
-        setTitle(res.data.title);
-        setAuthors(res.data.authors);
-        setYear(res.data.year);
-        setType(res.data.type);
-        setCitationKey(res.data.citationKey);
-        setRanking(res.data.ranking);
-        setDoi(res.data.entryTags?.doi || res.data.entryTags?.DOI || doiInput);
-        setAbstract(res.data.entryTags?.abstract || res.data.entryTags?.ABSTRACT || "");
-        setCustomEntryTags(res.data.entryTags);
-        setIngestionMethod("form");
-      } else {
-        setIngestionError(res.error || "Failed to resolve DOI. Please verify and try again.");
-      }
-    });
-  };
-
-  // 2. Parse raw BibTeX
-  const handleBibtexParse = () => {
-    setIngestionError("");
-    if (!bibInput.trim()) {
-      setIngestionError("Please paste a valid BibTeX entry");
-      return;
-    }
-
-    startTransition(async () => {
-      const res = await parseBibtex(bibInput);
-      if (res.success && res.data) {
-        setTitle(res.data.title);
-        setAuthors(res.data.authors);
-        setYear(res.data.year);
-        setType(res.data.type);
-        setCitationKey(res.data.citationKey);
-        setRanking(res.data.ranking);
-        setDoi(res.data.entryTags?.doi || res.data.entryTags?.DOI || "");
-        setAbstract(res.data.entryTags?.abstract || res.data.entryTags?.ABSTRACT || "");
-        setCustomEntryTags(res.data.entryTags);
-        setIngestionMethod("form");
-      } else {
-        setIngestionError(res.error || "Failed to parse BibTeX string.");
-      }
-    });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormError("");
-
-    if (!title.trim() || !authors.trim() || !year || !type) {
-      setFormError("Title, Authors, Year, and Publication Type are mandatory fields.");
-      return;
-    }
-
-    // Dynamic type-specific required fields validation
-    const config = BIBTEX_FIELDS_MAP[type];
-    if (config) {
-      for (const reqField of config.required) {
-        if (!customEntryTags[reqField]?.trim()) {
-          setFormError(`"${reqField}" is a required field for publication type "${BIBTEX_FIELDS_MAP[type].label}".`);
-          return;
-        }
-      }
-    }
-
-    // Filter customEntryTags to only save fields belonging to the active type
-    const filteredCustomTags: Record<string, string> = {};
-    if (config) {
-      const allowedFields = [...config.required, ...config.optional];
-      for (const [key, value] of Object.entries(customEntryTags)) {
-        if (allowedFields.includes(key) && value.trim()) {
-          filteredCustomTags[key] = value.trim();
-        }
-      }
-    }
-
-    const payload = {
-      title,
-      authors,
-      year: Number(year),
-      type,
-      ranking: ranking || undefined,
-      selfArchivingUrl: selfArchivingUrl || undefined,
-      doi: doi || undefined,
-      abstract: abstract || undefined,
-      tags,
-      members: selectedMembers,
-      projects: selectedProjects,
-      theses: selectedTheses,
-      citationKey: citationKey || undefined,
-      customEntryTags: Object.keys(filteredCustomTags).length > 0 ? filteredCustomTags : undefined,
-      featured,
-    };
-
-    startTransition(async () => {
-      let res;
-      if (publication) {
-        res = await updatePublication(publication.slug, payload);
-      } else {
-        res = await createPublication(payload);
-      }
-
-      if (res.success) {
-        router.push(`/publications/${res.slug}`);
-      } else if ((res as any).duplicate) {
-        const choice = confirm(
-          `${res.error}\n\nDo you want to save this publication entry anyway?`
-        );
-        if (choice) {
-          startTransition(async () => {
-            const bypassRes = publication
-              ? await updatePublication(publication.slug, { ...payload, ignoreDuplicateCheck: true })
-              : await createPublication({ ...payload, ignoreDuplicateCheck: true });
-            
-            if (bypassRes.success) {
-              router.push(`/publications/${bypassRes.slug}`);
-            } else {
-              setFormError(bypassRes.error || "An unexpected error occurred while saving.");
-            }
-          });
-        }
-      } else {
-        setFormError(res.error || "An unexpected error occurred while saving the publication");
-      }
-    });
-  };
-
-  // Filter lists
-  const filteredMembers = members.filter((m) =>
-    `${m.firstName} ${m.lastName}`.toLowerCase().includes(memberFilter.toLowerCase())
-  );
-  const filteredProjects = projects.filter((p) =>
-    `${p.title} ${p.code || ""}`.toLowerCase().includes(projectFilter.toLowerCase())
-  );
-  const filteredTheses = theses.filter((t) =>
-    `${t.title} ${t.student || ""}`.toLowerCase().includes(thesisFilter.toLowerCase())
-  );
-
-  // 1. Select Wizard UI
-  if (ingestionMethod === "select") {
+  // Render Wizard paths (select, doi input or bibtex code input)
+  if (ingestionMethod !== "form") {
     return (
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 4, py: 4 }}>
-        <Box sx={{ textAlign: "center", mb: 2 }}>
-          <Typography variant="h4" component="h2" sx={{ fontWeight: 800, mb: 1, color: "text.primary" }}>
-            How would you like to add the publication?
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 500, mx: "auto" }}>
-            Choose an ingestion path to instantly resolve, populate, and pre-fill publication metadata.
-          </Typography>
-        </Box>
-
-        <Grid container spacing={4} sx={{ justifyContent: "center" }}>
-          {/* Card 1: DOI */}
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Card
-              variant="outlined"
-              onClick={() => setIngestionMethod("doi")}
-              sx={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "between",
-                textAlign: "center",
-                p: 3,
-                borderRadius: 4,
-                cursor: "pointer",
-                transition: "all 0.3s",
-                "&:hover": {
-                  borderColor: "primary.main",
-                  boxShadow: 3,
-                  transform: "translateY(-4px)",
-                },
-              }}
-            >
-              <CardContent sx={{ p: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: "bold", mt: 2 }}>
-                  Import with DOI
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
-                  Paste a Digital Object Identifier (DOI) and query research metadata directly from CrossRef.
-                </Typography>
-                <Button variant="text" size="small" color="primary" sx={{ mt: 3, fontWeight: "bold" }}>
-                  Select DOI Import
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Card 2: BibTeX */}
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Card
-              variant="outlined"
-              onClick={() => setIngestionMethod("bibtex")}
-              sx={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "between",
-                textAlign: "center",
-                p: 3,
-                borderRadius: 4,
-                cursor: "pointer",
-                transition: "all 0.3s",
-                "&:hover": {
-                  borderColor: "primary.main",
-                  boxShadow: 3,
-                  transform: "translateY(-4px)",
-                },
-              }}
-            >
-              <CardContent sx={{ p: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: "bold", mt: 2 }}>
-                  Parse from BibTeX
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
-                  Paste a raw BibTeX citation entry. We will automatically parse, clean, and populate the attributes.
-                </Typography>
-                <Button variant="text" size="small" color="primary" sx={{ mt: 3, fontWeight: "bold" }}>
-                  Select BibTeX Ingest
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Card 3: Manual */}
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Card
-              variant="outlined"
-              onClick={() => setIngestionMethod("form")}
-              sx={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "between",
-                textAlign: "center",
-                p: 3,
-                borderRadius: 4,
-                cursor: "pointer",
-                transition: "all 0.3s",
-                "&:hover": {
-                  borderColor: "primary.main",
-                  boxShadow: 3,
-                  transform: "translateY(-4px)",
-                },
-              }}
-            >
-              <CardContent sx={{ p: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: "bold", mt: 2 }}>
-                  Add Manually
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
-                  Skip the auto-ingestion path and jump straight to building an empty manual bibliography.
-                </Typography>
-                <Button variant="text" size="small" color="primary" sx={{ mt: 3, fontWeight: "bold" }}>
-                  Start Manually
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      </Box>
+      <PublicationWizard
+        ingestionMethod={ingestionMethod}
+        setIngestionMethod={setIngestionMethod}
+        doiInput={doiInput}
+        setDoiInput={setDoiInput}
+        bibInput={bibInput}
+        setBibInput={setBibInput}
+        ingestionError={ingestionError}
+        isPending={isPending}
+        handleDoiImport={handleDoiImport}
+        handleBibtexParse={handleBibtexParse}
+      />
     );
   }
 
-  // 2. DOI Wizard View
-  if (ingestionMethod === "doi") {
-    return (
-      <Card variant="outlined" sx={{ maxWidth: 500, mx: "auto", borderRadius: 4, p: 3, boxShadow: 2 }}>
-        <CardContent sx={{ p: 0, display: "flex", flexDirection: "column", gap: 3 }}>
-          <Box>
-            <Button
-              onClick={() => setIngestionMethod("select")}
-              variant="text"
-              size="small"
-              sx={{ fontWeight: "bold", mb: 1, p: 0 }}
-            >
-              Back to options
-            </Button>
-            <Typography variant="h5" sx={{ fontWeight: 800, mb: 0.5 }}>
-              Import via DOI
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Provide a DOI identifier (e.g. 10.1007/978-3-030-30796-7_4).
-            </Typography>
-          </Box>
-
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <TextField
-              fullWidth
-              label="DOI Reference"
-              placeholder="e.g. 10.1007/..."
-              value={doiInput}
-              onChange={(e) => setDoiInput(e.target.value)}
-              size="small"
-              slotProps={{
-                htmlInput: { style: { fontFamily: "monospace" } }
-              }}
-            />
-
-            {ingestionError && (
-              <Alert severity="error" sx={{ borderRadius: 2 }}>
-                {ingestionError}
-              </Alert>
-            )}
-
-            <Button
-              variant="contained"
-              onClick={handleDoiImport}
-              disabled={isPending}
-              fullWidth
-              sx={{ py: 1.2, fontWeight: "bold", borderRadius: 2 }}
-            >
-              {isPending ? (
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                  <CircularProgress size={16} color="inherit" />
-                  <Typography variant="button">Resolving DOI...</Typography>
-                </Box>
-              ) : (
-                "Resolve and Pre-fill Form"
-              )}
-            </Button>
-          </Box>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // 3. BibTeX Wizard View
-  if (ingestionMethod === "bibtex") {
-    return (
-      <Card variant="outlined" sx={{ maxWidth: 600, mx: "auto", borderRadius: 4, p: 3, boxShadow: 2 }}>
-        <CardContent sx={{ p: 0, display: "flex", flexDirection: "column", gap: 3 }}>
-          <Box>
-            <Button
-              onClick={() => setIngestionMethod("select")}
-              variant="text"
-              size="small"
-              sx={{ fontWeight: "bold", mb: 1, p: 0 }}
-            >
-              Back to options
-            </Button>
-            <Typography variant="h5" sx={{ fontWeight: 800, mb: 0.5 }}>
-              Parse from BibTeX
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Paste the raw BibTeX entry source.
-            </Typography>
-          </Box>
-
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <TextField
-              fullWidth
-              multiline
-              rows={8}
-              label="BibTeX Source Code"
-              placeholder="@article{silva2025, ...}"
-              value={bibInput}
-              onChange={(e) => setBibInput(e.target.value)}
-              slotProps={{
-                htmlInput: { style: { fontFamily: "monospace", fontSize: "0.75rem" } }
-              }}
-            />
-
-            {ingestionError && (
-              <Alert severity="error" sx={{ borderRadius: 2 }}>
-                {ingestionError}
-              </Alert>
-            )}
-
-            <Button
-              variant="contained"
-              onClick={handleBibtexParse}
-              disabled={isPending}
-              fullWidth
-              sx={{ py: 1.2, fontWeight: "bold", borderRadius: 2 }}
-            >
-              {isPending ? (
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                  <CircularProgress size={16} color="inherit" />
-                  <Typography variant="button">Parsing BibTeX...</Typography>
-                </Box>
-              ) : (
-                "Parse and Pre-fill Form"
-              )}
-            </Button>
-          </Box>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // 4. Main Metadata Form View
   const config = BIBTEX_FIELDS_MAP[type];
 
   return (

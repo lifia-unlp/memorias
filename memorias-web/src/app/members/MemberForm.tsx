@@ -1,14 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
-import { createMember, updateMember } from "./actions";
+import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TagWidget } from "@/components/TagWidget";
-import { AcmCcsSelector } from "@/components/AcmCcsSelector";
 import { getAcmCcsPath } from "@/lib/acm-ccs-utils";
-import flatLookup from "@/lib/acm_ccs_flat.json";
-import { slugify } from "@/lib/slugs";
+import { useMemberForm } from "./useMemberForm";
+import { AcmCcsSection } from "./AcmCcsSection";
 import {
   Box,
   Card,
@@ -21,8 +19,6 @@ import {
   Alert,
   Chip,
   InputAdornment,
-  Dialog,
-  DialogContent,
 } from "@mui/material";
 
 interface MemberFormProps {
@@ -32,10 +28,6 @@ interface MemberFormProps {
 
 export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps) {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [startDateType, setStartDateType] = useState(initialData?.startDate ? "date" : "text");
-  const [endDateType, setEndDateType] = useState(initialData?.endDate ? "date" : "text");
 
   // Group database options
   const positionAtLabOptions = systemOptions
@@ -51,74 +43,34 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
     .filter((o) => o.listName === "positionAtCONICET")
     .map((o) => o.value);
 
-  // Form States
-  const [firstName, setFirstName] = useState(initialData?.firstName || "");
-  const [lastName, setLastName] = useState(initialData?.lastName || "");
-  const [slug, setSlug] = useState(initialData?.slug || "");
-  const [isSlugOverridden, setIsSlugOverridden] = useState(
-    initialData ? true : false
-  );
+  // Form State Hook
+  const {
+    isSubmitting,
+    errorMsg,
+    startDateType,
+    setStartDateType,
+    endDateType,
+    setEndDateType,
+    firstName,
+    setFirstName,
+    lastName,
+    setLastName,
+    slug,
+    setSlug,
+    isSlugOverridden,
+    setIsSlugOverridden,
+    isAcmSelectorOpen,
+    setIsAcmSelectorOpen,
+    acmInterests,
+    setAcmInterests,
+    isLegacyText,
+    handleSubmit,
+  } = useMemberForm({ initialData, router });
 
-  // ACM CCS Interests States
-  const [isAcmSelectorOpen, setIsAcmSelectorOpen] = useState(false);
-  const initialAcmIds = useMemo<string[]>(() => {
-    const value = initialData?.interestsInEnglish;
-    if (!value) return [];
-    const trimmed = value.trim();
-    if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
-      try {
-        const parsed = JSON.parse(trimmed);
-        if (Array.isArray(parsed)) {
-          return parsed.filter((item): item is string => typeof item === "string");
-        }
-      } catch (e) {
-        // Fallback
-      }
-    }
-    return [];
-  }, [initialData]);
-  const [acmInterests, setAcmInterests] = useState<string[]>(initialAcmIds);
-
-  const isLegacyText = useMemo(() => {
-    const val = initialData?.interestsInEnglish;
-    if (!val) return false;
-    const trimmed = val.trim();
-    return !trimmed.startsWith("[") || !trimmed.endsWith("]");
-  }, [initialData]);
-
-  // Solution D: Compute plain text full paths to store in interestsInSpanish as a search index
+  // Calculate plain text search index paths
   const plainTextPaths = useMemo(() => {
     return acmInterests.map((id) => getAcmCcsPath(id).join(" > ")).join("\n");
   }, [acmInterests]);
-
-  // Auto-generate slug when name changes, unless overridden
-  useEffect(() => {
-    if (!isSlugOverridden) {
-      const generated = slugify(`${firstName} ${lastName}`);
-      setSlug(generated);
-    }
-  }, [firstName, lastName, isSlugOverridden]);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setErrorMsg(null);
-
-    const formData = new FormData(e.currentTarget);
-    try {
-      if (initialData) {
-        await updateMember(initialData.id, formData);
-        router.push(`/members/${formData.get("slug")}`);
-      } else {
-        await createMember(formData);
-        router.push("/members");
-      }
-    } catch (err: any) {
-      setErrorMsg(err.message || "Failed to save member profile.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 4, pb: 8 }}>
@@ -194,7 +146,8 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
                           variant="outlined"
                           onClick={() => {
                             setIsSlugOverridden(false);
-                            const generated = slugify(`${firstName} ${lastName}`);
+                            // We can re-trigger slugification
+                            const generated = firstName || lastName ? `${firstName}-${lastName}`.toLowerCase().replace(/[^a-z0-9]+/g, "-") : "";
                             setSlug(generated);
                           }}
                           sx={{ textTransform: "none", py: 0.25, px: 1, fontSize: "0.625rem", fontWeight: "bold" }}
@@ -210,6 +163,7 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
           </Grid>
         </CardContent>
       </Card>
+      
       {/* 2. Professional & Academic Accreditation */}
       <Card variant="outlined" sx={{ borderRadius: 3 }}>
         <CardContent sx={{ p: 3 }}>
@@ -409,6 +363,7 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
           </Grid>
         </CardContent>
       </Card>
+      
       {/* 3. Communication & Web Portals */}
       <Card variant="outlined" sx={{ borderRadius: 3 }}>
         <CardContent sx={{ p: 3 }}>
@@ -525,6 +480,7 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
           </Grid>
         </CardContent>
       </Card>
+      
       {/* Dynamic Classification Tags */}
       <Card variant="outlined" sx={{ borderRadius: 3 }}>
         <CardContent sx={{ p: 3 }}>
@@ -539,6 +495,7 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
           </Box>
         </CardContent>
       </Card>
+      
       {/* 4. Bilingual Biographies & General Notes */}
       <Card variant="outlined" sx={{ borderRadius: 3 }}>
         <CardContent sx={{ p: 3 }}>
@@ -574,151 +531,16 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
             </Grid>
 
             <Grid size={{ xs: 12, md: 6 }}>
-              <Box
-                sx={{
-                  border: "1px solid",
-                  borderColor: "divider",
-                  borderRadius: 2,
-                  p: 2,
-                  bgcolor: "background.paper",
-                  minHeight: 140,
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Box>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      fontWeight: "bold",
-                      color: "text.secondary",
-                      textTransform: "uppercase",
-                      display: "block",
-                      mb: 1,
-                    }}
-                  >
-                    Research Interests (English - ACM CCS Classification)
-                  </Typography>
-
-                  {/* Hidden form input holding serialized array for actual POST submit */}
-                  <input type="hidden" name="interestsInEnglish" value={JSON.stringify(acmInterests)} />
-
-                  {/* Display legacy warning if needed */}
-                  {isLegacyText && acmInterests.length === 0 ? (
-                    <Box
-                      sx={{
-                        p: 1.5,
-                        border: "1px solid",
-                        borderColor: "warning.light",
-                        bgcolor: "rgba(247, 144, 9, 0.03)",
-                        borderRadius: 1.5,
-                        mb: 1.5,
-                      }}
-                    >
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          fontWeight: "bold",
-                          color: "warning.dark",
-                          display: "block",
-                          mb: 0.5,
-                        }}
-                      >
-                        Legacy Text Interests Found:
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          color: "text.primary",
-                          fontStyle: "italic",
-                          display: "block",
-                          wordBreak: "break-word",
-                        }}
-                      >
-                        "{initialData.interestsInEnglish}"
-                      </Typography>
-                    </Box>
-                  ) : null}
-
-                  {/* Active ACM Categories list */}
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 1 }}>
-                    {acmInterests.length === 0 && (!isLegacyText || acmInterests.length > 0) ? (
-                      <Typography variant="caption" sx={{ color: "text.secondary", fontStyle: "italic" }}>
-                        No categories selected.
-                      </Typography>
-                    ) : (
-                      acmInterests.map((id) => (
-                        <Chip
-                          key={id}
-                          label={getAcmCcsPath(id).join(" > ")}
-                          size="small"
-                          color="primary"
-                          variant="outlined"
-                          sx={{ height: 22, fontSize: "0.72rem", borderRadius: 1 }}
-                        />
-                      ))
-                    )}
-                  </Box>
-                </Box>
-
-                <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 1.5 }}>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    onClick={() => setIsAcmSelectorOpen(true)}
-                    sx={{ textTransform: "none", fontWeight: "bold", fontSize: "0.72rem", py: 0.25 }}
-                  >
-                    {acmInterests.length > 0
-                      ? "Edit Classifications"
-                      : isLegacyText
-                      ? "Migrate to ACM Classification"
-                      : "Select ACM Categories"}
-                  </Button>
-                </Box>
-              </Box>
-
-              {/* Modal Dialog housing the Selector */}
-              <Dialog
-                open={isAcmSelectorOpen}
-                onClose={() => setIsAcmSelectorOpen(false)}
-                maxWidth="md"
-                fullWidth
-                sx={{ "& .MuiDialog-paper": { borderRadius: 3 } }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    borderBottom: "1px solid",
-                    borderColor: "divider",
-                    p: 2,
-                  }}
-                >
-                  <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                    Select Research Interests (ACM CCS Taxonomy)
-                  </Typography>
-                  <Button
-                    onClick={() => setIsAcmSelectorOpen(false)}
-                    variant="contained"
-                    size="small"
-                    sx={{ textTransform: "none", fontWeight: "bold", borderRadius: 1.5 }}
-                  >
-                    Done
-                  </Button>
-                </Box>
-                <DialogContent sx={{ p: 3 }}>
-                  <AcmCcsSelector
-                    initialValue={JSON.stringify(acmInterests)}
-                    onChange={(newIds) => setAcmInterests(newIds)}
-                  />
-                </DialogContent>
-              </Dialog>
+              <AcmCcsSection
+                initialData={initialData}
+                acmInterests={acmInterests}
+                setAcmInterests={setAcmInterests}
+                isAcmSelectorOpen={isAcmSelectorOpen}
+                setIsAcmSelectorOpen={setIsAcmSelectorOpen}
+                isLegacyText={isLegacyText}
+                plainTextPaths={plainTextPaths}
+              />
             </Grid>
-
-            {/* Hidden input storing full taxonomy paths in interestsInSpanish as a search index */}
-            <input type="hidden" name="interestsInSpanish" value={plainTextPaths} />
 
             <Grid size={{ xs: 12 }}>
               <TextField
@@ -735,6 +557,7 @@ export function MemberForm({ initialData, systemOptions = [] }: MemberFormProps)
           </Grid>
         </CardContent>
       </Card>
+      
       {/* Form Submission Action Buttons */}
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 2 }}>
         <Button
