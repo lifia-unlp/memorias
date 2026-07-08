@@ -14,14 +14,13 @@ export default async function AdminConfigPage() {
     redirect("/");
   }
 
-  // Load current values with defensive optional chaining for cached Prisma clients
-  const titleOption = await (prisma as any).systemSetting?.findUnique({ where: { key: "welcome_title" } }).catch(() => null);
-  const subtitleOption = await (prisma as any).systemSetting?.findUnique({ where: { key: "welcome_subtitle" } }).catch(() => null);
-  const logoOption = await (prisma as any).systemSetting?.findUnique({ where: { key: "logo_url" } }).catch(() => null);
-  const labNameOption = await (prisma as any).systemSetting?.findUnique({ where: { key: "lab_name" } }).catch(() => null);
-  const labUrlOption = await (prisma as any).systemSetting?.findUnique({ where: { key: "lab_url" } }).catch(() => null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const requireActivationOption = await (prisma as any).systemSetting?.findUnique({ where: { key: "require_user_activation" } }).catch(() => null);
+  // Load current values
+  const titleOption = await prisma.systemSetting.findUnique({ where: { key: "welcome_title" } }).catch(() => null);
+  const subtitleOption = await prisma.systemSetting.findUnique({ where: { key: "welcome_subtitle" } }).catch(() => null);
+  const logoOption = await prisma.systemSetting.findUnique({ where: { key: "logo_url" } }).catch(() => null);
+  const labNameOption = await prisma.systemSetting.findUnique({ where: { key: "lab_name" } }).catch(() => null);
+  const labUrlOption = await prisma.systemSetting.findUnique({ where: { key: "lab_url" } }).catch(() => null);
+  const requireActivationOption = await prisma.systemSetting.findUnique({ where: { key: "require_user_activation" } }).catch(() => null);
 
   const initialTitle = titleOption?.value || "Welcome to Memorias";
   const initialSubtitle =

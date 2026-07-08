@@ -42,11 +42,11 @@ export default async function Home() {
   });
 
   // Load welcome configuration
-  const titleOption = await (prisma as any).systemSetting
-    ?.findUnique({ where: { key: "welcome_title" } })
+  const titleOption = await prisma.systemSetting
+    .findUnique({ where: { key: "welcome_title" } })
     .catch(() => null);
-  const subtitleOption = await (prisma as any).systemSetting
-    ?.findUnique({ where: { key: "welcome_subtitle" } })
+  const subtitleOption = await prisma.systemSetting
+    .findUnique({ where: { key: "welcome_subtitle" } })
     .catch(() => null);
   const welcomeTitle = titleOption?.value || "Welcome to Memorias";
   const welcomeSubtitle =

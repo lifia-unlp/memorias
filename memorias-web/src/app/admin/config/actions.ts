@@ -17,7 +17,7 @@ export async function saveSystemSettings(formData: FormData) {
   const labUrl = (formData.get("labUrl") as string) || "";
   const requireUserActivation = formData.get("requireUserActivation") === "on" || formData.get("requireUserActivation") === "true" ? "true" : "false";
 
-  const systemSetting = (prisma as any).systemSetting;
+  const systemSetting = prisma.systemSetting;
   if (!systemSetting) {
     throw new Error("System settings persistence is temporarily out of sync because Next.js has cached the old database client globally. Please restart your Next.js dev server.");
   }

@@ -10,8 +10,8 @@ interface HeaderProps {
 export async function Header({ activeTab }: HeaderProps) {
   const session = await auth();
 
-  const logoSetting = await (prisma as any).systemSetting
-    ?.findUnique({ where: { key: "logo_url" } })
+  const logoSetting = await prisma.systemSetting
+    .findUnique({ where: { key: "logo_url" } })
     .catch(() => null);
   const logoUrl = logoSetting?.value || null;
 

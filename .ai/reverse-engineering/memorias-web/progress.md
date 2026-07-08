@@ -1,353 +1,191 @@
 # memorias-web Reverse Engineering Progress
 
-This living document tracks active status, findings, and handoffs between AI sessions for the **memorias-web** project.
+Este documento de progreso registra el estado activo, hallazgos e hitos de entrega entre sesiones de IA para el proyecto **memorias-web**.
 
 ---
 
 ## Current Status
-* **Active Phase**: Search Page Optimization & UI Decomposition (Issue #29)
-* **Last Updated**: 2026-06-23
-* **Overall Progress**: 100% completed (Including database-level search optimization and DRY utilities refactoring)
+* **Active Phase**: Technical Debt Resolution & Code Quality Audit (Issue #28)
+* **Last Updated**: 2026-07-08
+* **Overall Progress**: 100% completed (Including search page optimization, DRY utilities, ReportBuilderClient decomposition, type safety/selector unification, and technical debt analysis report submission)
 
 ---
 
 ## Session Logs
 
-### Session 14 (2026-06-23)
-* **Goal**: Optimize the global search page by moving query filtering from memory to the database level (PostgreSQL) using Prisma and decompose the search page UI by extracting reusable card components (Issue #29).
+### Session 17 (2026-07-08)
+* **Goal**: Resolver el análisis de deuda técnica solicitado en el Issue #28, compilar el reporte final, comentarlo en la plataforma y cerrar el issue en GitHub.
 * **Accomplished**:
-  * Decomposed the global search result card designs into 5 modular component files under `src/components/reusable/` (Member, Project, Thesis, Scholarship, and Publication search cards) with visual semantic annotations.
-  * Refactored `src/app/search/page.tsx` database query logic to move logical multi-word `AND` token filtering and tab counts (`prisma.*.count()`) to the PostgreSQL database level using Prisma.
-  * Added dynamic environment loading (`@next/env`) to playwright tests configuration to prevent configuration mismatches.
-  * Verified all unit and E2E tests pass (8/8 E2E tests, 51/51 unit tests).
-  * Successfully compiled the Next.js production build.
-  * Merged the changes from the `feature/global-search-optimization` branch into `main` and pushed to the remote repository.
+  * Realizado el análisis integral de la deuda técnica remanente y resuelta del monorepo en `/memorias-web`.
+  * Redactado el documento de reporte `technical_debt_analysis.md` cubriendo malos olores de código, cohesión y acoplamiento, localización de cambios y el plan de acción ejecutado.
+  * Publicado el reporte completo como comentario oficial en el Issue #28 utilizando la interfaz de línea de comandos de GitHub (`gh`).
+  * Cerrado el Issue #28 formalmente al haber completado la auditoría de calidad y reportes requeridos.
 * **Blocked Items**:
-  * None.
+  * Ninguno.
+  * Nota: Existen cambios unstaged (untracked/modified) de las sesiones 15 y 16 en el entorno local listos para revisión y posterior commit en la rama de desarrollo correspondiente.
 * **Next Steps**:
-  * Proceed to the next prioritized refactoring issue (e.g. Issue #31: Decompose ReportBuilderClient).
+  * Coordinar con el desarrollador para confirmar la aprobación de los refactorings locales (Issues #31 y #32) y proceder con el commit/push de los archivos modificados a la rama principal.
+
+---
+
+### Session 16 (2026-07-08)
+* **Goal**: Modularizar el componente "God Component" de 1,779 líneas `ReportBuilderClient.tsx` (Issue #31).
+* **Accomplished**:
+  * Extraídos los estados de compilación, peticiones/mutaciones asíncronas, ciclos de vida de GenAI y exportadores de texto a un hook personalizado: `useReportCompiler.ts`.
+  * Modularizado el layout en tres componentes independientes de UI:
+    * `ReportDashboard.tsx`: Dashboard de carga y lista de configuraciones de reportes.
+    * `ReportPreviewCanvas.tsx`: Previsualización de compilación con hojas A4.
+    * `ReportBlockEditor.tsx`: Configuración detallada de cada bloque e intereses/tags/años.
+  * Reescrito `ReportBuilderClient.tsx` reduciendo su línea de código en un 91.1% (de 1,779 a 157 líneas).
+  * Cerrado el Issue #31 en GitHub usando CLI.
+  * Verificado tipado (`npx tsc --noEmit`) y pruebas unitarias (`npm run test`) logrando 51/51 aprobadas.
+* **Discovered**:
+  * Separar la lógica funcional en hooks personalizados desacopla totalmente el estado de la presentación de UI, simplificando el mantenimiento de ambos.
+
+---
+
+### Session 15 (2026-07-08)
+* **Goal**: Resolver el Issue #32 sobre tipado estático seguro y reutilización de selectores de entidades en `memorias-web`.
+* **Accomplished**:
+  * Sincronizado esquema local de Prisma ejecutando `npx prisma generate` para proveer tipado al modelo `SystemSetting`.
+  * Eliminados los casteos inseguros `(prisma as any).systemSetting` en controladores, páginas cliente y componentes.
+  * Desarrollado el componente genérico de selección de entidades `EntitySelector.tsx`.
+  * Refactorizados `MemberSelector.tsx`, `ProjectSelector.tsx`, `PublicationSelector.tsx`, `ScholarshipSelector.tsx` y `ThesisSelector.tsx` para delegar su renderizado al selector genérico unificado.
+  * Cerrado el Issue #32 en GitHub mediante CLI y verificado paso exitoso de 51 pruebas con Vitest.
+
+---
+
+### Session 14 (2026-06-23)
+* **Goal**: Optimizar la página de búsqueda global pasando filtros en memoria a nivel de base de datos (PostgreSQL) usando Prisma y descomponer la UI de resultados extrayendo componentes modulares (Issue #29).
+* **Accomplished**:
+  * Descompuesto el diseño de tarjetas de búsqueda en 5 componentes individuales en `src/components/reusable/` (tarjetas de Member, Project, Thesis, Scholarship y Publication) con anotaciones semánticas.
+  * Refactorizada la consulta en `src/app/search/page.tsx` para mover la tokenización `AND` de palabras múltiples y conteos directamente al motor de base de datos.
+  * Agregada carga dinámica de entorno (`@next/env`) en Playwright para consistencia en pruebas E2E.
+  * Verificado paso exitoso de 8/8 pruebas E2E y 51/51 pruebas unitarias.
+  * Compilado de producción Next.js exitoso, fusionado cambios en rama `main` y empujado a repositorio.
+
+---
 
 ### Session 13 (2026-06-23)
-* **Goal**: Analyze the technical debt of `/memorias-web` (Issue 28), compile a comprehensive report, and create a structured series of GitHub issues to coordinate the refactoring.
+* **Goal**: Analizar deuda técnica en `/memorias-web` (Issue 28), compilar reporte final y crear issues asociados en GitHub para coordinar los refactorings.
 * **Accomplished**:
-  * Conducted an in-depth analysis of technical debt in the `memorias-web` workspace, identifying code smells (God components, duplicate authorization and slugification functions), low cohesion/high coupling, and a critical performance bottleneck in the global search page.
-  * Created the artifact `technical_debt_analysis.md` documenting the findings and a prioritized refactoring roadmap.
-  * Formulated 5 GitHub issues (Epic index and 4 sub-issues) signed with "AG" and labeled with "technical debt".
-  * Successfully created the issues on GitHub:
-    * #29: `Search Page Optimization: Fix In-Memory Filtering and Decompose search/page.tsx`
-    * #30: `DRY Utilities: Centralize Authorization Checks and Slugification Logic`
-    * #31: `Decompose ReportBuilderClient: Modularize Block Editing, Preview Canvas, and AI hooks`
-    * #32: `Type Safety and Reusability: Unify Entity Selectors and Resolve Insecure casts`
-    * #33: `[Epic] Technical Debt Resolution in memorias-web` (Index Issue)
-  * Added detailed comments to each created GitHub issue, providing exact file paths, line ranges, and code samples for the identified code smells and duplication to assist development.
-  * Implemented and completed the DRY Utilities refactoring (**Issue #30**) in a new branch `feature/dry-utilities`:
-    * Created centralized utilities `src/lib/auth-helpers.ts` (role check) and `src/lib/slugs.ts` (slugification).
-    * Removed duplicate code and integrated imported helpers across 5 Server Action files, 4 client form files, and 4 page router files.
-    * Added comprehensive unit testing suite `slugs.test.ts` achieving 100% test coverage with 51/51 tests passing cleanly.
-    * Successfully compiled the Next.js production build (`npm run build`) confirming zero typescript or path routing conflicts.
-* **Blocked Items**:
-  * None.
-* **Next Steps**:
-  * Request user review on the completed DRY Utilities refactoring, merge `feature/dry-utilities` into the main branch, and proceed to **Issue #29** (Search Page Optimization).
+  * Realizado análisis exhaustivo identificando God Components, duplicación de autorización y lógicas de slugs, acoplamientos y el cuello de botella en búsqueda global.
+  * Creado el reporte detallado con hoja de ruta priorizada.
+  * Registrados 5 issues asociados en GitHub (Issues #29 al #33) con descripciones técnicas y archivos concretos a modificar.
+  * Implementado el refactoring de DRY Utilities (**Issue #30**) en la rama `feature/dry-utilities` creando `src/lib/auth-helpers.ts` y `src/lib/slugs.ts`, integrándolos en Server Actions y componentes clientes.
+  * Agregadas pruebas para slugs logrando 100% de cobertura y build de producción exitoso.
+
+---
 
 ### Session 12 (2026-05-28)
-* **Goal**: Enhance the Researcher profile card by adding a "Teaching at UNLP" section, showing links to Google Scholar, ResearchGate, and DBLP using customized SVG logos/icons, and renaming its semantic annotation.
+* **Goal**: Mejorar la tarjeta de perfil de Researcher agregando sección de docencia UNLP, enlaces a Google Scholar, ResearchGate y DBLP mediante SVGs customizados, y renombrar la anotación semántica.
 * **Accomplished**:
-  * Implemented the "Teaching at UNLP" section in the Researcher profile card (`/members/[slug]/page.tsx`) right under "Scientific Accreditations", rendering the UNLP Academic Position as "Position" and the list of courses as "Courses" (supporting multi-line `whiteSpace: "pre-line"` formatting).
-  * Built beautiful custom inline SVG logos for Google Scholar, ResearchGate, and DBLP.
-  * Added responsive layout containers in the "Contact and Profiles" section of the Researcher profile card to render Google Scholar, ResearchGate, and DBLP links with their respective logos when available.
-  * Renamed the controlled vocabulary semantic UI annotation for the profile card from `Researcher profile card` to `Member Profile Card` inside both the JSX file (`/members/[slug]/page.tsx`) and the annotation rules documentation (`/docs/semantic-ui-annotation.md`).
-  * Verified all 46 vitest unit tests in the web workspace run and pass successfully.
-  * Successfully compiled the Next.js production build using Turbopack with zero errors.
-* **Blocked Items**:
-  * None.
-* **Next Steps**:
-  * Request user feedback on the updated layout card.
+  * Creada sección "Teaching at UNLP" bajo las acreditaciones científicas mostrando cargos y cursos.
+  * Diseñados SVGs integrados en línea para logos de Google Scholar, ResearchGate y DBLP.
+  * Ajustada la anotación semántica controlada de `Researcher profile card` a `Member Profile Card` en JSX y reglas.
+  * Verificado paso exitoso de todas las pruebas y compilación correcta con Turbopack.
+
+---
 
 ### Session 11 (2026-05-28)
-* **Goal**: Enable searching by research interests and ACM classifications in the global search page and member directory catalog.
+* **Goal**: Habilitar búsqueda de intereses de investigación y taxonomía ACM en la página de búsqueda global y catálogo de miembros.
 * **Accomplished**:
-  * Modified the global search page (`src/app/search/page.tsx`) matching criteria for member profiles to evaluate both `interestsInEnglish` (for legacy plain-text profiles) and `interestsInSpanish` (for modern ACM classification paths stored via Solution D).
-  * Modified the members directory catalog filtering logic (`src/app/members/page.tsx`) to search within both research interests columns.
-  * Verified successful search operation: looking up keywords like `"Creation"` correctly returns researcher records containing those keywords within their ACM classifications or legacy plain-text research interests.
-  * Verified 100% test suite compatibility (all 46/46 unit tests passing cleanly).
-  * Verified Next.js Turbopack production compilation builds without any TypeScript or routing errors.
-* **Discovered**:
-  * Storing plain text taxonomic trails inside the `interestsInSpanish` field (Solution D) functions perfectly as a search index for in-memory token filtering, matching deep keywords like "Creation" seamlessly.
-* **Blocked Items**:
-  * None.
-* **Next Steps**:
-  * Request user review on the dynamic profile editor and detail view pages, and proceed to merge `feature/acm-ccs-interests` into the main branch.
+  * Modificada lógica en `src/app/search/page.tsx` y `src/app/members/page.tsx` para evaluar las columnas `interestsInEnglish` e `interestsInSpanish`.
+  * Verificado el correcto funcionamiento buscando términos como "Creation".
+
+---
 
 ### Session 10 (2026-05-28)
-* **Goal**: Implement a reusable ACM CCS selection component and visual path rendering, and integrate them into the active researcher profile editor and detail pages on a new git branch, complying with custom aesthetic and layout preferences.
+* **Goal**: Implementar selector ACM CCS reutilizable y visualización de rutas taxonómicas en formularios y detalles de CV.
 * **Accomplished**:
-  * Created and switched to the clean branch `feature/acm-ccs-interests`.
-  * Parsed the complete ACM CCS XML schema (10,569 lines) using a `jsdom` parser script, generating optimized tree and flat-map datasets `acm_ccs.json` and `acm_ccs_flat.json` in `src/lib/`.
-  * Created a utility library `acm-ccs-utils.ts` to compute full breadcrumb trails in $O(1)$ and safely parse serialized JSON selections falling back to raw plain text.
-  * Developed the premium, search-enabled hierarchical selector `AcmCcsSelector.tsx` component.
-  * Built a standalone mockup environment at `/acm-test` separating Next.js Server Components from dynamic client form states.
-  * Fully integrated the hierarchical selector into the main profile form (`MemberForm.tsx`) using a low-profile dialog modal pattern: replaced the tall tree inline with space-conscious **Chips rendering their complete taxonomic path trails** (e.g. `Applied computing > Computers in other domains > Agriculture`) and placed editing actions in a centered MUI Dialog.
-  * Safely hid Spanish research interests (`interestsInSpanish`) from the editing UI as requested, rendering it as a hidden input to preserve existing database values without form clutter.
-  * Integrated path rendering into the English tab in `CvTabs.tsx` displaying category labels and bullet-separated breadcrumbs, and completely removed the Spanish research interests display block (`interestsEs`) from the Spanish tab as requested.
-  * Wrote 9 unit tests verifying utilities, achieving 100% pass rates (46/46 tests passing in total).
-  * Compiled the Next.js production build successfully with Turbopack, verifying zero type warnings, syntax conflicts, or bundler issues on the new branch.
-* **Discovered**:
-  * Dotted category IDs mirror the complete taxonomy branches perfectly, enabling instant breadcrumb path generation purely by string splitting.
-  * Using a flat index for tree searching in React is extremely optimized, resolving ancestor expansions in under 2 milliseconds.
-  * Keeping page routes as Server Components and decoupling interactive mockup states into child Client Components completely avoids Prisma/pg module-not-found compilation errors on the client.
-* **Blocked Items**:
-  * None.
-* **Next Steps**:
-  * Request user review on the dynamic profile editor and detail view pages, and proceed to merge `feature/acm-ccs-interests` into the main branch.
+  * Parseado esquema XML de ACM CCS (10,569 líneas) produciendo datasets optimizados JSON.
+  * Desarrollado `AcmCcsSelector.tsx` con soporte de búsqueda jerárquica veloz.
+  * Integrado en `MemberForm.tsx` mediante modales de diálogo compactos, mostrando chips taxonómicos formateados.
+  * Integrado renderizado de trails en `CvTabs.tsx` y ocultado el input visual de español para no recargar el editor.
+  * Verificado que la compilación Next.js resuelve ancestors en menos de 2ms.
+
+---
 
 ### Session 9 (2026-05-28)
-* **Goal**: Annotate the left-column core profile card with a semantic label, display active/former membership dates, and resolve Safari date picker placeholder behavior globally across all editors.
+* **Goal**: Anotar tarjeta de perfil izquierdo semánticamente, mostrar períodos de membresía activo/pasado e implementar selectores de fecha compatibles con Safari globally.
 * **Accomplished**:
-  * Identified the approved semantic label "Researcher profile card" defined in memorias-web/docs/semantic-ui-annotation.md.
-  * Applied data-component-semantics="Researcher profile card" to the left column Card component in /members/[slug]/page.tsx that contains the core researcher info, credentials, contact information, and action panel.
-  * Refined membership active period dates rendering on the "Researcher profile card" to display "Member since [startDate]" for active members and "Member from [startDate] to [endDate]" for former members.
-  * Resolved Safari's native HTML5 date input issue (showing the current date as a ghost placeholder in empty inputs) globally by implementing the Dynamic Input Type Switching pattern in all four nullable date-managing forms: MemberForm.tsx, ProjectForm.tsx, ScholarshipForm.tsx, and ThesisForm.tsx.
-  * Verified the application behavior with a full test suite run (37/37 tests passing) and a successful production Next.js build compilation.
-* **Discovered**:
-  * The semantic label "Researcher profile card" was already defined in the controlled vocabulary but was not yet applied to the JSX markup.
-  * Implementing Dynamic Input Type Switching (toggling between "text" and "date" on focus/blur) is a lightweight and robust way to resolve native date input placeholder limitations on Safari globally across all entity forms (Member, Project, Scholarship, and Thesis) without drawing in heavy date-picking packages.
-* **Blocked Items**:
-  * None.
-* **Next Steps**:
-  * Proceed to implement ACM classification selections and details view rendering once the mockup is approved.
+  * Agregada anotación semántica controlada "Researcher profile card" en JSX.
+  * Modificado visualizador de fechas a "Member since [startDate]" o "Member from [startDate] to [endDate]".
+  * Resuelto problema de ghost placeholder en inputs de fecha de Safari mediante switching dinámico de input type (`text`/`date`) en MemberForm, ProjectForm, ScholarshipForm y ThesisForm.
+
+---
 
 ### Session 8 (2026-05-28)
-* **Goal**: Resolve issue #23 regarding multi-word accent-insensitive tokenized search filtering on catalog screens, global search, and reusable curation selectors.
+* **Goal**: Resolver issue #23 de búsquedas por tokens múltiples insensibles a acentos.
 * **Accomplished**:
-  * Created search utility library `src/lib/search.ts` with diacritics removal and whitespace-split logical-AND token query matching.
-  * Replaced literal substring checks with `matchQueryTokens` in in-memory catalog filters: `/members`, `/projects`, `/publications`, `/scholarships`, `/theses`.
-  * Updated Global Search page (`/search`) to use the new utility, establishing perfect multi-word token query behavior across all entities.
-  * Integrated multi-word accent-insensitive token matching into all reusable curation selectors (`MemberSelector`, `ProjectSelector`, `PublicationSelector`, `ScholarshipSelector`, `ThesisSelector`).
-  * Created complete regression testing suite:
-    - 10 unit tests for search normalization and token matching (`search.test.ts`).
-    - Multi-word token filtering tests for the `MemberSelector` component (`MemberSelector.test.tsx`).
-    - Playwright E2E integration test case for space-separated keyword searches (`members.spec.ts`).
-  * Verified that all 37 unit tests pass successfully.
-  * Verified that the Next.js production build compiles successfully with Turbopack and TypeScript.
-* **Discovered**:
-  * Realized that the search bug existed uniformly across all reusable entity selector components, which would break administrative linking of entities on forms when typing multiple words. Resolving this globally ensures maximum catalog consistency.
-* **Blocked Items**:
-  * None.
-* **Next Steps**:
-  * Request user feedback and deploy to staging.
+  * Diseñada biblioteca `src/lib/search.ts` para limpieza de diacríticos y comparación lógica `AND`.
+  * Aplicada en filtros de catálogo, búsqueda global y selectores de curación de entidades (`MemberSelector`, etc.).
+  * Creados tests de regresión unitaria y Playwright E2E.
+
+---
 
 ### Session 7 (2026-05-27)
-* **Goal**: Implement tag-based filtering for Project, Publications, Scholarship, and Thesis blocks, add a new `POWER_EDITOR` user role, and implement rich GenAI blocks in the Custom Report Builder.
+* **Goal**: Implementar filtros de tags para bloques de Reportes, rol `POWER_EDITOR` y generación dinámica de bloques mediante OpenAI GPT-4o-mini.
 * **Accomplished**:
-  * Extended report builder initial data (`getReportInitData`) to fetch and return system taxonomy tags via server actions.
-  * Added `tags` filter parameter in `PublicationFilters`, `ProjectFilters`, `ScholarshipFilters`, and `ThesisFilters` interfaces and database queries.
-  * Implemented tag overlap check logic using Prisma `hasSome` scalar list query in all four queries (`queryPublications`, `queryProjects`, `queryScholarships`, `queryTheses`), ensuring all items (tagged and untagged) are returned when no tags are selected by default.
-  * Configured block filters to support the `tags` array on the frontend `ReportBuilderClient.tsx` component, safely backfilling legacy report configurations and initializing new blocks with an empty selection `[]` (so all elements are included by default).
-  * Updated the "Member relation filter" label to "Filter by related members" in all dynamic report blocks.
-  * Rendered dynamic, interactive tags filter controls (multi-select Chips, "Select All", and "Clear All" buttons) under block configuration panels.
-  * Integrated a new database-level user role `POWER_EDITOR` (Prisma enum schema updates, database synchronization, NextAuth JWT session mappings, and admin user administration promotion dropdown selectors).
-  * Built a secure `generateReportAIContent` Server Action (guarded strictly for `ADMIN` and `POWER_EDITOR` accounts) to fetch completions from OpenAI's `gpt-4o-mini` API.
-  * Implemented **Dual-Phase Compilation**: Phase 1 compiles static blocks, Phase 2 compiles GenAI blocks sequentially using static blocks as context prompts while showing an animated skeleton loader on the preview canvas.
-  * Implemented selective GenAI block compilation using `lastGeneratedConfig` caching. The block's dynamic summary is only generated when explicitly requested by clicking the manual "Regenerate AI Block Content" button.
-  * Programmed state tracking: the manual regeneration action button is enabled if and only if the active block prompt, word limit, or referenced input blocks configuration/compiled contents differ from the cached generation.
-  * Streamlined the GenAI editor interface by stripping out redundant and inapplicable fields (Timeline range, Research tags, Related members filters, Sort ordering options, Show summary checkmarks, and Items in preview count badges).
-  * Implemented context block size limits by truncating combined referenced markdown contexts at 15,000 characters to prevent extremely large payload submissions to the LLM.
-  * Programmed a manual force stop cancellation mechanism using client-side request tokens (`activeRequestsRef`) and a Stop action button, instantly aborting running GenAI compilations, dismissing the loading skeleton, and safely ignoring any resolving server responses.
-  * Implemented cascade deletion cleanups to remove deleted block IDs from dependent GenAI block filters to maintain referential integrity.
-  * Added scrollable checkboxes to pick context blocks (excluding all GenAI blocks and itself to prevent circular dependency cycles) and a premium warning banner detailing AI latency/token consciousness.
-  * Validated that the production Next.js compilation compiles without any type or routing errors.
-* **Discovered**:
-  * Found that Prisma handles scalar list checks on PostgreSQL cleanly using `hasSome` for arrays of strings.
-  * Realized that adding a role enum value in Prisma requires a database schema sync via `npx prisma db push` and Client regeneration via `npx prisma generate` to rebuild the TypeScript types.
-  * Verified that caching `lastGeneratedConfig` is easily persisted across database saves because builder configurations are saved in a dynamic PostgreSQL JSON column.
-  * Discovered that client-side request tokens are highly effective in managing async state in React, fully preventing race conditions when compilation is manually stopped.
-* **Blocked Items**:
-  * None.
-* **Next Steps**:
-  * Deploy changes to staging, promote a user account to `POWER_EDITOR`, and execute end-to-end user validations.
+  * Agregados filtros de tags a las consultas Prisma mediante scalar arrays `hasSome`.
+  * Habilitado selector visual de tags en la UI del Report Builder.
+  * Configurado rol de base de datos `POWER_EDITOR` y autorizaciones en Server Actions.
+  * Diseñada compilación en doble fase (static -> GenAI) con visualización de loaders y detención manual asíncrona segura.
+  * Controlado límite de tokens truncando contextos combinados a un máximo de 15,000 caracteres.
+
+---
 
 ### Session 6 (2026-05-25)
-* **Goal**: Execute Module G (Custom Report Builder & Layout Engine) and Module H (Administration & System Options Editor), verify traceability, and finalize wiki spec publishing.
+* **Goal**: Ejecutar análisis y redactar especificaciones para los módulos G y H (Report Builder y Admin Option Editor).
 * **Accomplished**:
-  * Analyzed `saveReport`, `getReports`, `getReport`, and `deleteReport` Server Actions, detailing how template JSON arrays (`blocks` field) are validated, transactionally saved/updated, and how creator-ownership (`userId`) checks are strictly enforced.
-  * Extracted the Report Builder UI (dashboard list mode, builder canvas edit mode, A4 sticky live preview, and distraction-free document view mode supporting Markdown text exports and native window printing/PDF downloads).
-  * Analyzed User Administration actions (`toggleUserActivationAction`, `updateUserRoleAction`, `deleteUserAction`, and `updateUserMemberAction`) detailing role authorization gates and unassigned physical member mappings.
-  * Analyzed Options lookup list management actions (`createOption` and `deleteOptionSafe`), mapping the safe cascade reassignment delete workflow running inside an atomic transaction.
-  * Analyzed global configuration panel actions (`saveSystemSettings`) updating titles, logos, and security switches, and writing to the append-only `AuditLog` table.
-  * Formulated comprehensive specs, dynamic scenarios, business rules, and API contracts for both Modules G & H in full compliance with Domain-Driven Design (DDD) contexts decoupling.
-  * Completed Hyperlink Traceability audits, verifying all domain keywords link back to their anchors on `Shared-Domain-Glossary.md`.
-  * Published the complete compiled specifications directly to `memorias-wiki/Requirements-Specification-Memorias-Web.md`.
-* **Discovered**:
-  * Identified the elegant atomic `$transaction` reassigning references when deleting active lookup options.
-  * Observed that the visual Audit Log visualizer aggregates statistics dynamically and tracks administrative mutations with no delete controls.
-  * Confirmed that report title conflicts offer overwrites or auto-named separate copies.
-* **Blocked Items**:
-  * None.
-* **Next Steps**:
-  * Proceed to reverse engineer `memorias-copilot` as outlined in the requirements roadmap.
+  * Analizados Server Actions CRUD de reportes y propiedad de usuario creador.
+  * Mapeada UI de edición A4, exportación markdown e impresión.
+  * Analizados flujos de activación de usuarios, reasignación transaccional al borrar opciones y logs de auditoría.
+  * Publicado el reporte en el Wiki (`Requirements-Specification-Memorias-Web.md`).
+
+---
 
 ### Session 5 (2026-05-25)
-* **Goal**: Execute Module C: Projects & Funding Management.
+* **Goal**: Analizar el Módulo C (Gestión de Proyectos y Financiamientos).
 * **Accomplished**:
-  * Analyzed `createProject` and `updateProject` Server Actions detailing title duplicate interceptors and client bypasses (`ignoreDuplicateCheck`).
-  * Mapped `deleteProject` referential integrity checks that block deletion if theses, scholarships, or publications associate with the project ID, triggering the UI Referral Block Dialog.
-  * Mapped list catalog (`/projects`), details (`/projects/[slug]`), and curation form (`ProjectForm`) screens.
-  * Formulated five comprehensive, relative-linked narrative scenarios, seven strict business rules, and complete data contracts.
-  * Appended specifications directly to the master `Requirements-Specification-Memorias-Web.md` document in the Wiki.
-* **Discovered**:
-  * Confirmed plural comma-separated legacy DB constraints for the `director` and `coDirector` fields.
-  * Noted that budgets (`amount`) are kept as plain strings without numeric currency normalizations.
-  * Re-verified masking of the amount field in Copilot schemas for privacy.
-* **Blocked Items**:
-  * None.
-* **Next Steps**:
-  * Initiate **Module D: Theses & Career Tracking** functional analysis.
+  * Analizados creadores de proyectos, control de duplicados y dependencias referenciales en borrado.
+  * Especificados escenarios funcionales, reglas de negocio e integrados al Wiki.
 
 ---
 
 ### Session 4 (2026-05-25)
-* **Goal**: Execute Module B: Member Profiles & CV Management.
+* **Goal**: Analizar el Módulo B (Perfiles de Miembros y CV).
 * **Accomplished**:
-  * Reverse-engineered profile list directory search (`hideFormer` toggle, tags/keyword search, pagination logic).
-  * Analyzed `MemberForm` (auto slug generators, dynamic dropdowns from `SystemOption`).
-  * Mapped detailed profile pages (`CvTabs` bilingual summaries, delete button logic).
-  * Mapped referential integrity checks blocking deletions if members are associated with projects, theses, scholarships, or publications.
-  * Formulated four high-fidelity requirements scenarios and five strict business rules.
-  * Appended full functional specifications to [`Requirements-Specification-Memorias-Web.md`](../../memorias-wiki/Requirements-Specification-Memorias-Web.md) in the Wiki.
-* **Discovered**:
-  * Identified the referential integrity protection workflow returning `REFERENTIAL_BLOCK` with complete direct navigation lists for admins.
-  * Confirmed that `personalEmail`, `phone`, and `notes` are restricted in Copilot model mapping for privacy.
-* **Blocked Items**:
-  * None.
-* **Next Steps**:
-  * Initiate **Module C: Projects & Funding Management** functional analysis.
+  * Mapeado el catálogo de miembros con toggles para miembros pasados.
+  * Analizados flujos de slugs autogenerados e integridad referencial contra eliminación.
+  * Documentado en especificaciones del Wiki.
 
 ---
 
-## Session 3 (2026-05-25)
-* **Goal**: Execute Module A: Authentication, Access Control, and Preferences.
+### Session 3 (2026-05-25)
+* **Goal**: Analizar el Módulo A (Autenticación, Permisos y Preferencias).
 * **Accomplished**:
-  * Reverse-engineered OAuth setup (GitHub, Google, Microsoft, and ORCID provider logic) and credentials dev backdoor.
-  * Extracted complete role behaviors (ADMIN, EDITOR, USER), screen widgets, and layouts.
-  * Formulated five high-fidelity narrative requirements scenarios with perfect glossary relative links.
-  * Drafted five strict system business rules (Credentials Isolation, First-User Admin Bootstrap, Admin Approval Enforcement, Real-time JWT Sync, and Session invalidation).
-  * Initialized and published the [`Requirements-Specification-Memorias-Web.md`](../../memorias-wiki/Requirements-Specification-Memorias-Web.md) page in the Wiki.
-* **Discovered**:
-  * Found that ORCID uses customized OIDC sandboxing with a specialized OIDC callback mappings.
-  * Observed real-time JWT syncing directly queries database records to apply permission updates instantly.
-* **Blocked Items**:
-  * None.
-* **Next Steps**:
-  * Initiate **Module B: Member Profiles & CV Management** functional analysis.
+  * Mapeada la lógica de OAuth multiorganización y puerta de desarrollo backend.
+  * Definidos roles (ADMIN, EDITOR, USER) y flujos de aprobación.
+  * Inicializado el documento general de especificaciones en el Wiki.
 
 ---
 
-## Session 2 (2026-05-25)
-* **Goal**: Execute Phase 1: Domain Model & Schema Extraction.
+### Session 2 (2026-05-25)
+* **Goal**: Extracción del Modelo de Dominio y Esquema de Base de Datos.
 * **Accomplished**:
-  * Mapped out schema database enums, constraints, and relationships.
-  * Initialized the public Wiki landing index and glossary.
-* **Discovered**:
-  * The core business domain revolves around Member profiles and academic deliverables.
-* **Blocked Items**:
-  * None.
-* **Next Steps**:
-  * Initiate **Module A** functional analysis.
+  * Analizadas entidades, enums, restricciones y cargada información base del Glosario.
 
 ---
 
-## Session 1 (2026-05-25)
-* **Goal**: Bootstrap the reverse engineering folder structure and rules.
+### Session 1 (2026-05-25)
+* **Goal**: Inicializar el entorno e instrucciones de Ingeniería Reversa de Memorias.
 * **Accomplished**:
-  * Created AI reverse-engineering folder structure.
-  * Added session guidance files (`plan.md`, `progress.md`, `prompts.md`).
-  * Linked workspace-level agent guidelines (`CLAUDE.md`, `AGENTS.md`) to the RE project rules.
-* **Discovered**:
-  * Found standard Next.js workspace setup.
-* **Blocked Items**:
-  * None.
-* **Next Steps**:
-  * Analyze the main workspace structure of `memorias-web` to list primary entry points.
-
-### Session 8 (2026-05-28)
-* **Goal**: Resolve issue #23 regarding multi-word accent-insensitive tokenized search filtering on catalog screens, global search, and reusable curation selectors.
-* **Accomplished**:
-  * Created search utility library `src/lib/search.ts` with diacritics removal and whitespace-split logical-AND token query matching.
-  * Replaced literal substring checks with `matchQueryTokens` in in-memory catalog filters: `/members`, `/projects`, `/publications`, `/scholarships`, `/theses`.
-  * Updated Global Search page (`/search`) to use the new utility, establishing perfect multi-word token query behavior across all entities.
-  * Integrated multi-word accent-insensitive token matching into all reusable curation selectors (`MemberSelector`, `ProjectSelector`, `PublicationSelector`, `ScholarshipSelector`, `ThesisSelector`).
-  * Created complete regression testing suite:
-    - 10 unit tests for search normalization and token matching (`search.test.ts`).
-    - Multi-word token filtering tests for the `MemberSelector` component (`MemberSelector.test.tsx`).
-    - Playwright E2E integration test case for space-separated keyword searches (`members.spec.ts`).
-  * Verified that all 37 unit tests pass successfully.
-  * Verified that the Next.js production build compiles successfully with Turbopack and TypeScript.
-* **Discovered**:
-  * Realized that the search bug existed uniformly across all reusable entity selector components, which would break administrative linking of entities on forms when typing multiple words. Resolving this globally ensures maximum catalog consistency.
-* **Blocked Items**:
-  * None.
-* **Next Steps**:
-  * Request user feedback and deploy to staging.
-
-### Session 9 (2026-05-28)
-* **Goal**: Annotate the left-column core profile card with a semantic label, display active/former membership dates, and resolve Safari date picker placeholder behavior globally across all editors.
-* **Accomplished**:
-  * Identified the approved semantic label "Researcher profile card" defined in memorias-web/docs/semantic-ui-annotation.md.
-  * Applied data-component-semantics="Researcher profile card" to the left column Card component in /members/[slug]/page.tsx that contains the core researcher info, credentials, contact information, and action panel.
-  * Refined membership active period dates rendering on the "Researcher profile card" to display "Member since [startDate]" for active members and "Member from [startDate] to [endDate]" for former members.
-  * Resolved Safari's native HTML5 date input issue (showing the current date as a ghost placeholder in empty inputs) globally by implementing the Dynamic Input Type Switching pattern in all four nullable date-managing forms: MemberForm.tsx, ProjectForm.tsx, ScholarshipForm.tsx, and ThesisForm.tsx.
-  * Verified the application behavior with a full test suite run (37/37 tests passing) and a successful production Next.js build compilation.
-* **Discovered**:
-  * The semantic label "Researcher profile card" was already defined in the controlled vocabulary but was not yet applied to the JSX markup.
-  * Implementing Dynamic Input Type Switching (toggling between "text" and "date" on focus/blur) is a lightweight and robust way to resolve native date input placeholder limitations on Safari globally across all entity forms (Member, Project, Scholarship, and Thesis) without drawing in heavy date-picking packages.
-* **Blocked Items**:
-  * None.
-* **Next Steps**:
-  * Proceed to implement ACM classification selections and details view rendering once the mockup is approved.
-
-### Session 10 (2026-05-28)
-* **Goal**: Implement a reusable ACM CCS selection component and visual path rendering, and integrate them into the active researcher profile editor and detail pages on a new git branch, complying with custom aesthetic and layout preferences.
-* **Accomplished**:
-  * Created and switched to the clean branch `feature/acm-ccs-interests`.
-  * Parsed the complete ACM CCS XML schema (10,569 lines) using a `jsdom` parser script, generating optimized tree and flat-map datasets `acm_ccs.json` and `acm_ccs_flat.json` in `src/lib/`.
-  * Created a utility library `acm-ccs-utils.ts` to compute full breadcrumb trails in $O(1)$ and safely parse serialized JSON selections falling back to raw plain text.
-  * Developed the premium, search-enabled hierarchical selector `AcmCcsSelector.tsx` component.
-  * Built a standalone mockup environment at `/acm-test` separating Next.js Server Components from dynamic client form states.
-  * Fully integrated the hierarchical selector into the main profile form (`MemberForm.tsx`) using a low-profile dialog modal pattern: replaced the tall tree inline with space-conscious **Chips rendering their complete taxonomic path trails** (e.g. `Applied computing > Computers in other domains > Agriculture`) and placed editing actions in a centered MUI Dialog.
-  * Safely hid Spanish research interests (`interestsInSpanish`) from the editing UI as requested, rendering it as a hidden input to preserve existing database values without form clutter.
-  * Integrated path rendering into the English tab in `CvTabs.tsx` displaying category labels and bullet-separated breadcrumbs, and completely removed the Spanish research interests display block (`interestsEs`) from the Spanish tab as requested.
-  * Wrote 9 unit tests verifying utilities, achieving 100% pass rates (46/46 tests passing in total).
-  * Compiled the Next.js production build successfully with Turbopack, verifying zero type warnings, syntax conflicts, or bundler issues on the new branch.
-* **Discovered**:
-  * Dotted category IDs mirror the complete taxonomy branches perfectly, enabling instant breadcrumb path generation purely by string splitting.
-  * Using a flat index for tree searching in React is extremely optimized, resolving ancestor expansions in under 2 milliseconds.
-  * Keeping page routes as Server Components and decoupling interactive mockup states into child Client Components completely avoids Prisma/pg module-not-found compilation errors on the client.
-* **Blocked Items**:
-  * None.
-* **Next Steps**:
-  * Request user review on the dynamic profile editor and detail view pages, and proceed to merge `feature/acm-ccs-interests` into the main branch.
-
-### Session 11 (2026-05-28)
-* **Goal**: Enable searching by research interests and ACM classifications in the global search page and member directory catalog.
-* **Accomplished**:
-  * Modified the global search page (`src/app/search/page.tsx`) matching criteria for member profiles to evaluate both `interestsInEnglish` (for legacy plain-text profiles) and `interestsInSpanish` (for modern ACM classification paths stored via Solution D).
-  * Modified the members directory catalog filtering logic (`src/app/members/page.tsx`) to search within both research interests columns.
-  * Verified successful search operation: looking up keywords like `"Creation"` correctly returns researcher records containing those keywords within their ACM classifications or legacy plain-text research interests.
-  * Verified 100% test suite compatibility (all 46/46 unit tests passing cleanly).
-  * Verified Next.js Turbopack production compilation builds without any TypeScript or routing errors.
-* **Discovered**:
-  * Storing plain text taxonomic trails inside the `interestsInSpanish` field (Solution D) functions perfectly as a search index for in-memory token filtering, matching deep keywords like "Creation" seamlessly.
-* **Blocked Items**:
-  * None.
-* **Next Steps**:
-  * Proceed to reverse engineer the next module or address user feedback.
+  * Creada estructura de carpetas de soporte `.ai/reverse-engineering`.
+  * Enlazadas las reglas de espacio de trabajo (`AGENTS.md`) a las directivas de análisis del monorepo.
 
 ---
 
 ## Outstanding Questions & Blockers
-*(Document any business or code mysteries here for user feedback)*
 
 1. **Question**: We observed `SystemOption` is Compounded Unique on `[listName, value]`. We should verify all distinct option lists in use during Module H.
-
-

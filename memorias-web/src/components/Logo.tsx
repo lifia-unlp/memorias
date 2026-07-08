@@ -4,8 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { Box, Typography } from "@mui/material";
 
 export async function Logo() {
-  const logoSetting = await (prisma as any).systemSetting
-    ?.findUnique({ where: { key: "logo_url" } })
+  const logoSetting = await prisma.systemSetting
+    .findUnique({ where: { key: "logo_url" } })
     .catch(() => null);
   const logoUrl = logoSetting?.value || "";
 
