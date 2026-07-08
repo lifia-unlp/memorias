@@ -5,13 +5,27 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ---
 
 ## Current Status
-* **Active Phase**: Technical Debt Resolution & Code Quality Audit (Issue #28)
+* **Active Phase**: COMPLETE — All Technical Debt Issues Resolved
 * **Last Updated**: 2026-07-08
-* **Overall Progress**: 100% completed (Including search page optimization, DRY utilities, ReportBuilderClient decomposition, type safety/selector unification, technical debt analysis report, TagsCurationClient modularization, HeaderClient decomposition, MemberForm/PublicationForm modularization, and remaining forms modularization with test coverage)
+* **Overall Progress**: 100% completed (All issues #28–#40 resolved: search optimization, DRY utilities, ReportBuilderClient decomposition, type safety/selector unification, technical debt analysis, TagsCurationClient modularization, HeaderClient decomposition, MemberForm/PublicationForm modularization, remaining forms modularization with unit tests, and Service Layer extraction from Server Actions)
 
 ---
 
 ## Session Logs
+
+### Session 18 (2026-07-08)
+* **Goal**: Resolver el **Issue #40** — Desacoplar el acceso a la base de datos (Prisma) de los Server Actions mediante la creación de una capa de servicios.
+* **Accomplished**:
+  * Creados 5 servicios bajo `src/lib/services/`: `memberService.ts`, `projectService.ts`, `publicationService.ts`, `scholarshipService.ts`, `thesisService.ts`.
+  * Cada servicio encapsula: validaciones de entrada (campos requeridos), control de duplicados de título con flag `ignoreDuplicateCheck`, verificación de slugs únicos, construcción de relaciones `connect`/`set` de Prisma, e integridad referencial antes de borrado (memberService, projectService).
+  * Creadas suites de pruebas unitarias en `src/lib/services/__tests__/` para los 5 servicios, con mocks de Prisma vía Vitest.
+  * Refactorizados los 5 Server Actions (`members/actions.ts`, `projects/actions.ts`, `publications/actions.ts`, `scholarships/actions.ts`, `theses/actions.ts`) para delegar la persistencia a los servicios, manteniendo responsabilidades propias del Server Action: extracción de `FormData`, autorización (`ensureEditorOrAdmin`), logging de auditoría (`logAction`) y revalidación de caché Next.js (`revalidatePath`).
+  * Verificado build exitoso (`npm run build`) y 91 pruebas unitarias aprobadas (`npm run test`).
+  * Commit `13ce485` publicado en `main`, Issue #40 comentado y cerrado formalmente.
+* **Blocked Items**: Ninguno.
+* **Next Steps**: Todos los issues de deuda técnica se encuentran cerrados. El módulo `memorias-web` está libre de deuda técnica pendiente en las categorías identificadas.
+
+---
 
 ### Session 17 (2026-07-08)
 * **Goal**: Analizar la deuda técnica de `/memorias-web` (Issue #28), consolidar los cambios locales, crear nuevos issues para puntos remanentes y resolverlos todos: modularizar `TagsCurationClient.tsx` (Issue #37), descomponer `HeaderClient.tsx` (Issue #36), modularizar `MemberForm.tsx` / `PublicationForm.tsx` (Issue #38) y modularizar `ThesisForm.tsx` / `ScholarshipForm.tsx` / `ProjectForm.tsx` (Issue #39).
