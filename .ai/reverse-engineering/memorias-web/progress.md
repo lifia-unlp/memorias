@@ -7,14 +7,14 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ## Current Status
 * **Active Phase**: Technical Debt Resolution & Code Quality Audit (Issue #28)
 * **Last Updated**: 2026-07-08
-* **Overall Progress**: 100% completed (Including search page optimization, DRY utilities, ReportBuilderClient decomposition, type safety/selector unification, technical debt analysis report, TagsCurationClient modularization, and HeaderClient decomposition)
+* **Overall Progress**: 100% completed (Including search page optimization, DRY utilities, ReportBuilderClient decomposition, type safety/selector unification, technical debt analysis report, TagsCurationClient modularization, HeaderClient decomposition, and MemberForm/PublicationForm modularization)
 
 ---
 
 ## Session Logs
 
 ### Session 17 (2026-07-08)
-* **Goal**: Analizar la deuda técnica de `/memorias-web` (Issue #28), consolidar los cambios locales, crear nuevos issues para puntos remanentes y resolver los prioritarios: modularizar `TagsCurationClient.tsx` (Issue #37) y descomponer `HeaderClient.tsx` (Issue #36).
+* **Goal**: Analizar la deuda técnica de `/memorias-web` (Issue #28), consolidar los cambios locales, crear nuevos issues para puntos remanentes y resolverlos todos: modularizar `TagsCurationClient.tsx` (Issue #37), descomponer `HeaderClient.tsx` (Issue #36) y modularizar `MemberForm.tsx` / `PublicationForm.tsx` (Issue #38).
 * **Accomplished**:
   * Elaborado y guardado el reporte `technical_debt_analysis.md` cubriendo las observaciones de calidad.
   * Publicado el reporte en el Issue #28 y cerrado el issue formalmente en GitHub.
@@ -29,12 +29,16 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
     * Creados los componentes dropdown de barra de navegación `ReportsDropdown`, `AdminDropdown` y `UserDropdown` en `HeaderDropdownMenu.tsx`.
     * Creado el componente lateral móvil `MobileNavigationDrawer.tsx` conteniendo la navegación y Drawer de visualización mobile.
     * Refactorizado `HeaderClient.tsx` para servir exclusivamente como plantilla contenedora de layout delegando el comportamiento a los nuevos subcomponentes.
+  * Resuelto el **Issue #38** (Modularización de `MemberForm.tsx` y `PublicationForm.tsx`):
+    * **MemberForm:** Extraído el hook `useMemberForm.ts` para encapsular estados, generación automática de slugs y persistencia, y creado `AcmCcsSection.tsx` para aislar las clasificaciones taxonómicas de ACM.
+    * **PublicationForm:** Extraído el hook `usePublicationForm.ts` para agrupar la lógica de importación CrossRef/BibTeX y persistencia, y creado `PublicationWizard.tsx` para los flujos de configuración previos a la edición.
+    * Removido código muerto de filtros que ya es manejado internamente por los selectores reutilizables unificados.
   * Verificada la correcta compilación y el paso de las 51 pruebas con Vitest.
-  * Realizado commit (`be51af3`) y push de la refactorización de navegación global, comentando y cerrando formalmente el **Issue #36** en GitHub.
+  * Realizado commit (`41eab7c`) y push de los formularios modulares, comentando y cerrando formalmente el **Issue #38** en GitHub.
 * **Blocked Items**:
   * Ninguno.
 * **Next Steps**:
-  * Continuar con la Prioridad 3: Reducir complejidad y descomponer formularios extensos (PublicationForm y MemberForm) (Issue #38).
+  * Coordinar con el desarrollador los próximos objetivos de ingeniería del software para memorias-web o memorias-copilot.
 
 ---
 
