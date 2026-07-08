@@ -7,11 +7,10 @@ import {
   queryProjects,
   queryScholarships,
   queryTheses,
-  saveReport,
-  getReports,
-  deleteReport,
   generateReportAIContent,
 } from "../actions";
+import { useReportBlocks } from "./hooks/useReportBlocks";
+import { useSavedReports } from "./hooks/useSavedReports";
 
 export interface Block {
   id: string;
@@ -175,22 +174,10 @@ export const getBlockMarkdownContext = (block: Block): string => {
 
 export function useReportCompiler() {
   const [initData, setInitData] = useState<InitData | null>(null);
-  const [blocks, setBlocks] = useState<Block[]>([
-    {
-      id: "welcome-md",
-      type: "markdown",
-      content: "# Research Report\nThis report has been compiled dynamically using the MEMORIAS Research Portal.\n\nUse the builder tools to configure elements, sort criteria, and filter by members or years.",
-      filters: { memberIds: [], types: [], year: "all", startYear: "", endYear: "", style: "apa", showSummary: true },
-      sort: { field: "year", direction: "desc" },
-      compiledItems: [],
-    },
-  ]);
   const [isCompiling, setIsCompiling] = useState(false);
-  const [viewState, setViewState] = useState<"list" | "editor" | "view">("list");
-  const [savedReports, setSavedReports] = useState<any[]>([]);
-  const [reportId, setReportId] = useState<string | null>(null);
-  const [reportTitle, setReportTitle] = useState("My Research Report");
-  const [isLoadingReports, setIsLoadingReports] = useState(false);
+
+  const blockHook = useReportBlocks();
+  const savedHook = useSavedReports();
 
   const activeRequestsRef = useRef<Record<string, string>>({});
 
@@ -198,7 +185,7 @@ export function useReportCompiler() {
     if (activeRequestsRef.current[id]) {
       delete activeRequestsRef.current[id];
     }
-    setBlocks((prev) =>
+    blockHook.setBlocks((prev) =>
       prev.map((b) =>
         b.id === id
           ? {
@@ -209,169 +196,6 @@ export function useReportCompiler() {
           : b
       )
     );
-  };
-
-  const fetchSavedReports = async () => {
-    setIsLoadingReports(true);
-    try {
-      const reportsList = await getReports();
-      setSavedReports(reportsList);
-    } catch (err) {
-      console.error("Failed to fetch reports", err);
-    } finally {
-      setIsLoadingReports(false);
-    }
-  };
-
-  useEffect(() => {
-    if (viewState === "list") {
-      fetchSavedReports();
-    }
-  }, [viewState]);
-
-  const handleSaveReport = async () => {
-    if (!reportTitle.trim()) {
-      alert("Please enter a title for the report.");
-      return;
-    }
-    setIsCompiling(true);
-    try {
-      const blocksToSave = blocks.map(({ id, type, content, filters, sort, lastGeneratedConfig }) => ({
-        id,
-        type,
-        content,
-        filters,
-        sort,
-        lastGeneratedConfig,
-      }));
-
-      const response = await saveReport({
-        id: reportId || undefined,
-        title: reportTitle,
-        blocks: blocksToSave,
-      });
-      
-      if (response.duplicate) {
-        const choice = confirm(
-          `${response.message}\n\n` +
-          `* Click OK to OVERWRITE the existing report.\n` +
-          `* Click CANCEL to save it as a new separate report (renamed automatically to avoid name collisions).`
-        );
-        
-        if (choice) {
-          const overwriteResponse = await saveReport({
-            id: response.existingId,
-            title: reportTitle,
-            blocks: blocksToSave,
-            ignoreDuplicateCheck: true,
-          });
-          
-          if (overwriteResponse.report) {
-            setReportId(overwriteResponse.report.id);
-            alert("Existing report overwritten successfully!");
-            setViewState("list");
-          }
-        } else {
-          const copyTitle = `${reportTitle} (Copy)`;
-          setReportTitle(copyTitle);
-          
-          const copyResponse = await saveReport({
-            title: copyTitle,
-            blocks: blocksToSave,
-            ignoreDuplicateCheck: true,
-          });
-          
-          if (copyResponse.report) {
-            setReportId(copyResponse.report.id);
-            alert(`Saved as new report: "${copyTitle}"`);
-            setViewState("list");
-          }
-        }
-        return;
-      }
-      
-      if (response.report) {
-        setReportId(response.report.id);
-        alert("Report saved successfully!");
-        setViewState("list");
-      }
-    } catch (err) {
-      console.error("Failed to save report", err);
-      alert("Error saving report. Make sure your local server was restarted to refresh the Prisma cache.");
-    } finally {
-      setIsCompiling(false);
-    }
-  };
-
-  const handleEditReport = async (report: any) => {
-    setReportId(report.id);
-    setReportTitle(report.title);
-    const parsedBlocks = (report.blocks as any[]).map(block => ({
-      ...block,
-      filters: {
-        ...block.filters,
-        tags: block.filters?.tags ?? [],
-        prompt: block.type === "genai" ? (block.filters?.prompt ?? "Summarize the major highlights.") : undefined,
-        maxLength: block.type === "genai" ? (block.filters?.maxLength ?? 300) : undefined,
-        inputBlockIds: block.type === "genai" ? (block.filters?.inputBlockIds ?? []) : undefined,
-      },
-      lastGeneratedConfig: block.lastGeneratedConfig,
-      compiledItems: []
-    }));
-    setBlocks(parsedBlocks);
-    setViewState("editor");
-    await compileReport(parsedBlocks);
-  };
-
-  const handleCreateNewReport = () => {
-    setReportId(null);
-    setReportTitle("New Research Report");
-    const defaultBlocks: Block[] = [
-      {
-        id: "welcome-md",
-        type: "markdown",
-        content: "# Research Report\nThis report has been compiled dynamically using the MEMORIAS Research Portal.\n\nUse the builder tools to configure elements, sort criteria, and filter by members or years.",
-        filters: { memberIds: [], types: [], year: "all", startYear: "", endYear: "", style: "apa", showSummary: true },
-        sort: { field: "year", direction: "desc" },
-        compiledItems: [],
-      }
-    ];
-    setBlocks(defaultBlocks);
-    setViewState("editor");
-    compileReport(defaultBlocks);
-  };
-
-  const handleViewReport = async (report: any) => {
-    setReportId(report.id);
-    setReportTitle(report.title);
-    const parsedBlocks = (report.blocks as any[]).map(block => ({
-      ...block,
-      filters: {
-        ...block.filters,
-        tags: block.filters?.tags ?? [],
-        prompt: block.type === "genai" ? (block.filters?.prompt ?? "Summarize the major highlights.") : undefined,
-        maxLength: block.type === "genai" ? (block.filters?.maxLength ?? 300) : undefined,
-        inputBlockIds: block.type === "genai" ? (block.filters?.inputBlockIds ?? []) : undefined,
-      },
-      lastGeneratedConfig: block.lastGeneratedConfig,
-      compiledItems: []
-    }));
-    setBlocks(parsedBlocks);
-    setViewState("view");
-    await compileReport(parsedBlocks);
-  };
-
-  const handleDeleteReport = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this report?")) {
-      return;
-    }
-    try {
-      await deleteReport(id);
-      fetchSavedReports();
-    } catch (err) {
-      console.error("Failed to delete report", err);
-      alert("Error deleting report.");
-    }
   };
 
   useEffect(() => {
@@ -423,7 +247,7 @@ export function useReportCompiler() {
     const inputBlockIds = block.filters.inputBlockIds || [];
     let len = 0;
     inputBlockIds.forEach((id) => {
-      const refBlock = blocks.find((b) => b.id === id);
+      const refBlock = blockHook.blocks.find((b) => b.id === id);
       if (refBlock) {
         len += getBlockMarkdownContext(refBlock).length;
       }
@@ -431,7 +255,7 @@ export function useReportCompiler() {
     return len;
   };
 
-  const compileReport = async (currentBlocks: Block[] = blocks, forceGenAIBlockId?: string) => {
+  const compileReport = async (currentBlocks: Block[] = blockHook.blocks, forceGenAIBlockId?: string) => {
     setIsCompiling(true);
     try {
       const compiledNonAI = await Promise.all(
@@ -528,7 +352,7 @@ export function useReportCompiler() {
         const requestId = Math.random().toString(36).substring(2, 9);
         activeRequestsRef.current[block.id] = requestId;
 
-        setBlocks([...finalBlocks, block, ...compiledNonAI.slice(finalBlocks.length + 1)]);
+        blockHook.setBlocks([...finalBlocks, block, ...compiledNonAI.slice(finalBlocks.length + 1)]);
 
         try {
           const res = await generateReportAIContent({
@@ -570,7 +394,7 @@ export function useReportCompiler() {
         finalBlocks.push(block);
       }
 
-      setBlocks(finalBlocks);
+      blockHook.setBlocks(finalBlocks);
     } catch (err) {
       console.error("Compilation error", err);
     } finally {
@@ -585,114 +409,32 @@ export function useReportCompiler() {
   }, [initData]);
 
   const addBlock = (type: Block["type"]) => {
-    const newBlock: Block = {
-      id: Math.random().toString(36).substring(2, 9),
-      type,
-      content: type === "markdown" ? "### Heading\nType your markdown content here." : type === "genai" ? "### GenAI Compilation\nClick 'Regenerate' or update filters to create dynamic text." : undefined,
-      filters: {
-        memberIds: [],
-        types: [],
-        year: "all",
-        startYear: "",
-        endYear: "",
-        style: "apa",
-        showSummary: true,
-        tags: [],
-        prompt: type === "genai" ? "Summarize the major highlights." : undefined,
-        maxLength: type === "genai" ? 300 : undefined,
-        inputBlockIds: type === "genai" ? [] : undefined,
-      },
-      sort: {
-        field: "year",
-        direction: "desc",
-      },
-      compiledItems: [],
-    };
-    const updated = [...blocks, newBlock];
-    setBlocks(updated);
-    if (type !== "markdown") {
-      compileReport(updated);
-    }
+    blockHook.addBlock(type, compileReport);
   };
 
   const removeBlock = (id: string) => {
-    const remaining = blocks.filter((b) => b.id !== id);
-    const updated = remaining.map((b) => {
-      if (b.type === "genai" && b.filters.inputBlockIds?.includes(id)) {
-        return {
-          ...b,
-          filters: {
-            ...b.filters,
-            inputBlockIds: b.filters.inputBlockIds.filter((refId) => refId !== id),
-          },
-        };
-      }
-      return b;
-    });
-    setBlocks(updated);
+    blockHook.removeBlock(id);
   };
 
   const moveBlock = (index: number, direction: "up" | "down") => {
-    if (direction === "up" && index === 0) return;
-    if (direction === "down" && index === blocks.length - 1) return;
-
-    const targetIndex = direction === "up" ? index - 1 : index + 1;
-    const updated = [...blocks];
-    const temp = updated[index];
-    updated[index] = updated[targetIndex];
-    updated[targetIndex] = temp;
-    setBlocks(updated);
+    blockHook.moveBlock(index, direction);
   };
 
   const updateBlockContent = (id: string, text: string) => {
-    setBlocks(
-      blocks.map((b) => (b.id === id ? { ...b, content: text } : b))
-    );
+    blockHook.updateBlockContent(id, text);
   };
 
   const updateBlockFilter = (id: string, key: keyof Block["filters"], value: any) => {
-    const updated = blocks.map((b) => {
-      if (b.id === id) {
-        return {
-          ...b,
-          filters: {
-            ...b.filters,
-            [key]: value,
-          },
-        };
-      }
-      return b;
-    });
-    setBlocks(updated);
-    const changedBlock = updated.find((b) => b.id === id);
-    if (changedBlock && changedBlock.type !== "markdown" && changedBlock.type !== "genai") {
-      compileReport(updated);
-    }
+    blockHook.updateBlockFilter(id, key, value, compileReport);
   };
 
   const updateBlockSort = (id: string, key: keyof Block["sort"], value: any) => {
-    const updated = blocks.map((b) => {
-      if (b.id === id) {
-        return {
-          ...b,
-          sort: {
-            ...b.sort,
-            [key]: value,
-          },
-        };
-      }
-      return b;
-    });
-    setBlocks(updated);
-    const changedBlock = updated.find((b) => b.id === id);
-    if (changedBlock && changedBlock.type !== "markdown" && changedBlock.type !== "genai") {
-      compileReport(updated);
-    }
+    blockHook.updateBlockSort(id, key, value, compileReport);
   };
 
   const exportMarkdown = () => {
     let md = "";
-    blocks.forEach((block) => {
+    blockHook.blocks.forEach((block) => {
       if (block.type === "markdown" || block.type === "genai") {
         md += `${block.content}\n\n`;
       } else if (block.type === "publications") {
@@ -762,26 +504,26 @@ export function useReportCompiler() {
 
   return {
     initData,
-    blocks,
+    blocks: blockHook.blocks,
     isCompiling,
-    viewState,
-    setViewState,
-    savedReports,
-    reportId,
-    setReportId,
-    reportTitle,
-    setReportTitle,
-    isLoadingReports,
+    viewState: savedHook.viewState,
+    setViewState: savedHook.setViewState,
+    savedReports: savedHook.savedReports,
+    reportId: savedHook.reportId,
+    setReportId: savedHook.setReportId,
+    reportTitle: savedHook.reportTitle,
+    setReportTitle: savedHook.setReportTitle,
+    isLoadingReports: savedHook.isLoadingReports,
     cancelGenAIUpdate,
-    fetchSavedReports,
-    handleSaveReport,
-    handleEditReport,
-    handleCreateNewReport,
-    handleViewReport,
-    handleDeleteReport,
-    isGenAIDirty,
+    fetchSavedReports: savedHook.fetchSavedReports,
+    handleSaveReport: () => savedHook.handleSaveReport(blockHook.blocks, setIsCompiling),
+    handleEditReport: (report: any) => savedHook.handleEditReport(report, blockHook.setBlocks, compileReport),
+    handleCreateNewReport: () => savedHook.handleCreateNewReport(blockHook.setBlocks, compileReport),
+    handleViewReport: (report: any) => savedHook.handleViewReport(report, blockHook.setBlocks, compileReport),
+    handleDeleteReport: savedHook.handleDeleteReport,
+    isGenAIDirty: (block: Block) => isGenAIDirty(block, blockHook.blocks),
     getSelectedContextLength,
-    compileReport,
+    compileReport: () => compileReport(blockHook.blocks),
     addBlock,
     removeBlock,
     moveBlock,
