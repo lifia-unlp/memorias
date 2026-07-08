@@ -1,11 +1,9 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { logAction } from "@/lib/audit";
-import { sanitizeTag } from "@/lib/tags";
 import { ensureEditorOrAdmin } from "@/lib/auth-helpers";
-import { slugify } from "@/lib/slugs";
+import { publicationService } from "@/lib/services/publicationService";
 
 // ---------------------------------------------------------
 // Helper: Clean and format individual BibTeX tag value
@@ -231,88 +229,35 @@ export async function createPublication(data: {
   featured?: boolean;
   ignoreDuplicateCheck?: boolean;
 }) {
-  await ensureEditorOrAdmin();
-
-  const title = data.title.trim();
-  const authors = data.authors.trim();
-  const year = Number(data.year);
-  const type = data.type.trim();
-
-  if (!title || !authors || !year || !type) {
-    return { success: false, error: "Title, Authors, Year, and Type are mandatory fields" };
-  }
-
-  // Duplicate Check
-  if (!data.ignoreDuplicateCheck) {
-    const duplicate = await prisma.publication.findFirst({
-      where: {
-        title: { equals: title, mode: "insensitive" },
-      },
-    });
-    if (duplicate) {
-      return {
-        success: false,
-        duplicate: true,
-        error: `A publication titled "${title}" already exists.`,
-      };
-    }
-  }
-
-  // Construct auto-slug
-  const baseSlug = slugify(data.citationKey || title);
-  let slug = baseSlug;
-  let counter = 1;
-  while (true) {
-    const existing = await prisma.publication.findUnique({
-      where: { slug },
-    });
-    if (!existing) break;
-    slug = `${baseSlug}-${counter++}`;
-  }
-
-  // Build robust BibTeX JSON
-  const citationKey = data.citationKey?.trim() || slug;
-  const entryTags: Record<string, string> = {
-    ...(data.customEntryTags || {}),
-    title,
-    author: authors,
-    year: String(year),
-  };
-  if (data.ranking) entryTags.ranking = data.ranking;
-  if (data.selfArchivingUrl) entryTags.url = data.selfArchivingUrl;
-  if (data.doi) entryTags.doi = data.doi.trim();
-  if (data.abstract) entryTags.abstract = data.abstract.trim();
-
-  const bibtexData = {
-    citationKey,
-    entryType: type,
-    entryTags,
-  };
-
   try {
-    const pub = await prisma.publication.create({
-      data: {
-        slug,
-        title,
-        authors,
-        year,
-        type,
-        ranking: data.ranking?.trim() || null,
-        selfArchivingUrl: data.selfArchivingUrl?.trim() || null,
-        bibtexData: bibtexData as any,
-        featured: data.featured || false,
-        tags: data.tags ? data.tags.map(sanitizeTag).filter(Boolean) : [],
-        members: data.members ? { connect: data.members.map((id) => ({ id })) } : undefined,
-        projects: data.projects ? { connect: data.projects.map((id) => ({ id })) } : undefined,
-        theses: data.theses ? { connect: data.theses.map((id) => ({ id })) } : undefined,
-      },
-    });
+    await ensureEditorOrAdmin();
+
+    const title = data.title.trim();
+    const authors = data.authors.trim();
+    const year = Number(data.year);
+    const type = data.type.trim();
+
+    if (!title || !authors || !year || !type) {
+      return { success: false, error: "Title, Authors, Year, and Type are mandatory fields" };
+    }
+
+    const ignoreCheck = data.ignoreDuplicateCheck || false;
+
+    const pub = await publicationService.create(data, ignoreCheck);
 
     await logAction("CREATE", "Publication", pub.id, pub.slug, `Created publication: ${pub.title}`);
 
     revalidatePath("/publications");
     return { success: true, slug: pub.slug };
   } catch (err: any) {
+    if (err.message === "DUPLICATE_TITLE") {
+      const title = data.title.trim();
+      return {
+        success: false,
+        duplicate: true,
+        error: `A publication titled "${title}" already exists.`,
+      };
+    }
     return { success: false, error: err?.message || "Failed to create publication" };
   }
 }
@@ -338,87 +283,21 @@ export async function updatePublication(
     ignoreDuplicateCheck?: boolean;
   }
 ) {
-  await ensureEditorOrAdmin();
-
-  const title = data.title.trim();
-  const authors = data.authors.trim();
-  const year = Number(data.year);
-  const type = data.type.trim();
-
-  if (!title || !authors || !year || !type) {
-    return { success: false, error: "Title, Authors, Year, and Type are mandatory fields" };
-  }
-
-  // Duplicate Check
-  if (!data.ignoreDuplicateCheck) {
-    const duplicate = await prisma.publication.findFirst({
-      where: {
-        title: { equals: title, mode: "insensitive" },
-        slug: { not: slug },
-      },
-    });
-    if (duplicate) {
-      return {
-        success: false,
-        duplicate: true,
-        error: `Another publication titled "${title}" already exists.`,
-      };
-    }
-  }
-
-  const existingPub = await prisma.publication.findUnique({
-    where: { slug },
-  });
-
-  if (!existingPub) {
-    return { success: false, error: "Publication not found" };
-  }
-
-  // Re-build/Update BibTeX JSON object
-  const citationKey = data.citationKey?.trim() || slug;
-  
-  // Override custom tags from form to drop discarded fields
-  const entryTags: Record<string, string> = {
-    ...(data.customEntryTags || {}),
-    title,
-    author: authors,
-    year: String(year),
-  };
-  if (data.ranking) entryTags.ranking = data.ranking;
-  if (data.selfArchivingUrl) entryTags.url = data.selfArchivingUrl;
-  if (data.doi) entryTags.doi = data.doi.trim();
-  if (data.abstract) entryTags.abstract = data.abstract.trim();
-
-  const bibtexData = {
-    citationKey,
-    entryType: type,
-    entryTags,
-  };
-
   try {
-    const pub = await prisma.publication.update({
-      where: { slug },
-      data: {
-        title,
-        authors,
-        year,
-        type,
-        ranking: data.ranking?.trim() || null,
-        selfArchivingUrl: data.selfArchivingUrl?.trim() || null,
-        tags: data.tags ? data.tags.map(sanitizeTag).filter(Boolean) : [],
-        bibtexData: bibtexData as any,
-        featured: data.featured || false,
-        members: {
-          set: data.members ? data.members.map((id) => ({ id })) : [],
-        },
-        projects: {
-          set: data.projects ? data.projects.map((id) => ({ id })) : [],
-        },
-        theses: {
-          set: data.theses ? data.theses.map((id) => ({ id })) : [],
-        },
-      },
-    });
+    await ensureEditorOrAdmin();
+
+    const title = data.title.trim();
+    const authors = data.authors.trim();
+    const year = Number(data.year);
+    const type = data.type.trim();
+
+    if (!title || !authors || !year || !type) {
+      return { success: false, error: "Title, Authors, Year, and Type are mandatory fields" };
+    }
+
+    const ignoreCheck = data.ignoreDuplicateCheck || false;
+
+    const pub = await publicationService.update(slug, data, ignoreCheck);
 
     await logAction("UPDATE", "Publication", pub.id, pub.slug, `Updated publication: ${pub.title}`);
 
@@ -426,6 +305,14 @@ export async function updatePublication(
     revalidatePath(`/publications/${slug}`);
     return { success: true, slug };
   } catch (err: any) {
+    if (err.message === "DUPLICATE_TITLE") {
+      const title = data.title.trim();
+      return {
+        success: false,
+        duplicate: true,
+        error: `Another publication titled "${title}" already exists.`,
+      };
+    }
     return { success: false, error: err?.message || "Failed to update publication" };
   }
 }
@@ -434,9 +321,7 @@ export async function deletePublication(id: string) {
   await ensureEditorOrAdmin();
 
   try {
-    const pub = await prisma.publication.delete({
-      where: { id },
-    });
+    const pub = await publicationService.delete(id);
 
     await logAction("DELETE", "Publication", pub.id, pub.slug, `Deleted publication: ${pub.title}`);
 
