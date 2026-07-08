@@ -43,7 +43,8 @@ import {
   buildThesisWhere,
   buildScholarshipWhere,
   buildPublicationWhere,
-} from "../page";
+} from "@/lib/services/searchService";
+
 
 // ---------------------------------------------------------------------------
 // Shared helpers

@@ -1,8 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
-import { getDistinctTags } from "@/lib/tags";
+import { reportService } from "@/lib/services/reportService";
 import fs from "fs";
 import path from "path";
 
@@ -14,106 +13,18 @@ export async function ensureActiveUser() {
 }
 
 /**
- * Fetches all initialization data needed by the Report Builder page:
- * - Members list
- * - Distinct publication years and types
- * - Distinct scholarship types
- * - Distinct thesis levels
+ * Fetches all initialization data needed by the Report Builder page.
  */
 export async function getReportInitData() {
   await ensureActiveUser();
-
-  // 1. Fetch all members sorted by last name, then first name
-  const members = await prisma.member.findMany({
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      slug: true,
-    },
-    orderBy: [
-      { lastName: "asc" },
-      { firstName: "asc" },
-    ],
-  });
-
-  // 2. Fetch distinct publication years
-  const distinctPubYears = await prisma.publication.findMany({
-    select: { year: true },
-    distinct: ["year"],
-    orderBy: { year: "desc" },
-  });
-  const publicationYears = distinctPubYears.map((p) => p.year);
-
-  // 3. Fetch distinct publication types (stored in db or standard list)
-  const distinctPubTypes = await prisma.publication.findMany({
-    select: { type: true },
-    distinct: ["type"],
-  });
-  const publicationTypes = Array.from(
-    new Set([
-      ...distinctPubTypes.map((p) => p.type),
-      "article",
-      "inproceedings",
-      "book",
-      "phdthesis",
-      "mastersthesis",
-      "techreport",
-      "misc",
-    ])
-  ).filter(Boolean);
-
-  // 4. Fetch distinct scholarship types from the Scholarship model and SystemOption options list
-  const distinctScholarshipTypes = await prisma.scholarship.findMany({
-    select: { type: true },
-    distinct: ["type"],
-  });
-  const scholarshipSystemOptions = await prisma.systemOption.findMany({
-    where: { listName: "scholarshipType" },
-    select: { value: true },
-  });
-  const scholarshipTypes = Array.from(
-    new Set([
-      ...distinctScholarshipTypes.map((s) => s.type),
-      ...scholarshipSystemOptions.map((o) => o.value),
-    ])
-  ).filter(Boolean) as string[];
-
-  // 5. Fetch distinct thesis levels from the Thesis model and SystemOption options list
-  const distinctThesisLevels = await prisma.thesis.findMany({
-    select: { level: true },
-    distinct: ["level"],
-  });
-  const thesisSystemOptions = await prisma.systemOption.findMany({
-    where: { listName: "thesisLevel" },
-    select: { value: true },
-  });
-  const thesisLevels = Array.from(
-    new Set([
-      ...distinctThesisLevels.map((t) => t.level),
-      ...thesisSystemOptions.map((o) => o.value),
-    ])
-  ).filter(Boolean) as string[];
-
-  const tags = await getDistinctTags();
-
-  return {
-    members,
-    publicationYears,
-    publicationTypes,
-    scholarshipTypes,
-    thesisLevels,
-    tags,
-  };
+  return reportService.getInitData();
 }
-
-import { formatCitation } from "@/lib/citations";
 
 interface PublicationFilters {
   memberIds?: string[];
   types?: string[];
-  year?: string; // "all" or numeric string
-  style?: string; // "apa" | "vancouver" | "harvard"
+  year?: string;
+  style?: string;
   startYear?: number;
   endYear?: number;
   tags?: string[];
@@ -152,115 +63,7 @@ interface SortConfig {
  */
 export async function queryPublications(filters: PublicationFilters, sort: SortConfig) {
   await ensureActiveUser();
-
-  const { memberIds, types, year, style, startYear, endYear, tags } = filters;
-  const where: any = {};
-
-  if (memberIds && memberIds.length > 0) {
-    where.members = {
-      some: {
-        id: { in: memberIds },
-      },
-    };
-  }
-
-  if (types && types.length > 0) {
-    where.type = { in: types };
-  }
-
-  if (tags && tags.length > 0) {
-    const allDistinctTags = await getDistinctTags();
-    const isAllSelected = allDistinctTags.every((t) => tags.includes(t));
-    if (!isAllSelected) {
-      where.tags = {
-        hasSome: tags,
-      };
-    }
-  }
-
-  if (year && year !== "all") {
-    where.year = parseInt(year, 10);
-  } else {
-    const yearFilter: any = {};
-    if (startYear) {
-      yearFilter.gte = startYear;
-    }
-    if (endYear) {
-      yearFilter.lte = endYear;
-    }
-    if (startYear || endYear) {
-      where.year = yearFilter;
-    }
-  }
-
-  // Set up orderBy
-  const orderBy: any[] = [];
-  if (sort.field === "year") {
-    orderBy.push({ year: sort.direction });
-    orderBy.push({ title: "asc" }); // secondary sort
-  } else {
-    orderBy.push({ title: sort.direction });
-    orderBy.push({ year: "desc" }); // secondary sort
-  }
-
-  const publications = await prisma.publication.findMany({
-    where,
-    orderBy,
-    include: {
-      members: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          slug: true,
-        },
-      },
-    },
-  });
-
-  return publications.map((pb) => {
-    const citation = formatCitation(pb, style || "apa");
-    return {
-      id: pb.id,
-      slug: pb.slug,
-      type: pb.type,
-      title: pb.title,
-      authors: pb.authors,
-      year: pb.year,
-      citationHtml: citation.html,
-      citationText: citation.text,
-      members: pb.members,
-    };
-  });
-}
-
-/**
- * Helper to build start/end active year overlap query filters
- */
-function buildActiveYearFilters(startYear?: number, endYear?: number) {
-  const andFilters: any[] = [];
-
-  if (startYear) {
-    const startOfStartYear = new Date(`${startYear}-01-01T00:00:00.000Z`);
-    andFilters.push({
-      OR: [
-        { endDate: null },
-        { endDate: { gte: startOfStartYear } },
-      ],
-    });
-  }
-
-  if (endYear) {
-    const endOfEndYear = new Date(`${endYear}-12-31T23:59:59.999Z`);
-    andFilters.push({
-      OR: [
-        { startDate: null },
-        { startDate: { lte: endOfEndYear } },
-      ],
-    });
-  }
-
-  return andFilters;
+  return reportService.queryPublications(filters, sort);
 }
 
 /**
@@ -268,57 +71,7 @@ function buildActiveYearFilters(startYear?: number, endYear?: number) {
  */
 export async function queryProjects(filters: ProjectFilters, sort: SortConfig) {
   await ensureActiveUser();
-
-  const { memberIds, startYear, endYear, tags } = filters;
-  const where: any = {};
-
-  if (memberIds && memberIds.length > 0) {
-    where.members = {
-      some: {
-        id: { in: memberIds },
-      },
-    };
-  }
-
-  if (tags && tags.length > 0) {
-    const allDistinctTags = await getDistinctTags();
-    const isAllSelected = allDistinctTags.every((t) => tags.includes(t));
-    if (!isAllSelected) {
-      where.tags = {
-        hasSome: tags,
-      };
-    }
-  }
-
-  const andFilters = buildActiveYearFilters(startYear, endYear);
-  if (andFilters.length > 0) {
-    where.AND = andFilters;
-  }
-
-  // Set up orderBy
-  const orderBy: any[] = [];
-  if (sort.field === "year") {
-    orderBy.push({ startDate: sort.direction });
-    orderBy.push({ title: "asc" });
-  } else {
-    orderBy.push({ title: sort.direction });
-    orderBy.push({ startDate: "desc" });
-  }
-
-  return await prisma.project.findMany({
-    where,
-    orderBy,
-    include: {
-      members: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          slug: true,
-        },
-      },
-    },
-  });
+  return reportService.queryProjects(filters, sort);
 }
 
 /**
@@ -326,61 +79,7 @@ export async function queryProjects(filters: ProjectFilters, sort: SortConfig) {
  */
 export async function queryScholarships(filters: ScholarshipFilters, sort: SortConfig) {
   await ensureActiveUser();
-
-  const { memberIds, types, startYear, endYear, tags } = filters;
-  const where: any = {};
-
-  if (memberIds && memberIds.length > 0) {
-    where.members = {
-      some: {
-        id: { in: memberIds },
-      },
-    };
-  }
-
-  if (types && types.length > 0) {
-    where.type = { in: types };
-  }
-
-  if (tags && tags.length > 0) {
-    const allDistinctTags = await getDistinctTags();
-    const isAllSelected = allDistinctTags.every((t) => tags.includes(t));
-    if (!isAllSelected) {
-      where.tags = {
-        hasSome: tags,
-      };
-    }
-  }
-
-  const andFilters = buildActiveYearFilters(startYear, endYear);
-  if (andFilters.length > 0) {
-    where.AND = andFilters;
-  }
-
-  // Set up orderBy
-  const orderBy: any[] = [];
-  if (sort.field === "year") {
-    orderBy.push({ startDate: sort.direction });
-    orderBy.push({ title: "asc" });
-  } else {
-    orderBy.push({ title: sort.direction });
-    orderBy.push({ startDate: "desc" });
-  }
-
-  return await prisma.scholarship.findMany({
-    where,
-    orderBy,
-    include: {
-      members: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          slug: true,
-        },
-      },
-    },
-  });
+  return reportService.queryScholarships(filters, sort);
 }
 
 /**
@@ -388,61 +87,7 @@ export async function queryScholarships(filters: ScholarshipFilters, sort: SortC
  */
 export async function queryTheses(filters: ThesisFilters, sort: SortConfig) {
   await ensureActiveUser();
-
-  const { memberIds, levels, startYear, endYear, tags } = filters;
-  const where: any = {};
-
-  if (memberIds && memberIds.length > 0) {
-    where.members = {
-      some: {
-        id: { in: memberIds },
-      },
-    };
-  }
-
-  if (levels && levels.length > 0) {
-    where.level = { in: levels };
-  }
-
-  if (tags && tags.length > 0) {
-    const allDistinctTags = await getDistinctTags();
-    const isAllSelected = allDistinctTags.every((t) => tags.includes(t));
-    if (!isAllSelected) {
-      where.tags = {
-        hasSome: tags,
-      };
-    }
-  }
-
-  const andFilters = buildActiveYearFilters(startYear, endYear);
-  if (andFilters.length > 0) {
-    where.AND = andFilters;
-  }
-
-  // Set up orderBy
-  const orderBy: any[] = [];
-  if (sort.field === "year") {
-    orderBy.push({ startDate: sort.direction });
-    orderBy.push({ title: "asc" });
-  } else {
-    orderBy.push({ title: sort.direction });
-    orderBy.push({ startDate: "desc" });
-  }
-
-  return await prisma.thesis.findMany({
-    where,
-    orderBy,
-    include: {
-      members: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          slug: true,
-        },
-      },
-    },
-  });
+  return reportService.queryTheses(filters, sort);
 }
 
 /**
@@ -458,60 +103,7 @@ export async function saveReport(data: {
   if (!session || !session.user?.id || !session.user?.active) {
     throw new Error("Unauthorized. Active session required.");
   }
-  
-  const { id, title, blocks, ignoreDuplicateCheck = false } = data;
-  
-  if (!ignoreDuplicateCheck) {
-    // Check if a report with the same title already exists for this user (case-insensitive)
-    const duplicate = await prisma.report.findFirst({
-      where: {
-        userId: session.user.id,
-        title: { equals: title, mode: "insensitive" },
-        ...(id ? { id: { not: id } } : {}),
-      },
-    });
-    
-    if (duplicate) {
-      return {
-        duplicate: true,
-        existingId: duplicate.id,
-        message: `A report titled "${title}" already exists.`,
-      };
-    }
-  }
-  
-  if (id) {
-    // Check ownership first
-    const existing = await prisma.report.findUnique({
-      where: { id },
-    });
-    if (!existing) {
-      throw new Error("Report not found.");
-    }
-    if (existing.userId !== session.user.id) {
-      throw new Error("Unauthorized. You do not own this report.");
-    }
-    
-    // Update
-    const updated = await prisma.report.update({
-      where: { id },
-      data: {
-        title,
-        blocks: blocks as any,
-      },
-    });
-    return { duplicate: false, report: updated };
-  } else {
-    // Create new
-    const created = await prisma.report.create({
-      data: {
-        title,
-        blocks: blocks as any,
-        userId: session.user.id,
-      },
-    });
-    return { duplicate: false, report: created };
-  }
+  return reportService.saveReport(session.user.id, data);
 }
 
 /**
@@ -522,18 +114,7 @@ export async function getReports() {
   if (!session || !session.user?.id || !session.user?.active) {
     throw new Error("Unauthorized. Active session required.");
   }
-  
-  return await prisma.report.findMany({
-    where: { userId: session.user.id },
-    orderBy: { updatedAt: "desc" },
-    select: {
-      id: true,
-      title: true,
-      blocks: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
+  return reportService.getReports(session.user.id);
 }
 
 /**
@@ -544,20 +125,7 @@ export async function getReport(id: string) {
   if (!session || !session.user?.id || !session.user?.active) {
     throw new Error("Unauthorized. Active session required.");
   }
-  
-  const report = await prisma.report.findUnique({
-    where: { id },
-  });
-  
-  if (!report) {
-    throw new Error("Report not found.");
-  }
-  
-  if (report.userId !== session.user.id) {
-    throw new Error("Unauthorized. You do not own this report.");
-  }
-  
-  return report;
+  return reportService.getReport(id, session.user.id);
 }
 
 /**
@@ -568,24 +136,7 @@ export async function deleteReport(id: string) {
   if (!session || !session.user?.id || !session.user?.active) {
     throw new Error("Unauthorized. Active session required.");
   }
-  
-  const existing = await prisma.report.findUnique({
-    where: { id },
-  });
-  
-  if (!existing) {
-    throw new Error("Report not found.");
-  }
-  
-  if (existing.userId !== session.user.id) {
-    throw new Error("Unauthorized. You do not own this report.");
-  }
-  
-  await prisma.report.delete({
-    where: { id },
-  });
-  
-  return { success: true };
+  return reportService.deleteReport(id, session.user.id);
 }
 
 /**

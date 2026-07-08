@@ -38,9 +38,11 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
-// Mock getDistinctTags
-vi.mock("@/lib/tags", () => ({
-  getDistinctTags: vi.fn(() => Promise.resolve(["ml", "nlp", "ai"])),
+// Mock tagService
+vi.mock("@/lib/services/tagService", () => ({
+  tagService: {
+    getDistinctTags: vi.fn(() => Promise.resolve(["ml", "nlp", "ai"])),
+  },
 }));
 
 // Mock formatCitation

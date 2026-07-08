@@ -5,13 +5,52 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ---
 
 ## Current Status
-* **Active Phase**: COMPLETE — All Technical Debt Issues Resolved
+* **Active Phase**: IN PROGRESS — Resolving Reopened Technical Debt (Issue #28)
 * **Last Updated**: 2026-07-08
-* **Overall Progress**: 100% completed (All issues #28–#40 resolved: search optimization, DRY utilities, ReportBuilderClient decomposition, type safety/selector unification, technical debt analysis, TagsCurationClient modularization, HeaderClient decomposition, MemberForm/PublicationForm modularization, remaining forms modularization with unit tests, and Service Layer extraction from Server Actions)
+* **Overall Progress**: 33% completed (Reopened issues: #41 and #43 resolved; #42, #44, #45, #46 pending)
+
 
 ---
 
 ## Session Logs
+
+### Session 20 (2026-07-08)
+* **Goal**: Resolver los issues de cobertura y refactorización del análisis de deuda: **Issue #41** (cobertura) e **Issue #43** (extraer servicios de lectura).
+* **Accomplished**:
+  * **Issue #41 (Pruebas unitarias de cobertura)**:
+    * Creados tests unitarios para `useReportCompiler` (31 tests), `reports/actions` (25 tests), `search/page` (21 tests) y `TagsCurationClient` (14 tests).
+    * Habilitada la exportación de helpers en `search/page.tsx` para pruebas independientes.
+    * Solucionados problemas de mocks y de zona horaria en las aserciones de rango de fechas de reportes.
+    * Commiteado y pusheado, cerrando el issue #41 con éxito.
+  * **Issue #43 (Servicios de Lectura)**:
+    * Creados 3 nuevos servicios de lectura y persistencia en `src/lib/services/`: `searchService.ts`, `tagService.ts` y `reportService.ts`.
+    * Refactorizada la página de búsqueda `src/app/search/page.tsx` para delegar la query de PostgreSQL a `searchService.search`.
+    * Refactorizada la página de tags `src/app/tags/[tag]/page.tsx` para delegar la carga a `tagService.getItemsByTag`.
+    * Simplificados los server actions `src/app/reports/actions.ts` y `src/app/admin/tags/actions.ts` delegando en `reportService` y `tagService` respectivamente.
+    * Redireccionado `src/lib/tags.ts` a `tagService` para lecturas unificadas.
+    * Creado `src/lib/tags-sanitize.ts` sin dependencias para romper imports circulares transitivos en tests unitarios.
+    * Creados tests unitarios para los 3 nuevos servicios: `searchService.test.ts`, `tagService.test.ts` y `reportService.test.ts`.
+    * Validada la suite completa de Vitest con 205 tests unitarios aprobados en verde (100% éxito).
+* **Blocked Items**: Ninguno.
+* **Next Steps**:
+  * Proceder con el **Issue #44** (dividir `useReportCompiler` por responsabilidades) para continuar reduciendo la deuda en el editor de reportes.
+
+### Session 19 (2026-07-08)
+* **Goal**: Analizar la deuda técnica actual de `/memorias-web` enfocada en mantenibilidad, legibilidad, bajo acoplamiento y alta cohesión.
+* **Accomplished**:
+  * Releídas las reglas globales, el plan y el progreso del proyecto de ingeniería inversa antes de analizar el código.
+  * Inspeccionada la estructura actual de `memorias-web/src`, tamaños de módulos, imports a Prisma, cobertura de pruebas existente y ciclos de dependencias locales.
+  * Confirmado que varios puntos históricos de deuda fueron mitigados: helpers de autorización/slugs, servicios de escritura para entidades principales, selectores reutilizables, componentes de búsqueda y descomposición parcial de Header/Report Builder/forms.
+  * Identificada deuda remanente concreta: hook grande `useReportCompiler.ts`, componente `TagsCurationClient.tsx` todavía extenso, ciclo `PublicationForm.tsx` <-> `usePublicationForm.ts`, Server Actions con mapeo `FormData` duplicado, páginas servidor con Prisma directo y cobertura insuficiente para módulos complejos de reportes/tags/search.
+  * Reabierto el Issue #28 en GitHub porque no se considera resuelto.
+  * Creados issues de seguimiento #41–#46 para la deuda pendiente: cobertura de pruebas, ciclo de publicaciones, servicios de lectura, descomposición de `useReportCompiler`, descomposición de `TagsCurationClient` y mappers `FormData`.
+  * Publicado comentario en el Issue #28 referenciando #41–#46 y firmado con `C`.
+* **Blocked Items**:
+  * No se pudo verificar el Wiki/Shared Domain Glossary porque `memorias-wiki` no está presente dentro del workspace sandbox actual.
+* **Next Steps**:
+  * Si se decide actuar sobre la deuda, priorizar pruebas para `useReportCompiler`, `TagsCurationClient`, `search/page.tsx` y `reports/actions.ts` antes de refactorizar, cumpliendo la regla de cobertura.
+  * Extraer constantes/configuración pura de publicaciones para eliminar el ciclo de imports.
+  * Separar queries/read services y componentes de vista en search/report/tag pages para mejorar localización de cambios.
 
 ### Session 18 (2026-07-08)
 * **Goal**: Resolver el **Issue #40** — Desacoplar el acceso a la base de datos (Prisma) de los Server Actions mediante la creación de una capa de servicios.

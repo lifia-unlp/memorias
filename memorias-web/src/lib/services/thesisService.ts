@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slugs";
-import { sanitizeTag } from "@/lib/tags";
+import { sanitizeTag } from "@/lib/tags-sanitize";
 
 export interface CreateThesisInput {
   title: string;

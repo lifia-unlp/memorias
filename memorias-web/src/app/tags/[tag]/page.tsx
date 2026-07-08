@@ -12,9 +12,9 @@ import {
   Chip,
   Divider,
 } from "@mui/material";
-import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/Header";
 import { formatCitation } from "@/lib/citations";
+import { tagService } from "@/lib/services/tagService";
 
 interface TagPageProps {
   params: Promise<{
@@ -30,38 +30,15 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
     return notFound();
   }
 
-  // Fetch all related entities sequentially
-  const members = await prisma.member.findMany({
-    where: { tags: { has: decodedTag } },
-    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
-  });
+  const {
+    members,
+    projects,
+    theses,
+    scholarships,
+    publications,
+    totalMatches,
+  } = await tagService.getItemsByTag(decodedTag);
 
-  const projects = await prisma.project.findMany({
-    where: { tags: { has: decodedTag } },
-    orderBy: { title: "asc" },
-  });
-
-  const theses = await prisma.thesis.findMany({
-    where: { tags: { has: decodedTag } },
-    orderBy: { title: "asc" },
-  });
-
-  const scholarships = await prisma.scholarship.findMany({
-    where: { tags: { has: decodedTag } },
-    orderBy: { title: "asc" },
-  });
-
-  const publications = await prisma.publication.findMany({
-    where: { tags: { has: decodedTag } },
-    orderBy: { year: "desc" },
-  });
-
-  const totalMatches =
-    members.length +
-    projects.length +
-    theses.length +
-    scholarships.length +
-    publications.length;
 
   return (
     <Box
