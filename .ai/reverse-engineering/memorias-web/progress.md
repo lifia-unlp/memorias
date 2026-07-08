@@ -7,28 +7,29 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ## Current Status
 * **Active Phase**: Technical Debt Resolution & Code Quality Audit (Issue #28)
 * **Last Updated**: 2026-07-08
-* **Overall Progress**: 100% completed (Including search page optimization, DRY utilities, ReportBuilderClient decomposition, type safety/selector unification, and technical debt analysis report submission)
+* **Overall Progress**: 100% completed (Including search page optimization, DRY utilities, ReportBuilderClient decomposition, type safety/selector unification, technical debt analysis report, and TagsCurationClient modularization)
 
 ---
 
 ## Session Logs
 
 ### Session 17 (2026-07-08)
-* **Goal**: Analizar la deuda técnica de `/memorias-web` (Issue #28), consolidar los cambios unstaged locales, crear nuevos issues en GitHub para los puntos remanentes no resueltos y definir su plan de ataque.
+* **Goal**: Analizar la deuda técnica de `/memorias-web` (Issue #28), consolidar los cambios locales, crear nuevos issues para puntos remanentes y resolver el de mayor prioridad: modularizar `TagsCurationClient.tsx` (Issue #37).
 * **Accomplished**:
-  * Redactado el documento de reporte `technical_debt_analysis.md` cubriendo malos olores de código, cohesión y acoplamiento, localización de cambios y el plan de acción ejecutado.
-  * Publicado el reporte completo como comentario oficial en el Issue #28 y cerrado formalmente el issue mediante la CLI de GitHub.
-  * Realizado commit (`81e9405`) y push de los cambios locales correspondientes a la modularización de `ReportBuilderClient` (Issue #31) y la unificación de selectores junto a remoción de casteos inseguros (Issue #32).
-  * Comentados los correspondientes issues closed con el hash del commit de integración para mantener la trazabilidad.
-  * Creados tres nuevos issues etiquetados como `technical debt` en GitHub para abordar el diseño remanente:
-    * **#36**: Descomposición de `HeaderClient.tsx`.
-    * **#37**: Modularización de `TagsCurationClient.tsx`.
-    * **#38**: Reducir complejidad y descomponer formularios extensos (`PublicationForm` y `MemberForm`).
-  * Estructurado el Plan de Ataque y priorización de la Fase II en la documentación del proyecto.
+  * Elaborado y guardado el reporte `technical_debt_analysis.md` cubriendo las observaciones de calidad.
+  * Publicado el reporte en el Issue #28 y cerrado el issue formalmente en GitHub.
+  * Realizado commit (`81e9405`) y push de los refactorings anteriores (descomposición de `ReportBuilderClient` y selectores genéricos con tipado estático seguro).
+  * Creados los nuevos issues de deuda técnica: #36 (HeaderClient), #37 (TagsCurationClient) y #38 (Forms).
+  * Resuelto el **Issue #37**:
+    * Creado el hook personalizado `useAutoTagger.ts` para aislar los estados, progreso y lógica de batch AI del Auto-Tagger.
+    * Creado el componente `TagActionDialogs.tsx` para agrupar todos los modales e interfaces de diálogos CRUD de taxonomías.
+    * Reescrita la estructura de maquetación en `TagsCurationClient.tsx`, delegando toda la lógica de diálogos y AI, reduciendo su extensión y acoplamiento.
+  * Verificada la correcta compilación y el paso de las 51 pruebas con Vitest.
+  * Realizado commit (`7d6e430`) y push de la refactorización de curación de tags, comentando y cerrando formalmente el **Issue #37** en GitHub.
 * **Blocked Items**:
   * Ninguno.
 * **Next Steps**:
-  * Comenzar con la resolución de la Prioridad 1: Modularización de `TagsCurationClient.tsx` (Issue #37).
+  * Continuar con la Prioridad 2: Descomposición de `HeaderClient.tsx` (Issue #36).
 
 ---
 
