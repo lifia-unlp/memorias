@@ -1,6 +1,7 @@
 import { useState, useTransition } from "react";
 import { resolveDoiAction, parseBibtex, createPublication, updatePublication } from "./actions";
-import { BIBTEX_FIELDS_MAP } from "./PublicationForm";
+import { BIBTEX_FIELDS_MAP } from "./publicationFields";
+
 
 interface UsePublicationFormProps {
   publication?: any;

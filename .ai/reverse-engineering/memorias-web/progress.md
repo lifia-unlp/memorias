@@ -7,7 +7,7 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ## Current Status
 * **Active Phase**: IN PROGRESS — Resolving Reopened Technical Debt (Issue #28)
 * **Last Updated**: 2026-07-08
-* **Overall Progress**: 33% completed (Reopened issues: #41 and #43 resolved; #42, #44, #45, #46 pending)
+* **Overall Progress**: 50% completed (Reopened issues: #41, #42, and #43 resolved; #44, #45, #46 pending)
 
 
 ---
@@ -15,7 +15,7 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ## Session Logs
 
 ### Session 20 (2026-07-08)
-* **Goal**: Resolver los issues de cobertura y refactorización del análisis de deuda: **Issue #41** (cobertura) e **Issue #43** (extraer servicios de lectura).
+* **Goal**: Resolver los issues de cobertura y refactorización del análisis de deuda: **Issue #41** (cobertura), **Issue #43** (extraer servicios de lectura) e **Issue #42** (dependencia circular de PublicationForm).
 * **Accomplished**:
   * **Issue #41 (Pruebas unitarias de cobertura)**:
     * Creados tests unitarios para `useReportCompiler` (31 tests), `reports/actions` (25 tests), `search/page` (21 tests) y `TagsCurationClient` (14 tests).
@@ -31,6 +31,10 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
     * Creado `src/lib/tags-sanitize.ts` sin dependencias para romper imports circulares transitivos en tests unitarios.
     * Creados tests unitarios para los 3 nuevos servicios: `searchService.test.ts`, `tagService.test.ts` y `reportService.test.ts`.
     * Validada la suite completa de Vitest con 205 tests unitarios aprobados en verde (100% éxito).
+  * **Issue #42 (Dependencia circular en PublicationForm)**:
+    * Creado `src/app/publications/publicationFields.ts` con la constante `BIBTEX_FIELDS_MAP`.
+    * Importada dicha constante en `PublicationForm.tsx` y `usePublicationForm.ts`, resolviendo el ciclo local de imports detectado.
+    * Confirmada ejecución exitosa de la suite completa de pruebas unitarias (205 tests aprobados).
 * **Blocked Items**: Ninguno.
 * **Next Steps**:
   * Proceder con el **Issue #44** (dividir `useReportCompiler` por responsabilidades) para continuar reduciendo la deuda en el editor de reportes.
