@@ -10,17 +10,11 @@ import {
   Typography,
   Button,
   IconButton,
-  Menu,
-  MenuItem,
-  Avatar,
-  Drawer,
-  List,
-  ListItemButton,
-  ListItemText,
-  Divider,
   Container,
-  InputBase,
 } from "@mui/material";
+import { HeaderSearchInput } from "./HeaderSearchInput";
+import { ReportsDropdown, AdminDropdown, UserDropdown } from "./HeaderDropdownMenu";
+import { MobileNavigationDrawer } from "./MobileNavigationDrawer";
 
 interface HeaderClientProps {
   session: any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -31,14 +25,11 @@ interface HeaderClientProps {
 
 export function HeaderClient({ session, logoUrl, activeTab, copilotUrl }: HeaderClientProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [reportsAnchor, setReportsAnchor] = useState<null | HTMLElement>(null);
-  const [adminAnchor, setAdminAnchor] = useState<null | HTMLElement>(null);
-  const [userAnchor, setUserAnchor] = useState<null | HTMLElement>(null);
 
   const isLoggedIn = !!session?.user;
   const isEditorOrAdmin =
     session?.user?.active &&
-    (session.user.role === "EDITOR" || session.user.role === "ADMIN");
+    (session.user.role === "EDITOR" || session.user.role === "ADMIN" || session.user.role === "POWER_EDITOR");
   const isAdmin = session?.user?.role === "ADMIN";
 
   const handleSignOut = async () => {
@@ -121,270 +112,22 @@ export function HeaderClient({ session, logoUrl, activeTab, copilotUrl }: Header
               })}
 
               {/* Reports Dropdown */}
-              {isEditorOrAdmin && (
-                <Box>
-                  <Button
-                    onClick={(e) => setReportsAnchor(e.currentTarget)}
-                    sx={{
-                      fontSize: "0.85rem",
-                      fontWeight: 700,
-                      px: 2,
-                      py: 0.75,
-                      color: "text.secondary",
-                      borderRadius: 2,
-                      "&:hover": { bgcolor: "action.hover", color: "text.primary" },
-                    }}
-                  >
-                    Reports
-                    <svg
-                      style={{ marginLeft: 4, width: 10, height: 10 }}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2.5"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </Button>
-                  <Menu
-                    anchorEl={reportsAnchor}
-                    open={Boolean(reportsAnchor)}
-                    onClose={() => setReportsAnchor(null)}
-                    elevation={3}
-                    sx={{ mt: 1 }}
-                  >
-                    <MenuItem
-                      component={Link}
-                      href="/reports/statistics"
-                      onClick={() => setReportsAnchor(null)}
-                      sx={{ fontSize: "0.75rem", fontWeight: "bold" }}
-                    >
-                      Statistics
-                    </MenuItem>
-                    <MenuItem
-                      component={Link}
-                      href="/reports/builder"
-                      onClick={() => setReportsAnchor(null)}
-                      sx={{ fontSize: "0.75rem", fontWeight: "bold" }}
-                    >
-                      Report Builder
-                    </MenuItem>
-                    {copilotUrl && (
-                      <MenuItem
-                        component="a"
-                        href={copilotUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => setReportsAnchor(null)}
-                        sx={{ fontSize: "0.75rem", fontWeight: "bold" }}
-                      >
-                        Copilot
-                      </MenuItem>
-                    )}
-                  </Menu>
-                </Box>
-              )}
+              {isEditorOrAdmin && <ReportsDropdown copilotUrl={copilotUrl} />}
 
               {/* Admin Dropdown */}
-              {isAdmin && (
-                <Box>
-                  <Button
-                    onClick={(e) => setAdminAnchor(e.currentTarget)}
-                    sx={{
-                      fontSize: "0.85rem",
-                      fontWeight: 700,
-                      px: 2,
-                      py: 0.75,
-                      color: "text.secondary",
-                      borderRadius: 2,
-                      "&:hover": { bgcolor: "action.hover", color: "text.primary" },
-                    }}
-                  >
-                    Admin
-                    <svg
-                      style={{ marginLeft: 4, width: 10, height: 10 }}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2.5"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </Button>
-                  <Menu
-                    anchorEl={adminAnchor}
-                    open={Boolean(adminAnchor)}
-                    onClose={() => setAdminAnchor(null)}
-                    elevation={3}
-                    sx={{ mt: 1 }}
-                  >
-                    <MenuItem
-                      component={Link}
-                      href="/admin/config"
-                      onClick={() => setAdminAnchor(null)}
-                      sx={{ fontSize: "0.75rem", fontWeight: "bold" }}
-                    >
-                      System Config
-                    </MenuItem>
-                    <MenuItem
-                      component={Link}
-                      href="/admin/lists"
-                      onClick={() => setAdminAnchor(null)}
-                      sx={{ fontSize: "0.75rem", fontWeight: "bold" }}
-                    >
-                      Lists Dashboard
-                    </MenuItem>
-                    <MenuItem
-                      component={Link}
-                      href="/admin/users"
-                      onClick={() => setAdminAnchor(null)}
-                      sx={{ fontSize: "0.75rem", fontWeight: "bold" }}
-                    >
-                      Users Panel
-                    </MenuItem>
-                    <MenuItem
-                      component={Link}
-                      href="/admin/tags"
-                      onClick={() => setAdminAnchor(null)}
-                      sx={{ fontSize: "0.75rem", fontWeight: "bold" }}
-                    >
-                      Tag Curation
-                    </MenuItem>
-                    <Divider />
-                    <MenuItem
-                      component={Link}
-                      href="/admin/audit"
-                      onClick={() => setAdminAnchor(null)}
-                      sx={{ fontSize: "0.75rem", fontWeight: "bold" }}
-                    >
-                      Auditing Logs
-                    </MenuItem>
-                  </Menu>
-                </Box>
-              )}
+              {isAdmin && <AdminDropdown />}
             </Box>
           </Box>
 
           {/* User Section & Mobile Toggle */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
             {/* Search Input Box */}
-            <Box
-              component="form"
-              action="/search"
-              method="GET"
-              sx={{
-                display: { xs: "none", sm: "flex" },
-                alignItems: "center",
-                bgcolor: "action.hover",
-                borderRadius: 2,
-                px: 1.5,
-                py: 0.5,
-                border: "1px solid",
-                borderColor: "divider",
-                "&:focus-within": {
-                  borderColor: "primary.main",
-                  boxShadow: "0 0 0 1px var(--mui-palette-primary-main)",
-                },
-                transition: "all 0.2s ease-in-out",
-              }}
-            >
-              <svg style={{ width: 16, height: 16, color: "var(--mui-palette-text-secondary)", marginRight: 8 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <InputBase
-                name="q"
-                placeholder="Search..."
-                sx={{
-                  fontSize: "0.85rem",
-                  color: "text.primary",
-                  width: 140,
-                  transition: "width 0.2s ease-in-out",
-                  "&:focus": {
-                    width: 200,
-                  },
-                }}
-              />
+            <Box sx={{ display: { xs: "none", sm: "block" } }}>
+              <HeaderSearchInput />
             </Box>
 
             {isLoggedIn ? (
-              <Box>
-                <Button
-                  data-component-semantics="Session button"
-                  onClick={(e) => setUserAnchor(e.currentTarget)}
-                  sx={{
-                    textTransform: "none",
-                    px: 2,
-                    py: 0.75,
-                    borderRadius: 2,
-                    color: "text.secondary",
-                    "&:hover": { bgcolor: "action.hover", color: "text.primary" },
-                  }}
-                >
-                  <Avatar
-                    src={session.user?.avatarUrl || session.user?.image || undefined}
-                    sx={{
-                      width: 28,
-                      height: 28,
-                      mr: 1.25,
-                      fontSize: "0.75rem",
-                      fontWeight: "bold",
-                      bgcolor: "primary.light",
-                      color: "primary.main",
-                    }}
-                  >
-                    {session.user?.name?.[0] || "U"}
-                  </Avatar>
-                  <Box sx={{ display: { xs: "none", sm: "block" }, textAlign: "left", mr: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 700, fontSize: "0.85rem", color: "inherit" }}>
-                      {session.user?.name}
-                    </Typography>
-                  </Box>
-                  <svg
-                    style={{ width: 10, height: 10, color: "currentColor" }}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2.5"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </Button>
-                <Menu
-                  anchorEl={userAnchor}
-                  open={Boolean(userAnchor)}
-                  onClose={() => setUserAnchor(null)}
-                  elevation={3}
-                  sx={{ mt: 1 }}
-                >
-                  <MenuItem
-                    component={Link}
-                    href="/preferences"
-                    onClick={() => setUserAnchor(null)}
-                    sx={{ fontSize: "0.75rem", fontWeight: "bold" }}
-                  >
-                    Preferences
-                  </MenuItem>
-                  <Divider />
-                  <MenuItem
-                    onClick={handleSignOut}
-                    sx={{ fontSize: "0.75rem", fontWeight: "bold", color: "error.main" }}
-                  >
-                    Sign Out
-                  </MenuItem>
-                </Menu>
-              </Box>
+              <UserDropdown session={session} handleSignOut={handleSignOut} />
             ) : (
               <Button
                 data-component-semantics="Session button"
@@ -423,210 +166,17 @@ export function HeaderClient({ session, logoUrl, activeTab, copilotUrl }: Header
           </Box>
         </Toolbar>
       </Container>
+
       {/* Slide-out Mobile Menu Drawer */}
-      <Drawer
-        variant="temporary"
+      <MobileNavigationDrawer
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
-        ModalProps={{ keepMounted: true }}
-        sx={{
-          display: { xs: "block", md: "none" },
-          "& .MuiDrawer-paper": { boxSizing: "border-box", width: 260 },
-        }}
-      >
-        <Box sx={{ p: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-            Menu
-          </Typography>
-          <IconButton onClick={() => setMobileOpen(false)} size="small">
-            <svg style={{ width: 18, height: 18 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </IconButton>
-        </Box>
-        <Divider />
-        <Box sx={{ px: 2, py: 1.5 }}>
-          <Box
-            component="form"
-            action="/search"
-            method="GET"
-            onSubmit={() => setMobileOpen(false)}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              bgcolor: "action.hover",
-              borderRadius: 2,
-              px: 1.5,
-              py: 0.75,
-              border: "1px solid",
-              borderColor: "divider",
-              "&:focus-within": {
-                borderColor: "primary.main",
-              },
-            }}
-          >
-            <svg style={{ width: 16, height: 16, color: "var(--mui-palette-text-secondary)", marginRight: 8 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <InputBase
-              name="q"
-              placeholder="Search..."
-              fullWidth
-              sx={{ fontSize: "0.85rem", color: "text.primary" }}
-            />
-          </Box>
-        </Box>
-        <Divider />
-        <List sx={{ px: 1 }}>
-          {navLinks.map((link) => (
-            <ListItemButton
-              key={link.value}
-              component={Link}
-              href={link.href}
-              onClick={() => setMobileOpen(false)}
-              selected={activeTab === link.value}
-              sx={{ borderRadius: 1.5, my: 0.25 }}
-            >
-              <ListItemText
-                primary={link.label}
-                slotProps={{
-                  primary: { sx: { fontSize: "0.8rem", fontWeight: "bold" } }
-                }}
-              />
-            </ListItemButton>
-          ))}
-        </List>
-
-        {isEditorOrAdmin && (
-          <>
-            <Divider sx={{ my: 1 }} />
-            <Typography variant="caption" sx={{ px: 3, fontWeight: "black", color: "text.disabled", textTransform: "uppercase", fontSize: "0.625rem" }}>
-              Reports
-            </Typography>
-            <List sx={{ px: 1 }}>
-              <ListItemButton
-                component={Link}
-                href="/reports/statistics"
-                onClick={() => setMobileOpen(false)}
-                sx={{ borderRadius: 1.5, my: 0.25 }}
-              >
-                <ListItemText
-                  primary="Statistics"
-                  slotProps={{
-                    primary: { sx: { fontSize: "0.8rem", fontWeight: "bold" } }
-                  }}
-                />
-              </ListItemButton>
-              <ListItemButton
-                component={Link}
-                href="/reports/builder"
-                onClick={() => setMobileOpen(false)}
-                sx={{ borderRadius: 1.5, my: 0.25 }}
-              >
-                <ListItemText
-                  primary="Report Builder"
-                  slotProps={{
-                    primary: { sx: { fontSize: "0.8rem", fontWeight: "bold" } }
-                  }}
-                />
-              </ListItemButton>
-              {copilotUrl && (
-                <ListItemButton
-                  component="a"
-                  href={copilotUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setMobileOpen(false)}
-                  sx={{ borderRadius: 1.5, my: 0.25 }}
-                >
-                  <ListItemText
-                    primary="Copilot"
-                    slotProps={{
-                      primary: { sx: { fontSize: "0.8rem", fontWeight: "bold" } }
-                    }}
-                  />
-                </ListItemButton>
-              )}
-            </List>
-          </>
-        )}
-
-        {isAdmin && (
-          <>
-            <Divider sx={{ my: 1 }} />
-            <Typography variant="caption" sx={{ px: 3, fontWeight: "black", color: "text.disabled", textTransform: "uppercase", fontSize: "0.625rem" }}>
-              Admin Console
-            </Typography>
-            <List sx={{ px: 1 }}>
-              <ListItemButton
-                component={Link}
-                href="/admin/config"
-                onClick={() => setMobileOpen(false)}
-                sx={{ borderRadius: 1.5, my: 0.25 }}
-              >
-                <ListItemText
-                  primary="System Config"
-                  slotProps={{
-                    primary: { sx: { fontSize: "0.8rem", fontWeight: "bold" } }
-                  }}
-                />
-              </ListItemButton>
-              <ListItemButton
-                component={Link}
-                href="/admin/lists"
-                onClick={() => setMobileOpen(false)}
-                sx={{ borderRadius: 1.5, my: 0.25 }}
-              >
-                <ListItemText
-                  primary="Lists Dashboard"
-                  slotProps={{
-                    primary: { sx: { fontSize: "0.8rem", fontWeight: "bold" } }
-                  }}
-                />
-              </ListItemButton>
-              <ListItemButton
-                component={Link}
-                href="/admin/users"
-                onClick={() => setMobileOpen(false)}
-                sx={{ borderRadius: 1.5, my: 0.25 }}
-              >
-                <ListItemText
-                  primary="Users Panel"
-                  slotProps={{
-                    primary: { sx: { fontSize: "0.8rem", fontWeight: "bold" } }
-                  }}
-                />
-              </ListItemButton>
-              <ListItemButton
-                component={Link}
-                href="/admin/tags"
-                onClick={() => setMobileOpen(false)}
-                sx={{ borderRadius: 1.5, my: 0.25 }}
-              >
-                <ListItemText
-                  primary="Tag Curation"
-                  slotProps={{
-                    primary: { sx: { fontSize: "0.8rem", fontWeight: "bold" } }
-                  }}
-                />
-              </ListItemButton>
-              <ListItemButton
-                component={Link}
-                href="/admin/audit"
-                onClick={() => setMobileOpen(false)}
-                sx={{ borderRadius: 1.5, my: 0.25 }}
-              >
-                <ListItemText
-                  primary="Auditing Logs"
-                  slotProps={{
-                    primary: { sx: { fontSize: "0.8rem", fontWeight: "bold" } }
-                  }}
-                />
-              </ListItemButton>
-            </List>
-          </>
-        )}
-      </Drawer>
+        navLinks={navLinks}
+        activeTab={activeTab}
+        isEditorOrAdmin={isEditorOrAdmin}
+        isAdmin={isAdmin}
+        copilotUrl={copilotUrl}
+      />
     </AppBar>
   );
 }
