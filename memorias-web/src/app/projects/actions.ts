@@ -2,54 +2,18 @@
 
 import { revalidatePath } from "next/cache";
 import { logAction } from "@/lib/audit";
-import { sanitizeTag } from "@/lib/tags";
 import { ensureEditorOrAdmin } from "@/lib/auth-helpers";
 import { projectService } from "@/lib/services/projectService";
+import { parseProjectFormData } from "@/lib/mappers";
 
 export async function createProject(formData: FormData) {
   try {
     await ensureEditorOrAdmin();
 
-    const title = formData.get("title") as string;
-    const slug = formData.get("slug") as string;
-
-    if (!title) {
-      return { success: false, error: "Project Title is required." };
-    }
-
     const ignoreCheck = formData.get("ignoreDuplicateCheck") === "true";
-    const startDateStr = formData.get("startDate") as string;
-    const endDateStr = formData.get("endDate") as string;
+    const input = parseProjectFormData(formData);
 
-    if (!startDateStr || !endDateStr) {
-      return { success: false, error: "Start Date and End Date are required fields." };
-    }
-
-    const selectedMemberIds = formData.getAll("members") as string[];
-    const featured = formData.get("featured") === "true";
-
-    const project = await projectService.create({
-      title,
-      slug: slug || undefined,
-      code: (formData.get("code") as string) || null,
-      startDate: new Date(startDateStr),
-      endDate: new Date(endDateStr),
-      director: (formData.get("director") as string) || null,
-      coDirector: (formData.get("coDirector") as string) || null,
-      responsibleGroup: (formData.get("responsibleGroup") as string) || null,
-      fundingAgency: (formData.get("fundingAgency") as string) || null,
-      amount: (formData.get("amount") as string) || null,
-      summary: (formData.get("summary") as string) || null,
-      website: (formData.get("website") as string) || null,
-      featured,
-      tags: formData.get("tags")
-        ? (formData.get("tags") as string)
-            .split(",")
-            .map((t) => sanitizeTag(t))
-            .filter(Boolean)
-        : [],
-      members: selectedMemberIds,
-    }, ignoreCheck);
+    const project = await projectService.create(input, ignoreCheck);
 
     await logAction("CREATE", "Project", project.id, project.slug, `Created project: ${project.title}`);
 
@@ -72,51 +36,19 @@ export async function updateProject(projectId: string, formData: FormData) {
   try {
     await ensureEditorOrAdmin();
 
-    const title = formData.get("title") as string;
-    const slug = formData.get("slug") as string;
-
-    if (!title || !slug) {
+    const input = parseProjectFormData(formData);
+    if (!input.slug) {
       return { success: false, error: "Project Title and Slug are required." };
     }
 
     const ignoreCheck = formData.get("ignoreDuplicateCheck") === "true";
-    const startDateStr = formData.get("startDate") as string;
-    const endDateStr = formData.get("endDate") as string;
 
-    if (!startDateStr || !endDateStr) {
-      return { success: false, error: "Start Date and End Date are required fields." };
-    }
-
-    const selectedMemberIds = formData.getAll("members") as string[];
-    const featured = formData.get("featured") === "true";
-
-    const project = await projectService.update(projectId, {
-      title,
-      slug,
-      code: (formData.get("code") as string) || null,
-      startDate: new Date(startDateStr),
-      endDate: new Date(endDateStr),
-      director: (formData.get("director") as string) || null,
-      coDirector: (formData.get("coDirector") as string) || null,
-      responsibleGroup: (formData.get("responsibleGroup") as string) || null,
-      fundingAgency: (formData.get("fundingAgency") as string) || null,
-      amount: (formData.get("amount") as string) || null,
-      summary: (formData.get("summary") as string) || null,
-      website: (formData.get("website") as string) || null,
-      featured,
-      tags: formData.get("tags")
-        ? (formData.get("tags") as string)
-            .split(",")
-            .map((t) => sanitizeTag(t))
-            .filter(Boolean)
-        : [],
-      members: selectedMemberIds,
-    }, ignoreCheck);
+    const project = await projectService.update(projectId, input, ignoreCheck);
 
     await logAction("UPDATE", "Project", project.id, project.slug, `Updated project: ${project.title}`);
 
     revalidatePath("/projects");
-    revalidatePath(`/projects/${slug}`);
+    revalidatePath(`/projects/${input.slug}`);
     return { success: true };
   } catch (err: any) {
     if (err.message === "DUPLICATE_TITLE") {

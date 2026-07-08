@@ -2,50 +2,18 @@
 
 import { revalidatePath } from "next/cache";
 import { logAction } from "@/lib/audit";
-import { sanitizeTag } from "@/lib/tags";
 import { ensureEditorOrAdmin } from "@/lib/auth-helpers";
 import { scholarshipService } from "@/lib/services/scholarshipService";
+import { parseScholarshipFormData } from "@/lib/mappers";
 
 export async function createScholarship(formData: FormData) {
   try {
     await ensureEditorOrAdmin();
 
-    const title = formData.get("title") as string;
-    const slug = formData.get("slug") as string;
-
-    if (!title) {
-      return { success: false, error: "Scholarship Title is required." };
-    }
-
     const ignoreCheck = formData.get("ignoreDuplicateCheck") === "true";
-    const startDateStr = formData.get("startDate") as string;
-    const endDateStr = formData.get("endDate") as string;
+    const input = parseScholarshipFormData(formData);
 
-    const selectedMemberIds = formData.getAll("members") as string[];
-    const selectedProjectIds = formData.getAll("projects") as string[];
-    const selectedThesisIds = formData.getAll("theses") as string[];
-
-    const scholarship = await scholarshipService.create({
-      title,
-      slug: slug || undefined,
-      type: (formData.get("type") as string) || null,
-      student: (formData.get("student") as string) || null,
-      director: (formData.get("director") as string) || null,
-      coDirector: (formData.get("coDirector") as string) || null,
-      fundingAgency: (formData.get("fundingAgency") as string) || null,
-      startDate: startDateStr ? new Date(startDateStr) : null,
-      endDate: endDateStr ? new Date(endDateStr) : null,
-      summary: (formData.get("summary") as string) || null,
-      tags: formData.get("tags")
-        ? (formData.get("tags") as string)
-            .split(",")
-            .map((t) => sanitizeTag(t))
-            .filter(Boolean)
-        : [],
-      members: selectedMemberIds,
-      projects: selectedProjectIds,
-      theses: selectedThesisIds,
-    }, ignoreCheck);
+    const scholarship = await scholarshipService.create(input, ignoreCheck);
 
     await logAction("CREATE", "Scholarship", scholarship.id, scholarship.slug, `Created scholarship: ${scholarship.title}`);
 
@@ -68,47 +36,19 @@ export async function updateScholarship(scholarshipId: string, formData: FormDat
   try {
     await ensureEditorOrAdmin();
 
-    const title = formData.get("title") as string;
-    const slug = formData.get("slug") as string;
-
-    if (!title || !slug) {
+    const input = parseScholarshipFormData(formData);
+    if (!input.slug) {
       return { success: false, error: "Scholarship Title and Slug are required." };
     }
 
     const ignoreCheck = formData.get("ignoreDuplicateCheck") === "true";
-    const startDateStr = formData.get("startDate") as string;
-    const endDateStr = formData.get("endDate") as string;
 
-    const selectedMemberIds = formData.getAll("members") as string[];
-    const selectedProjectIds = formData.getAll("projects") as string[];
-    const selectedThesisIds = formData.getAll("theses") as string[];
-
-    const scholarship = await scholarshipService.update(scholarshipId, {
-      title,
-      slug,
-      type: (formData.get("type") as string) || null,
-      student: (formData.get("student") as string) || null,
-      director: (formData.get("director") as string) || null,
-      coDirector: (formData.get("coDirector") as string) || null,
-      fundingAgency: (formData.get("fundingAgency") as string) || null,
-      startDate: startDateStr ? new Date(startDateStr) : null,
-      endDate: endDateStr ? new Date(endDateStr) : null,
-      summary: (formData.get("summary") as string) || null,
-      tags: formData.get("tags")
-        ? (formData.get("tags") as string)
-            .split(",")
-            .map((t) => sanitizeTag(t))
-            .filter(Boolean)
-        : [],
-      members: selectedMemberIds,
-      projects: selectedProjectIds,
-      theses: selectedThesisIds,
-    }, ignoreCheck);
+    const scholarship = await scholarshipService.update(scholarshipId, input, ignoreCheck);
 
     await logAction("UPDATE", "Scholarship", scholarship.id, scholarship.slug, `Updated scholarship: ${scholarship.title}`);
 
     revalidatePath("/scholarships");
-    revalidatePath(`/scholarships/${slug}`);
+    revalidatePath(`/scholarships/${input.slug}`);
     return { success: true };
   } catch (err: any) {
     if (err.message === "DUPLICATE_TITLE") {
