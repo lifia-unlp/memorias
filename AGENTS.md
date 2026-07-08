@@ -35,3 +35,8 @@ There is an active reverse engineering project to define the domain model and re
 * **Next.js Breaking Changes Warning**:
   - The `memorias-web` application may contain breaking Next.js changes compared to standard pre-trained LLM context.
   - Pay attention to custom Next.js configurations and routing setups.
+
+* **Test Coverage Requirement**:
+  - Do not modify or refactor any code file or component unless it is covered by automated unit or E2E tests.
+  - If a file or component lacks test coverage, you must create the corresponding automated tests before or alongside applying any modifications.
+
