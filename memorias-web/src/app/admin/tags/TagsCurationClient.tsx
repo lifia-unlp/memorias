@@ -1,16 +1,14 @@
 "use client";
 
-import React, { useState, useTransition, useEffect } from "react";
+import React, { useState, useTransition } from "react";
 import Link from "next/link";
 import {
   deleteTagGlobally,
   mergeTags,
-  isOpenAIConfigured,
-  getAutoTaggerQueueAction,
-  executeAutoTagBatchAction,
-  getTagsWithCountsAdmin,
   addSystemTag,
 } from "./actions";
+import { useAutoTagger } from "./useAutoTagger";
+import { TagActionDialogs } from "./TagActionDialogs";
 import {
   Box,
   Typography,
@@ -34,15 +32,9 @@ import {
   RadioGroup,
   Radio,
   FormControl,
-  InputLabel,
   Select,
   MenuItem,
   LinearProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
   CircularProgress,
 } from "@mui/material";
 
@@ -59,30 +51,6 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
   const [tags, setTags] = useState<TagInfo[]>(initialTags);
   const [searchQuery, setSearchQuery] = useState("");
   const [isPending, startTransition] = useTransition();
-
-  // AI Auto-Tagger States
-  const [isOpenAIEnabled, setIsOpenAIEnabled] = useState(false);
-  const [checkingConfig, setCheckingConfig] = useState(true);
-  const [selectedModel, setSelectedModel] = useState("gpt-4o-mini");
-  const [selectedTargets, setSelectedTargets] = useState<string[]>(["publication"]);
-  const [selectedMode, setSelectedMode] = useState<"skip" | "merge" | "replace">("skip");
-  const [isAutoTagging, setIsAutoTagging] = useState(false);
-  const [taggingProgress, setTaggingProgress] = useState<{ current: number; total: number } | null>(null);
-
-  // Check if OpenAI is configured in the environment on mount
-  useEffect(() => {
-    async function checkOpenAI() {
-      try {
-        const configured = await isOpenAIConfigured();
-        setIsOpenAIEnabled(configured);
-      } catch (err) {
-        console.error("Failed to check OpenAI key configuration:", err);
-      } finally {
-        setCheckingConfig(false);
-      }
-    }
-    checkOpenAI();
-  }, []);
 
   // Active modal / action states
   const [activeRenameTag, setActiveRenameTag] = useState<TagInfo | null>(null);
@@ -104,6 +72,21 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
   const showNotification = (type: "success" | "error", message: string) => {
     setNotification({ type, message });
   };
+
+  // AI Auto-Tagger Hook
+  const {
+    isOpenAIEnabled,
+    checkingConfig,
+    selectedModel,
+    setSelectedModel,
+    selectedTargets,
+    setSelectedTargets,
+    selectedMode,
+    setSelectedMode,
+    isAutoTagging,
+    taggingProgress,
+    handleRunAutoTagger,
+  } = useAutoTagger({ setTags, showNotification });
 
   // Filtered tags based on search
   const filteredTags = tags.filter((t) =>
@@ -153,7 +136,7 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
     });
   };
 
-  // 2. Rename / Edit Action Handler (Rename is technically merging the old tag name into the new one!)
+  // 2. Rename / Edit Action Handler
   const handleRenameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeRenameTag) return;
@@ -164,18 +147,15 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
       try {
         const res = await mergeTags(activeRenameTag.tag, target);
         if (res.success) {
-          // Re-update internal state local list
           setTags((prev) => {
             const next = [...prev];
             const sourceIdx = next.findIndex((t) => t.tag === activeRenameTag.tag);
             const targetIdx = next.findIndex((t) => t.tag === target);
 
             if (targetIdx !== -1) {
-              // Target already exists, aggregate count
               next[targetIdx].count += activeRenameTag.count;
               next.splice(sourceIdx, 1);
             } else {
-              // Just rename the existing element
               next[sourceIdx].tag = target;
             }
             return next.sort((a, b) => b.count - a.count);
@@ -230,70 +210,6 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
         showNotification("error", err?.message || "Failed to merge tags.");
       }
     });
-  };
-
-  // 4. Batch Auto-Tagger Handler
-  const handleRunAutoTagger = async () => {
-    if (selectedTargets.length === 0) {
-      showNotification("error", "Please select at least one target collection to auto-tag.");
-      return;
-    }
-
-    setIsAutoTagging(true);
-    setTaggingProgress(null);
-    showNotification("success", "Constructing the queue of items to tag...");
-
-    try {
-      // 1. Fetch queue items
-      const queue = await getAutoTaggerQueueAction({
-        targets: selectedTargets,
-        mode: selectedMode,
-      });
-
-      if (queue.length === 0) {
-        showNotification("success", "No matching items found to auto-tag.");
-        setIsAutoTagging(false);
-        return;
-      }
-
-      setTaggingProgress({ current: 0, total: queue.length });
-      showNotification("success", `AI Auto-Tagger running. Processing ${queue.length} elements...`);
-
-      // 2. Loop and process in batches of 15
-      const batchSize = 15;
-      let processed = 0;
-
-      for (let i = 0; i < queue.length; i += batchSize) {
-        const batch = queue.slice(i, i + batchSize);
-
-        const res = await executeAutoTagBatchAction({
-          model: selectedModel,
-          mode: selectedMode,
-          tasks: batch,
-        });
-
-        if (res.success) {
-          processed += batch.length;
-          setTaggingProgress({ current: Math.min(processed, queue.length), total: queue.length });
-        } else {
-          throw new Error("Failed to process tag batch.");
-        }
-      }
-
-      showNotification(
-        "success",
-        `AI Auto-Tagger finished successfully! Processed and updated: ${queue.length} elements.`
-      );
-
-      // Refresh local curation list
-      const updatedTags = await getTagsWithCountsAdmin();
-      setTags(updatedTags);
-    } catch (err: any) {
-      showNotification("error", err?.message || "An unexpected error occurred during execution.");
-    } finally {
-      setIsAutoTagging(false);
-      setTaggingProgress(null);
-    }
   };
 
   return (
@@ -822,209 +738,29 @@ export function TagsCurationClient({ initialTags }: TagsCurationClientProps) {
         )}
       </Paper>
 
-      {/* ========================================================== */}
       {/* Curative Action Overlays (Modals) */}
-      {/* ========================================================== */}
-
-      {/* 1. Rename Dialog */}
-      <Dialog
-        open={!!activeRenameTag}
-        onClose={() => {
-          setActiveRenameTag(null);
-          setRenameValue("");
-        }}
-        maxWidth="xs"
-        fullWidth
-        slotProps={{ paper: { sx: { borderRadius: 4, p: 1 } } }}
-      >
-        <DialogTitle sx={{ fontWeight: "black" }}>Rename Classification Tag</DialogTitle>
-        <DialogContent>
-          <DialogContentText variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            This renames <code>{activeRenameTag?.tag}</code> globally across all models.
-          </DialogContentText>
-          <TextField
-            fullWidth
-            required
-            label="New Identifier"
-            value={renameValue}
-            onChange={(e) => setRenameValue(e.target.value)}
-            placeholder="e.g. artificial intelligence"
-            variant="outlined"
-            size="small"
-            sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
-          />
-          <Typography variant="caption" color="warning.main" sx={{ display: "block", mt: 2, fontWeight: "bold" }}>
-            Note: If the target name already exists, the tags will be merged and counts aggregated automatically.
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button
-            onClick={() => {
-              setActiveRenameTag(null);
-              setRenameValue("");
-            }}
-            disabled={isPending}
-            sx={{ textTransform: "none", fontWeight: "bold" }}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            disabled={isPending || !renameValue.trim() || renameValue.trim().toLowerCase() === activeRenameTag?.tag}
-            onClick={handleRenameSubmit}
-            sx={{ textTransform: "none", borderRadius: 3, fontWeight: "bold" }}
-          >
-            {isPending ? "Renaming..." : "Save Rename"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* 2. Merge Dialog */}
-      <Dialog
-        open={!!activeMergeTag}
-        onClose={() => {
-          setActiveMergeTag(null);
-          setMergeTargetValue("");
-        }}
-        maxWidth="xs"
-        fullWidth
-        slotProps={{ paper: { sx: { borderRadius: 4, p: 1 } } }}
-      >
-        <DialogTitle sx={{ fontWeight: "black" }}>Merge Taxonomy Tag</DialogTitle>
-        <DialogContent>
-          <DialogContentText variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            This collapses all instances of <code>{activeMergeTag?.tag}</code> into another existing tag globally.
-          </DialogContentText>
-          <FormControl size="small" fullWidth required>
-            <InputLabel id="merge-target-label">Target Tag Name</InputLabel>
-            <Select
-              labelId="merge-target-label"
-              value={mergeTargetValue}
-              onChange={(e) => setMergeTargetValue(e.target.value as string)}
-              label="Target Tag Name"
-              sx={{ borderRadius: 3 }}
-            >
-              <MenuItem value="">
-                <em>Select Merge Destination...</em>
-              </MenuItem>
-              {tags
-                .filter((t) => t.tag !== activeMergeTag?.tag)
-                .map((t) => (
-                  <MenuItem key={t.tag} value={t.tag}>
-                    {t.tag} ({t.count} items)
-                  </MenuItem>
-                ))}
-            </Select>
-          </FormControl>
-          <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 2 }}>
-            All records matching &ldquo;{activeMergeTag?.tag}&rdquo; will be updated to point to the selected tag instead. Duplicate allocations will be cleaned automatically.
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button
-            onClick={() => {
-              setActiveMergeTag(null);
-              setMergeTargetValue("");
-            }}
-            disabled={isPending}
-            sx={{ textTransform: "none", fontWeight: "bold" }}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            color="info"
-            disabled={isPending || !mergeTargetValue}
-            onClick={handleMergeSubmit}
-            sx={{ textTransform: "none", borderRadius: 3, fontWeight: "bold" }}
-          >
-            {isPending ? "Merging..." : "Complete Merge"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* 3. Delete Confirmation Dialog */}
-      <Dialog
-        open={!!activeDeleteTag}
-        onClose={() => setActiveDeleteTag(null)}
-        maxWidth="xs"
-        fullWidth
-        slotProps={{ paper: { sx: { borderRadius: 4, p: 1 } } }}
-      >
-        <DialogTitle sx={{ fontWeight: "black" }}>Delete Tag Globally?</DialogTitle>
-        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <DialogContentText variant="body2" color="text.secondary">
-            Are you sure you want to delete <strong>{activeDeleteTag?.tag}</strong>?
-          </DialogContentText>
-          <Alert severity="error" icon={false} sx={{ borderRadius: 3 }}>
-            This tag will be stripped from all <strong>{activeDeleteTag?.count}</strong> record(s) where it is currently used. <strong>This action is permanent and cannot be undone.</strong>
-          </Alert>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setActiveDeleteTag(null)} disabled={isPending} sx={{ textTransform: "none", fontWeight: "bold" }}>
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            disabled={isPending}
-            onClick={() => activeDeleteTag && handleDelete(activeDeleteTag.tag)}
-            sx={{ textTransform: "none", borderRadius: 3, fontWeight: "bold" }}
-          >
-            {isPending ? "Deleting..." : "Permanently Delete"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* 4. Add Dialog */}
-      <Dialog
-        open={activeAddTag}
-        onClose={() => {
-          setActiveAddTag(false);
-          setAddTagValue("");
-        }}
-        maxWidth="xs"
-        fullWidth
-        slotProps={{ paper: { sx: { borderRadius: 4, p: 1 } } }}
-      >
-        <DialogTitle sx={{ fontWeight: "black" }}>Add New Tag</DialogTitle>
-        <DialogContent>
-          <DialogContentText variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Create a new empty tag in the system taxonomy.
-          </DialogContentText>
-          <TextField
-            fullWidth
-            required
-            label="Tag Name"
-            value={addTagValue}
-            onChange={(e) => setAddTagValue(e.target.value)}
-            placeholder="e.g. quantum computing"
-            variant="outlined"
-            size="small"
-            sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
-          />
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button
-            onClick={() => {
-              setActiveAddTag(false);
-              setAddTagValue("");
-            }}
-            disabled={isPending}
-            sx={{ textTransform: "none", fontWeight: "bold" }}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            disabled={isPending || !addTagValue.trim()}
-            onClick={handleAddSubmit}
-            sx={{ textTransform: "none", borderRadius: 3, fontWeight: "bold" }}
-          >
-            {isPending ? "Adding..." : "Add Tag"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <TagActionDialogs
+        activeRenameTag={activeRenameTag}
+        setActiveRenameTag={setActiveRenameTag}
+        renameValue={renameValue}
+        setRenameValue={setRenameValue}
+        handleRenameSubmit={handleRenameSubmit}
+        activeMergeTag={activeMergeTag}
+        setActiveMergeTag={setActiveMergeTag}
+        mergeTargetValue={mergeTargetValue}
+        setMergeTargetValue={setMergeTargetValue}
+        handleMergeSubmit={handleMergeSubmit}
+        activeDeleteTag={activeDeleteTag}
+        setActiveDeleteTag={setActiveDeleteTag}
+        handleDelete={handleDelete}
+        activeAddTag={activeAddTag}
+        setActiveAddTag={setActiveAddTag}
+        addTagValue={addTagValue}
+        setAddTagValue={setAddTagValue}
+        handleAddSubmit={handleAddSubmit}
+        tags={tags}
+        isPending={isPending}
+      />
     </Box>
   );
 }
