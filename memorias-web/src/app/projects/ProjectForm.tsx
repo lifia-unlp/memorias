@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { createProject, updateProject } from "./actions";
+import React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TagWidget } from "@/components/TagWidget";
 import { MemberSelector } from "@/components/reusable/MemberSelector";
-import { slugify } from "@/lib/slugs";
+import { useProjectForm } from "./useProjectForm";
 import {
   Box,
   Card,
@@ -20,7 +19,6 @@ import {
   InputAdornment,
   FormControlLabel,
   Checkbox,
-  Avatar,
 } from "@mui/material";
 
 interface Member {
@@ -38,99 +36,26 @@ interface ProjectFormProps {
 
 export function ProjectForm({ initialData, members }: ProjectFormProps) {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [startDateType, setStartDateType] = useState(initialData?.startDate ? "date" : "text");
-  const [endDateType, setEndDateType] = useState(initialData?.endDate ? "date" : "text");
 
-  // Core States
-  const [title, setTitle] = useState(initialData?.title || "");
-  const [slug, setSlug] = useState(initialData?.slug || "");
-  const [isSlugOverridden, setIsSlugOverridden] = useState(
-    initialData ? true : false
-  );
-  const [featured, setFeatured] = useState<boolean>(initialData?.featured || false);
-
-  // Members selection state
-  const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(
-    initialData?.members?.map((m: any) => m.id) || []
-  );
-  const [memberSearchQuery, setMemberSearchQuery] = useState("");
-
-  // Auto-generate slug when title changes, unless overridden
-  useEffect(() => {
-    if (!isSlugOverridden) {
-      const generated = slugify(title);
-      setSlug(generated);
-    }
-  }, [title, isSlugOverridden]);
-
-  // Toggle member checked
-  const handleToggleMember = (memberId: string) => {
-    setSelectedMemberIds((prev) =>
-      prev.includes(memberId)
-        ? prev.filter((id) => id !== memberId)
-        : [...prev, memberId]
-    );
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setErrorMsg(null);
-
-    const formData = new FormData(e.currentTarget);
-    // Explicitly set the checked members
-    formData.delete("members");
-    selectedMemberIds.forEach((id) => formData.append("members", id));
-    formData.set("featured", String(featured));
-
-    try {
-      let res;
-      if (initialData) {
-        res = await updateProject(initialData.id, formData);
-      } else {
-        res = await createProject(formData);
-      }
-
-      if (res && res.success === false) {
-        if (res.duplicate) {
-          const choice = confirm(
-            `${res.error}\n\nDo you want to save this project entry anyway?`
-          );
-          if (choice) {
-            formData.append("ignoreDuplicateCheck", "true");
-            let bypassRes;
-            if (initialData) {
-              bypassRes = await updateProject(initialData.id, formData);
-            } else {
-              bypassRes = await createProject(formData);
-            }
-            if (bypassRes && bypassRes.success === false) {
-              setErrorMsg(bypassRes.error || "Failed to save project.");
-            } else {
-              router.push(initialData ? `/projects/${formData.get("slug")}` : "/projects");
-            }
-          }
-        } else {
-          setErrorMsg(res.error || "Failed to save project.");
-        }
-      } else {
-        router.push(initialData ? `/projects/${formData.get("slug")}` : "/projects");
-      }
-    } catch (err: any) {
-      setErrorMsg(err.message || "Failed to save project.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Filtered members by search
-  const filteredMembers = members.filter((m) =>
-    `${m.firstName} ${m.lastName}`
-      .toLowerCase()
-      .includes(memberSearchQuery.toLowerCase())
-  );
+  const {
+    isSubmitting,
+    errorMsg,
+    startDateType,
+    setStartDateType,
+    endDateType,
+    setEndDateType,
+    title,
+    setTitle,
+    slug,
+    setSlug,
+    isSlugOverridden,
+    setIsSlugOverridden,
+    featured,
+    setFeatured,
+    selectedMemberIds,
+    setSelectedMemberIds,
+    handleSubmit,
+  } = useProjectForm({ initialData, router });
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 4, pb: 8 }}>
@@ -190,7 +115,7 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
                           variant="outlined"
                           onClick={() => {
                             setIsSlugOverridden(false);
-                            const generated = slugify(title);
+                            const generated = title ? title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "") : "";
                             setSlug(generated);
                           }}
                           sx={{ textTransform: "none", py: 0.25, px: 1, fontSize: "0.625rem", fontWeight: "bold" }}
@@ -304,6 +229,7 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
           </Grid>
         </CardContent>
       </Card>
+      
       {/* 2. Funding & Administration */}
       <Card variant="outlined" sx={{ borderRadius: 3 }}>
         <CardContent sx={{ p: 3 }}>
@@ -370,6 +296,7 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
           </Grid>
         </CardContent>
       </Card>
+      
       {/* 3. Summary */}
       <Card variant="outlined" sx={{ borderRadius: 3 }}>
         <CardContent sx={{ p: 3 }}>
@@ -410,6 +337,7 @@ export function ProjectForm({ initialData, members }: ProjectFormProps) {
         onChange={setSelectedMemberIds}
         layout="grid"
       />
+      
       {/* Form Actions */}
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 2 }}>
         <Button

@@ -1,16 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { createThesis, updateThesis } from "./actions";
+import React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TagWidget } from "@/components/TagWidget";
 import { MemberSelector } from "@/components/reusable/MemberSelector";
 import { ProjectSelector } from "@/components/reusable/ProjectSelector";
-import { ThesisSelector } from "@/components/reusable/ThesisSelector";
 import { ScholarshipSelector } from "@/components/reusable/ScholarshipSelector";
 import { PublicationSelector } from "@/components/reusable/PublicationSelector";
-import { slugify } from "@/lib/slugs";
+import { useThesisForm } from "./useThesisForm";
 import {
   Box,
   Card,
@@ -24,7 +22,6 @@ import {
   InputAdornment,
   FormControlLabel,
   Checkbox,
-  Avatar,
   MenuItem,
 } from "@mui/material";
 
@@ -72,152 +69,36 @@ export function ThesisForm({
   levels,
 }: ThesisFormProps) {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [startDateType, setStartDateType] = useState(initialData?.startDate ? "date" : "text");
-  const [endDateType, setEndDateType] = useState(initialData?.endDate ? "date" : "text");
 
-  // Core States
-  const [title, setTitle] = useState(initialData?.title || "");
-  const [slug, setSlug] = useState(initialData?.slug || "");
-  const [isSlugOverridden, setIsSlugOverridden] = useState(
-    initialData ? true : false
-  );
-  const [featured, setFeatured] = useState<boolean>(initialData?.featured || false);
-  const [level, setLevel] = useState(initialData?.level || "");
-  const [progress, setProgress] = useState(
-    initialData?.progress !== undefined ? String(initialData.progress) : ""
-  );
-
-  // Multi-selection states
-  const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(
-    initialData?.members?.map((m: any) => m.id) || []
-  );
-  const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>(
-    initialData?.projects?.map((p: any) => p.id) || []
-  );
-  const [selectedPublicationIds, setSelectedPublicationIds] = useState<string[]>(
-    initialData?.publications?.map((p: any) => p.id) || []
-  );
-  const [selectedScholarshipIds, setSelectedScholarshipIds] = useState<string[]>(
-    initialData?.scholarships?.map((s: any) => s.id) || []
-  );
-
-  // Search queries
-  const [memberSearch, setMemberSearch] = useState("");
-  const [projectSearch, setProjectSearch] = useState("");
-  const [publicationSearch, setPublicationSearch] = useState("");
-  const [scholarshipSearch, setScholarshipSearch] = useState("");
-
-  // Auto-generate slug from title
-  useEffect(() => {
-    if (!isSlugOverridden) {
-      const generated = slugify(title);
-      setSlug(generated);
-    }
-  }, [title, isSlugOverridden]);
-
-  const handleToggleMember = (id: string) => {
-    setSelectedMemberIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  const handleToggleProject = (id: string) => {
-    setSelectedProjectIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  const handleTogglePublication = (id: string) => {
-    setSelectedPublicationIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  const handleToggleScholarship = (id: string) => {
-    setSelectedScholarshipIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setErrorMsg(null);
-
-    const formData = new FormData(e.currentTarget);
-    
-    // Explicitly override connected relations arrays
-    formData.delete("members");
-    selectedMemberIds.forEach((id) => formData.append("members", id));
-
-    formData.delete("projects");
-    selectedProjectIds.forEach((id) => formData.append("projects", id));
-
-    formData.delete("publications");
-    selectedPublicationIds.forEach((id) => formData.append("publications", id));
-
-    formData.delete("scholarships");
-    selectedScholarshipIds.forEach((id) => formData.append("scholarships", id));
-    formData.set("featured", String(featured));
-
-    try {
-      let res;
-      if (initialData) {
-        res = await updateThesis(initialData.id, formData);
-      } else {
-        res = await createThesis(formData);
-      }
-
-      if (res && res.success === false) {
-        if (res.duplicate) {
-          const choice = confirm(
-            `${res.error}\n\nDo you want to save this thesis entry anyway?`
-          );
-          if (choice) {
-            formData.append("ignoreDuplicateCheck", "true");
-            let bypassRes;
-            if (initialData) {
-              bypassRes = await updateThesis(initialData.id, formData);
-            } else {
-              bypassRes = await createThesis(formData);
-            }
-            if (bypassRes && bypassRes.success === false) {
-              setErrorMsg(bypassRes.error || "Failed to save thesis.");
-            } else {
-              router.push(initialData ? `/theses/${formData.get("slug")}` : "/theses");
-            }
-          }
-        } else {
-          setErrorMsg(res.error || "Failed to save thesis.");
-        }
-      } else {
-        router.push(initialData ? `/theses/${formData.get("slug")}` : "/theses");
-      }
-    } catch (err: any) {
-      setErrorMsg(err.message || "Failed to save thesis record.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Filters lists
-  const filteredMembers = members.filter((m) =>
-    `${m.firstName} ${m.lastName}`.toLowerCase().includes(memberSearch.toLowerCase())
-  );
-
-  const filteredProjects = projects.filter((p) =>
-    p.title.toLowerCase().includes(projectSearch.toLowerCase())
-  );
-
-  const filteredPublications = publications.filter((p) =>
-    p.title.toLowerCase().includes(publicationSearch.toLowerCase())
-  );
-
-  const filteredScholarships = scholarships.filter((s) =>
-    s.title.toLowerCase().includes(scholarshipSearch.toLowerCase())
-  );
+  const {
+    isSubmitting,
+    errorMsg,
+    startDateType,
+    setStartDateType,
+    endDateType,
+    setEndDateType,
+    title,
+    setTitle,
+    slug,
+    setSlug,
+    isSlugOverridden,
+    setIsSlugOverridden,
+    featured,
+    setFeatured,
+    level,
+    setLevel,
+    progress,
+    setProgress,
+    selectedMemberIds,
+    setSelectedMemberIds,
+    selectedProjectIds,
+    setSelectedProjectIds,
+    selectedPublicationIds,
+    setSelectedPublicationIds,
+    selectedScholarshipIds,
+    setSelectedScholarshipIds,
+    handleSubmit,
+  } = useThesisForm({ initialData, router });
 
   const progressOptions = Array.from({ length: 11 }, (_, i) => i * 10);
 
@@ -279,9 +160,11 @@ export function ThesisForm({
                           variant="outlined"
                           onClick={() => {
                              setIsSlugOverridden(false);
-                             const generated = slugify(title);
+                             // Re-slugify locally
+                             const generated = title ? title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "") : "";
                              setSlug(generated);
                           }}
+                          sx={{ textTransform: "none", py: 0.25, px: 1, fontSize: "0.625rem", fontWeight: "bold" }}
                         >
                           Reset Auto
                         </Button>
@@ -387,6 +270,7 @@ export function ThesisForm({
           </Grid>
         </CardContent>
       </Card>
+
       {/* 2. Advisors & Committee Info */}
       <Card variant="outlined" sx={{ borderRadius: 3 }}>
         <CardContent sx={{ p: 3 }}>
@@ -430,6 +314,7 @@ export function ThesisForm({
           </Grid>
         </CardContent>
       </Card>
+
       {/* 3. Resources & Timelines */}
       <Card variant="outlined" sx={{ borderRadius: 3 }}>
         <CardContent sx={{ p: 3 }}>
@@ -502,6 +387,7 @@ export function ThesisForm({
           </Grid>
         </CardContent>
       </Card>
+
       {/* 4. Summary */}
       <Card variant="outlined" sx={{ borderRadius: 3 }}>
         <CardContent sx={{ p: 3 }}>
@@ -582,6 +468,7 @@ export function ThesisForm({
         onChange={setSelectedPublicationIds}
         layout="grid"
       />
+
       {/* Form Actions */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}>
         <Button
