@@ -40,3 +40,7 @@ There is an active reverse engineering project to define the domain model and re
   - Do not modify or refactor any code file or component unless it is covered by automated unit or E2E tests.
   - If a file or component lacks test coverage, you must create the corresponding automated tests before or alongside applying any modifications.
 
+* **Shell Command Safety & Escaping**:
+  - When running shell commands, always escape special characters (e.g. parentheses `(`, `)`, semicolons `;`, ampersands `&`, etc.) or wrap arguments in single quotes (`'`) to prevent the zsh/sh shell from interpreting them as subshells or background operators.
+
+
