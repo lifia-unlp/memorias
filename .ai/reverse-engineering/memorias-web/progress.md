@@ -14,17 +14,21 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ## Session Logs
 
 ### Session 17 (2026-07-08)
-* **Goal**: Resolver el análisis de deuda técnica solicitado en el Issue #28, compilar el reporte final, comentarlo en la plataforma y cerrar el issue en GitHub.
+* **Goal**: Analizar la deuda técnica de `/memorias-web` (Issue #28), consolidar los cambios unstaged locales, crear nuevos issues en GitHub para los puntos remanentes no resueltos y definir su plan de ataque.
 * **Accomplished**:
-  * Realizado el análisis integral de la deuda técnica remanente y resuelta del monorepo en `/memorias-web`.
   * Redactado el documento de reporte `technical_debt_analysis.md` cubriendo malos olores de código, cohesión y acoplamiento, localización de cambios y el plan de acción ejecutado.
-  * Publicado el reporte completo como comentario oficial en el Issue #28 utilizando la interfaz de línea de comandos de GitHub (`gh`).
-  * Cerrado el Issue #28 formalmente al haber completado la auditoría de calidad y reportes requeridos.
+  * Publicado el reporte completo como comentario oficial en el Issue #28 y cerrado formalmente el issue mediante la CLI de GitHub.
+  * Realizado commit (`81e9405`) y push de los cambios locales correspondientes a la modularización de `ReportBuilderClient` (Issue #31) y la unificación de selectores junto a remoción de casteos inseguros (Issue #32).
+  * Comentados los correspondientes issues closed con el hash del commit de integración para mantener la trazabilidad.
+  * Creados tres nuevos issues etiquetados como `technical debt` en GitHub para abordar el diseño remanente:
+    * **#36**: Descomposición de `HeaderClient.tsx`.
+    * **#37**: Modularización de `TagsCurationClient.tsx`.
+    * **#38**: Reducir complejidad y descomponer formularios extensos (`PublicationForm` y `MemberForm`).
+  * Estructurado el Plan de Ataque y priorización de la Fase II en la documentación del proyecto.
 * **Blocked Items**:
   * Ninguno.
-  * Nota: Existen cambios unstaged (untracked/modified) de las sesiones 15 y 16 en el entorno local listos para revisión y posterior commit en la rama de desarrollo correspondiente.
 * **Next Steps**:
-  * Coordinar con el desarrollador para confirmar la aprobación de los refactorings locales (Issues #31 y #32) y proceder con el commit/push de los archivos modificados a la rama principal.
+  * Comenzar con la resolución de la Prioridad 1: Modularización de `TagsCurationClient.tsx` (Issue #37).
 
 ---
 
