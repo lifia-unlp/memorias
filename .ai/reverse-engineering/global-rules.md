@@ -95,14 +95,14 @@ To ensure zero context loss between chat sessions:
    - Re-read this `global-rules.md` document.
    
 2. **Glossary Alignment & Hyperlink Traceability**:
-   - Always check the `Shared Domain Glossary` located in the Wiki at [`Shared-Domain-Glossary.md`](file:///Users/casco/Development/memorias-wiki/Shared-Domain-Glossary.md). Ensure that all generated domain objects, scenarios, and documentation use exactly these terms. Do not invent synonyms. Update the shared glossary file as new domain terms are reverse-engineered.
+   - Always check the `Shared Domain Glossary` located in the Wiki at [`Shared-Domain-Glossary.md`](../../../memorias-wiki/Shared-Domain-Glossary.md). Ensure that all generated domain objects, scenarios, and documentation use exactly these terms. Do not invent synonyms. Update the shared glossary file as new domain terms are reverse-engineered.
    - **Enforce Traceability Links**: Whenever a domain/glossary term is referenced in specifications, scenarios, screen inventories, or rules, it **must** be formatted as a relative Markdown link pointing to its anchor in the glossary page (e.g., `[Memory](Shared-Domain-Glossary#memory)` or `[Usuario](Shared-Domain-Glossary#usuario)`). This enables clickable traceability and lets us find all references across files.
 
 3. **Output Target for Final Specifications**:
    - Once domain models, screen inventories, scenarios, or rules are finalized, write/update the resulting markdown documentation directly to the corresponding wiki files in the `memorias-wiki/` repository folder:
-     * **Memorias Web Spec**: [`Requirements-Specification-Memorias-Web.md`](file:///Users/casco/Development/memorias-wiki/Requirements-Specification-Memorias-Web.md)
-     * **Memorias Copilot Spec**: [`Requirements-Specification-Memorias-Copilot.md`](file:///Users/casco/Development/memorias-wiki/Requirements-Specification-Memorias-Copilot.md)
-     * **User's Manual**: [`Users-Manual.md`](file:///Users/casco/Development/memorias-wiki/Users-Manual.md)
+     * **Memorias Web Spec**: [`Requirements-Specification-Memorias-Web.md`](../../../memorias-wiki/Requirements-Specification-Memorias-Web.md)
+     * **Memorias Copilot Spec**: [`Requirements-Specification-Memorias-Copilot.md`](../../../memorias-wiki/Requirements-Specification-Memorias-Copilot.md)
+     * **User's Manual**: [`Users-Manual.md`](../../../memorias-wiki/Users-Manual.md)
 
 4. **End of Session Handoff**:
    - Before ending your turn or concluding a session, **you must update** the appropriate `progress.md` log file.
@@ -112,6 +112,6 @@ To ensure zero context loss between chat sessions:
 ---
 
 ## 4. Shared Domain Glossary
-The single source of truth for the Domain Glossary is maintained directly on the public wiki at [`Shared-Domain-Glossary.md`](file:///Users/casco/Development/memorias-wiki/Shared-Domain-Glossary.md). 
+The single source of truth for the Domain Glossary is maintained directly on the public wiki at [`Shared-Domain-Glossary.md`](../../../memorias-wiki/Shared-Domain-Glossary.md). 
 
 All reverse-engineering outputs, code models, and test workflows must adhere strictly to the vocabulary defined there. Do not keep duplicate glossary definitions in local files.
