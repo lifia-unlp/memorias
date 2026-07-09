@@ -3,52 +3,18 @@ import { Header } from "@/components/Header";
 import { prisma } from "@/lib/prisma";
 import { ScholarshipForm } from "../ScholarshipForm";
 import { ensureEditorOrAdmin } from "@/lib/auth-helpers";
+import { memberService } from "@/lib/services/memberService";
+import { projectService } from "@/lib/services/projectService";
+import { thesisService } from "@/lib/services/thesisService";
 import { Container, Box, Typography } from "@mui/material";
 
 export default async function NewScholarshipPage() {
   await ensureEditorOrAdmin();
 
-  // Load relation datasets
-  const members = await prisma.member.findMany({
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      avatarUrl: true,
-      positionAtLab: true,
-      endDate: true,
-    },
-    orderBy: { lastName: "asc" },
-  });
-
-  const projects = await prisma.project.findMany({
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      code: true,
-      director: true,
-      coDirector: true,
-      startDate: true,
-      endDate: true,
-    },
-    orderBy: { endDate: "desc" },
-  });
-
-  const theses = await prisma.thesis.findMany({
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      level: true,
-      student: true,
-      director: true,
-      coDirector: true,
-      startDate: true,
-      endDate: true,
-    },
-    orderBy: { endDate: "desc" },
-  });
+  // Load relation datasets using service methods
+  const members = await memberService.getFormSelectionList();
+  const projects = await projectService.getFormSelectionList();
+  const theses = await thesisService.getFormSelectionList();
 
   const typeOptions = await prisma.systemOption.findMany({
     where: { listName: "scholarshipType" },

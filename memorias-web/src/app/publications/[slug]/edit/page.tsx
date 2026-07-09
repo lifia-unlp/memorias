@@ -4,6 +4,10 @@ import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
 import { Header } from "@/components/Header";
 import { PublicationForm } from "../../PublicationForm";
+import { publicationService } from "@/lib/services/publicationService";
+import { memberService } from "@/lib/services/memberService";
+import { projectService } from "@/lib/services/projectService";
+import { thesisService } from "@/lib/services/thesisService";
 import { Container, Box, Typography } from "@mui/material";
 
 type Params = Promise<{ slug: string }>;
@@ -20,52 +24,16 @@ export default async function EditPublicationPage({ params }: { params: Params }
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
 
-  const publication = await prisma.publication.findUnique({
-    where: { slug },
-    include: {
-      members: { select: { id: true } },
-      projects: { select: { id: true } },
-      theses: { select: { id: true } },
-    },
-  });
+  const publication = await publicationService.getBySlug(slug);
 
   if (!publication) {
     notFound();
   }
 
-  const members = await prisma.member.findMany({
-    select: { id: true, firstName: true, lastName: true, endDate: true },
-    orderBy: { lastName: "asc" },
-  });
-
-  const projects = await prisma.project.findMany({
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      code: true,
-      director: true,
-      coDirector: true,
-      startDate: true,
-      endDate: true,
-    },
-    orderBy: { endDate: "desc" },
-  });
-
-  const theses = await prisma.thesis.findMany({
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      level: true,
-      student: true,
-      director: true,
-      coDirector: true,
-      startDate: true,
-      endDate: true,
-    },
-    orderBy: { endDate: "desc" },
-  });
+  // Load relation datasets using service methods
+  const members = await memberService.getFormSelectionList();
+  const projects = await projectService.getFormSelectionList();
+  const theses = await thesisService.getFormSelectionList();
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>

@@ -4,6 +4,9 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { Header } from "@/components/Header";
 import { PublicationForm } from "../PublicationForm";
+import { memberService } from "@/lib/services/memberService";
+import { projectService } from "@/lib/services/projectService";
+import { thesisService } from "@/lib/services/thesisService";
 import { Container, Box, Typography } from "@mui/material";
 
 export default async function NewPublicationPage() {
@@ -15,40 +18,10 @@ export default async function NewPublicationPage() {
     redirect("/publications");
   }
 
-  // Fetch all options to populate relation selectors
-  const members = await prisma.member.findMany({
-    select: { id: true, firstName: true, lastName: true, endDate: true },
-    orderBy: { lastName: "asc" },
-  });
-
-  const projects = await prisma.project.findMany({
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      code: true,
-      director: true,
-      coDirector: true,
-      startDate: true,
-      endDate: true,
-    },
-    orderBy: { endDate: "desc" },
-  });
-
-  const theses = await prisma.thesis.findMany({
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      level: true,
-      student: true,
-      director: true,
-      coDirector: true,
-      startDate: true,
-      endDate: true,
-    },
-    orderBy: { endDate: "desc" },
-  });
+  // Fetch all options to populate relation selectors using service methods
+  const members = await memberService.getFormSelectionList();
+  const projects = await projectService.getFormSelectionList();
+  const theses = await thesisService.getFormSelectionList();
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>

@@ -170,4 +170,76 @@ export const publicationService = {
       where: { id },
     });
   },
+
+  getAllPublications: async (where?: any) => {
+    return prisma.publication.findMany({
+      where,
+      orderBy: { year: "desc" },
+    });
+  },
+
+  getDistinctYears: async (): Promise<number[]> => {
+    const distinctYears = await prisma.publication.findMany({
+      select: { year: true },
+      distinct: ["year"],
+      orderBy: { year: "desc" },
+    });
+    return distinctYears.map((d) => d.year);
+  },
+
+  getBySlug: async (slug: string) => {
+    return prisma.publication.findUnique({
+      where: { slug },
+      include: {
+        members: { select: { id: true } },
+        projects: { select: { id: true } },
+        theses: { select: { id: true } },
+      },
+    });
+  },
+
+  getPublicationDetail: async (slug: string) => {
+    return prisma.publication.findUnique({
+      where: { slug },
+      include: {
+        members: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            slug: true,
+            positionAtLab: true,
+            avatarUrl: true,
+          },
+        },
+        projects: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            code: true,
+            fundingAgency: true,
+            startDate: true,
+            endDate: true,
+          },
+        },
+        theses: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            student: true,
+            level: true,
+            progress: true,
+          },
+        },
+      },
+    });
+  },
+
+  getFormSelectionList: async () => {
+    return prisma.publication.findMany({
+      orderBy: { year: "desc" },
+    });
+  },
 };

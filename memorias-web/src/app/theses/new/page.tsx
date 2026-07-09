@@ -3,63 +3,20 @@ import { Header } from "@/components/Header";
 import { prisma } from "@/lib/prisma";
 import { ThesisForm } from "../ThesisForm";
 import { ensureEditorOrAdmin } from "@/lib/auth-helpers";
+import { memberService } from "@/lib/services/memberService";
+import { projectService } from "@/lib/services/projectService";
+import { publicationService } from "@/lib/services/publicationService";
+import { scholarshipService } from "@/lib/services/scholarshipService";
 import { Container, Box, Typography } from "@mui/material";
 
 export default async function NewThesisPage() {
   await ensureEditorOrAdmin();
 
-  // Load relation datasets
-  const members = await prisma.member.findMany({
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      avatarUrl: true,
-      positionAtLab: true,
-      endDate: true,
-    },
-    orderBy: { lastName: "asc" },
-  });
-
-  const projects = await prisma.project.findMany({
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      code: true,
-      director: true,
-      coDirector: true,
-      startDate: true,
-      endDate: true,
-    },
-    orderBy: { endDate: "desc" },
-  });
-
-  const publications = await prisma.publication.findMany({
-    select: {
-      id: true,
-      slug: true,
-      title: true,
-      type: true,
-      authors: true,
-      year: true,
-      bibtexData: true,
-    },
-    orderBy: { year: "desc" },
-  });
-
-  const scholarships = await prisma.scholarship.findMany({
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      type: true,
-      student: true,
-      startDate: true,
-      endDate: true,
-    },
-    orderBy: { endDate: "desc" },
-  });
+  // Load relation datasets using service methods
+  const members = await memberService.getFormSelectionList();
+  const projects = await projectService.getFormSelectionList();
+  const publications = await publicationService.getFormSelectionList();
+  const scholarships = await scholarshipService.getFormSelectionList();
 
   const levelOptions = await prisma.systemOption.findMany({
     where: { listName: "thesisLevel" },

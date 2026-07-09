@@ -1,7 +1,7 @@
 import React from "react";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { projectService } from "@/lib/services/projectService";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { matchQueryTokens } from "@/lib/search";
@@ -38,19 +38,8 @@ export default async function ProjectsPage(props: {
   const page = parseInt(resolvedSearchParams.page || "1", 10) || 1;
   const limit = parseInt(resolvedSearchParams.limit || "10", 10) || 10;
 
-  // Query all projects with members
-  const projects = await prisma.project.findMany({
-    include: {
-      members: {
-        select: {
-          firstName: true,
-          lastName: true,
-          slug: true,
-        },
-      },
-    },
-    orderBy: { endDate: "desc" },
-  });
+  // Query all projects with members using projectService
+  const projects = await projectService.getAllProjects();
 
   // Filter in memory for maximum search flexibility (including partial, case-insensitive tag matching)
   const filteredProjects = projects.filter((p) =>

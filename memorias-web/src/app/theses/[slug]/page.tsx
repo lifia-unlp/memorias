@@ -1,7 +1,7 @@
 import React from "react";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { thesisService } from "@/lib/services/thesisService";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { DeleteThesisButton } from "./DeleteThesisButton";
@@ -34,44 +34,8 @@ export default async function ThesisDetailPage({ params }: { params: Params }) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
 
-  const thesis = await prisma.thesis.findUnique({
-    where: { slug },
-    include: {
-      members: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          slug: true,
-          avatarUrl: true,
-          positionAtLab: true,
-        },
-      },
-      projects: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          code: true,
-          fundingAgency: true,
-          startDate: true,
-          endDate: true,
-        },
-      },
-      publications: {
-        orderBy: {
-          year: "desc",
-        },
-      },
-      scholarships: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-        },
-      },
-    },
-  });
+  // Query thesis and related entities using thesisService
+  const thesis = await thesisService.getThesisDetail(slug);
 
   if (!thesis) {
     notFound();

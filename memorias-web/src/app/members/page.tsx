@@ -1,6 +1,6 @@
 import React from "react";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
-import { prisma } from "@/lib/prisma";
+import { memberService } from "@/lib/services/memberService";
 import { MemberFilters } from "./MemberFilters";
 import { Header } from "@/components/Header";
 import { matchQueryTokens } from "@/lib/search";
@@ -38,23 +38,13 @@ export default async function MembersPage({
   const page = parseInt(resolvedParams.page || "1", 10) || 1;
   const limit = parseInt(resolvedParams.limit || "10", 10) || 10;
 
-  // Fetch distinct positions dynamically for filters
-  const distinctPositions = await prisma.member.findMany({
-    select: { positionAtLab: true },
-    distinct: ["positionAtLab"],
-  });
-  const positions = distinctPositions
-    .map((p) => p.positionAtLab)
-    .filter(Boolean) as string[];
+  // Fetch distinct positions dynamically for filters using memberService
+  const positions = await memberService.getAllPositions();
 
-  // Fetch members with position filter, sorted by lastName, then by firstName
-  const members = await prisma.member.findMany({
-    where: position ? { positionAtLab: { equals: position } } : {},
-    orderBy: [
-      { lastName: "asc" },
-      { firstName: "asc" },
-    ],
-  });
+  // Fetch members with position filter, sorted by lastName, then by firstName using memberService
+  const members = await memberService.getAllMembers();
+  // Filter for position filter in memory if position is specified
+  const filteredByPosition = position ? members.filter((m) => m.positionAtLab === position) : members;
 
   const isFormer = (m: any) => {
     if (!m.endDate) return false;
@@ -66,7 +56,7 @@ export default async function MembersPage({
   };
 
   // Filter in memory for maximum search flexibility (including case-insensitive, partial array tag matching, and hide-former constraint)
-  const filteredMembers = members.filter((m) => {
+  const filteredMembers = filteredByPosition.filter((m) => {
     if (hideFormer && isFormer(m)) {
       return false;
     }

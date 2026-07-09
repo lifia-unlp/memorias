@@ -2,7 +2,7 @@ import React from "react";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { ProjectForm } from "../ProjectForm";
-import { prisma } from "@/lib/prisma";
+import { memberService } from "@/lib/services/memberService";
 import { Header } from "@/components/Header";
 import { Container, Box, Typography } from "@mui/material";
 
@@ -16,18 +16,8 @@ export default async function NewProjectPage() {
     redirect("/projects");
   }
 
-  // Fetch members to populate the association grid
-  const members = await prisma.member.findMany({
-    orderBy: { lastName: "asc" },
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      avatarUrl: true,
-      positionAtLab: true,
-      endDate: true,
-    },
-  });
+  // Fetch members to populate the association grid using memberService
+  const members = await memberService.getFormSelectionList();
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>

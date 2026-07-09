@@ -1,4 +1,5 @@
-import { tagService, sanitizeTag } from "./services/tagService";
+import { tagService } from "./services/tagService";
+import { sanitizeTag } from "./tags-sanitize";
 
 export { sanitizeTag };
 

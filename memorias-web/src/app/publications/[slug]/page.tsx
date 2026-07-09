@@ -1,6 +1,6 @@
 import React from "react";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
-import { prisma } from "@/lib/prisma";
+import { publicationService } from "@/lib/services/publicationService";
 import { auth } from "@/auth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -46,43 +46,8 @@ export default async function PublicationDetailPage({
   const resolvedSearchParams = await searchParams;
   const styleFilter = resolvedSearchParams.style || "apa";
 
-  // Query publication and related entities with all fields needed for widgets
-  const pb = await prisma.publication.findUnique({
-    where: { slug },
-    include: {
-      members: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          slug: true,
-          positionAtLab: true,
-          avatarUrl: true,
-        },
-      },
-      projects: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          code: true,
-          fundingAgency: true,
-          startDate: true,
-          endDate: true,
-        },
-      },
-      theses: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          student: true,
-          level: true,
-          progress: true,
-        },
-      },
-    },
-  });
+  // Query publication and related entities using publicationService
+  const pb = await publicationService.getPublicationDetail(slug);
 
   if (!pb) {
     notFound();

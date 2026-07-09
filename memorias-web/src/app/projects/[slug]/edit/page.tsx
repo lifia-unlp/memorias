@@ -1,7 +1,8 @@
 import React from "react";
 import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { projectService } from "@/lib/services/projectService";
+import { memberService } from "@/lib/services/memberService";
 import { ProjectForm } from "../../ProjectForm";
 import { Header } from "@/components/Header";
 import { Container, Box, Typography } from "@mui/material";
@@ -17,14 +18,7 @@ export default async function EditProjectPage({ params }: { params: Params }) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
 
-  const project = await prisma.project.findUnique({
-    where: { slug },
-    include: {
-      members: {
-        select: { id: true },
-      },
-    },
-  });
+  const project = await projectService.getBySlug(slug);
 
   if (!project) {
     notFound();
@@ -34,18 +28,8 @@ export default async function EditProjectPage({ params }: { params: Params }) {
     redirect(`/projects/${slug}`);
   }
 
-  // Fetch members to populate the association grid
-  const members = await prisma.member.findMany({
-    orderBy: { lastName: "asc" },
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      avatarUrl: true,
-      positionAtLab: true,
-      endDate: true,
-    },
-  });
+  // Fetch members to populate the association grid using memberService
+  const members = await memberService.getFormSelectionList();
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>

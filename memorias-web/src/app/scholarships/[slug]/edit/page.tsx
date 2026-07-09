@@ -5,6 +5,10 @@ import { notFound } from "next/navigation";
 import { ScholarshipForm } from "../../ScholarshipForm";
 import { ensureEditorOrAdmin } from "@/lib/auth-helpers";
 import { Container, Box, Typography } from "@mui/material";
+import { scholarshipService } from "@/lib/services/scholarshipService";
+import { memberService } from "@/lib/services/memberService";
+import { projectService } from "@/lib/services/projectService";
+import { thesisService } from "@/lib/services/thesisService";
 
 type Params = Promise<{ slug: string }>;
 
@@ -14,60 +18,18 @@ export default async function EditScholarshipPage({ params }: { params: Params }
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
 
-  const scholarship = await prisma.scholarship.findUnique({
-    where: { slug },
-    include: {
-      members: { select: { id: true } },
-      projects: { select: { id: true } },
-      theses: { select: { id: true } },
-    },
-  });
+  const scholarship = await scholarshipService.getBySlug(slug);
 
   if (!scholarship) {
     notFound();
   }
 
   // Load relation datasets
-  const members = await prisma.member.findMany({
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      avatarUrl: true,
-      positionAtLab: true,
-      endDate: true,
-    },
-    orderBy: { lastName: "asc" },
-  });
+  const members = await memberService.getFormSelectionList();
 
-  const projects = await prisma.project.findMany({
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      code: true,
-      director: true,
-      coDirector: true,
-      startDate: true,
-      endDate: true,
-    },
-    orderBy: { endDate: "desc" },
-  });
+  const projects = await projectService.getFormSelectionList();
 
-  const theses = await prisma.thesis.findMany({
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      level: true,
-      student: true,
-      director: true,
-      coDirector: true,
-      startDate: true,
-      endDate: true,
-    },
-    orderBy: { endDate: "desc" },
-  });
+  const theses = await thesisService.getFormSelectionList();
 
   const typeOptions = await prisma.systemOption.findMany({
     where: { listName: "scholarshipType" },

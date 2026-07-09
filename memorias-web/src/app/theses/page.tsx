@@ -1,6 +1,7 @@
 import React from "react";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { auth } from "@/auth";
+import { thesisService } from "@/lib/services/thesisService";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Header } from "@/components/Header";
@@ -62,14 +63,8 @@ export default async function ThesesPage(props: {
     delete whereConditions.AND;
   }
 
-  // Fetch filtered theses
-  const theses = await prisma.thesis.findMany({
-    where: whereConditions,
-    orderBy: [
-      { endDate: "desc" },
-      { startDate: "desc" },
-    ],
-  });
+  // Fetch filtered theses using thesisService
+  const theses = await thesisService.getAllTheses(whereConditions);
 
   // Filter in memory for keyword search
   const filteredTheses = theses.filter((t) =>

@@ -131,4 +131,74 @@ export const projectService = {
       select: { id: true, title: true, slug: true },
     });
   },
+
+  getAllProjects: async () => {
+    return prisma.project.findMany({
+      include: {
+        members: {
+          select: {
+            firstName: true,
+            lastName: true,
+            slug: true,
+          },
+        },
+      },
+      orderBy: { endDate: "desc" },
+    });
+  },
+
+  getBySlug: async (slug: string) => {
+    return prisma.project.findUnique({
+      where: { slug },
+      include: {
+        members: { select: { id: true } },
+      },
+    });
+  },
+
+  getProjectDetail: async (slug: string) => {
+    return prisma.project.findUnique({
+      where: { slug },
+      include: {
+        members: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            slug: true,
+            avatarUrl: true,
+            positionAtLab: true,
+          },
+        },
+        theses: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            student: true,
+            level: true,
+            progress: true,
+          },
+        },
+        scholarships: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            student: true,
+            type: true,
+          },
+        },
+        publications: {
+          orderBy: { year: "desc" },
+        },
+      },
+    });
+  },
+
+  getFormSelectionList: async () => {
+    return prisma.project.findMany({
+      orderBy: { endDate: "desc" },
+    });
+  },
 };

@@ -1,7 +1,7 @@
 import React from "react";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { projectService } from "@/lib/services/projectService";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { DeleteProjectButton } from "./DeleteProjectButton";
@@ -32,46 +32,8 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
 
-  // Query project and all its deep relationships
-  const project = await prisma.project.findUnique({
-    where: { slug },
-    include: {
-      members: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          slug: true,
-          avatarUrl: true,
-          positionAtLab: true,
-        },
-      },
-      theses: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          student: true,
-          level: true,
-          progress: true,
-        },
-      },
-      scholarships: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          student: true,
-          type: true,
-        },
-      },
-      publications: {
-        orderBy: {
-          year: "desc",
-        },
-      },
-    },
-  });
+  // Query project and all its deep relationships using projectService
+  const project = await projectService.getProjectDetail(slug);
 
   if (!project) {
     notFound();

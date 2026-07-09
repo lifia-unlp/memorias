@@ -1,6 +1,6 @@
 import React from "react";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
-import { prisma } from "@/lib/prisma";
+import { memberService } from "@/lib/services/memberService";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
@@ -34,60 +34,14 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
 
-  // 1. Fetch Member
-  const member = await prisma.member.findUnique({
-    where: { slug },
-  });
+  // Fetch Member details and deep relations using memberService
+  const details = await memberService.getMemberDetail(slug);
 
-  if (!member) {
+  if (!details) {
     notFound();
   }
 
-  // 2. Fetch Projects involving this member (as Director, Co-Director, or Team Member)
-  const projects = await prisma.project.findMany({
-    where: {
-      OR: [
-        { director: member.id },
-        { coDirector: member.id },
-        { members: { some: { id: member.id } } },
-      ],
-    },
-    orderBy: { startDate: "desc" },
-  });
-
-  // 3. Fetch Theses involving this member
-  const theses = await prisma.thesis.findMany({
-    where: {
-      OR: [
-        { student: member.id },
-        { director: member.id },
-        { coDirector: member.id },
-        { members: { some: { id: member.id } } },
-      ],
-    },
-    orderBy: { startDate: "desc" },
-  });
-
-  // 4. Fetch Scholarships
-  const scholarships = await prisma.scholarship.findMany({
-    where: {
-      OR: [
-        { student: member.id },
-        { director: member.id },
-        { coDirector: member.id },
-        { members: { some: { id: member.id } } },
-      ],
-    },
-    orderBy: { startDate: "desc" },
-  });
-
-  // 5. Fetch Publications
-  const publications = await prisma.publication.findMany({
-    where: {
-      members: { some: { id: member.id } },
-    },
-    orderBy: { year: "desc" },
-  });
+  const { member, projects, theses, scholarships, publications } = details;
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>

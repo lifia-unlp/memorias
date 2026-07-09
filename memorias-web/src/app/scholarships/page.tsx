@@ -1,6 +1,7 @@
 import React from "react";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { auth } from "@/auth";
+import { scholarshipService } from "@/lib/services/scholarshipService";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Header } from "@/components/Header";
@@ -64,14 +65,8 @@ export default async function ScholarshipsPage(props: {
     delete whereConditions.AND;
   }
 
-  // Fetch filtered scholarships
-  const scholarships = await prisma.scholarship.findMany({
-    where: whereConditions,
-    orderBy: [
-      { endDate: "desc" },
-      { startDate: "desc" },
-    ],
-  });
+  // Fetch filtered scholarships using scholarshipService
+  const scholarships = await scholarshipService.getAllScholarships(whereConditions);
 
   // Filter in memory for keyword search
   const filteredScholarships = scholarships.filter((s) =>

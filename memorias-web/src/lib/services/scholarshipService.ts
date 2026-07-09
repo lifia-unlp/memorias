@@ -99,4 +99,76 @@ export const scholarshipService = {
       where: { id },
     });
   },
+
+  getAllScholarships: async (where?: any) => {
+    return prisma.scholarship.findMany({
+      where,
+      include: {
+        members: {
+          select: {
+            firstName: true,
+            lastName: true,
+            slug: true,
+          },
+        },
+      },
+      orderBy: { endDate: "desc" },
+    });
+  },
+
+  getBySlug: async (slug: string) => {
+    return prisma.scholarship.findUnique({
+      where: { slug },
+      include: {
+        members: { select: { id: true } },
+        projects: { select: { id: true } },
+        theses: { select: { id: true } },
+      },
+    });
+  },
+
+  getScholarshipDetail: async (slug: string) => {
+    return prisma.scholarship.findUnique({
+      where: { slug },
+      include: {
+        members: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            slug: true,
+            avatarUrl: true,
+            positionAtLab: true,
+          },
+        },
+        projects: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            code: true,
+            fundingAgency: true,
+            startDate: true,
+            endDate: true,
+          },
+        },
+        theses: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            student: true,
+            level: true,
+            progress: true,
+          },
+        },
+      },
+    });
+  },
+
+  getFormSelectionList: async () => {
+    return prisma.scholarship.findMany({
+      orderBy: { endDate: "desc" },
+    });
+  },
 };

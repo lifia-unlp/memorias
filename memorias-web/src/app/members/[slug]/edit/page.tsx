@@ -1,6 +1,7 @@
 import React from "react";
 import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
+import { memberService } from "@/lib/services/memberService";
 import { prisma } from "@/lib/prisma";
 import { MemberForm } from "../../MemberForm";
 import { Header } from "@/components/Header";
@@ -17,9 +18,7 @@ export default async function EditMemberPage({ params }: { params: Params }) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
 
-  const member = await prisma.member.findUnique({
-    where: { slug },
-  });
+  const member = await memberService.getBySlug(slug);
 
   if (!member) {
     notFound();

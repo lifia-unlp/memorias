@@ -1,6 +1,6 @@
 import React from "react";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
-import { prisma } from "@/lib/prisma";
+import { publicationService } from "@/lib/services/publicationService";
 import { auth } from "@/auth";
 import Link from "next/link";
 import { Header } from "@/components/Header";
@@ -42,24 +42,18 @@ export default async function PublicationsPage(props: {
   const page = parseInt(resolvedSearchParams.page || "1", 10) || 1;
   const limit = parseInt(resolvedSearchParams.limit || "10", 10) || 10;
 
-  // Fetch unique years for filters
-  const distinctYears = await prisma.publication.findMany({
-    select: { year: true },
-    distinct: ["year"],
-    orderBy: { year: "desc" },
-  });
-  const years = distinctYears.map((d) => d.year);
+  // Fetch unique years for filters using publicationService
+  const years = await publicationService.getDistinctYears();
 
-  // Fetch publications based on filters
-  const publications = await prisma.publication.findMany({
-    where: {
-      AND: [
-        typeFilter !== "all" ? { type: { equals: typeFilter } } : {},
-        yearFilter !== "all" ? { year: { equals: parseInt(yearFilter, 10) } } : {},
-      ],
-    },
-    orderBy: [{ year: "desc" }, { title: "asc" }],
-  });
+  const whereConditions = {
+    AND: [
+      typeFilter !== "all" ? { type: { equals: typeFilter } } : {},
+      yearFilter !== "all" ? { year: { equals: parseInt(yearFilter, 10) } } : {},
+    ],
+  };
+
+  // Fetch publications based on filters using publicationService
+  const publications = await publicationService.getAllPublications(whereConditions);
 
   // Filter in memory for keyword search
   const filteredPublications = publications.filter((p) =>

@@ -102,10 +102,84 @@ export const thesisService = {
       },
     });
   },
-
   delete: async (id: string) => {
     return prisma.thesis.delete({
       where: { id },
+    });
+  },
+
+  getAllTheses: async (where?: any) => {
+    return prisma.thesis.findMany({
+      where,
+      include: {
+        members: {
+          select: {
+            firstName: true,
+            lastName: true,
+            slug: true,
+          },
+        },
+      },
+      orderBy: { endDate: "desc" },
+    });
+  },
+
+  getBySlug: async (slug: string) => {
+    return prisma.thesis.findUnique({
+      where: { slug },
+      include: {
+        members: { select: { id: true } },
+        projects: { select: { id: true } },
+        publications: { select: { id: true } },
+        scholarships: { select: { id: true } },
+      },
+    });
+  },
+
+  getThesisDetail: async (slug: string) => {
+    return prisma.thesis.findUnique({
+      where: { slug },
+      include: {
+        members: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            slug: true,
+            avatarUrl: true,
+            positionAtLab: true,
+          },
+        },
+        projects: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            code: true,
+            fundingAgency: true,
+            startDate: true,
+            endDate: true,
+          },
+        },
+        scholarships: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            student: true,
+            type: true,
+          },
+        },
+        publications: {
+          orderBy: { year: "desc" },
+        },
+      },
+    });
+  },
+
+  getFormSelectionList: async () => {
+    return prisma.thesis.findMany({
+      orderBy: { endDate: "desc" },
     });
   },
 };

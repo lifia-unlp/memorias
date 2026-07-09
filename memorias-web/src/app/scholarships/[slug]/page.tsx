@@ -1,7 +1,7 @@
 import React from "react";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { scholarshipService } from "@/lib/services/scholarshipService";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { DeleteScholarshipButton } from "./DeleteScholarshipButton";
@@ -31,39 +31,8 @@ export default async function ScholarshipDetailPage({ params }: { params: Params
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
 
-  const scholarship = await prisma.scholarship.findUnique({
-    where: { slug },
-    include: {
-      members: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          slug: true,
-          avatarUrl: true,
-          positionAtLab: true,
-        },
-      },
-      projects: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          code: true,
-          fundingAgency: true,
-          startDate: true,
-          endDate: true,
-        },
-      },
-      theses: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-        },
-      },
-    },
-  });
+  // Query scholarship and related entities using scholarshipService
+  const scholarship = await scholarshipService.getScholarshipDetail(slug);
 
   if (!scholarship) {
     notFound();

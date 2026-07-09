@@ -10,6 +10,7 @@ vi.mock("@/lib/prisma", () => ({
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
+      findMany: vi.fn(),
     },
     thesis: {
       findMany: vi.fn(),
@@ -54,6 +55,96 @@ describe("projectService", () => {
       vi.mocked(prisma.publication.findMany).mockResolvedValue([]);
 
       await expect(projectService.delete("1")).rejects.toThrow("REFERENTIAL_BLOCK");
+    });
+  });
+
+  describe("getAllProjects", () => {
+    it("fetches projects with member summaries sorted by endDate desc", async () => {
+      vi.mocked(prisma.project.findMany).mockResolvedValue([{ id: "p1" }] as any);
+      const res = await projectService.getAllProjects();
+      expect(res).toEqual([{ id: "p1" }]);
+      expect(prisma.project.findMany).toHaveBeenCalledWith({
+        include: {
+          members: {
+            select: {
+              firstName: true,
+              lastName: true,
+              slug: true,
+            },
+          },
+        },
+        orderBy: { endDate: "desc" },
+      });
+    });
+  });
+
+  describe("getBySlug", () => {
+    it("fetches project by slug including member IDs", async () => {
+      vi.mocked(prisma.project.findUnique).mockResolvedValue({ id: "p1", slug: "p-a" } as any);
+      const res = await projectService.getBySlug("p-a");
+      expect(res?.slug).toBe("p-a");
+      expect(prisma.project.findUnique).toHaveBeenCalledWith({
+        where: { slug: "p-a" },
+        include: {
+          members: { select: { id: true } },
+        },
+      });
+    });
+  });
+
+  describe("getProjectDetail", () => {
+    it("fetches project details with related collections", async () => {
+      vi.mocked(prisma.project.findUnique).mockResolvedValue({ id: "p1" } as any);
+      const res = await projectService.getProjectDetail("p-a");
+      expect(res).toEqual({ id: "p1" });
+      expect(prisma.project.findUnique).toHaveBeenCalledWith({
+        where: { slug: "p-a" },
+        include: {
+          members: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              slug: true,
+              avatarUrl: true,
+              positionAtLab: true,
+            },
+          },
+          theses: {
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+              student: true,
+              level: true,
+              progress: true,
+            },
+          },
+          scholarships: {
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+              student: true,
+              type: true,
+            },
+          },
+          publications: {
+            orderBy: { year: "desc" },
+          },
+        },
+      });
+    });
+  });
+
+  describe("getFormSelectionList", () => {
+    it("fetches all projects sorted by endDate desc", async () => {
+      vi.mocked(prisma.project.findMany).mockResolvedValue([{ id: "p1" }] as any);
+      const res = await projectService.getFormSelectionList();
+      expect(res).toEqual([{ id: "p1" }]);
+      expect(prisma.project.findMany).toHaveBeenCalledWith({
+        orderBy: { endDate: "desc" },
+      });
     });
   });
 });
