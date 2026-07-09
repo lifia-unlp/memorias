@@ -5,14 +5,33 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ---
 
 ## Current Status
-* **Active Phase**: COMPLETE — All Reopened Technical Debt Issues Resolved
-* **Last Updated**: 2026-07-08
-* **Overall Progress**: 100% completed (All reopened issues: #41, #42, #43, #44, #45, #46, #47, and #48 resolved)
+* **Active Phase**: DECOUPLING PRISMA — Decoupled Presentation and Administration Actions
+* **Last Updated**: 2026-07-09
+* **Overall Progress**: 70% completed (Decoupled main reads, admin config, lists, users, audit logs, and reports statistics)
 
 
 ---
 
 ## Session Logs
+
+### Session 23 (2026-07-09)
+* **Goal**: Resolver el **Issue #50** (desacoplamiento de Prisma en Server Actions y páginas de administración/auditoría/usuarios/listas/configuración) y el **Issue #52** (desacoplamiento de Prisma en reports/statistics).
+* **Accomplished**:
+  * **Issue #50 (Servicios y Vistas de Administración)**:
+    * Creados 4 nuevos servicios en `src/lib/services/`: `auditService.ts`, `systemSettingsService.ts`, `systemOptionsService.ts` y `adminUserService.ts`.
+    * Refactorizadas las vistas administrativas (`admin/audit/page.tsx`, `admin/config/page.tsx`, `admin/lists/page.tsx` y `admin/users/page.tsx`) para consumir exclusivamente dichos servicios.
+    * Refactorizados los Server Actions correspondientes (`admin/config/actions.ts`, `admin/lists/actions.ts` y `admin/users/actions.ts`) removiendo todo acceso directo a `@/lib/prisma`.
+    * Agregada cobertura de pruebas unitarias exhaustiva para los 4 nuevos servicios de administración en `src/lib/services/__tests__/`.
+  * **Issue #52 (Servicio de Estadísticas)**:
+    * Creado `src/lib/services/statisticsService.ts` trasladando allí la lógica de agregación de métricas y KPI de producción del laboratorio.
+    * Refactorizado `reports/statistics/actions.ts` para delegar completamente en `statisticsService.getStatisticsData`.
+    * Creada cobertura de pruebas unitarias para `statisticsService.test.ts`.
+  * **Validación**:
+    * Confirmada ejecución exitosa de la suite completa de pruebas unitarias con 276/276 tests en verde.
+    * Compilación correcta verificada mediante `tsc --noEmit`.
+* **Blocked Items**: Ninguno.
+* **Next Steps**:
+  * Proceder con el **Issue #53** (preferencias, usuario autenticado y activación) y el **Issue #51** (aislar configuración y branding).
 
 ### Session 20 (2026-07-08)
 * **Goal**: Resolver los issues de cobertura y refactorización del análisis de deuda: **Issue #41** (cobertura), **Issue #43** (extraer servicios de lectura), **Issue #42** (dependencia circular de PublicationForm), **Issue #44** (descomponer useReportCompiler), **Issue #45** (descomponer TagsCurationClient), **Issue #46** (centralizar mappers FormData), **Issue #47** (ciclos de imports ReportBuilder) e **Issue #48** (Prisma directo en AutoTagger).
