@@ -1,6 +1,6 @@
 import React from "react";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
-import { prisma } from "@/lib/prisma";
+import { auditService } from "@/lib/services/auditService";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
@@ -70,25 +70,19 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
     whereClause.entityType = entityType;
   }
 
-  // Fetch audit logs sorted by newest with dynamic pagination skips
-  const logs = await prisma.auditLog.findMany({
+  // Fetch audit logs sorted by newest with dynamic pagination skips using auditService
+  const logs = await auditService.getLogs({
     where: whereClause,
-    orderBy: { createdAt: "desc" },
     skip,
     take,
   });
 
-  // Fetch matched count for pagination calculations
-  const matchedLogsCount = await prisma.auditLog.count({
-    where: whereClause,
-  });
+  // Fetch matched count for pagination calculations using auditService
+  const matchedLogsCount = await auditService.getLogsCount(whereClause);
   const totalPages = Math.ceil(matchedLogsCount / limit);
 
-  // Calculate statistics for metrics cards
-  const totalLogs = await prisma.auditLog.count();
-  const createsCount = await prisma.auditLog.count({ where: { action: "CREATE" } });
-  const updatesCount = await prisma.auditLog.count({ where: { action: "UPDATE" } });
-  const deletesCount = await prisma.auditLog.count({ where: { action: "DELETE" } });
+  // Calculate statistics for metrics cards using auditService
+  const { totalLogs, createsCount, updatesCount, deletesCount } = await auditService.getGlobalMetrics();
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", bgcolor: "background.default", minHeight: "100vh" }}>

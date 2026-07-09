@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { systemOptionsService } from "@/lib/services/systemOptionsService";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
@@ -15,10 +15,7 @@ async function requireAdmin() {
 // 1. Get options for a given listName (Read-only, anyone can read)
 export async function getOptions(listName: string) {
   try {
-    const options = await prisma.systemOption.findMany({
-      where: { listName },
-      orderBy: { value: "asc" },
-    });
+    const options = await systemOptionsService.getOptions(listName);
     return { success: true, options };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -32,9 +29,7 @@ export async function createOption(listName: string, value: string) {
     const cleanValue = value.trim();
     if (!cleanValue) throw new Error("Value cannot be empty");
 
-    const option = await prisma.systemOption.create({
-      data: { listName, value: cleanValue },
-    });
+    const option = await systemOptionsService.createOption(listName, cleanValue);
 
     revalidatePath("/admin/lists");
     return { success: true, option };
@@ -50,31 +45,7 @@ export async function createOption(listName: string, value: string) {
 export async function checkOptionUsage(listName: string, value: string) {
   try {
     await requireAdmin();
-    let count = 0;
-
-    switch (listName) {
-      case "positionAtLab":
-        count = await prisma.member.count({ where: { positionAtLab: value } });
-        break;
-      case "positionAtUnlp":
-        count = await prisma.member.count({ where: { positionAtUnlp: value } });
-        break;
-      case "positionAtCIC":
-        count = await prisma.member.count({ where: { positionAtCIC: value } });
-        break;
-      case "positionAtCONICET":
-        count = await prisma.member.count({ where: { positionAtCONICET: value } });
-        break;
-      case "thesisLevel":
-        count = await prisma.thesis.count({ where: { level: value } });
-        break;
-      case "scholarshipType":
-        count = await prisma.scholarship.count({ where: { type: value } });
-        break;
-      default:
-        throw new Error("Invalid list name");
-    }
-
+    const count = await systemOptionsService.checkOptionUsage(listName, value);
     return { success: true, count };
   } catch (error: any) {
     return { success: false, error: error.message, count: 0 };
@@ -85,69 +56,7 @@ export async function checkOptionUsage(listName: string, value: string) {
 export async function deleteOptionSafe(id: string, replacementValue?: string | null) {
   try {
     await requireAdmin();
-
-    const option = await prisma.systemOption.findUnique({
-      where: { id },
-    });
-
-    if (!option) {
-      throw new Error("System option not found");
-    }
-
-    const { listName, value } = option;
-
-    // Run reassignments and delete option in an atomic transaction
-    await prisma.$transaction(async (tx) => {
-      const updateData = {
-        [listName === "thesisLevel" ? "level" : listName === "scholarshipType" ? "type" : listName]: replacementValue || null,
-      };
-
-      switch (listName) {
-        case "positionAtLab":
-          await tx.member.updateMany({
-            where: { positionAtLab: value },
-            data: { positionAtLab: replacementValue || null },
-          });
-          break;
-        case "positionAtUnlp":
-          await tx.member.updateMany({
-            where: { positionAtUnlp: value },
-            data: { positionAtUnlp: replacementValue || null },
-          });
-          break;
-        case "positionAtCIC":
-          await tx.member.updateMany({
-            where: { positionAtCIC: value },
-            data: { positionAtCIC: replacementValue || null },
-          });
-          break;
-        case "positionAtCONICET":
-          await tx.member.updateMany({
-            where: { positionAtCONICET: value },
-            data: { positionAtCONICET: replacementValue || null },
-          });
-          break;
-        case "thesisLevel":
-          await tx.thesis.updateMany({
-            where: { level: value },
-            data: { level: replacementValue || null },
-          });
-          break;
-        case "scholarshipType":
-          await tx.scholarship.updateMany({
-            where: { type: value },
-            data: { type: replacementValue || null },
-          });
-          break;
-        default:
-          throw new Error("Invalid list name in transaction");
-      }
-
-      // Delete the option
-      await tx.systemOption.delete({
-        where: { id },
-      });
-    });
+    await systemOptionsService.deleteOptionSafe(id, replacementValue);
 
     revalidatePath("/admin/lists");
     return { success: true };

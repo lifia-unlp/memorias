@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { adminUserService } from "@/lib/services/adminUserService";
 import { revalidatePath } from "next/cache";
 import { sendEmail } from "@/lib/email";
 import { getLabName } from "@/lib/config";
@@ -19,17 +19,7 @@ export async function toggleUserActivationAction(formData: FormData) {
   const userId = formData.get("userId") as string;
   if (!userId) throw new Error("User ID is required");
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { active: true },
-  });
-  
-  if (!user) throw new Error("User not found");
-  
-  await prisma.user.update({
-    where: { id: userId },
-    data: { active: !user.active },
-  });
+  await adminUserService.toggleUserActivation(userId);
   
   revalidatePath("/admin/users");
 }
@@ -42,10 +32,7 @@ export async function updateUserRoleAction(formData: FormData) {
   
   if (!userId || !role) throw new Error("User ID and Role are required");
   
-  await prisma.user.update({
-    where: { id: userId },
-    data: { role },
-  });
+  await adminUserService.updateUserRole(userId, role);
   
   revalidatePath("/admin/users");
 }
@@ -63,9 +50,7 @@ export async function deleteUserAction(formData: FormData) {
     throw new Error("Cannot delete your own admin account.");
   }
 
-  await prisma.user.delete({
-    where: { id: userId },
-  });
+  await adminUserService.deleteUser(userId);
 
   revalidatePath("/admin/users");
 }
@@ -78,25 +63,7 @@ export async function updateUserMemberAction(formData: FormData) {
   
   if (!userId) throw new Error("User ID is required");
 
-  // Check if memberId is already assigned to another user
-  if (memberId) {
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        memberId,
-        id: { not: userId },
-      },
-    });
-    if (existingUser) {
-      throw new Error(`This member is already assigned to user: ${existingUser.email}`);
-    }
-  }
-
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      memberId: memberId || null,
-    },
-  });
+  await adminUserService.updateUserMember(userId, memberId);
 
   revalidatePath("/admin/users");
 }
@@ -130,15 +97,12 @@ export async function sendUserEmailAction(formData: FormData) {
     const userId = formData.get("userId") as string;
     if (!userId) throw new Error("User ID is required for direct email.");
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { email: true },
-    });
+    const email = await adminUserService.getUserEmail(userId);
 
-    if (!user) throw new Error("User not found.");
+    if (!email) throw new Error("User not found or has no email.");
 
     const res = await sendEmail({
-      to: user.email,
+      to: email,
       subject,
       html: htmlContent,
     });
@@ -149,33 +113,30 @@ export async function sendUserEmailAction(formData: FormData) {
 
     return { success: true, count: 1 };
   } else if (recipientType === "all_active") {
-    const activeUsers = await prisma.user.findMany({
-      where: { active: true },
-      select: { email: true },
-    });
+    const activeEmails = await adminUserService.getActiveUserEmails();
 
-    if (activeUsers.length === 0) {
+    if (activeEmails.length === 0) {
       return { success: true, count: 0 };
     }
 
-    const sendPromises = activeUsers.map(async (u) => {
+    const sendPromises = activeEmails.map(async (email) => {
       try {
         const res = await sendEmail({
-          to: u.email,
+          to: email,
           subject,
           html: htmlContent,
         });
-        return { email: u.email, success: res.success };
+        return { email, success: res.success };
       } catch (err) {
-        console.error(`Failed to send email to ${u.email}:`, err);
-        return { email: u.email, success: false };
+        console.error(`Failed to send email to ${email}:`, err);
+        return { email, success: false };
       }
     });
 
     const results = await Promise.all(sendPromises);
     const successCount = results.filter((r) => r.success).length;
 
-    if (successCount === 0 && activeUsers.length > 0) {
+    if (successCount === 0 && activeEmails.length > 0) {
       throw new Error("Failed to send broadcast emails to any active users.");
     }
 

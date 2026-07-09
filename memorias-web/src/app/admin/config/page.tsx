@@ -1,6 +1,6 @@
 import React from "react";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
-import { prisma } from "@/lib/prisma";
+import { systemSettingsService } from "@/lib/services/systemSettingsService";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
@@ -14,22 +14,17 @@ export default async function AdminConfigPage() {
     redirect("/");
   }
 
-  // Load current values
-  const titleOption = await prisma.systemSetting.findUnique({ where: { key: "welcome_title" } }).catch(() => null);
-  const subtitleOption = await prisma.systemSetting.findUnique({ where: { key: "welcome_subtitle" } }).catch(() => null);
-  const logoOption = await prisma.systemSetting.findUnique({ where: { key: "logo_url" } }).catch(() => null);
-  const labNameOption = await prisma.systemSetting.findUnique({ where: { key: "lab_name" } }).catch(() => null);
-  const labUrlOption = await prisma.systemSetting.findUnique({ where: { key: "lab_url" } }).catch(() => null);
-  const requireActivationOption = await prisma.systemSetting.findUnique({ where: { key: "require_user_activation" } }).catch(() => null);
+  // Load current values using systemSettingsService
+  const settings = await systemSettingsService.getAllSettings();
 
-  const initialTitle = titleOption?.value || "Welcome to Memorias";
+  const initialTitle = settings.welcome_title || "Welcome to Memorias";
   const initialSubtitle =
-    subtitleOption?.value ||
+    settings.welcome_subtitle ||
     "A state-of-the-art research repository and laboratory management portal. Discover publications, explore active research projects, and access defended theses.";
-  const initialLogoUrl = logoOption?.value || "";
-  const initialLabName = labNameOption?.value || process.env.LAB_NAME || "LIFIA";
-  const initialLabUrl = labUrlOption?.value || process.env.LAB_URL || "https://lifia.info.unlp.edu.ar";
-  const initialRequireUserActivation = requireActivationOption?.value === "true";
+  const initialLogoUrl = settings.logo_url || "";
+  const initialLabName = settings.lab_name || process.env.LAB_NAME || "LIFIA";
+  const initialLabUrl = settings.lab_url || process.env.LAB_URL || "https://lifia.info.unlp.edu.ar";
+  const initialRequireUserActivation = settings.require_user_activation === "true";
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", bgcolor: "background.default", minHeight: "100vh" }}>

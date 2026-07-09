@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { systemOptionsService } from "@/lib/services/systemOptionsService";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
@@ -18,10 +18,8 @@ export default async function AdminListsPage() {
     redirect("/");
   }
 
-  // Fetch all options
-  const allOptions = await prisma.systemOption.findMany({
-    orderBy: { value: "asc" },
-  });
+  // Fetch all options using systemOptionsService
+  const allOptions = await systemOptionsService.getAllOptions();
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", bgcolor: "background.default", minHeight: "100vh" }}>

@@ -1,6 +1,6 @@
 import React from "react";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
-import { prisma } from "@/lib/prisma";
+import { adminUserService } from "@/lib/services/adminUserService";
 import { RoleSelector, ActivationButton, DeleteUserButton, MemberSelector, BroadcastEmailButton, EmailUserButton } from "./UserControls";
 import Link from "next/link";
 import { auth } from "@/auth";
@@ -28,28 +28,9 @@ export default async function AdminUsersPage() {
     redirect("/");
   }
 
-  const users = await prisma.user.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { member: true },
-  });
-
-  const members = await prisma.member.findMany({
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      user: {
-        select: {
-          id: true,
-          email: true,
-        },
-      },
-    },
-    orderBy: [
-      { lastName: "asc" },
-      { firstName: "asc" },
-    ],
-  });
+  // Fetch all users and members for assignment using adminUserService
+  const users = await adminUserService.getAllUsers();
+  const members = await adminUserService.getMembersForUserAssignment();
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>

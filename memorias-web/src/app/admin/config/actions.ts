@@ -1,7 +1,7 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { systemSettingsService } from "@/lib/services/systemSettingsService";
 import { revalidatePath } from "next/cache";
 
 export async function saveSystemSettings(formData: FormData) {
@@ -17,60 +17,23 @@ export async function saveSystemSettings(formData: FormData) {
   const labUrl = (formData.get("labUrl") as string) || "";
   const requireUserActivation = formData.get("requireUserActivation") === "on" || formData.get("requireUserActivation") === "true" ? "true" : "false";
 
-  const systemSetting = prisma.systemSetting;
-  if (!systemSetting) {
-    throw new Error("System settings persistence is temporarily out of sync because Next.js has cached the old database client globally. Please restart your Next.js dev server.");
-  }
-
-  // Perform safe upserts
-  await prisma.$transaction([
-    prisma.systemSetting.upsert({
-      where: { key: "welcome_title" },
-      update: { value: welcomeTitle },
-      create: { key: "welcome_title", value: welcomeTitle },
-    }),
-    prisma.systemSetting.upsert({
-      where: { key: "welcome_subtitle" },
-      update: { value: welcomeSubtitle },
-      create: { key: "welcome_subtitle", value: welcomeSubtitle },
-    }),
-    prisma.systemSetting.upsert({
-      where: { key: "logo_url" },
-      update: { value: logoUrl },
-      create: { key: "logo_url", value: logoUrl },
-    }),
-    prisma.systemSetting.upsert({
-      where: { key: "lab_name" },
-      update: { value: labName },
-      create: { key: "lab_name", value: labName },
-    }),
-    prisma.systemSetting.upsert({
-      where: { key: "lab_url" },
-      update: { value: labUrl },
-      create: { key: "lab_url", value: labUrl },
-    }),
-    prisma.systemSetting.upsert({
-      where: { key: "require_user_activation" },
-      update: { value: requireUserActivation },
-      create: { key: "require_user_activation", value: requireUserActivation },
-    }),
-  ]);
-
-  // Log to Audit Log
-  await prisma.auditLog.create({
-    data: {
-      action: "UPDATE",
-      entityType: "SystemSetting",
-      entityId: "system_configuration",
-      entitySlug: "system-config",
-      userId: session.user.id || null,
-      userEmail: session.user.email || "Unknown Admin",
-      details: `Updated home welcome title: "${welcomeTitle.slice(0, 40)}...", subtitle: "${welcomeSubtitle.slice(0, 40)}...", lab name: "${labName}", lab URL: "${labUrl}", and require user activation: "${requireUserActivation}".`,
+  // Perform settings updates and log audit log via systemSettingsService
+  await systemSettingsService.saveSettings(
+    {
+      welcome_title: welcomeTitle,
+      welcome_subtitle: welcomeSubtitle,
+      logo_url: logoUrl,
+      lab_name: labName,
+      lab_url: labUrl,
+      require_user_activation: requireUserActivation,
     },
-  });
+    {
+      id: session.user.id || null,
+      email: session.user.email || "Unknown Admin",
+    }
+  );
 
   // Revalidate caching
   revalidatePath("/");
   revalidatePath("/admin/config");
-
 }
