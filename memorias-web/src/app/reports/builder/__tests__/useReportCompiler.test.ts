@@ -15,13 +15,13 @@ vi.mock("../actions", () => ({
   deleteReport: vi.fn(() => Promise.resolve({ success: true })),
   generateReportAIContent: vi.fn(() => Promise.resolve({ content: "" })),
 }));
+import { Block } from "../types";
 import {
   formatDateRange,
   buildProjectSentence,
   buildScholarshipSentence,
   buildThesisSentence,
   getBlockMarkdownContext,
-  type Block,
 } from "../useReportCompiler";
 
 // ---------------------------------------------------------------------------

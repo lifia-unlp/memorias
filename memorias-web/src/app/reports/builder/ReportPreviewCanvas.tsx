@@ -2,7 +2,8 @@
 
 import React from "react";
 import { Box, Card, Typography, CircularProgress } from "@mui/material";
-import { Block, buildProjectSentence, buildScholarshipSentence, buildThesisSentence } from "./useReportCompiler";
+import { Block } from "./types";
+import { buildProjectSentence, buildScholarshipSentence, buildThesisSentence } from "./useReportCompiler";
 
 interface ReportPreviewCanvasProps {
   blocks: Block[];

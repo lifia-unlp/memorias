@@ -53,6 +53,28 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 * **Next Steps**:
   * La deuda técnica remanente del Issue #28 ha sido completamente resuelta. Se puede proceder con otros requerimientos del backlog, como la resolución del Issue #35 (lag al editar años de reportes).
 
+### Session 21 (2026-07-08)
+* **Goal**: Revisar específicamente el estado de separación por capas respecto del acceso directo a Prisma/BD desde la capa de presentación de `memorias-web`.
+* **Accomplished**:
+  * Releídas las reglas globales, plan y progreso del proyecto.
+  * Clasificados los imports/uso de Prisma por capa, excluyendo tests:
+    * 8 servicios en `src/lib/services/` usan Prisma de forma esperada.
+    * 3 módulos utilitarios en `src/lib/` usan Prisma (`audit.ts`, `config.ts`, `notifications.ts`).
+    * 6 Server Actions aún usan Prisma directamente (`admin/config`, `admin/lists`, `admin/tags`, `admin/users`, `preferences`, `reports/statistics`).
+    * 27 páginas `src/app/**/page.tsx` aún usan Prisma directamente, principalmente catálogos, detalle, edición y administración.
+    * 2 componentes servidor (`Header.tsx`, `Logo.tsx`) aún usan Prisma para configuración/logo.
+  * Confirmado que los refactors recientes sí mejoraron capas en rutas clave: `search/page.tsx`, `tags/[tag]/page.tsx` y `reports/actions.ts` delegan actualmente en `searchService`, `tagService` y `reportService`.
+  * Creados issues adicionales para cubrir todos los grupos de separación por capas pendientes:
+    * #50 administración/auditoría/usuarios/listas/configuración.
+    * #51 configuración pública y branding (`Header`, `Logo`, home, signin).
+    * #52 estadísticas de reportes.
+    * #53 preferencias, usuario autenticado y activación.
+  * Publicado comentario en el Issue #28 mencionando el mapa completo #48–#53 como seguimiento de separación por capas.
+* **Blocked Items**: Ninguno.
+* **Next Steps**:
+  * Usar el mapa #48–#53 para resolver de forma incremental todos los accesos a Prisma fuera de servicios.
+  * Tras resolverlos, repetir el barrido `rg` de imports a `@/lib/prisma` excluyendo tests para confirmar que sólo `src/lib/services`, utilidades explícitas y la infraestructura aceptada acceden a BD.
+
 ### Session 19 (2026-07-08)
 * **Goal**: Analizar la deuda técnica actual de `/memorias-web` enfocada en mantenibilidad, legibilidad, bajo acoplamiento y alta cohesión.
 * **Accomplished**:
@@ -63,6 +85,10 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
   * Reabierto el Issue #28 en GitHub porque no se considera resuelto.
   * Creados issues de seguimiento #41–#46 para la deuda pendiente: cobertura de pruebas, ciclo de publicaciones, servicios de lectura, descomposición de `useReportCompiler`, descomposición de `TagsCurationClient` y mappers `FormData`.
   * Publicado comentario en el Issue #28 referenciando #41–#46 y firmado con `C`.
+  * Revisada la respuesta posterior de AG en el Issue #28 y verificado el árbol actual: #41–#46 fueron implementados parcialmente/completamente y `npm run test` pasó con 227/227 tests.
+  * Identificada deuda remanente nueva tras la implementación: ciclos de imports en Report Builder, Prisma directo en el flujo AutoTagger de `admin/tags/actions.ts` y Prisma directo remanente en páginas servidor de catálogo/detalle.
+  * Creados issues #47, #48 y #49 con labels `technical debt` y `memorias-web`.
+  * Respondido en el Issue #28 argumentando que se deja abierto hasta resolver o descartar #47–#49.
 * **Blocked Items**:
   * No se pudo verificar el Wiki/Shared Domain Glossary porque `memorias-wiki` no está presente dentro del workspace sandbox actual.
 * **Next Steps**:

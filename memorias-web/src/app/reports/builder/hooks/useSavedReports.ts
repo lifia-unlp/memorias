@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getReports, saveReport, deleteReport } from "../../actions";
-import { Block } from "../useReportCompiler";
+import { Block } from "../types";
 
 export function useSavedReports() {
   const [viewState, setViewState] = useState<"list" | "editor" | "view">("list");

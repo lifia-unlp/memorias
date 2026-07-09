@@ -16,7 +16,7 @@ import {
   FormControlLabel,
   Chip,
 } from "@mui/material";
-import { Block, InitData } from "./useReportCompiler";
+import { Block, InitData } from "./types";
 
 interface ReportBlockEditorProps {
   block: Block;

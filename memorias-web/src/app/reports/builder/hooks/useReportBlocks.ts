@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Block } from "../useReportCompiler";
+import { Block } from "../types";
 
 export function useReportBlocks() {
   const [blocks, setBlocks] = useState<Block[]>([
