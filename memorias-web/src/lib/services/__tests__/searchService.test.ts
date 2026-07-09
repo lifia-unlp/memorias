@@ -73,10 +73,10 @@ describe("searchService", () => {
     const date1 = new Date("2023-01-01");
     const date2 = new Date("2023-02-01");
     mockedPrisma.member.findMany.mockResolvedValueOnce([
-      { id: "m1", slug: "m-1", updatedAt: date1 },
+      { id: "m1", slug: "m-1", updatedAt: date1 } as any,
     ]);
     mockedPrisma.project.findMany.mockResolvedValueOnce([
-      { id: "p1", slug: "p-1", updatedAt: date2 },
+      { id: "p1", slug: "p-1", updatedAt: date2 } as any,
     ]);
     mockedPrisma.thesis.findMany.mockResolvedValueOnce([]);
     mockedPrisma.scholarship.findMany.mockResolvedValueOnce([]);

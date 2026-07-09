@@ -11,7 +11,7 @@ import {
   Tab,
   Divider,
 } from "@mui/material";
-import { StatisticsData } from "@/app/reports/statistics/actions";
+import { StatisticsData } from "@/lib/services/statisticsService";
 import { YearlyProductionChart } from "./YearlyProductionChart";
 import { ScholarshipsGrantsChart } from "./ScholarshipsGrantsChart";
 import { QualificationsSeniorityChart } from "./QualificationsSeniorityChart";

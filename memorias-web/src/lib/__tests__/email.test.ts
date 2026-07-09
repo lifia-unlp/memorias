@@ -7,7 +7,7 @@ describe("Email Notification Service", () => {
   beforeEach(() => {
     vi.resetModules();
     process.env = { ...originalEnv };
-    process.env.NODE_ENV = "test";
+    (process.env as any).NODE_ENV = "test";
     resetTransporter();
   });
 
@@ -23,7 +23,7 @@ describe("Email Notification Service", () => {
   });
 
   it("should create a JSON transport when configuration is incomplete and not in production", () => {
-    process.env.NODE_ENV = "development";
+    (process.env as any).NODE_ENV = "development";
     delete process.env.SMTP_HOST;
     delete process.env.SMTP_USER;
     delete process.env.SMTP_PASS;
@@ -34,7 +34,7 @@ describe("Email Notification Service", () => {
   });
 
   it("should create a real SMTP transporter when configuration is complete in production/development", () => {
-    process.env.NODE_ENV = "production";
+    (process.env as any).NODE_ENV = "production";
     process.env.SMTP_HOST = "smtp.gmail.com";
     process.env.SMTP_PORT = "587";
     process.env.SMTP_SECURE = "false";

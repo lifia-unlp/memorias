@@ -80,8 +80,8 @@ import {
 } from "../actions";
 
 // Typed mocks
-const mockedAuth = vi.mocked(auth);
-const mockedPrisma = vi.mocked(prisma, true);
+const mockedAuth = vi.mocked(auth) as any;
+const mockedPrisma = vi.mocked(prisma, true) as any;
 
 const activeSession = {
   user: { id: "user-1", active: true, role: "ADMIN" },

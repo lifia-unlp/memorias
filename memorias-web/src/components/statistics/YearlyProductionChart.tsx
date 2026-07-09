@@ -15,7 +15,7 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import { ProductionDataPoint } from "@/app/reports/statistics/actions";
+import { ProductionDataPoint } from "@/lib/services/statisticsService";
 
 interface YearlyProductionChartProps {
   data: ProductionDataPoint[];

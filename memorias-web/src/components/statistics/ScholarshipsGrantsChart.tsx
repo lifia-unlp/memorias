@@ -15,7 +15,7 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import { ScholarshipTrendDataPoint } from "@/app/reports/statistics/actions";
+import { ScholarshipTrendDataPoint } from "@/lib/services/statisticsService";
 
 interface ScholarshipsGrantsChartProps {
   data: ScholarshipTrendDataPoint[];

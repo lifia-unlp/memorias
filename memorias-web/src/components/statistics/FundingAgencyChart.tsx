@@ -15,7 +15,7 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import { DistributionDataPoint } from "@/app/reports/statistics/actions";
+import { DistributionDataPoint } from "@/lib/services/statisticsService";
 
 interface FundingAgencyChartProps {
   data: DistributionDataPoint[];

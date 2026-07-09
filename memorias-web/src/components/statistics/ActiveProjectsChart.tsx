@@ -15,7 +15,7 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import { ActiveTrendDataPoint } from "@/app/reports/statistics/actions";
+import { ActiveTrendDataPoint } from "@/lib/services/statisticsService";
 
 interface ActiveProjectsChartProps {
   data: ActiveTrendDataPoint[];

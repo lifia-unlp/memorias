@@ -44,7 +44,7 @@ describe("Notification System Services", () => {
     vi.resetModules();
     vi.clearAllMocks();
     process.env = { ...originalEnv };
-    process.env.NODE_ENV = "test";
+    (process.env as any).NODE_ENV = "test";
     process.env.AUTH_URL = "http://localhost:3000";
 
     // Setup standard lab setting mock

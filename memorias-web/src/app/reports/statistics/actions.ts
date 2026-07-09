@@ -1,14 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import {
-  statisticsService,
-  StatisticsData,
-  ProductionDataPoint,
-  ActiveTrendDataPoint,
-  ScholarshipTrendDataPoint,
-  DistributionDataPoint,
-} from "@/lib/services/statisticsService";
+import { statisticsService, StatisticsData } from "@/lib/services/statisticsService";
 
 export async function ensureActiveUser() {
   const session = await auth();
@@ -16,14 +9,6 @@ export async function ensureActiveUser() {
     throw new Error("Unauthorized. Active session required.");
   }
 }
-
-export type {
-  ProductionDataPoint,
-  ActiveTrendDataPoint,
-  ScholarshipTrendDataPoint,
-  DistributionDataPoint,
-  StatisticsData,
-};
 
 export async function getStatisticsData(): Promise<StatisticsData> {
   await ensureActiveUser();

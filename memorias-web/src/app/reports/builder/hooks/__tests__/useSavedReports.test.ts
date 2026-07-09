@@ -13,9 +13,9 @@ vi.mock("../../../actions", () => ({
 import { useSavedReports } from "../useSavedReports";
 import { getReports, saveReport, deleteReport } from "../../../actions";
 
-const mockedGetReports = vi.mocked(getReports);
-const mockedSaveReport = vi.mocked(saveReport);
-const mockedDeleteReport = vi.mocked(deleteReport);
+const mockedGetReports = vi.mocked(getReports) as any;
+const mockedSaveReport = vi.mocked(saveReport) as any;
+const mockedDeleteReport = vi.mocked(deleteReport) as any;
 
 describe("useSavedReports hook", () => {
   beforeEach(() => {
