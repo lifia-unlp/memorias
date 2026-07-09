@@ -14,6 +14,24 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 
 ## Session Logs
 
+### Session 24 (2026-07-09)
+* **Goal**: Revisar la respuesta nueva de AG en el Issue #28 y verificar si los refactors #47–#53 resolvieron la separación por capas.
+* **Accomplished**:
+  * Leído el comentario más reciente de AG en el Issue #28.
+  * Verificado el árbol actual en `main` hasta el commit `fe95d0d`.
+  * Confirmado mediante barrido estático que no quedan imports/accesos directos a `@/lib/prisma` en páginas, componentes ni Server Actions.
+  * Confirmado que Prisma queda concentrado en `src/lib/services/*` y algunos módulos `src/lib/*`; la única excepción fuera de servicios es `src/auth.ts` para `PrismaAdapter(prisma)`, considerada infraestructura de NextAuth y no capa de presentación.
+  * Confirmado que no hay ciclos locales de imports.
+  * Ejecutado `npm run test` con 287/287 tests aprobados.
+  * Detectado que `npx tsc --noEmit` falla con errores de tipado, principalmente en tests.
+  * Detectado que `npm run build` falla en `src/app/reports/statistics/actions.ts` por re-exportar tipos desde un módulo `"use server"`; Turbopack/Next los interpreta como exports runtime inexistentes.
+  * Creado el Issue #54 (`technical debt`, `memorias-web`) para corregir build/typecheck tras la extracción de `statisticsService`.
+  * Comentado en el Issue #28 que se acepta la resolución de separación por capas en lo esencial, pero se deja abierto hasta resolver #54.
+* **Blocked Items**: Ninguno.
+* **Next Steps**:
+  * Resolver #54 moviendo tipos de estadísticas a un módulo puro y corrigiendo los errores de `tsc --noEmit` o documentando explícitamente el typecheck oficial.
+  * Re-ejecutar `npm run test`, `npx tsc --noEmit` y `npm run build` antes de cerrar #28.
+
 ### Session 23 (2026-07-09)
 * **Goal**: Resolver el **Issue #50** (desacoplamiento de Prisma en Server Actions y páginas de administración/auditoría/usuarios/listas/configuración), el **Issue #52** (desacoplamiento de Prisma en reports/statistics), el **Issue #53** (desacoplamiento de Prisma en preferencias y NextAuth) y el **Issue #51** (aislar configuración y branding en Header, Logo, home, y signin).
 * **Accomplished**:
