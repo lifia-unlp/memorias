@@ -1,8 +1,8 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
+import { tagService } from "@/lib/services/tagService";
 
 export async function ensureAdmin() {
   const session = await auth();
@@ -10,7 +10,6 @@ export async function ensureAdmin() {
     throw new Error("Unauthorized. Administrator role required.");
   }
 }
-import { tagService } from "@/lib/services/tagService";
 
 /**
  * Public action to retrieve general tag statistics for autocomplete and popular suggestion pills.
@@ -61,7 +60,6 @@ export async function mergeTags(sourceTag: string, targetTag: string) {
 export async function isOpenAIConfigured() {
   return !!process.env.OPENAI_API_KEY;
 }
-
 
 /**
  * Invokes the OpenAI API in batch mode (up to 15 items per request) to suggest tags.
@@ -137,87 +135,7 @@ export async function getAutoTaggerQueueAction(params: {
   mode: "skip" | "merge" | "replace";
 }) {
   await ensureAdmin();
-  const { targets, mode } = params;
-  const queue: { id: string; target: string; title: string; summary: string; currentTags: string[] }[] = [];
-
-  for (const target of targets) {
-    if (target === "publication") {
-      let pubs = await prisma.publication.findMany({ select: { id: true, title: true, bibtexData: true, tags: true } });
-      if (mode === "skip") {
-        pubs = pubs.filter((p) => p.tags.length === 0);
-      }
-      queue.push(...pubs.map(p => {
-        const bibtex = p.bibtexData as Record<string, unknown> | null;
-        const entryTags = bibtex?.entryTags as Record<string, unknown> | undefined;
-        const abstract = (entryTags?.abstract as string) || (bibtex?.abstract as string) || "";
-        return {
-          id: p.id,
-          target,
-          title: p.title,
-          summary: abstract,
-          currentTags: p.tags,
-        };
-      }));
-    }
-
-    if (target === "project") {
-      let projs = await prisma.project.findMany({ select: { id: true, title: true, summary: true, tags: true } });
-      if (mode === "skip") {
-        projs = projs.filter((p) => p.tags.length === 0);
-      }
-      queue.push(...projs.map(p => ({
-        id: p.id,
-        target,
-        title: p.title,
-        summary: p.summary || "",
-        currentTags: p.tags,
-      })));
-    }
-
-    if (target === "thesis") {
-      let theses = await prisma.thesis.findMany({ select: { id: true, title: true, summary: true, tags: true } });
-      if (mode === "skip") {
-        theses = theses.filter((t) => t.tags.length === 0);
-      }
-      queue.push(...theses.map(t => ({
-        id: t.id,
-        target,
-        title: t.title,
-        summary: t.summary || "",
-        currentTags: t.tags,
-      })));
-    }
-
-    if (target === "scholarship") {
-      let schs = await prisma.scholarship.findMany({ select: { id: true, title: true, summary: true, tags: true } });
-      if (mode === "skip") {
-        schs = schs.filter((s) => s.tags.length === 0);
-      }
-      queue.push(...schs.map(s => ({
-        id: s.id,
-        target,
-        title: s.title,
-        summary: s.summary || "",
-        currentTags: s.tags,
-      })));
-    }
-
-    if (target === "member") {
-      let members = await prisma.member.findMany({ select: { id: true, firstName: true, lastName: true, tags: true } });
-      if (mode === "skip") {
-        members = members.filter((m) => m.tags.length === 0);
-      }
-      queue.push(...members.map(m => ({
-        id: m.id,
-        target,
-        title: `${m.firstName} ${m.lastName}`,
-        summary: "",
-        currentTags: m.tags,
-      })));
-    }
-  }
-
-  return queue;
+  return tagService.getAutoTaggerQueue(params);
 }
 
 /**
@@ -261,16 +179,7 @@ export async function executeAutoTagBatchAction(params: {
             ? allowedSug
             : Array.from(new Set([...task.currentTags, ...allowedSug]));
 
-        if (task.target === "project") {
-          await prisma.project.update({ where: { id: task.id }, data: { tags: finalTags } });
-        } else if (task.target === "publication") {
-          await prisma.publication.update({ where: { id: task.id }, data: { tags: finalTags } });
-        } else if (task.target === "thesis") {
-          await prisma.thesis.update({ where: { id: task.id }, data: { tags: finalTags } });
-        } else if (task.target === "scholarship") {
-          await prisma.scholarship.update({ where: { id: task.id }, data: { tags: finalTags } });
-        }
-
+        await tagService.updateEntityTags(task.target, task.id, finalTags);
         allowedSug.forEach(t => newTagsSet.add(t));
       }
     } catch (err) {
@@ -288,7 +197,7 @@ export async function executeAutoTagBatchAction(params: {
           ? derived
           : Array.from(new Set([...task.currentTags, ...derived]));
 
-      await prisma.member.update({ where: { id: task.id }, data: { tags: finalTags } });
+      await tagService.updateEntityTags(task.target, task.id, finalTags);
       derived.forEach(t => newTagsSet.add(t));
     } catch (err) {
       console.error("Failed to derive member tags:", err);

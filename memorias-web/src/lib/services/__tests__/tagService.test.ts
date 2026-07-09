@@ -112,4 +112,52 @@ describe("tagService", () => {
       expect(result).toEqual(["nlp", "ml", "ai"]);
     });
   });
+
+  describe("getAutoTaggerQueue", () => {
+    it("constructs queue correctly mapping project details", async () => {
+      mockedPrisma.project.findMany.mockResolvedValueOnce([
+        { id: "p1", title: "Project A", summary: "Summary A", tags: ["existing"] }
+      ] as any);
+
+      const result = await tagService.getAutoTaggerQueue({
+        targets: ["project"],
+        mode: "replace"
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        id: "p1",
+        target: "project",
+        title: "Project A",
+        summary: "Summary A",
+        currentTags: ["existing"]
+      });
+    });
+
+    it("filters out items when mode is skip and tags are present", async () => {
+      mockedPrisma.project.findMany.mockResolvedValueOnce([
+        { id: "p1", title: "Project A", summary: "Summary A", tags: ["existing"] }
+      ] as any);
+
+      const result = await tagService.getAutoTaggerQueue({
+        targets: ["project"],
+        mode: "skip"
+      });
+
+      expect(result).toHaveLength(0);
+    });
+  });
+
+  describe("updateEntityTags", () => {
+    it("updates correct model based on target", async () => {
+      mockedPrisma.project.update.mockResolvedValueOnce({} as any);
+
+      await tagService.updateEntityTags("project", "p1", ["new-tag"]);
+
+      expect(mockedPrisma.project.update).toHaveBeenCalledWith({
+        where: { id: "p1" },
+        data: { tags: ["new-tag"] }
+      });
+    });
+  });
 });

@@ -352,4 +352,111 @@ export const tagService = {
 
     return top3;
   },
+
+  /**
+   * Admin helper to fetch the entire queue of items to tag based on targets and mode.
+   */
+  getAutoTaggerQueue: async (params: {
+    targets: string[];
+    mode: "skip" | "merge" | "replace";
+  }): Promise<{ id: string; target: string; title: string; summary: string; currentTags: string[] }[]> => {
+    const { targets, mode } = params;
+    const queue: { id: string; target: string; title: string; summary: string; currentTags: string[] }[] = [];
+
+    for (const target of targets) {
+      if (target === "publication") {
+        let pubs = await prisma.publication.findMany({ select: { id: true, title: true, bibtexData: true, tags: true } });
+        if (mode === "skip") {
+          pubs = pubs.filter((p) => p.tags.length === 0);
+        }
+        queue.push(...pubs.map(p => {
+          const bibtex = p.bibtexData as Record<string, unknown> | null;
+          const entryTags = bibtex?.entryTags as Record<string, unknown> | undefined;
+          const abstract = (entryTags?.abstract as string) || (bibtex?.abstract as string) || "";
+          return {
+            id: p.id,
+            target,
+            title: p.title,
+            summary: abstract,
+            currentTags: p.tags,
+          };
+        }));
+      }
+
+      if (target === "project") {
+        let projs = await prisma.project.findMany({ select: { id: true, title: true, summary: true, tags: true } });
+        if (mode === "skip") {
+          projs = projs.filter((p) => p.tags.length === 0);
+        }
+        queue.push(...projs.map(p => ({
+          id: p.id,
+          target,
+          title: p.title,
+          summary: p.summary || "",
+          currentTags: p.tags,
+        })));
+      }
+
+      if (target === "thesis") {
+        let theses = await prisma.thesis.findMany({ select: { id: true, title: true, summary: true, tags: true } });
+        if (mode === "skip") {
+          theses = theses.filter((t) => t.tags.length === 0);
+        }
+        queue.push(...theses.map(t => ({
+          id: t.id,
+          target,
+          title: t.title,
+          summary: t.summary || "",
+          currentTags: t.tags,
+        })));
+      }
+
+      if (target === "scholarship") {
+        let schs = await prisma.scholarship.findMany({ select: { id: true, title: true, summary: true, tags: true } });
+        if (mode === "skip") {
+          schs = schs.filter((s) => s.tags.length === 0);
+        }
+        queue.push(...schs.map(s => ({
+          id: s.id,
+          target,
+          title: s.title,
+          summary: s.summary || "",
+          currentTags: s.tags,
+        })));
+      }
+
+      if (target === "member") {
+        let members = await prisma.member.findMany({ select: { id: true, firstName: true, lastName: true, tags: true } });
+        if (mode === "skip") {
+          members = members.filter((m) => m.tags.length === 0);
+        }
+        queue.push(...members.map(m => ({
+          id: m.id,
+          target,
+          title: `${m.firstName} ${m.lastName}`,
+          summary: "",
+          currentTags: m.tags,
+        })));
+      }
+    }
+
+    return queue;
+  },
+
+  /**
+   * Update the tags of a specific target entity by its ID.
+   */
+  updateEntityTags: async (target: string, id: string, tags: string[]): Promise<void> => {
+    if (target === "project") {
+      await prisma.project.update({ where: { id }, data: { tags } });
+    } else if (target === "publication") {
+      await prisma.publication.update({ where: { id }, data: { tags } });
+    } else if (target === "thesis") {
+      await prisma.thesis.update({ where: { id }, data: { tags } });
+    } else if (target === "scholarship") {
+      await prisma.scholarship.update({ where: { id }, data: { tags } });
+    } else if (target === "member") {
+      await prisma.member.update({ where: { id }, data: { tags } });
+    }
+  },
 };

@@ -7,7 +7,7 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ## Current Status
 * **Active Phase**: COMPLETE — All Reopened Technical Debt Issues Resolved
 * **Last Updated**: 2026-07-08
-* **Overall Progress**: 100% completed (All reopened issues: #41, #42, #43, #44, #45, and #46 resolved)
+* **Overall Progress**: 100% completed (All reopened issues: #41, #42, #43, #44, #45, #46, #47, and #48 resolved)
 
 
 ---
@@ -15,7 +15,7 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ## Session Logs
 
 ### Session 20 (2026-07-08)
-* **Goal**: Resolver los issues de cobertura y refactorización del análisis de deuda: **Issue #41** (cobertura), **Issue #43** (extraer servicios de lectura), **Issue #42** (dependencia circular de PublicationForm), **Issue #44** (descomponer useReportCompiler), **Issue #45** (descomponer TagsCurationClient) e **Issue #46** (centralizar mappers FormData).
+* **Goal**: Resolver los issues de cobertura y refactorización del análisis de deuda: **Issue #41** (cobertura), **Issue #43** (extraer servicios de lectura), **Issue #42** (dependencia circular de PublicationForm), **Issue #44** (descomponer useReportCompiler), **Issue #45** (descomponer TagsCurationClient), **Issue #46** (centralizar mappers FormData), **Issue #47** (ciclos de imports ReportBuilder) e **Issue #48** (Prisma directo en AutoTagger).
 * **Accomplished**:
   * **Issue #41 (Pruebas unitarias de cobertura)**:
     * Creados tests unitarios para `useReportCompiler` (31 tests), `reports/actions` (25 tests), `search/page` (21 tests) y `TagsCurationClient` (14 tests).
@@ -49,9 +49,15 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
     * Creado `src/lib/mappers.ts` centralizando todos los conversores genéricos de `FormData` y mappers específicos de Member, Project, Thesis y Scholarship.
     * Refactorizados los Server Actions correspondientes para eliminar la extracción y normalización redundante, delegando el parseo directamente al mapper.
     * Creados tests unitarios dedicados para los mappers en `src/lib/__tests__/mappers.test.ts` (7 tests) logrando 227 tests unitarios totales aprobados en verde (100% éxito).
+  * **Issue #47 (Resolución de ciclos de imports en Report Builder)**:
+    * Creado `types.ts` centralizando `Block` y `InitData`. Eliminado el acoplamiento directo entre hooks y componentes.
+  * **Issue #48 (Desacoplamiento de Prisma en AutoTagger de admin/tags)**:
+    * Añadidos métodos `getAutoTaggerQueue` y `updateEntityTags` a `tagService.ts`.
+    * Removido el acceso a Prisma directo en `admin/tags/actions.ts`.
+    * Añadidos 3 tests unitarios nuevos en `tagService.test.ts` validando el comportamiento de AutoTagger (230 tests totales en verde).
 * **Blocked Items**: Ninguno.
 * **Next Steps**:
-  * La deuda técnica remanente del Issue #28 ha sido completamente resuelta. Se puede proceder con otros requerimientos del backlog, como la resolución del Issue #35 (lag al editar años de reportes).
+  * Proceder con el **Issue #49** (desacoplamiento de Prisma en páginas servidor de catálogo/detalle/formularios).
 
 ### Session 21 (2026-07-08)
 * **Goal**: Revisar específicamente el estado de separación por capas respecto del acceso directo a Prisma/BD desde la capa de presentación de `memorias-web`.
