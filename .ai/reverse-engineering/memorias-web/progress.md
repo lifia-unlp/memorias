@@ -7,7 +7,7 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ## Current Status
 * **Active Phase**: DECOUPLING PRISMA — Decoupled Presentation and Administration Actions
 * **Last Updated**: 2026-07-09
-* **Overall Progress**: 70% completed (Decoupled main reads, admin config, lists, users, audit logs, and reports statistics)
+* **Overall Progress**: 85% completed (Decoupled main reads, admin config, lists, users, audit logs, reports statistics, and user preferences/credentials)
 
 
 ---
@@ -15,7 +15,7 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ## Session Logs
 
 ### Session 23 (2026-07-09)
-* **Goal**: Resolver el **Issue #50** (desacoplamiento de Prisma en Server Actions y páginas de administración/auditoría/usuarios/listas/configuración) y el **Issue #52** (desacoplamiento de Prisma en reports/statistics).
+* **Goal**: Resolver el **Issue #50** (desacoplamiento de Prisma en Server Actions y páginas de administración/auditoría/usuarios/listas/configuración), el **Issue #52** (desacoplamiento de Prisma en reports/statistics) y el **Issue #53** (desacoplamiento de Prisma en preferencias y NextAuth).
 * **Accomplished**:
   * **Issue #50 (Servicios y Vistas de Administración)**:
     * Creados 4 nuevos servicios en `src/lib/services/`: `auditService.ts`, `systemSettingsService.ts`, `systemOptionsService.ts` y `adminUserService.ts`.
@@ -26,12 +26,16 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
     * Creado `src/lib/services/statisticsService.ts` trasladando allí la lógica de agregación de métricas y KPI de producción del laboratorio.
     * Refactorizado `reports/statistics/actions.ts` para delegar completamente en `statisticsService.getStatisticsData`.
     * Creada cobertura de pruebas unitarias para `statisticsService.test.ts`.
+  * **Issue #53 (Servicio de Usuario y Preferencias)**:
+    * Creado `src/lib/services/userService.ts` para centralizar consultas de mapeo de Member, actualización de preferencias, backdoor de Credentials, JWT cookie updates y el callback `createUser` de registro de NextAuth.
+    * Refactorizadas la página de preferencias `preferences/page.tsx`, sus Server Actions `preferences/actions.ts` y la configuración de NextAuth `auth.ts` para usar el nuevo servicio.
+    * Creada cobertura de pruebas unitarias para `userService.test.ts`.
   * **Validación**:
-    * Confirmada ejecución exitosa de la suite completa de pruebas unitarias con 276/276 tests en verde.
+    * Confirmada ejecución exitosa de la suite completa de pruebas unitarias con 284/284 tests en verde.
     * Compilación correcta verificada mediante `tsc --noEmit`.
 * **Blocked Items**: Ninguno.
 * **Next Steps**:
-  * Proceder con el **Issue #53** (preferencias, usuario autenticado y activación) y el **Issue #51** (aislar configuración y branding).
+  * Proceder con el **Issue #51** (aislar configuración y branding en Header, Logo, home, y signin).
 
 ### Session 20 (2026-07-08)
 * **Goal**: Resolver los issues de cobertura y refactorización del análisis de deuda: **Issue #41** (cobertura), **Issue #43** (extraer servicios de lectura), **Issue #42** (dependencia circular de PublicationForm), **Issue #44** (descomponer useReportCompiler), **Issue #45** (descomponer TagsCurationClient), **Issue #46** (centralizar mappers FormData), **Issue #47** (ciclos de imports ReportBuilder) e **Issue #48** (Prisma directo en AutoTagger).
