@@ -142,4 +142,16 @@ describe("thesisService", () => {
       });
     });
   });
+
+  describe("getFeatured", () => {
+    it("fetches featured theses sorted by updatedAt desc", async () => {
+      vi.mocked(prisma.thesis.findMany).mockResolvedValue([{ id: "t2", featured: true }] as any);
+      const res = await thesisService.getFeatured();
+      expect(res).toEqual([{ id: "t2", featured: true }]);
+      expect(prisma.thesis.findMany).toHaveBeenCalledWith({
+        where: { featured: true },
+        orderBy: { updatedAt: "desc" },
+      });
+    });
+  });
 });

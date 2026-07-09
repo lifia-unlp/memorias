@@ -2,7 +2,7 @@ import React from "react";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { auth } from "@/auth";
 import { thesisService } from "@/lib/services/thesisService";
-import { prisma } from "@/lib/prisma";
+import { systemOptionsService } from "@/lib/services/systemOptionsService";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { matchQueryTokens } from "@/lib/search";
@@ -83,11 +83,8 @@ export default async function ThesesPage(props: {
   const totalPages = Math.ceil(filteredTheses.length / limit);
   const paginatedTheses = filteredTheses.slice((page - 1) * limit, page * limit);
 
-  // Query levels choices
-  const levelOptions = await prisma.systemOption.findMany({
-    where: { listName: "thesisLevel" },
-    select: { value: true },
-  });
+  // Query levels choices using systemOptionsService
+  const levelOptions = await systemOptionsService.getOptions("thesisLevel");
   let levels = levelOptions.map((o) => o.value);
   if (levels.length === 0) {
     levels = ["PhD", "Masters", "Grade"];

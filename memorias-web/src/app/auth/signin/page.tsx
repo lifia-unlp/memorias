@@ -1,6 +1,6 @@
 import React from "react";
 import { signIn } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { systemSettingsService } from "@/lib/services/systemSettingsService";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Alert from "@mui/material/Alert";
@@ -14,15 +14,11 @@ interface PageProps {
 export default async function SignInPage({ searchParams }: PageProps) {
   const resolvedSearchParams = await searchParams;
   const error = typeof resolvedSearchParams.error === "string" ? resolvedSearchParams.error : undefined;
-  const logoSetting = await prisma.systemSetting
-    .findUnique({ where: { key: "logo_url" } })
-    .catch(() => null);
-  const logoUrl = logoSetting?.value || "";
 
-  const requireActivationSetting = await prisma.systemSetting
-    .findUnique({ where: { key: "require_user_activation" } })
-    .catch(() => null);
-  const requireUserActivation = requireActivationSetting?.value === "true";
+  // Load configuration from systemSettingsService
+  const settings = await systemSettingsService.getAllSettings();
+  const logoUrl = settings.logo_url || "";
+  const requireUserActivation = settings.require_user_activation === "true";
 
   return (
     <Box

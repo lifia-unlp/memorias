@@ -1,6 +1,6 @@
 import React from "react";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { systemSettingsService } from "@/lib/services/systemSettingsService";
 import { HeaderClient } from "@/components/HeaderClient";
 
 interface HeaderProps {
@@ -10,9 +10,7 @@ interface HeaderProps {
 export async function Header({ activeTab }: HeaderProps) {
   const session = await auth();
 
-  const logoSetting = await prisma.systemSetting
-    .findUnique({ where: { key: "logo_url" } })
-    .catch(() => null);
+  const logoSetting = await systemSettingsService.getSetting("logo_url");
   const logoUrl = logoSetting?.value || null;
 
   const copilotUrl = process.env.COPILOT_URL || process.env.NEXT_PUBLIC_COPILOT_URL || null;

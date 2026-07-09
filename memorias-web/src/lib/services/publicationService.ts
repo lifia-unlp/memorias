@@ -242,4 +242,11 @@ export const publicationService = {
       orderBy: { year: "desc" },
     });
   },
+
+  getFeatured: async () => {
+    return prisma.publication.findMany({
+      where: { featured: true },
+      orderBy: { updatedAt: "desc" },
+    });
+  },
 };

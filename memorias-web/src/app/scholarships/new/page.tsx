@@ -1,6 +1,6 @@
 import React from "react";
 import { Header } from "@/components/Header";
-import { prisma } from "@/lib/prisma";
+import { systemOptionsService } from "@/lib/services/systemOptionsService";
 import { ScholarshipForm } from "../ScholarshipForm";
 import { ensureEditorOrAdmin } from "@/lib/auth-helpers";
 import { memberService } from "@/lib/services/memberService";
@@ -16,10 +16,7 @@ export default async function NewScholarshipPage() {
   const projects = await projectService.getFormSelectionList();
   const theses = await thesisService.getFormSelectionList();
 
-  const typeOptions = await prisma.systemOption.findMany({
-    where: { listName: "scholarshipType" },
-    select: { value: true },
-  });
+  const typeOptions = await systemOptionsService.getOptions("scholarshipType");
   let types = typeOptions.map((o) => o.value);
   if (types.length === 0) {
     types = ["Doctoral", "Postdoctoral", "Training"];

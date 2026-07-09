@@ -147,4 +147,16 @@ describe("projectService", () => {
       });
     });
   });
+
+  describe("getFeatured", () => {
+    it("fetches featured projects sorted by updatedAt desc", async () => {
+      vi.mocked(prisma.project.findMany).mockResolvedValue([{ id: "p2", featured: true }] as any);
+      const res = await projectService.getFeatured();
+      expect(res).toEqual([{ id: "p2", featured: true }]);
+      expect(prisma.project.findMany).toHaveBeenCalledWith({
+        where: { featured: true },
+        orderBy: { updatedAt: "desc" },
+      });
+    });
+  });
 });

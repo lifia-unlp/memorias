@@ -1,5 +1,4 @@
 import React from "react";
-import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
 import { Header } from "@/components/Header";

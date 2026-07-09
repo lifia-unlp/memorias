@@ -182,4 +182,11 @@ export const thesisService = {
       orderBy: { endDate: "desc" },
     });
   },
+
+  getFeatured: async () => {
+    return prisma.thesis.findMany({
+      where: { featured: true },
+      orderBy: { updatedAt: "desc" },
+    });
+  },
 };

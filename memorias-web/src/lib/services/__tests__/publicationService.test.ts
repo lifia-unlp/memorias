@@ -152,4 +152,16 @@ describe("publicationService", () => {
       });
     });
   });
+
+  describe("getFeatured", () => {
+    it("fetches featured publications sorted by updatedAt desc", async () => {
+      vi.mocked(prisma.publication.findMany).mockResolvedValue([{ id: "pb2", featured: true }] as any);
+      const res = await publicationService.getFeatured();
+      expect(res).toEqual([{ id: "pb2", featured: true }]);
+      expect(prisma.publication.findMany).toHaveBeenCalledWith({
+        where: { featured: true },
+        orderBy: { updatedAt: "desc" },
+      });
+    });
+  });
 });

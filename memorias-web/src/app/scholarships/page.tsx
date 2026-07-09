@@ -2,7 +2,7 @@ import React from "react";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { auth } from "@/auth";
 import { scholarshipService } from "@/lib/services/scholarshipService";
-import { prisma } from "@/lib/prisma";
+import { systemOptionsService } from "@/lib/services/systemOptionsService";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { matchQueryTokens } from "@/lib/search";
@@ -85,11 +85,8 @@ export default async function ScholarshipsPage(props: {
   const totalPages = Math.ceil(filteredScholarships.length / limit);
   const paginatedScholarships = filteredScholarships.slice((page - 1) * limit, page * limit);
 
-  // Query types choices
-  const typeOptions = await prisma.systemOption.findMany({
-    where: { listName: "scholarshipType" },
-    select: { value: true },
-  });
+  // Query types choices using systemOptionsService
+  const typeOptions = await systemOptionsService.getOptions("scholarshipType");
   let types = typeOptions.map((o) => o.value);
   if (types.length === 0) {
     types = ["Doctoral", "Postdoctoral", "Training"];

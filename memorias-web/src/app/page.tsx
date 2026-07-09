@@ -3,7 +3,10 @@ import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reu
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { prisma } from "@/lib/prisma";
+import { systemSettingsService } from "@/lib/services/systemSettingsService";
+import { publicationService } from "@/lib/services/publicationService";
+import { thesisService } from "@/lib/services/thesisService";
+import { projectService } from "@/lib/services/projectService";
 import { formatCitation } from "@/lib/citations";
 import { getLabName } from "@/lib/config";
 import { getAllTagsWithCounts } from "@/lib/tags";
@@ -23,34 +26,20 @@ import {
 export default async function Home() {
   const labName = await getLabName();
 
-  // Query featured publications
-  const featuredPublications = await prisma.publication.findMany({
-    where: { featured: true },
-    orderBy: { updatedAt: "desc" },
-  });
+  // Query featured publications using publicationService
+  const featuredPublications = await publicationService.getFeatured();
 
-  // Query featured theses
-  const featuredTheses = await prisma.thesis.findMany({
-    where: { featured: true },
-    orderBy: { updatedAt: "desc" },
-  });
+  // Query featured theses using thesisService
+  const featuredTheses = await thesisService.getFeatured();
 
-  // Query featured projects
-  const featuredProjects = await prisma.project.findMany({
-    where: { featured: true },
-    orderBy: { updatedAt: "desc" },
-  });
+  // Query featured projects using projectService
+  const featuredProjects = await projectService.getFeatured();
 
-  // Load welcome configuration
-  const titleOption = await prisma.systemSetting
-    .findUnique({ where: { key: "welcome_title" } })
-    .catch(() => null);
-  const subtitleOption = await prisma.systemSetting
-    .findUnique({ where: { key: "welcome_subtitle" } })
-    .catch(() => null);
-  const welcomeTitle = titleOption?.value || "Welcome to Memorias";
+  // Load welcome configuration using systemSettingsService
+  const settings = await systemSettingsService.getAllSettings();
+  const welcomeTitle = settings.welcome_title || "Welcome to Memorias";
   const welcomeSubtitle =
-    subtitleOption?.value ||
+    settings.welcome_subtitle ||
     "A state-of-the-art research repository and laboratory management portal. Discover publications, explore active research projects, and access defended theses.";
 
   // Fetch tag cloud metadata

@@ -1,12 +1,10 @@
 import React from "react";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { systemSettingsService } from "@/lib/services/systemSettingsService";
 import { Box, Typography } from "@mui/material";
 
 export async function Logo() {
-  const logoSetting = await prisma.systemSetting
-    .findUnique({ where: { key: "logo_url" } })
-    .catch(() => null);
+  const logoSetting = await systemSettingsService.getSetting("logo_url");
   const logoUrl = logoSetting?.value || "";
 
   return (

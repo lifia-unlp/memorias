@@ -2,7 +2,7 @@ import React from "react";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { MemberForm } from "../MemberForm";
-import { prisma } from "@/lib/prisma";
+import { systemOptionsService } from "@/lib/services/systemOptionsService";
 import { Header } from "@/components/Header";
 import { Container, Box, Typography } from "@mui/material";
 
@@ -16,10 +16,8 @@ export default async function NewMemberPage() {
     redirect("/members");
   }
 
-  // Fetch all database configurable lists options
-  const systemOptions = await prisma.systemOption.findMany({
-    orderBy: { value: "asc" },
-  });
+  // Fetch all database configurable lists options using systemOptionsService
+  const systemOptions = await systemOptionsService.getAllOptions();
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>

@@ -1,6 +1,6 @@
 import React from "react";
 import { Header } from "@/components/Header";
-import { prisma } from "@/lib/prisma";
+import { systemOptionsService } from "@/lib/services/systemOptionsService";
 import { ThesisForm } from "../ThesisForm";
 import { ensureEditorOrAdmin } from "@/lib/auth-helpers";
 import { memberService } from "@/lib/services/memberService";
@@ -18,10 +18,7 @@ export default async function NewThesisPage() {
   const publications = await publicationService.getFormSelectionList();
   const scholarships = await scholarshipService.getFormSelectionList();
 
-  const levelOptions = await prisma.systemOption.findMany({
-    where: { listName: "thesisLevel" },
-    select: { value: true },
-  });
+  const levelOptions = await systemOptionsService.getOptions("thesisLevel");
   let levels = levelOptions.map((o) => o.value);
   if (levels.length === 0) {
     levels = ["PhD", "Masters", "Grade"];

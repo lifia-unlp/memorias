@@ -201,4 +201,11 @@ export const projectService = {
       orderBy: { endDate: "desc" },
     });
   },
+
+  getFeatured: async () => {
+    return prisma.project.findMany({
+      where: { featured: true },
+      orderBy: { updatedAt: "desc" },
+    });
+  },
 };
