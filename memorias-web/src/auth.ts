@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import { Role } from "@prisma/client";
+import { userService } from "@/lib/services/userService";
 import authConfig from "./auth.config";
 
 import Credentials from "next-auth/providers/credentials";
@@ -24,29 +25,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const email = (credentials?.email as string) || "admin@example.com";
         const role = (credentials?.role as string) || "ADMIN";
 
-        let user = await prisma.user.findUnique({
-          where: { email },
-        });
+        let user = await userService.getUserByEmail(email);
 
         if (!user) {
-          user = await prisma.user.create({
-            data: {
-              email,
-              name: "Dev Admin Backdoor",
-              role: role as Role,
-              active: true,
-              notificationEmail: email,
-              avatarUrl: null,
-            },
-          });
+          user = await userService.createUserBackdoor(email, role as Role);
         } else {
-          user = await prisma.user.update({
-            where: { id: user.id },
-            data: {
-              role: role as Role,
-              active: true,
-            },
-          });
+          user = await userService.updateUserBackdoor(user.id, role as Role);
         }
 
         return {
@@ -71,18 +55,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       
       // Always fetch the latest fields directly from the database to keep the JWT cookie up-to-date
       if (token.sub) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.sub },
-          select: {
-            role: true,
-            active: true,
-            notificationEmail: true,
-            avatarUrl: true,
-            digestEmails: true,
-            immediateNotifications: true,
-            memberId: true,
-          },
-        });
+        const dbUser = await userService.getUserJwtFields(token.sub);
         if (dbUser) {
           token.role = dbUser.role;
           token.active = dbUser.active;
@@ -119,29 +92,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   events: {
     async createUser({ user }) {
       if (user.id) {
-        const count = await prisma.user.count();
-        const role = count === 1 ? "ADMIN" : "USER";
-        
-        let active = true;
-        if (count > 1) {
-          const requireActivationSetting = await prisma.systemSetting.findUnique({
-            where: { key: "require_user_activation" },
-          }).catch(() => null);
-          if (requireActivationSetting?.value === "true") {
-            active = false;
-          }
-        }
-
-        await prisma.user.update({
-          where: { id: user.id },
-          data: {
-            role,
-            active,
-            notificationEmail: user.email,
-            avatarUrl: user.image,
-          },
-        });
-        console.log(`🎉 Registered user: ${user.email} (Role: ${role}, Active: ${active})`);
+        const dbUser = await userService.handleUserRegistration(
+          user.id,
+          user.email || null,
+          user.image || null
+        );
+        console.log(`🎉 Registered user: ${dbUser.email} (Role: ${dbUser.role}, Active: ${dbUser.active})`);
       }
     },
   },

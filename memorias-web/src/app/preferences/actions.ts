@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { userService } from "@/lib/services/userService";
 import { revalidatePath } from "next/cache";
 
 export async function updateUserPreferences(formData: FormData) {
@@ -16,14 +16,11 @@ export async function updateUserPreferences(formData: FormData) {
     const digestEmails = formData.get("digestEmails") === "true";
     const immediateNotifications = formData.get("immediateNotifications") === "true";
 
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: {
-        notificationEmail,
-        avatarUrl,
-        digestEmails,
-        immediateNotifications,
-      },
+    await userService.updateUserPreferences(session.user.id, {
+      notificationEmail,
+      avatarUrl,
+      digestEmails,
+      immediateNotifications,
     });
 
     revalidatePath("/preferences");

@@ -3,26 +3,14 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { auth } from "@/auth";
 import PreferencesClient from "./PreferencesClient";
-import { prisma } from "@/lib/prisma";
+import { userService } from "@/lib/services/userService";
 
 export default async function PreferencesPage() {
   const session = await auth();
 
   let mappedMember = null;
   if (session?.user?.id) {
-    const userWithMember = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: {
-        member: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-          },
-        },
-      },
-    });
-    mappedMember = userWithMember?.member || null;
+    mappedMember = await userService.getUserMappedMember(session.user.id);
   }
 
   return (
