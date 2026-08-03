@@ -22,6 +22,7 @@ There is an active reverse engineering project to define the domain model and re
      * **Memorias Web Spec**: [`Requirements-Specification-Memorias-Web.md`](../memorias-wiki/Requirements-Specification-Memorias-Web.md)
      * **Memorias Copilot Spec**: [`Requirements-Specification-Memorias-Copilot.md`](../memorias-wiki/Requirements-Specification-Memorias-Copilot.md)
      * **User's Manual**: [`Users-Manual.md`](../memorias-wiki/Users-Manual.md)
+   - **Wiki Commit Reminder**: Since the `memorias-wiki/` folder is a separate Git repository, always append a reminder to the user at the end of your response to commit and push the wiki repository whenever you modify any file inside it.
 
 4. **End of Session Handoff**:
    - Before ending your turn or concluding a session, **you must update** the appropriate `progress.md` log file.
