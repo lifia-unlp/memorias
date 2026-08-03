@@ -7,12 +7,53 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ## Current Status
 * **Active Phase**: COMPLETE — All Reopened Technical Debt Issues Resolved
 * **Last Updated**: 2026-07-09
-* **Overall Progress**: 100% completed (All reopened issues: #41-#46 and #48-#53 resolved)
+* **Overall Progress**: 100% completed (All reopened issues: #41-#46 and #48-#54 resolved; umbrella Issue #28 closed)
 
 
 ---
 
 ## Session Logs
+
+### Session 27 (2026-07-11)
+* **Goal**: Reportar en GitHub los tres hallazgos de seguridad identificados y etiquetarlos como `security`.
+* **Accomplished**:
+  * Verificado el repositorio remoto `lifia-unlp/memorias` y buscados issues abiertos equivalentes para evitar duplicados.
+  * Creado el Issue #55: `security: prevent stored XSS in publication citations and report HTML`, con severidad, evidencia, remediación requerida y criterios de aceptación.
+  * Creado el Issue #56: `security: make digest cron authentication fail closed`, incluyendo el comportamiento fail-open y la exposición del secreto por query string.
+  * Creado el Issue #57: `security: remove or isolate the development Credentials administrator backdoor`, documentando el riesgo condicional de toma de control administrativo.
+  * Confirmado que los tres issues están abiertos y tienen aplicada la etiqueta `security`.
+* **Blocked Items**: Ninguno.
+* **Next Steps**:
+  * Priorizar #56 como corrección localizada, seguido de #55 por su alcance transversal y #57 para eliminar o aislar el backdoor.
+  * Implementar cada corrección con pruebas de regresión antes o junto con los cambios de código.
+
+### Session 26 (2026-07-11)
+* **Goal**: Estimar la complejidad de remediación de los hallazgos de seguridad de la sesión 25 en términos de líneas, módulos y capas afectadas.
+* **Accomplished**:
+  * Trazados los productores y consumidores de HTML de citas, confirmando que la remediación central afecta utilidades de formato, componentes React y pruebas, con 8 superficies de renderizado de citas y un flujo adicional de Markdown/GenAI inseguro en reportes.
+  * Trazado el cron de digest hasta la ruta API, configuración de entorno, documentación y pruebas de notificaciones; la corrección fail-closed es localizada y de baja complejidad.
+  * Trazado el backdoor de desarrollo entre configuración NextAuth, servicio de usuario, página de login y pruebas; eliminarlo es de complejidad baja-media, mientras que conservar un modo de desarrollo seguro requiere configuración y pruebas adicionales.
+  * Preparada una estimación separando parche mínimo seguro de hardening integral, incluyendo rangos aproximados de líneas de producción y pruebas.
+* **Blocked Items**: Ninguno.
+* **Next Steps**:
+  * Si se autoriza implementación, priorizar cron fail-closed, luego el pipeline central de sanitización/XSS y finalmente la eliminación o aislamiento del backdoor.
+  * Crear pruebas de regresión antes o junto con cada modificación, según la regla de cobertura del workspace.
+
+### Session 25 (2026-07-11)
+* **Goal**: Realizar una revisión estática enfocada en vulnerabilidades de seguridad críticas de `memorias-web`, sin modificar código.
+* **Accomplished**:
+  * Revisados los límites de autenticación y autorización en NextAuth, `proxy.ts`, Server Actions, rutas administrativas y servicios.
+  * Identificada una ruta cron fail-open: `GET /api/cron/digest` permite ejecutar el envío de resúmenes sin autenticación cuando `CRON_SECRET` no está configurado.
+  * Identificado XSS almacenado en citas de publicaciones: datos persistidos de título/BibTeX/DOI se interpolan en HTML sin escape o sanitización y se renderizan mediante `dangerouslySetInnerHTML` en múltiples páginas públicas y autenticadas.
+  * Identificado un backdoor de desarrollo que crea o promueve cualquier correo a un rol solicitado, incluido `ADMIN`, cuando el runtime usa `NODE_ENV=development`; se considera crítico ante cualquier despliegue accidental del servidor de desarrollo o una configuración incorrecta del entorno.
+  * Confirmado que `.env` está ignorado por Git y no está versionado; no se imprimieron valores secretos durante la revisión.
+  * No se modificó código ni se ejecutaron pruebas, dado que el alcance solicitado fue diagnóstico y reporte.
+* **Blocked Items**: Ninguno para el análisis estático. La explotabilidad externa exacta depende de la configuración real de despliegue y de si el servidor de desarrollo es accesible desde redes no confiables.
+* **Next Steps**:
+  * Hacer obligatorio `CRON_SECRET` con comportamiento fail-closed y eliminar el secreto de query string.
+  * Sanitizar el HTML de citas con una allowlist estricta y escapar todos los valores interpolados, validando además DOI/URL por esquema y estructura.
+  * Eliminar el proveedor Credentials/backdoor del artefacto desplegable o protegerlo mediante una bandera explícita segura por defecto y restricción de red.
+  * Agregar pruebas de regresión de autorización y XSS antes de aplicar cambios a los módulos afectados.
 
 ### Session 24 (2026-07-09)
 * **Goal**: Revisar la respuesta nueva de AG en el Issue #28 y verificar si los refactors #47–#53 resolvieron la separación por capas.
@@ -27,10 +68,14 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
   * Detectado que `npm run build` falla en `src/app/reports/statistics/actions.ts` por re-exportar tipos desde un módulo `"use server"`; Turbopack/Next los interpreta como exports runtime inexistentes.
   * Creado el Issue #54 (`technical debt`, `memorias-web`) para corregir build/typecheck tras la extracción de `statisticsService`.
   * Comentado en el Issue #28 que se acepta la resolución de separación por capas en lo esencial, pero se deja abierto hasta resolver #54.
+  * Revisada la respuesta posterior de AG indicando resolución de #54.
+  * Re-ejecutados `npm run test`, `npx tsc --noEmit` y `npm run build` con resultado exitoso.
+  * Repetido el barrido estático: 0 accesos directos a `@/lib/prisma` desde páginas, componentes o Server Actions; sólo servicios/utilidades de infraestructura y `PrismaAdapter(prisma)` en `auth.ts`.
+  * Confirmado que no hay ciclos locales de imports.
+  * Comentado en Issue #28 que la deuda técnica queda validada como resuelta y cerrados #54 y #28 como completados.
 * **Blocked Items**: Ninguno.
 * **Next Steps**:
-  * Resolver #54 moviendo tipos de estadísticas a un módulo puro y corrigiendo los errores de `tsc --noEmit` o documentando explícitamente el typecheck oficial.
-  * Re-ejecutar `npm run test`, `npx tsc --noEmit` y `npm run build` antes de cerrar #28.
+  * No quedan pasos pendientes para el paraguas de deuda técnica #28.
 
 ### Session 23 (2026-07-09)
 * **Goal**: Resolver el **Issue #50** (desacoplamiento de Prisma en Server Actions y páginas de administración/auditoría/usuarios/listas/configuración), el **Issue #52** (desacoplamiento de Prisma en reports/statistics), el **Issue #53** (desacoplamiento de Prisma en preferencias y NextAuth) y el **Issue #51** (aislar configuración y branding en Header, Logo, home, y signin).
