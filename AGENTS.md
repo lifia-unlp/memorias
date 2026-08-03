@@ -44,4 +44,8 @@ There is an active reverse engineering project to define the domain model and re
 * **Shell Command Safety & Escaping**:
   - When running shell commands, always escape special characters (e.g. parentheses `(`, `)`, semicolons `;`, ampersands `&`, etc.) or wrap arguments in single quotes (`'`) to prevent the zsh/sh shell from interpreting them as subshells or background operators.
 
+* **UI Icon and Emoji Policy**:
+  - Avoid using text emojis in the UI interface. Use text buttons or semantic labeling instead. Prefer not introducing `@mui/icons-material` unless explicitly requested, using standard text actions instead.
+
+
 

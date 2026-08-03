@@ -61,6 +61,22 @@ export function ReportsDropdown({ copilotUrl }: ReportsDropdownProps) {
         >
           Report Builder
         </MenuItem>
+        <MenuItem
+          component={Link}
+          href="/reports/follow-up"
+          onClick={() => setAnchorEl(null)}
+          sx={{ fontSize: "0.75rem", fontWeight: "bold" }}
+        >
+          Follow up
+        </MenuItem>
+        <MenuItem
+          component={Link}
+          href="/reports/meet"
+          onClick={() => setAnchorEl(null)}
+          sx={{ fontSize: "0.75rem", fontWeight: "bold" }}
+        >
+          Meet
+        </MenuItem>
         {copilotUrl && (
           <MenuItem
             component="a"

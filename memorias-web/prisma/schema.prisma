@@ -10,28 +10,29 @@ datasource db {
 }
 
 model User {
-  id                     String    @id @default(uuid())
-  email                  String    @unique
-  name                   String?
-  role                   Role      @default(USER)
-  active                 Boolean   @default(false) // Must be activated by admin
-  emailVerified          DateTime?
-  image                  String?
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
-  
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String?
+  role          Role      @default(USER)
+  active        Boolean   @default(false) // Must be activated by admin
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
   // New Preferences Fields
   notificationEmail      String?
   avatarUrl              String?
-  digestEmails           Boolean   @default(false)
-  immediateNotifications Boolean   @default(true)
-  
-  memberId      String?   @unique
-  member        Member?   @relation(fields: [memberId], references: [id])
+  digestEmails           Boolean @default(false)
+  immediateNotifications Boolean @default(true)
 
-  accounts      Account[]
-  sessions      Session[]
-  reports       Report[]
+  memberId String? @unique
+  member   Member? @relation(fields: [memberId], references: [id])
+
+  accounts        Account[]
+  sessions        Session[]
+  reports         Report[]
+  followUpHistory FollowUpHistory[]
 }
 
 enum Role {
@@ -42,18 +43,18 @@ enum Role {
 }
 
 model Account {
-  id                 String  @id @default(uuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
+  id                String  @id @default(uuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -77,54 +78,55 @@ model VerificationToken {
 }
 
 model Member {
-  id                  String    @id @default(uuid())
-  firstName           String
-  lastName            String
+  id        String @id @default(uuid())
+  firstName String
+  lastName  String
   // Slugs provide stable, meaningful URLs and can be manually edited
-  slug                String    @unique
-  
+  slug      String @unique
+
   // Date types map perfectly to UI Date Pickers
-  startDate           DateTime? @db.Date
-  endDate             DateTime? @db.Date
-  
+  startDate DateTime? @db.Date
+  endDate   DateTime? @db.Date
+
   // Professional Details
-  highestDegree       String?
-  coursesAtUNLP       String?
-  positionAtLab       String? // Configurable list
-  positionAtUnlp      String? // Configurable list
-  category            String?
-  sicadiCategory      String?
-  positionAtCIC       String? // Configurable list
-  positionAtCONICET   String? // Configurable list
-  
+  highestDegree     String?
+  coursesAtUNLP     String?
+  positionAtLab     String? // Configurable list
+  positionAtUnlp    String? // Configurable list
+  category          String?
+  sicadiCategory    String?
+  positionAtCIC     String? // Configurable list
+  positionAtCONICET String? // Configurable list
+
   // Contact & Social
-  personalEmail       String?
-  institutionalEmail  String?
-  phone               String?
-  webPage             String?
-  orcid               String?
-  dblpProfile         String?
+  personalEmail         String?
+  institutionalEmail    String?
+  phone                 String?
+  webPage               String?
+  orcid                 String?
+  dblpProfile           String?
   googleResearchProfile String?
-  researchGateProfile String?
-  
+  researchGateProfile   String?
+
   // Bios
-  shortCvInSpanish    String?
-  shortCvInEnglish    String?
-  interestsInEnglish  String?
-  interestsInSpanish  String?
-  affiliations        String?
-  notes               String?
-  avatarUrl           String?
-  tags                String[]
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @default(now()) @updatedAt
-  
+  shortCvInSpanish   String?
+  shortCvInEnglish   String?
+  interestsInEnglish String?
+  interestsInSpanish String?
+  affiliations       String?
+  notes              String?
+  avatarUrl          String?
+  tags               String[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @default(now()) @updatedAt
+
   // Relations
-  user                User?
-  projects            Project[] @relation("ProjectMembers")
-  theses              Thesis[]  @relation("ThesisMembers")
-  scholarships        Scholarship[] @relation("ScholarshipMembers")
-  publications        Publication[] @relation("PublicationMembers")
+  user          User?
+  projects      Project[]      @relation("ProjectMembers")
+  theses        Thesis[]       @relation("ThesisMembers")
+  scholarships  Scholarship[]  @relation("ScholarshipMembers")
+  publications  Publication[]  @relation("PublicationMembers")
+  followUpItems FollowUpItem[] @relation("FollowUpOwners")
 }
 
 model Project {
@@ -142,98 +144,110 @@ model Project {
   summary          String?
   website          String?
 
-  tags             String[]
-  featured         Boolean   @default(false)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @default(now()) @updatedAt
+  tags      String[]
+  featured  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-  members          Member[]  @relation("ProjectMembers")
-  theses           Thesis[]  @relation("ProjectTheses")
-  scholarships     Scholarship[] @relation("ProjectScholarships")
-  publications     Publication[] @relation("ProjectPublications")
+  members      Member[]      @relation("ProjectMembers")
+  theses       Thesis[]      @relation("ProjectTheses")
+  scholarships Scholarship[] @relation("ProjectScholarships")
+  publications Publication[] @relation("ProjectPublications")
+
+  followUpItemId String?       @unique
+  followUpItem   FollowUpItem? @relation("MaterializedProject", fields: [followUpItemId], references: [id])
 }
 
 model Thesis {
-  id               String    @id @default(uuid())
-  title            String
-  slug             String    @unique
-  career           String?
-  level            String?   // Configurable list (e.g. PhD, Masters, Grade)
-  student          String?
-  director         String?
-  coDirector       String?
-  otherAdvisors    String?
-  startDate        DateTime? @db.Date
-  endDate          DateTime? @db.Date
-  summary          String?
-  reportUrl        String?
-  progress         Int?      // 10, 20, ..., 100 (representing % in steps of 10)
-  keywords         String?
-  website          String?
+  id            String    @id @default(uuid())
+  title         String
+  slug          String    @unique
+  career        String?
+  level         String? // Configurable list (e.g. PhD, Masters, Grade)
+  student       String?
+  director      String?
+  coDirector    String?
+  otherAdvisors String?
+  startDate     DateTime? @db.Date
+  endDate       DateTime? @db.Date
+  summary       String?
+  reportUrl     String?
+  progress      Int? // 10, 20, ..., 100 (representing % in steps of 10)
+  keywords      String?
+  website       String?
 
-  tags             String[]
-  featured         Boolean   @default(false)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @default(now()) @updatedAt
+  tags      String[]
+  featured  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-  members          Member[]  @relation("ThesisMembers")
-  projects         Project[] @relation("ProjectTheses")
-  publications     Publication[] @relation("ThesisPublications")
-  scholarships     Scholarship[] @relation("ThesisScholarships")
+  members      Member[]      @relation("ThesisMembers")
+  projects     Project[]     @relation("ProjectTheses")
+  publications Publication[] @relation("ThesisPublications")
+  scholarships Scholarship[] @relation("ThesisScholarships")
+
+  followUpItemId String?       @unique
+  followUpItem   FollowUpItem? @relation("MaterializedThesis", fields: [followUpItemId], references: [id])
 }
 
 model Scholarship {
-  id               String    @id @default(uuid())
-  title            String
-  slug             String    @unique
-  type             String?   // Configurable list
-  student          String?
-  director         String?
-  coDirector       String?
-  fundingAgency    String?
-  startDate        DateTime? @db.Date
-  endDate          DateTime? @db.Date
-  summary          String?
+  id            String    @id @default(uuid())
+  title         String
+  slug          String    @unique
+  type          String? // Configurable list
+  student       String?
+  director      String?
+  coDirector    String?
+  fundingAgency String?
+  startDate     DateTime? @db.Date
+  endDate       DateTime? @db.Date
+  summary       String?
 
-  tags             String[]
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @default(now()) @updatedAt
+  tags      String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-  members          Member[]  @relation("ScholarshipMembers")
-  projects         Project[] @relation("ProjectScholarships")
-  theses           Thesis[]  @relation("ThesisScholarships")
+  members  Member[]  @relation("ScholarshipMembers")
+  projects Project[] @relation("ProjectScholarships")
+  theses   Thesis[]  @relation("ThesisScholarships")
+
+  followUpItemId String?       @unique
+  followUpItem   FollowUpItem? @relation("MaterializedScholarship", fields: [followUpItemId], references: [id])
 }
 
 model Publication {
-  id               String    @id @default(uuid())
-  slug             String    @unique
-  
+  id   String @id @default(uuid())
+  slug String @unique
+
   // We duplicate core BibTex fields here for fast indexing, sorting, and filtering
-  type             String    // article, inproceedings, etc.
-  title            String
-  authors          String
-  year             Int
-  
+  type    String // article, inproceedings, etc.
+  title   String
+  authors String
+  year    Int
+
   // Extra fields that aren't standard in BibTex
   ranking          String?
   selfArchivingUrl String?
-  
-  // The complete, original Bibtex data backing this publication
-  bibtexData       Json      
-  
-  tags             String[]
-  featured         Boolean   @default(false)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @default(now()) @updatedAt
 
-  members          Member[]  @relation("PublicationMembers")
-  projects         Project[] @relation("ProjectPublications")
-  theses           Thesis[]  @relation("ThesisPublications")
+  // The complete, original Bibtex data backing this publication
+  bibtexData Json
+
+  tags      String[]
+  featured  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  members  Member[]  @relation("PublicationMembers")
+  projects Project[] @relation("ProjectPublications")
+  theses   Thesis[]  @relation("ThesisPublications")
+
+  followUpItemId String?       @unique
+  followUpItem   FollowUpItem? @relation("MaterializedPublication", fields: [followUpItemId], references: [id])
 }
 
 model SystemOption {
   id        String   @id @default(uuid())
-  listName  String   // Identified by: "positionAtLab" | "positionAtUnlp" | "positionAtCIC" | "positionAtCONICET" | "thesisLevel" | "scholarshipType"
+  listName  String // Identified by: "positionAtLab" | "positionAtUnlp" | "positionAtCIC" | "positionAtCONICET" | "thesisLevel" | "scholarshipType"
   value     String
   createdAt DateTime @default(now())
 
@@ -242,13 +256,13 @@ model SystemOption {
 
 model AuditLog {
   id         String   @id @default(uuid())
-  action     String   // e.g. "CREATE", "UPDATE", "DELETE"
-  entityType String   // e.g. "Member", "Project", "Thesis", "Scholarship", "Publication"
+  action     String // e.g. "CREATE", "UPDATE", "DELETE"
+  entityType String // e.g. "Member", "Project", "Thesis", "Scholarship", "Publication"
   entityId   String
   entitySlug String?
   userId     String?
   userEmail  String?
-  details    String?  // Description of edits/fields modified
+  details    String? // Description of edits/fields modified
   createdAt  DateTime @default(now())
 }
 
@@ -262,10 +276,57 @@ model SystemSetting {
 model Report {
   id        String   @id @default(uuid())
   title     String
-  blocks    Json     // [{ id, type, content, filters, sort, etc. }]
+  blocks    Json // [{ id, type, content, filters, sort, etc. }]
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+enum FollowUpCategory {
+  PUBLICATION
+  PROJECT
+  THESIS
+  SCHOLARSHIP
+}
+
+enum FollowUpStatus {
+  PLANNING
+  UNDER_EVALUATION
+  ACCEPTED
+  REJECTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+model FollowUpItem {
+  id          String           @id @default(uuid())
+  title       String
+  description String?
+  category    FollowUpCategory
+  status      FollowUpStatus
+  archived    Boolean          @default(false)
+
+  owners Member[] @relation("FollowUpOwners")
+
+  publication Publication? @relation("MaterializedPublication")
+  project     Project?     @relation("MaterializedProject")
+  thesis      Thesis?      @relation("MaterializedThesis")
+  scholarship Scholarship? @relation("MaterializedScholarship")
+
+  history   FollowUpHistory[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+model FollowUpHistory {
+  id             String         @id @default(uuid())
+  followUpItemId String
+  followUpItem   FollowUpItem   @relation(fields: [followUpItemId], references: [id], onDelete: Cascade)
+  fromStatus     FollowUpStatus
+  toStatus       FollowUpStatus
+  notes          String?
+  meetingDate    DateTime       @default(now())
+  loggedById     String?
+  loggedBy       User?          @relation(fields: [loggedById], references: [id])
+}
