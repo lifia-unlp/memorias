@@ -22,7 +22,7 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import { updateFollowUpItemStatus, updateFollowUpHistory, deleteFollowUpHistory } from "../follow-up/actions";
+import { updateFollowUpItemStatus, updateFollowUpHistory, deleteFollowUpHistory, updateFollowUpItem } from "../follow-up/actions";
 
 interface Member {
   id: string;
@@ -126,6 +126,11 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
   const [dateFrom, setDateFrom] = useState(getSevenDaysAgoStr());
   const [dateTo, setDateTo] = useState(getTodayStr());
 
+  // Edit follow-up item states
+  const [editingItem, setEditingItem] = useState<FollowUpItem | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+
   // Edit existing news log entry states
   const [editingChange, setEditingChange] = useState<ChangeHistory | null>(null);
   const [editNotesText, setEditNotesText] = useState("");
@@ -145,6 +150,19 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
     const meetingDay = new Date(ch.meetingDate).toISOString().split("T")[0];
     return meetingDay >= dateFrom && meetingDay <= dateTo;
   });
+
+  const handleSaveItemEdit = async () => {
+    if (!editingItem) return;
+    const res = await updateFollowUpItem(editingItem.id, {
+      title: editTitle,
+      description: editDescription,
+      ownerIds: editingItem.owners ? editingItem.owners.map((o) => o.id) : [],
+    });
+    if (res.success) {
+      setEditingItem(null);
+      window.location.reload();
+    }
+  };
 
   const handleEditChangeSave = async () => {
     if (!editingChange) return;
@@ -319,9 +337,21 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
                             </Button>
                             <Button
                               size="small"
-                              variant="text"
+                              variant="outlined"
+                              onClick={() => {
+                                setEditingItem(item);
+                                setEditTitle(item.title);
+                                setEditDescription(item.description || "");
+                              }}
+                              sx={{ textTransform: "none", fontSize: "0.75rem", fontWeight: "bold" }}
+                            >
+                              Edit Item
+                            </Button>
+                            <Button
+                              size="small"
+                              variant="outlined"
                               onClick={() => setHistoryItem(item)}
-                              sx={{ textTransform: "none", fontSize: "0.75rem" }}
+                              sx={{ textTransform: "none", fontSize: "0.75rem", fontWeight: "bold" }}
                             >
                               View History
                             </Button>
@@ -538,6 +568,38 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
         <DialogActions sx={{ px: 3, pb: 3 }}>
           <Button onClick={() => { setHistoryItem(null); setEditingHistoryId(null); }} color="secondary">
             Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Item Details Dialog */}
+      <Dialog open={Boolean(editingItem)} onClose={() => setEditingItem(null)} fullWidth maxWidth="sm">
+        <DialogTitle sx={{ fontWeight: "bold" }}>Edit Follow-Up Item</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            size="small"
+            label="Title"
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            sx={{ mt: 1.5, mb: 2 }}
+          />
+          <TextField
+            fullWidth
+            size="small"
+            label="Description (Markdown supported)"
+            multiline
+            rows={4}
+            value={editDescription}
+            onChange={(e) => setEditDescription(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button onClick={() => setEditingItem(null)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleSaveItemEdit} variant="contained" color="primary">
+            Save Changes
           </Button>
         </DialogActions>
       </Dialog>
