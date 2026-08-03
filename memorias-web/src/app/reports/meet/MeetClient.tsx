@@ -288,9 +288,14 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
                               {item.title}
                             </Typography>
                             {item.owners && item.owners.length > 0 && (
-                              <Typography variant="caption" color="text.secondary">
+                              <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
                                 Owners: {item.owners.map((o) => `${o.firstName} ${o.lastName}`).join(", ")}
                               </Typography>
+                            )}
+                            {item.description && (
+                              <Box sx={{ mt: 0.5, color: "text.secondary" }}>
+                                {renderMarkdown(item.description)}
+                              </Box>
                             )}
                           </Box>
                           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
