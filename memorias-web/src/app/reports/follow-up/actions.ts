@@ -28,7 +28,12 @@ export async function createFollowUpItem(data: {
   title: string;
   description?: string;
   category: "PUBLICATION" | "PROJECT" | "THESIS" | "SCHOLARSHIP";
+  status?: "PLANNING" | "UNDER_EVALUATION" | "ACCEPTED" | "REJECTED" | "IN_PROGRESS" | "COMPLETED";
   ownerIds: string[];
+  publicationId?: string;
+  projectId?: string;
+  thesisId?: string;
+  scholarshipId?: string;
 }) {
   await ensureActiveUser();
 
@@ -37,10 +42,14 @@ export async function createFollowUpItem(data: {
       title: data.title,
       description: data.description,
       category: data.category,
-      status: "PLANNING",
+      status: data.status || "PLANNING",
       owners: {
         connect: data.ownerIds.map((id) => ({ id })),
       },
+      publication: data.publicationId ? { connect: { id: data.publicationId } } : undefined,
+      project: data.projectId ? { connect: { id: data.projectId } } : undefined,
+      thesis: data.thesisId ? { connect: { id: data.thesisId } } : undefined,
+      scholarship: data.scholarshipId ? { connect: { id: data.scholarshipId } } : undefined,
     },
   });
 
@@ -275,4 +284,17 @@ export async function deleteFollowUpHistory(historyId: string) {
   revalidatePath("/reports/follow-up");
   revalidatePath("/reports/meet");
   return { success: true, history: result };
+}
+
+// Permanently delete a follow-up item
+export async function deleteFollowUpItem(itemId: string) {
+  await ensureActiveUser();
+
+  const result = await prisma.followUpItem.delete({
+    where: { id: itemId },
+  });
+
+  revalidatePath("/reports/follow-up");
+  revalidatePath("/reports/meet");
+  return { success: true, item: result };
 }

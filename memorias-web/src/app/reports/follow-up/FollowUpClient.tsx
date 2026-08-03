@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import {
+  Autocomplete,
   Box,
   Button,
   Card,
@@ -39,6 +40,7 @@ import {
   updateFollowUpItem,
   updateFollowUpHistory,
   deleteFollowUpHistory,
+  deleteFollowUpItem,
 } from "./actions";
 
 interface Member {
@@ -92,10 +94,10 @@ interface FollowUpClientProps {
 }
 
 const CATEGORY_LABELS = {
-  PUBLICATION: "Publications",
-  PROJECT: "Projects",
-  THESIS: "Theses",
-  SCHOLARSHIP: "Scholarships",
+  PUBLICATION: "Follow-up items for Publications",
+  PROJECT: "Follow-up items for Projects",
+  THESIS: "Follow-up items for Theses",
+  SCHOLARSHIP: "Follow-up items for Scholarships",
 } as const;
 
 const STATUS_COLORS = {
@@ -105,6 +107,15 @@ const STATUS_COLORS = {
   REJECTED: "error",
   IN_PROGRESS: "info",
   COMPLETED: "success",
+} as const;
+
+const STATUS_LABELS = {
+  PLANNING: "Planning",
+  UNDER_EVALUATION: "Under Evaluation",
+  ACCEPTED: "Accepted",
+  REJECTED: "Rejected",
+  IN_PROGRESS: "In Progress",
+  COMPLETED: "Completed/Finished/Published",
 } as const;
 
 // Safe custom markdown parser for news/notes text
@@ -174,6 +185,8 @@ export default function FollowUpClient({
   const [newTitle, setNewTitle] = useState("");
   const [newDesc, setNewDesc] = useState("");
   const [newCategory, setNewCategory] = useState<FollowUpItem["category"]>("PUBLICATION");
+  const [newStatus, setNewStatus] = useState<FollowUpItem["status"]>("PLANNING");
+  const [newRealizationId, setNewRealizationId] = useState<string>("");
   const [newOwners, setNewOwners] = useState<string[]>(
     currentMember ? [currentMember.id] : []
   );
@@ -197,12 +210,19 @@ export default function FollowUpClient({
 
   const handleCreate = async () => {
     if (!newTitle.trim()) return;
-    const res = await createFollowUpItem({
+    const payload: Parameters<typeof createFollowUpItem>[0] = {
       title: newTitle,
       description: newDesc || undefined,
       category: newCategory,
+      status: newStatus,
       ownerIds: newOwners,
-    });
+    };
+    if (newCategory === "PUBLICATION") payload.publicationId = newRealizationId || undefined;
+    else if (newCategory === "PROJECT") payload.projectId = newRealizationId || undefined;
+    else if (newCategory === "THESIS") payload.thesisId = newRealizationId || undefined;
+    else if (newCategory === "SCHOLARSHIP") payload.scholarshipId = newRealizationId || undefined;
+
+    const res = await createFollowUpItem(payload);
     if (res.success) {
       window.location.reload();
     }
@@ -249,6 +269,15 @@ export default function FollowUpClient({
     }
   };
 
+  const handleDeleteItem = async (item: FollowUpItem) => {
+    if (confirm(`Are you sure you want to permanently delete "${item.title}"?`)) {
+      const res = await deleteFollowUpItem(item.id);
+      if (res.success) {
+        setItems(items.filter((i) => i.id !== item.id));
+      }
+    }
+  };
+
   const handleEditHistorySave = async (historyId: string) => {
     const res = await updateFollowUpHistory(historyId, editHistoryNote);
     if (res.success) {
@@ -291,6 +320,23 @@ export default function FollowUpClient({
   });
 
   const categoriesKeys: (keyof typeof CATEGORY_LABELS)[] = ["PUBLICATION", "PROJECT", "THESIS", "SCHOLARSHIP"];
+
+  // Dropdown helper variables for creating realizations
+  let createRealizationOptions: RealizationOption[] = [];
+  let createRealizationLabel = "";
+  if (newCategory === "PUBLICATION") {
+    createRealizationOptions = publications;
+    createRealizationLabel = "Related Publication";
+  } else if (newCategory === "PROJECT") {
+    createRealizationOptions = projects;
+    createRealizationLabel = "Related Project";
+  } else if (newCategory === "THESIS") {
+    createRealizationOptions = theses;
+    createRealizationLabel = "Related Thesis";
+  } else if (newCategory === "SCHOLARSHIP") {
+    createRealizationOptions = scholarships;
+    createRealizationLabel = "Related Scholarship";
+  }
 
   // Dropdown helper variables for editing realizations
   let realizationOptions: RealizationOption[] = [];
@@ -349,7 +395,7 @@ export default function FollowUpClient({
                 <MenuItem value="ACCEPTED">Accepted</MenuItem>
                 <MenuItem value="REJECTED">Rejected</MenuItem>
                 <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
-                <MenuItem value="COMPLETED">Completed</MenuItem>
+                <MenuItem value="COMPLETED">Completed/Finished/Published</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -489,7 +535,7 @@ export default function FollowUpClient({
                               </TableCell>
                               <TableCell>
                                 <Chip
-                                  label={item.status.replace("_", " ")}
+                                  label={STATUS_LABELS[item.status] || item.status}
                                   size="small"
                                   color={STATUS_COLORS[item.status]}
                                   sx={{ fontWeight: "bold", fontSize: "0.65rem", height: 20 }}
@@ -533,10 +579,18 @@ export default function FollowUpClient({
                                   <Button
                                     size="small"
                                     variant="text"
-                                    color={item.archived ? "success" : "error"}
+                                    color="warning"
                                     onClick={() => handleToggleArchive(item)}
                                   >
                                     {item.archived ? "Restore" : "Archive"}
+                                  </Button>
+                                  <Button
+                                    size="small"
+                                    variant="text"
+                                    color="error"
+                                    onClick={() => handleDeleteItem(item)}
+                                  >
+                                    Delete
                                   </Button>
                                 </Stack>
                               </TableCell>
@@ -559,7 +613,7 @@ export default function FollowUpClient({
                                         <MenuItem value="ACCEPTED">Accepted</MenuItem>
                                         <MenuItem value="REJECTED">Rejected</MenuItem>
                                         <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
-                                        <MenuItem value="COMPLETED">Completed</MenuItem>
+                                        <MenuItem value="COMPLETED">Completed/Finished/Published</MenuItem>
                                       </Select>
                                     </FormControl>
                                     <TextField
@@ -633,7 +687,22 @@ export default function FollowUpClient({
               <MenuItem value="SCHOLARSHIP">Scholarship (Fellowships)</MenuItem>
             </Select>
           </FormControl>
-          <FormControl fullWidth>
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel>Initial Status</InputLabel>
+            <Select
+              value={newStatus}
+              label="Initial Status"
+              onChange={(e) => setNewStatus(e.target.value as FollowUpItem["status"])}
+            >
+              <MenuItem value="PLANNING">Planning</MenuItem>
+              <MenuItem value="UNDER_EVALUATION">Under Evaluation</MenuItem>
+              <MenuItem value="ACCEPTED">Accepted</MenuItem>
+              <MenuItem value="REJECTED">Rejected</MenuItem>
+              <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
+              <MenuItem value="COMPLETED">Completed/Finished/Published</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel>Owners</InputLabel>
             <Select
               multiple
@@ -658,6 +727,33 @@ export default function FollowUpClient({
               ))}
             </Select>
           </FormControl>
+
+          {/* Searchable Realization Autocomplete */}
+          <Autocomplete
+            options={createRealizationOptions}
+            getOptionLabel={(option) => option.title}
+            value={createRealizationOptions.find((o) => o.id === newRealizationId) || null}
+            onChange={(_, newValue) => setNewRealizationId(newValue ? newValue.id : "")}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                size="small"
+                label={createRealizationLabel}
+                placeholder={`Search ${createRealizationLabel.toLowerCase()}...`}
+              />
+            )}
+            renderOption={(props, option) => {
+              const { key, ...optionProps } = props;
+              return (
+                <Box component="li" key={option.id} {...optionProps}>
+                  {option.title}
+                </Box>
+              );
+            }}
+            isOptionEqualToValue={(option, val) => option.id === val.id}
+            clearOnEscape
+            sx={{ mt: 1 }}
+          />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
           <Button onClick={() => setIsCreateOpen(false)} color="secondary">
@@ -722,25 +818,33 @@ export default function FollowUpClient({
             </Select>
           </FormControl>
 
-          {/* Realization Dropdown */}
+          {/* Searchable Realization Autocomplete */}
           {editingItem && (
-            <FormControl fullWidth sx={{ mt: 2 }}>
-              <InputLabel>{realizationLabel}</InputLabel>
-              <Select
-                value={editRealizationId}
-                label={realizationLabel}
-                onChange={(e) => setEditRealizationId(e.target.value)}
-              >
-                <MenuItem value="">
-                  <em>None - No related object</em>
-                </MenuItem>
-                {realizationOptions.map((opt) => (
-                  <MenuItem key={opt.id} value={opt.id}>
-                    {opt.title}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              options={realizationOptions}
+              getOptionLabel={(option) => option.title}
+              value={realizationOptions.find((o) => o.id === editRealizationId) || null}
+              onChange={(_, newValue) => setEditRealizationId(newValue ? newValue.id : "")}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  size="small"
+                  label={realizationLabel}
+                  placeholder={`Search ${realizationLabel.toLowerCase()}...`}
+                />
+              )}
+              renderOption={(props, option) => {
+              const { key, ...optionProps } = props;
+              return (
+                <Box component="li" key={option.id} {...optionProps}>
+                  {option.title}
+                </Box>
+              );
+            }}
+            isOptionEqualToValue={(option, val) => option.id === val.id}
+              clearOnEscape
+              sx={{ mt: 2 }}
+            />
           )}
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
@@ -769,7 +873,7 @@ export default function FollowUpClient({
                   <Box key={h.id} sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: "divider", bgcolor: "action.hover" }}>
                     <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}>
                       <Chip
-                        label={`${h.fromStatus} -> ${h.toStatus}`}
+                        label={`${STATUS_LABELS[h.fromStatus as keyof typeof STATUS_LABELS] || h.fromStatus} -> ${STATUS_LABELS[h.toStatus as keyof typeof STATUS_LABELS] || h.toStatus}`}
                         size="small"
                         color="primary"
                         variant="outlined"

@@ -9,6 +9,7 @@ import {
   updateFollowUpItem,
   updateFollowUpHistory,
   deleteFollowUpHistory,
+  deleteFollowUpItem,
   getPersonalFollowUpItems,
   getActiveFollowUpItems,
   getAllFollowUpItems,
@@ -38,6 +39,7 @@ vi.mock("@/lib/prisma", () => ({
       update: vi.fn(),
       findUnique: vi.fn(),
       findMany: vi.fn(),
+      delete: vi.fn(),
     },
     followUpHistory: {
       create: vi.fn(),
@@ -279,6 +281,20 @@ describe("Follow-Up Server Actions", () => {
         where: { id: "h1" },
       });
       expect(result).toEqual({ success: true, history: { id: "h1" } });
+    });
+  });
+
+  describe("deleteFollowUpItem", () => {
+    it("deletes a follow-up item", async () => {
+      mockAuth.mockResolvedValue({ user: { id: "u1", active: true } } as any);
+      vi.mocked(prisma.followUpItem.delete).mockResolvedValue({ id: "item1" } as any);
+
+      const result = await deleteFollowUpItem("item1");
+
+      expect(prisma.followUpItem.delete).toHaveBeenCalledWith({
+        where: { id: "item1" },
+      });
+      expect(result).toEqual({ success: true, item: { id: "item1" } });
     });
   });
 });

@@ -59,16 +59,25 @@ interface ChangeHistory {
   followUpItem: FollowUpItem;
 }
 
+const STATUS_LABELS = {
+  PLANNING: "Planning",
+  UNDER_EVALUATION: "Under Evaluation",
+  ACCEPTED: "Accepted",
+  REJECTED: "Rejected",
+  IN_PROGRESS: "In Progress",
+  COMPLETED: "Completed/Finished/Published",
+} as const;
+
 interface MeetClientProps {
   initialItems: FollowUpItem[];
   recentChanges: ChangeHistory[];
 }
 
 const CATEGORY_LABELS = {
-  PUBLICATION: "Publications",
-  PROJECT: "Projects",
-  THESIS: "Theses",
-  SCHOLARSHIP: "Scholarships",
+  PUBLICATION: "Follow-up items for Publications",
+  PROJECT: "Follow-up items for Projects",
+  THESIS: "Follow-up items for Theses",
+  SCHOLARSHIP: "Follow-up items for Scholarships",
 } as const;
 
 // Safe custom markdown parser for news/notes text
@@ -178,7 +187,7 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
     txt += `RECORDED CHANGES AND NEWS:\n`;
     filteredChanges.forEach((ch, idx) => {
       txt += `${idx + 1}. [${ch.followUpItem.category}] ${ch.followUpItem.title}\n`;
-      txt += `   - Change: ${ch.fromStatus} to ${ch.toStatus}\n`;
+      txt += `   - Change: ${STATUS_LABELS[ch.fromStatus as keyof typeof STATUS_LABELS] || ch.fromStatus} to ${STATUS_LABELS[ch.toStatus as keyof typeof STATUS_LABELS] || ch.toStatus}\n`;
       txt += `   - News/Notes: "${ch.notes || "No additional notes."}"\n`;
       txt += `   - Logged By: ${ch.loggedBy?.name || ch.loggedBy?.email || "System"}\n\n`;
     });
@@ -268,7 +277,7 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
                                   {change.followUpItem.title}
                                 </Typography>
                                 <Chip
-                                  label={`${change.fromStatus} -> ${change.toStatus}`}
+                                  label={`${STATUS_LABELS[change.fromStatus as keyof typeof STATUS_LABELS] || change.fromStatus} -> ${STATUS_LABELS[change.toStatus as keyof typeof STATUS_LABELS] || change.toStatus}`}
                                   size="small"
                                   color="secondary"
                                   variant="outlined"
@@ -352,7 +361,7 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
               <MenuItem value="ACCEPTED">Accepted</MenuItem>
               <MenuItem value="REJECTED">Rejected</MenuItem>
               <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
-              <MenuItem value="COMPLETED">Completed</MenuItem>
+              <MenuItem value="COMPLETED">Completed/Finished/Published</MenuItem>
             </Select>
           </FormControl>
           <TextField
@@ -418,7 +427,7 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
                   <Box key={h.id} sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: "divider", bgcolor: "action.hover" }}>
                     <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}>
                       <Chip
-                        label={`${h.fromStatus} -> ${h.toStatus}`}
+                        label={`${STATUS_LABELS[h.fromStatus as keyof typeof STATUS_LABELS] || h.fromStatus} -> ${STATUS_LABELS[h.toStatus as keyof typeof STATUS_LABELS] || h.toStatus}`}
                         size="small"
                         color="primary"
                         variant="outlined"
