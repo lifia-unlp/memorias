@@ -1,6 +1,6 @@
 # Production Docker Deployment Guide
 
-This guide is the unified, production-ready reference for deploying the modernized **Memorias Research Portal** and its **AI Conversational Copilot** using Docker containers, and executing the database migrations from legacy MongoDB instances.
+This guide is the unified, production-ready reference for deploying the modernized **Memorias Research Portal** and its **AI Conversational Copilot** using Docker containers.
 
 ---
 
@@ -9,8 +9,7 @@ This guide is the unified, production-ready reference for deploying the moderniz
 The production deployment runs as a containerized stack utilizing Docker containers:
 1. **Next.js Web App**: Multi-stage, highly optimized Docker container (`new-memorias`) serving the portal on port `3000`.
 2. **PostgreSQL Database**: Persistent database (`memorias-db`) serving relational portal entries on port `5432`.
-3. **MongoDB Container (Temporary)**: Spun up temporarily (`mongodb-temp`) only during the initial legacy data migration phase.
-4. **AI Copilot Container**: Python FastAPI backend and HTML frontend container (`memorias-copilot`) serving the assistant on port `8000`.
+3. **AI Copilot Container**: Python FastAPI backend and HTML frontend container (`memorias-copilot`) serving the assistant on port `8000`.
 
 All containers communicate securely over a shared external Docker network named `memorias-network`.
 
@@ -157,7 +156,6 @@ services:
       - "3000:3000"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres_secure_pwd@memorias-db:5432/memorias?schema=public
-      - MONGODB_URI=mongodb://mongodb-temp:27017
       - AUTH_SECRET=your_very_long_auth_jwt_secret_key
       - AUTH_URL=http://your-server-ip:3000
       # Google OAuth Credentials (Optional)
@@ -185,33 +183,7 @@ networks:
     external: true
 ```
 
-### C. `docker-compose.migration.yml` (Temporary MongoDB Engine)
-This is only active during the initial data ingestion phase. Save this inside `/opt/memorias/docker-compose.migration.yml`:
-
-```yaml
-version: '3.8'
-
-services:
-  mongodb-temp:
-    image: mongo:4.4
-    container_name: mongodb-temp
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodata:/data/db
-      - ./dump:/migration-dump
-    networks:
-      - memorias-network
-
-volumes:
-  mongodata:
-
-networks:
-  memorias-network:
-    external: true
-```
-
-### D. `docker-compose.copilot.yml` (AI Copilot Assistant)
+### C. `docker-compose.copilot.yml` (AI Copilot Assistant)
 Save this inside `/opt/memorias/docker-compose.copilot.yml`:
 
 ```yaml
@@ -267,51 +239,9 @@ At this stage, the web portal is running successfully on **`http://<server-ip>:3
 
 ---
 
-## 🔄 Step 5: Legacy Data Migration
+## 🤖 Step 5: Launching the AI Copilot Assistant
 
-To populate your database with legacy entries from the old Pharo/MongoDB system:
-
-### Option A: Migrating from a MongoDB Dump File (Recommended)
-1. **Upload the Dump Directory**:
-   Copy your `lifiometro` MongoDB dump folder onto the host machine at `/opt/memorias/dump/lifiometro`.
-2. **Start the Migration Database**:
-   ```bash
-   sudo docker compose -f docker-compose.migration.yml up -d
-   ```
-3. **Restore the BSON Dump**:
-   ```bash
-   sudo docker compose -f docker-compose.migration.yml exec mongodb-temp mongorestore --db lifiometro /migration-dump/lifiometro
-   ```
-4. **Execute the Migration Script** (translates Mongo BSON records to relational Postgres schema):
-   ```bash
-   sudo docker compose -f docker-compose.app.yml exec new-memorias npx tsx scripts/migrate.ts
-   ```
-5. **Mark Featured Items**:
-   ```bash
-   sudo docker compose -f docker-compose.app.yml exec new-memorias npx tsx scripts/feature-items.ts
-   ```
-6. **Teardown Temporary MongoDB Instance**:
-   ```bash
-   sudo docker compose -f docker-compose.migration.yml down -v
-   ```
-
-### Option B: Migrating directly from an Active MongoDB Server
-1. **Modify Configuration**:
-   Update `MONGODB_URI` environment variable inside your `docker-compose.app.yml` file to point to your live remote MongoDB server:
-   ```yaml
-   - MONGODB_URI=mongodb://<remote-mongo-ip>:27017
-   ```
-2. **Execute scripts**:
-   ```bash
-   sudo docker compose -f docker-compose.app.yml exec new-memorias npx tsx scripts/migrate.ts
-   sudo docker compose -f docker-compose.app.yml exec new-memorias npx tsx scripts/feature-items.ts
-   ```
-
----
-
-## 🤖 Step 6: Launching the AI Copilot Assistant
-
-Once the database has been successfully migrated, start the conversational AI container:
+Start the conversational AI container:
 
 ```bash
 sudo docker compose -f docker-compose.copilot.yml up -d
@@ -320,7 +250,7 @@ The assistant API will be available on port `8000`.
 
 ---
 
-## 🔑 Step 7: Configuring OAuth Identity Providers
+## 🔑 Step 6: Configuring OAuth Identity Providers
 
 The Memorias portal supports Google, GitHub, and Microsoft (Entra ID / Office 365) authentication. 
 

@@ -39,15 +39,9 @@ If you are using the Docker Compose configurations described in `DEPLOYMENT.md`,
 
 ---
 
-## 💾 3. Data Privacy & Legacy Migration Safety
-
-The system supports migrating database entries from legacy MongoDB instances. 
-* **PII Protection**: When performing migrations on shared or staging servers, ensure that MongoDB dump files (`.bson`, `.json`) containing real user emails, passwords, or personal details are stored securely outside of the project repository.
-* **Clean Dumps**: Ensure no raw database dumps are accidentally added or committed. Verify your `.gitignore` configuration ignores `/dump/` and database files.
-
 ---
 
-## 🤖 4. AI Copilot Safety & Cost Controls
+## 🤖 3. AI Copilot Safety & Cost Controls
 
 * **Guardrail Prompts**: Ensure backend AI prompts instruct the models not to disclose system instructions, database schemas, or database credentials.
 * **API Spending Limits**: Set monthly spending limits and usage alerts on your OpenAI Developer Console to safeguard against unexpected spikes in query volume.
@@ -55,6 +49,6 @@ The system supports migrating database entries from legacy MongoDB instances.
 
 ---
 
-## 🛡️ 5. Reporting a Security Vulnerability
+## 🛡️ 4. Reporting a Security Vulnerability
 
 If you discover a potential security vulnerability in this project, please **do not** open a public issue. Instead, report it privately to the maintainers or the development lead at LIFIA/Cientópolis so it can be mitigated before publication.

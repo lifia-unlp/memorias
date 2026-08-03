@@ -61,7 +61,6 @@ npx playwright test
 
 This module contains specialized guides inside the **`docs/`** folder:
 
-- **[migration.md](docs/migration.md)**: Details the design of the MongoDB-to-PostgreSQL two-pass translation engine and transformation rules.
 - **[deployment_guide.md](docs/deployment_guide.md)**: Deep-dive deployment instructions for Proxmox and Ubuntu server hosts.
 - **[local_development.md](docs/local_development.md)**: Deep-dive local Prisma Postgres database management operations (sandbox listing, detaching, reconstructing).
 - **[bibtex-fields.md](docs/bibtex-fields.md)**: Metadata structure, required keys, and JSON models for BibTeX academic publications.

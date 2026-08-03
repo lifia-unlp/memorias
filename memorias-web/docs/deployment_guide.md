@@ -1,9 +1,9 @@
-# Production Docker Deployment & MongoDB Migration Guide
+# Production Docker Deployment Guide
 
 > [!TIP]
 > **Unified Stack Deployment**: For the master deployment guide covering the entire ecosystem (Web Portal + PostgreSQL + AI Copilot containers), see the root **[DEPLOYMENT.md](../../DEPLOYMENT.md)**.
 
-This guide describes how to deploy the modernized **Memorias Research Portal** in a Proxmox environment (running an Ubuntu Server VM or LXC container) using Docker containers, and how to execute the database migrations from a live MongoDB instance or a local database dump.
+This guide describes how to deploy the modernized **Memorias Research Portal** in a Proxmox environment (running an Ubuntu Server VM or LXC container) using Docker containers.
 
 ---
 
@@ -12,7 +12,6 @@ This guide describes how to deploy the modernized **Memorias Research Portal** i
 The production stack consists of:
 1. **Next.js Web App**: Multi-stage, highly optimized Docker container.
 2. **PostgreSQL Database**: Persistent database storing relational portal entries.
-3. **MongoDB Container (Temporary)**: Spun up temporarily only during data migration phase if using a database dump file.
 
 ---
 
@@ -43,13 +42,16 @@ sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 # Enable and start Docker service
 sudo systemctl enable docker
 sudo systemctl start docker
+
+# Create the shared external network
+sudo docker network create memorias-network
 ```
 
 ---
 
-## 📝 Step 2: Docker Configuration Files
+## 📦 Step 2: Main Application Docker Setup
 
-Create a directory on your Ubuntu server (e.g. `/opt/memorias`) and add these files:
+Create a deployment directory on your server (e.g. `/opt/memorias`) and add these core configurations:
 
 ### 1. `Dockerfile` (Multi-stage next build)
 Put this file in your root project folder to build a secure, lightweight Next.js image:
@@ -98,15 +100,8 @@ CMD ["npm", "run", "start"]
 
 ### 2. Docker Compose Configuration Files
 
-To make the environment highly modular, the services are split into three independent Docker Compose files. They all securely communicate over a shared Docker network named `memorias-network`.
-
-First, create the shared external network on your server:
-```bash
-sudo docker network create memorias-network
-```
-
 #### A. `docker-compose.app.yml` (Next.js Application)
-This file builds and launches the modernized portal under the service and container name **`new-memorias`**. Save this inside `/opt/memorias/docker-compose.app.yml`:
+Save this inside `/opt/memorias/docker-compose.app.yml`:
 
 ```yaml
 version: '3.8'
@@ -122,7 +117,6 @@ services:
       - "3000:3000"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres_secure_pwd@memorias-db:5432/memorias?schema=public
-      - MONGODB_URI=mongodb://mongodb-temp:27017
       - AUTH_SECRET=your_very_long_auth_jwt_secret_key
       - AUTH_URL=http://your-server-ip:3000
       # Google OAuth Credentials (Optional)
@@ -142,11 +136,7 @@ networks:
     external: true
 ```
 
-#### B. `docker-compose.db.yml` (Optional PostgreSQL Database)
-This file provisions the persistent relational PostgreSQL database. 
-> [!NOTE]
-> If you already have an active PostgreSQL database hosted elsewhere, you do not need this file. Simply update the `DATABASE_URL` in `docker-compose.app.yml` to point directly to your existing database.
-
+#### B. `docker-compose.db.yml` (PostgreSQL Database)
 Save this inside `/opt/memorias/docker-compose.db.yml`:
 
 ```yaml
@@ -181,37 +171,11 @@ networks:
     external: true
 ```
 
-#### C. `docker-compose.migration.yml` (Temporary MongoDB Migration Engine)
-This file is only spun up temporarily during the ingestion phase and is stopped immediately after the data transfer is complete. Save this inside `/opt/memorias/docker-compose.migration.yml`:
-
-```yaml
-version: '3.8'
-
-services:
-  mongodb-temp:
-    image: mongo:4.4
-    container_name: mongodb-temp
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodata:/data/db
-      - ./dump:/migration-dump
-    networks:
-      - memorias-network
-
-volumes:
-  mongodata:
-
-networks:
-  memorias-network:
-    external: true
-```
-
 ---
 
 ## 🚀 Step 3: Run the deployment
 
-1. **Boot your Database (if needed)**:
+1. **Boot your Database**:
    ```bash
    sudo docker compose -f docker-compose.db.yml up -d
    ```
@@ -219,7 +183,7 @@ networks:
    ```bash
    sudo docker compose -f docker-compose.app.yml up -d
    ```
-3. **Initialize the database tables** inside the application container:
+3. **Initialize the database tables**:
    ```bash
    sudo docker compose -f docker-compose.app.yml exec new-memorias npx prisma db push
    sudo docker compose -f docker-compose.app.yml exec new-memorias node prisma/seed-options.js
@@ -229,75 +193,13 @@ At this stage, the web portal is running cleanly on **`http://<your-proxmox-ip>:
 
 ---
 
-## 🔄 Step 4: MongoDB Relational Data Migration
+## 🔒 Step 4: Post-Deployment Revalidation
 
-Depending on your source environment, choose **Option A** or **Option B**:
-
-### Option A: Migrating from a MongoDB Dump File (Recommended)
-If you have a database backup folder (e.g. `lifiometro` dump containing BSON/JSON files from your old server):
-
-1. **Upload the Dump Folder**:
-   Copy the `dump` folder containing your backup collections to the `/opt/memorias/dump` directory on the Ubuntu Server.
-   
-2. **Start the Temporary MongoDB Container**:
-   Launch the pre-configured MongoDB container:
-   ```bash
-   sudo docker compose -f docker-compose.migration.yml up -d
-   ```
-
-3. **Restore the Dump into the Temporary Database**:
-   Import the files into the MongoDB instance inside the container:
-   ```bash
-   sudo docker compose -f docker-compose.migration.yml exec mongodb-temp mongorestore --db lifiometro /migration-dump/lifiometro
-   ```
-   *(Verify that the dump data loaded successfully by checking the logs).*
-
-4. **Run the Migration Script**:
-   Execute our relational translator script inside the Next.js app container. Note that we specify the temporary database link via environment variable overrides:
-   ```bash
-   sudo docker compose -f docker-compose.app.yml exec new-memorias npx tsx scripts/migrate.ts
-   ```
-
-5. **Mark Featured Items**:
-   Mark three entities as featured programmatically:
-   ```bash
-   sudo docker compose -f docker-compose.app.yml exec new-memorias npx tsx scripts/feature-items.ts
-   ```
-
-6. **Cleanup Migration Container**:
-   Tear down the temporary MongoDB instance and its volumes to free system resources:
-   ```bash
-   sudo docker compose -f docker-compose.migration.yml down -v
-   ```
+After starting the services, log into the dashboard at `http://your-server-ip:3000` as an administrator to verify the active components, registered authors, and default settings load correctly.
 
 ---
 
-### Option B: Migrating directly from an Active MongoDB Server
-If your old MongoDB server is active and reachable over the network:
-
-1. **Temporarily Configure MongoDB URI**:
-   Modify `MONGODB_URI` environment variable inside your `docker-compose.app.yml` file to point to your live remote MongoDB server:
-   ```yaml
-   - MONGODB_URI=mongodb://<remote-mongo-ip>:27017
-   ```
-   *Note: Ensure the target server allows network connections on port 27017.*
-
-2. **Execute the Migration Script**:
-   Run the migration directly inside the container:
-   ```bash
-   sudo docker compose -f docker-compose.app.yml exec new-memorias npx tsx scripts/migrate.ts
-   sudo docker compose -f docker-compose.app.yml exec new-memorias npx tsx scripts/feature-items.ts
-   ```
-
----
-
-## 🔒 Step 5: Post-Migration Revalidation
-
-After running either option, log into the dashboard at `http://your-server-ip:3000` as an administrator. Your migrated data, connected authors, theses, projects, and the 9 clean featured records will load instantly!
-
----
-
-## 🔑 Step 6: Configuring OAuth Identity Providers
+## 🔑 Step 5: Configuring OAuth Identity Providers
 
 The Memorias portal supports Google, GitHub, and Microsoft (Entra ID / Office 365) authentication. 
 
@@ -336,9 +238,9 @@ If no OAuth identity providers are configured, the login screen displays a promi
 
 ---
 
-## Step 7: Database Backups & Disaster Recovery
+## Step 6: Database Backups & Disaster Recovery
 
-To prevent data loss during upgrades, schema migrations, or server maintenance, follow these commands to backup and restore your production database.
+To prevent data loss during upgrades or server maintenance, follow these commands to backup and restore your production database.
 
 ### 1. Backing Up the Database
 
@@ -348,9 +250,9 @@ Run this command from your host machine (where Docker is running) to create a co
 docker exec -t memorias-db pg_dump -U postgres -F c -d memorias > backup.dump
 ```
 
-* **Note**: It is highly recommended to include the current date in the filename when performing manual backups before a migration:
+* **Note**: It is highly recommended to include the current date in the filename when performing manual backups:
   ```bash
-  docker exec -t memorias-db pg_dump -U postgres -F c -d memorias > pre_migration_$(date +%F).dump
+  docker exec -t memorias-db pg_dump -U postgres -F c -d memorias > backup_$(date +%F).dump
   ```
 
 ### 2. Restoring the Database
