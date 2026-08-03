@@ -39,25 +39,15 @@ export const userService = {
     });
   },
 
-  createUserBackdoor: async (email: string, role: Role) => {
+  createDevUser: async (email: string) => {
     return prisma.user.create({
       data: {
         email,
-        name: "Dev Admin Backdoor",
-        role,
+        name: email.split("@")[0] || "Dev User",
+        role: Role.USER,
         active: true,
         notificationEmail: email,
         avatarUrl: null,
-      },
-    });
-  },
-
-  updateUserBackdoor: async (id: string, role: Role) => {
-    return prisma.user.update({
-      where: { id },
-      data: {
-        role,
-        active: true,
       },
     });
   },

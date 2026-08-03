@@ -1,3 +1,5 @@
+import { escapeHtml, sanitizeUrl } from "./sanitize";
+
 export function getBibtexString(val: any): string {
   if (!val) return "";
   if (typeof val === "string") return val;
@@ -25,7 +27,7 @@ export function formatAPA(pb: any): string {
       pb.authors === "Raw Reference" ||
       Object.keys(bib).length === 0
     ) {
-      return (pb.title || "").trim();
+      return escapeHtml((pb.title || "").trim());
     }
 
     const tags = (bib as any).entryTags || (bib as any).tags || bib;
@@ -59,43 +61,44 @@ export function formatAPA(pb: any): string {
       }
     }
 
-    const title = getBibtexString(tags.title) || pb.title || "";
-    const year = getBibtexString(tags.year) || pb.year || "";
+    const safeAuthors = escapeHtml(authorsStr);
+    const safeTitle = escapeHtml(getBibtexString(tags.title) || pb.title || "");
+    const safeYear = escapeHtml(getBibtexString(tags.year) || pb.year || "");
     const entryType = getBibtexString((bib as any).entryType || (bib as any).type || pb.type || "").toLowerCase();
 
-    let citation = `${authorsStr} (${year}). ${title}. `;
+    let citation = `${safeAuthors} (${safeYear}). ${safeTitle}. `;
 
     if (entryType === "article") {
-      const journal = getBibtexString(tags.journal) || getBibtexString(tags.journaltitle) || "";
-      const volume = getBibtexString(tags.volume) || "";
-      const number = getBibtexString(tags.number) || "";
-      const pages = getBibtexString(tags.pages) || "";
+      const journal = escapeHtml(getBibtexString(tags.journal) || getBibtexString(tags.journaltitle) || "");
+      const volume = escapeHtml(getBibtexString(tags.volume) || "");
+      const number = escapeHtml(getBibtexString(tags.number) || "");
+      const pages = escapeHtml(getBibtexString(tags.pages) || "");
       if (journal) citation += `<em>${journal}</em>`;
       if (volume) citation += `, <em>${volume}</em>`;
       if (number) citation += `(${number})`;
       if (pages) citation += `, ${pages}`;
       citation += ".";
     } else if (entryType === "inproceedings" || entryType === "conference" || entryType === "inbook") {
-      const booktitle = getBibtexString(tags.booktitle) || "";
-      const pages = getBibtexString(tags.pages) || "";
-      const publisher = getBibtexString(tags.publisher) || "";
+      const booktitle = escapeHtml(getBibtexString(tags.booktitle) || "");
+      const pages = escapeHtml(getBibtexString(tags.pages) || "");
+      const publisher = escapeHtml(getBibtexString(tags.publisher) || "");
       if (booktitle) citation += `In <em>${booktitle}</em>`;
       if (pages) citation += ` (pp. ${pages})`;
       if (publisher) citation += `. ${publisher}`;
       citation += ".";
     } else if (entryType === "book") {
-      const publisher = getBibtexString(tags.publisher) || "";
-      const address = getBibtexString(tags.address) || "";
-      citation = `${authorsStr} (${year}). <em>${title}</em>. `;
+      const publisher = escapeHtml(getBibtexString(tags.publisher) || "");
+      const address = escapeHtml(getBibtexString(tags.address) || "");
+      citation = `${safeAuthors} (${safeYear}). <em>${safeTitle}</em>. `;
       if (address) citation += `${address}: `;
       if (publisher) citation += `${publisher}.`;
     } else if (entryType === "phdthesis" || entryType === "mastersthesis") {
-      const school = getBibtexString(tags.school) || "";
+      const school = escapeHtml(getBibtexString(tags.school) || "");
       const typeLabel = entryType === "phdthesis" ? "Doctoral dissertation" : "Master's thesis";
       citation += `(${typeLabel}, ${school}).`;
     } else {
-      const howpublished = getBibtexString(tags.howpublished) || "";
-      const note = getBibtexString(tags.note) || "";
+      const howpublished = escapeHtml(getBibtexString(tags.howpublished) || "");
+      const note = escapeHtml(getBibtexString(tags.note) || "");
       if (howpublished) citation += `${howpublished}. `;
       if (note) citation += `${note}.`;
     }
@@ -106,12 +109,14 @@ export function formatAPA(pb: any): string {
       if (!doiUrl.startsWith("http")) {
         doiUrl = `https://doi.org/${doiUrl}`;
       }
-      citation += ` DOI: <a href="${doiUrl}" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline font-mono text-xs">${doiUrl}</a>`;
+      const safeUrl = sanitizeUrl(doiUrl);
+      const safeDoiText = escapeHtml(doiUrl);
+      citation += ` DOI: <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline font-mono text-xs">${safeDoiText}</a>`;
     }
 
     return citation;
   } catch (err) {
-    return `${pb.authors}. (${pb.year}). ${pb.title}.`;
+    return `${escapeHtml(pb.authors)}. (${escapeHtml(pb.year)}). ${escapeHtml(pb.title)}.`;
   }
 }
 

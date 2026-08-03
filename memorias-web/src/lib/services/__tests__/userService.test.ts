@@ -66,28 +66,18 @@ describe("userService", () => {
     });
   });
 
-  describe("createUserBackdoor", () => {
-    it("creates user with ADMIN/EDITOR role for testing backdoor", async () => {
-      await userService.createUserBackdoor("dev@test.com", "ADMIN");
+  describe("createDevUser", () => {
+    it("creates user with default USER role for dev login", async () => {
+      await userService.createDevUser("dev@test.com");
       expect(prisma.user.create).toHaveBeenCalledWith({
         data: {
           email: "dev@test.com",
-          name: "Dev Admin Backdoor",
-          role: "ADMIN",
+          name: "dev",
+          role: "USER",
           active: true,
           notificationEmail: "dev@test.com",
           avatarUrl: null,
         },
-      });
-    });
-  });
-
-  describe("updateUserBackdoor", () => {
-    it("updates role and active status", async () => {
-      await userService.updateUserBackdoor("u1", "EDITOR");
-      expect(prisma.user.update).toHaveBeenCalledWith({
-        where: { id: "u1" },
-        data: { role: "EDITOR", active: true },
       });
     });
   });

@@ -13,24 +13,37 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     ...authConfig.providers,
     Credentials({
-      name: "Development Backdoor",
+      name: "Development Login",
       credentials: {
-        email: { label: "Email", type: "text", placeholder: "admin@example.com" },
-        role: { label: "Role (USER/EDITOR/POWER_EDITOR/ADMIN)", type: "text", placeholder: "ADMIN" },
+        email: { label: "Email", type: "text" },
+        devSecret: { label: "Dev Secret Passphrase", type: "password" },
       },
       async authorize(credentials) {
-        if (process.env.NODE_ENV !== "development") {
+        if (
+          process.env.NODE_ENV !== "development" ||
+          process.env.ENABLE_DEV_LOGIN !== "true"
+        ) {
           return null;
         }
-        const email = (credentials?.email as string) || "admin@example.com";
-        const role = (credentials?.role as string) || "ADMIN";
+
+        const expectedSecret = process.env.DEV_LOGIN_SECRET;
+        if (!expectedSecret || credentials?.devSecret !== expectedSecret) {
+          return null;
+        }
+
+        const email = (credentials?.email as string)?.trim();
+        if (!email) {
+          return null;
+        }
 
         let user = await userService.getUserByEmail(email);
 
         if (!user) {
-          user = await userService.createUserBackdoor(email, role as Role);
+          user = await userService.createDevUser(email);
         } else {
-          user = await userService.updateUserBackdoor(user.id, role as Role);
+          if (!user.active) {
+            return null;
+          }
         }
 
         return {

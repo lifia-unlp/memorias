@@ -5,6 +5,8 @@ import { Box, Card, Typography, CircularProgress } from "@mui/material";
 import { Block } from "./types";
 import { buildProjectSentence, buildScholarshipSentence, buildThesisSentence } from "./useReportCompiler";
 
+import { sanitizeHtml, escapeHtml } from "@/lib/sanitize";
+
 interface ReportPreviewCanvasProps {
   blocks: Block[];
   reportTitle: string;
@@ -21,7 +23,9 @@ export function ReportPreviewCanvas({
   
   const renderMarkdownText = (text: string) => {
     return text.split("\n").map((line, index) => {
-      const formattedLine = line
+      // First escape any raw HTML in the user line, then apply markdown emphasis
+      const escapedLine = escapeHtml(line);
+      const formattedLine = escapedLine
         .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
         .replace(/\*(.*?)\*/g, "<em>$1</em>");
 
@@ -62,7 +66,7 @@ export function ReportPreviewCanvas({
             component="li"
             variant="body2"
             sx={{ ml: 3, mb: 0.5, listStyleType: "disc", color: "text.primary" }}
-            dangerouslySetInnerHTML={{ __html: formattedLine.substring(2) }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(formattedLine.substring(2)) }}
           />
         );
       }
@@ -71,7 +75,7 @@ export function ReportPreviewCanvas({
           key={index}
           variant="body2"
           sx={{ mb: 1.5, lineHeight: 1.6, color: "text.primary" }}
-          dangerouslySetInnerHTML={{ __html: formattedLine }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(formattedLine) }}
         />
       ) : (
         <Box key={index} sx={{ height: 8 }} />
@@ -160,7 +164,7 @@ export function ReportPreviewCanvas({
                         key={pub.id || i}
                         variant="body2"
                         sx={{ lineHeight: 1.6, color: "text.primary" }}
-                        dangerouslySetInnerHTML={{ __html: pub.citationHtml }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(pub.citationHtml) }}
                       />
                     ))}
                   </Box>

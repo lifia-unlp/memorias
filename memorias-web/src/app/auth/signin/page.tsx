@@ -338,7 +338,7 @@ export default async function SignInPage({ searchParams }: PageProps) {
             })()}
           </Box>
 
-          {process.env.NODE_ENV === "development" && (
+          {process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN === "true" && (
             <Box
               sx={{
                 mt: 3,
@@ -361,15 +361,15 @@ export default async function SignInPage({ searchParams }: PageProps) {
                     textAlign: "center",
                   }}
                 >
-                  Local Dev Backdoor
+                  Protected Local Dev Login
                 </Typography>
               </Box>
               <form
                 action={async (formData: FormData) => {
                   "use server";
-                  const email = (formData.get("email") as string) || "admin@example.com";
-                  const role = (formData.get("role") as string) || "ADMIN";
-                  await signIn("credentials", { email, role, redirectTo: "/" });
+                  const email = (formData.get("email") as string) || "";
+                  const devSecret = (formData.get("devSecret") as string) || "";
+                  await signIn("credentials", { email, devSecret, redirectTo: "/" });
                 }}
                 style={{ display: "flex", flexDirection: "column", gap: 12 }}
               >
@@ -389,7 +389,7 @@ export default async function SignInPage({ searchParams }: PageProps) {
                   <input
                     type="email"
                     name="email"
-                    defaultValue="admin@example.com"
+                    placeholder="user@example.com"
                     style={{
                       width: "100%",
                       padding: "8px 12px",
@@ -412,11 +412,12 @@ export default async function SignInPage({ searchParams }: PageProps) {
                       letterSpacing: "0.1em",
                     }}
                   >
-                    Dev Role
+                    Dev Secret Passphrase
                   </label>
-                  <select
-                    name="role"
-                    defaultValue="ADMIN"
+                  <input
+                    type="password"
+                    name="devSecret"
+                    placeholder="DEV_LOGIN_SECRET"
                     style={{
                       width: "100%",
                       padding: "8px 12px",
@@ -426,11 +427,7 @@ export default async function SignInPage({ searchParams }: PageProps) {
                       outline: "none",
                       boxSizing: "border-box",
                     }}
-                  >
-                    <option value="ADMIN">ADMIN</option>
-                    <option value="EDITOR">EDITOR</option>
-                    <option value="USER">USER (Pending)</option>
-                  </select>
+                  />
                 </div>
                 <button
                   type="submit"
@@ -450,7 +447,7 @@ export default async function SignInPage({ searchParams }: PageProps) {
                     transition: "background 0.2s",
                   }}
                 >
-                  Dev Backdoor Login
+                  Dev Protected Sign-In
                 </button>
               </form>
             </Box>

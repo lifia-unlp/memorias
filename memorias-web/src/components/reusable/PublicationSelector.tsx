@@ -22,15 +22,17 @@ interface PublicationSelectorProps {
   layout?: "grid" | "list";
 }
 
+import { sanitizeHtml, escapeHtml } from "@/lib/sanitize";
+
 const getAPACitation = (pub: any) => {
   const apa = formatAPA(pub);
   if (pub.title) {
-    // Escape regex characters in title
-    const escapedTitle = pub.title.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+    const safeTitle = escapeHtml(pub.title);
+    const escapedTitle = safeTitle.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
     const titleRegex = new RegExp(escapedTitle, "g");
-    return apa.replace(titleRegex, `<strong>${pub.title}</strong>`);
+    return sanitizeHtml(apa.replace(titleRegex, `<strong>${safeTitle}</strong>`));
   }
-  return apa;
+  return sanitizeHtml(apa);
 };
 
 const sortPublications = (items: PublicationOption[]) => {

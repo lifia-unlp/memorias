@@ -1,6 +1,7 @@
 // @ts-ignore
 import Cite from "citation-js";
 import { formatAPA, jsonToBibtex, getBibtexString } from "./bibtex";
+import { sanitizeHtml, escapeHtml, sanitizeUrl } from "./sanitize";
 
 export interface FormattedCitation {
   html: string;
@@ -23,17 +24,17 @@ export function formatCitation(pb: any, style: string = "apa"): FormattedCitatio
                 pb.authors === "Raw Reference";
 
   if (isRaw) {
-    const cleanTitle = (pb.title || "").trim();
+    const cleanTitle = escapeHtml((pb.title || "").trim());
     if (style === "bibtex") {
-      const rawText = jsonToBibtex(pb);
+      const rawText = escapeHtml(jsonToBibtex(pb));
       return {
         html: `<pre class="font-mono text-[11px] leading-relaxed p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto text-slate-700 dark:text-slate-350 select-all">${rawText}</pre>`,
         text: rawText,
       };
     }
     if (style === "ris") {
-      const citationKey = pb.slug || "citation";
-      const rawText = `TY  - GEN\nID  - ${citationKey}\nTI  - ${cleanTitle}\nAU  - Raw Reference\nPY  - ${pb.year || ""}\nER  -`;
+      const citationKey = escapeHtml(pb.slug || "citation");
+      const rawText = `TY  - GEN\nID  - ${citationKey}\nTI  - ${cleanTitle}\nAU  - Raw Reference\nPY  - ${escapeHtml(pb.year || "")}\nER  -`;
       return {
         html: `<pre class="font-mono text-[11px] leading-relaxed p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto text-slate-700 dark:text-slate-350 select-all">${rawText}</pre>`,
         text: rawText,
@@ -53,13 +54,13 @@ export function formatCitation(pb: any, style: string = "apa"): FormattedCitatio
 
   try {
     if (!bibtexString) {
-      return { html: backupApa, text: backupApa.replace(/<[^>]*>/g, "") };
+      return { html: sanitizeHtml(backupApa), text: backupApa.replace(/<[^>]*>/g, "") };
     }
 
     const cite = new Cite(bibtexString);
 
     if (style === "bibtex") {
-      const rawText = cite.format("bibtex") || bibtexString;
+      const rawText = escapeHtml(cite.format("bibtex") || bibtexString);
       return {
         html: `<pre class="font-mono text-[11px] leading-relaxed p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto text-slate-700 dark:text-slate-350 select-all">${rawText}</pre>`,
         text: rawText,
@@ -67,7 +68,7 @@ export function formatCitation(pb: any, style: string = "apa"): FormattedCitatio
     }
 
     if (style === "ris") {
-      const rawText = cite.format("ris") || "";
+      const rawText = escapeHtml(cite.format("ris") || "");
       return {
         html: `<pre class="font-mono text-[11px] leading-relaxed p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto text-slate-700 dark:text-slate-350 select-all">${rawText}</pre>`,
         text: rawText,
@@ -98,6 +99,8 @@ export function formatCitation(pb: any, style: string = "apa"): FormattedCitatio
       if (!doiUrl.startsWith("http")) {
         doiUrl = `https://doi.org/${doiUrl}`;
       }
+      const safeDoiUrl = sanitizeUrl(doiUrl);
+      const safeDoiText = escapeHtml(trimmedDoi);
 
       // Check if it is already a link in the CSL HTML
       const isAlreadyLinked = formattedHtml.includes("href=") && formattedHtml.includes(trimmedDoi);
@@ -111,50 +114,50 @@ export function formatCitation(pb: any, style: string = "apa"): FormattedCitatio
         
         if (htmlLower.includes(urlPattern.toLowerCase())) {
           const idx = htmlLower.indexOf(urlPattern.toLowerCase());
-          const originalText = formattedHtml.substring(idx, idx + urlPattern.length);
+          const originalText = escapeHtml(formattedHtml.substring(idx, idx + urlPattern.length));
           formattedHtml = formattedHtml.substring(0, idx) + 
-                          `<a href="${doiUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">${originalText}</a>` + 
+                          `<a href="${safeDoiUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">${originalText}</a>` + 
                           formattedHtml.substring(idx + urlPattern.length);
         } else if (htmlLower.includes(httpUrlPattern.toLowerCase())) {
           const idx = htmlLower.indexOf(httpUrlPattern.toLowerCase());
-          const originalText = formattedHtml.substring(idx, idx + httpUrlPattern.length);
+          const originalText = escapeHtml(formattedHtml.substring(idx, idx + httpUrlPattern.length));
           formattedHtml = formattedHtml.substring(0, idx) + 
-                          `<a href="${doiUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">${originalText}</a>` + 
+                          `<a href="${safeDoiUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">${originalText}</a>` + 
                           formattedHtml.substring(idx + httpUrlPattern.length);
         } else if (htmlLower.includes(prefixPattern.toLowerCase())) {
           const idx = htmlLower.indexOf(prefixPattern.toLowerCase());
-          const originalText = formattedHtml.substring(idx, idx + prefixPattern.length);
+          const originalText = escapeHtml(formattedHtml.substring(idx, idx + prefixPattern.length));
           formattedHtml = formattedHtml.substring(0, idx) + 
-                          `<a href="${doiUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">${originalText}</a>` + 
+                          `<a href="${safeDoiUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">${originalText}</a>` + 
                           formattedHtml.substring(idx + prefixPattern.length);
         } else if (htmlLower.includes(trimmedDoi.toLowerCase())) {
           const idx = htmlLower.indexOf(trimmedDoi.toLowerCase());
           const precedingChar = idx > 0 ? formattedHtml.charAt(idx - 1) : "";
           if (precedingChar !== '"' && precedingChar !== "'" && precedingChar !== "=" && precedingChar !== "/") {
-            const originalText = formattedHtml.substring(idx, idx + trimmedDoi.length);
+            const originalText = escapeHtml(formattedHtml.substring(idx, idx + trimmedDoi.length));
             formattedHtml = formattedHtml.substring(0, idx) + 
-                            `<a href="${doiUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">${originalText}</a>` + 
+                            `<a href="${safeDoiUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">${originalText}</a>` + 
                             formattedHtml.substring(idx + trimmedDoi.length);
           }
         } else {
           // CSL didn't output the DOI at all; append it as a link using the same font
-          const doiLink = ` DOI: <a href="${doiUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">${trimmedDoi}</a>`;
+          const doiLink = ` DOI: <a href="${safeDoiUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">${safeDoiText}</a>`;
           formattedHtml += doiLink;
         }
       }
     }
 
-    // Generate plain-text representation (without HTML tags) for copying
-    const plainText = formattedHtml.replace(/<[^>]*>/g, "").trim();
+    const sanitizedResultHtml = sanitizeHtml(formattedHtml || backupApa);
+    const plainText = sanitizedResultHtml.replace(/<[^>]*>/g, "").trim();
 
     return {
-      html: formattedHtml || backupApa,
+      html: sanitizedResultHtml,
       text: plainText || backupApa.replace(/<[^>]*>/g, "").trim(),
     };
   } catch (err) {
     // Graceful fallback to custom APA layout
     return {
-      html: backupApa,
+      html: sanitizeHtml(backupApa),
       text: backupApa.replace(/<[^>]*>/g, "").trim(),
     };
   }
