@@ -568,10 +568,10 @@ export default function FollowUpClient({
                                       setEditOwners(item.owners.map((m) => m.id));
                                       
                                       // Pre-populate dropdown select values
-                                      if (item.category === "PUBLICATION") setEditRealizationId(item.publicationId || "");
-                                      else if (item.category === "PROJECT") setEditRealizationId(item.projectId || "");
-                                      else if (item.category === "THESIS") setEditRealizationId(item.thesisId || "");
-                                      else if (item.category === "SCHOLARSHIP") setEditRealizationId(item.scholarshipId || "");
+                                      if (item.category === "PUBLICATION") setEditRealizationId(item.publicationId || item.publication?.id || "");
+                                      else if (item.category === "PROJECT") setEditRealizationId(item.projectId || item.project?.id || "");
+                                      else if (item.category === "THESIS") setEditRealizationId(item.thesisId || item.thesis?.id || "");
+                                      else if (item.category === "SCHOLARSHIP") setEditRealizationId(item.scholarshipId || item.scholarship?.id || "");
                                     }}
                                   >
                                     Edit
@@ -823,7 +823,16 @@ export default function FollowUpClient({
             <Autocomplete
               options={realizationOptions}
               getOptionLabel={(option) => option.title}
-              value={realizationOptions.find((o) => o.id === editRealizationId) || null}
+              value={
+                realizationOptions.find((o) => String(o.id) === String(editRealizationId)) ||
+                (editingItem
+                  ? (editingItem.category === "PUBLICATION" ? editingItem.publication :
+                     editingItem.category === "PROJECT" ? editingItem.project :
+                     editingItem.category === "THESIS" ? editingItem.thesis :
+                     editingItem.category === "SCHOLARSHIP" ? editingItem.scholarship : null)
+                  : null) ||
+                null
+              }
               onChange={(_, newValue) => setEditRealizationId(newValue ? newValue.id : "")}
               renderInput={(params) => (
                 <TextField
