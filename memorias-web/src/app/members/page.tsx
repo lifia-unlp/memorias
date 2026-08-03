@@ -321,22 +321,28 @@ export default async function MembersPage({
                           }}
                         >
                           {m.tags.slice(0, 3).map((tag, idx) => (
-                            <Chip
-                              key={idx}
-                              label={`#${tag}`}
-                              size="small"
-                              sx={{
-                                fontSize: "0.625rem",
-                                height: 18,
-                                borderRadius: 1,
-                                border: "1px solid",
-                                borderColor: "primary.light",
-                                bgcolor: "primary.light",
-                                color: "primary.main",
-                                fontWeight: "bold",
-                              }}
-                              data-component-semantics="Tag badge"
-                            />
+                            <Link key={idx} href={`/tags/${encodeURIComponent(tag)}`} style={{ textDecoration: "none" }}>
+                              <Chip
+                                label={`#${tag}`}
+                                size="small"
+                                sx={{
+                                  fontSize: "0.625rem",
+                                  height: 18,
+                                  borderRadius: 1,
+                                  border: "1px solid",
+                                  borderColor: "primary.light",
+                                  bgcolor: "primary.light",
+                                  color: "primary.main",
+                                  fontWeight: "bold",
+                                  cursor: "pointer",
+                                  "&:hover": {
+                                    bgcolor: "primary.main",
+                                    color: "common.white",
+                                  },
+                                }}
+                                data-component-semantics="Tag badge"
+                              />
+                            </Link>
                           ))}
                           {m.tags.length > 3 && (
                             <Typography

@@ -237,7 +237,7 @@ export function ScholarshipSearchCard({ scholarship: s }: ScholarshipSearchCardP
           }}
         >
           {s.tags.slice(0, 4).map((tag: string, idx: number) => (
-            <Link key={idx} href={`/tags/${tag}`} style={{ textDecoration: "none" }}>
+            <Link key={idx} href={`/tags/${encodeURIComponent(tag)}`} style={{ textDecoration: "none" }}>
               <Chip
                 label={`#${tag}`}
                 size="small"

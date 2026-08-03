@@ -367,22 +367,28 @@ export default async function MemberDetailPage({ params }: { params: Params }) {
             {member.tags.length > 0 && (
               <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 2, mb: 3, display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                 {member.tags.map((tag, idx) => (
-                  <Chip
-                    key={idx}
-                    label={`#${tag}`}
-                    size="small"
-                    sx={{
-                      fontSize: "0.625rem",
-                      height: 18,
-                      borderRadius: 1,
-                      border: "1px solid",
-                      borderColor: "primary.light",
-                      bgcolor: "primary.light",
-                      color: "primary.main",
-                      fontWeight: "bold",
-                    }}
-                    data-component-semantics="Tag badge"
-                  />
+                  <Link key={idx} href={`/tags/${encodeURIComponent(tag)}`} style={{ textDecoration: "none" }}>
+                    <Chip
+                      label={`#${tag}`}
+                      size="small"
+                      sx={{
+                        fontSize: "0.625rem",
+                        height: 18,
+                        borderRadius: 1,
+                        border: "1px solid",
+                        borderColor: "primary.light",
+                        bgcolor: "primary.light",
+                        color: "primary.main",
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        "&:hover": {
+                          bgcolor: "primary.main",
+                          color: "common.white",
+                        },
+                      }}
+                      data-component-semantics="Tag badge"
+                    />
+                  </Link>
                 ))}
               </Box>
             )}

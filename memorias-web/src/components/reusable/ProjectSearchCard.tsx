@@ -216,7 +216,7 @@ export function ProjectSearchCard({ project }: ProjectSearchCardProps) {
       {project.tags.length > 0 && (
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, pt: (project.members && project.members.length > 0) ? 0 : 2, mt: (project.members && project.members.length > 0) ? 0 : "auto", position: "relative", zIndex: 4 }}>
           {project.tags.slice(0, 4).map((tag: string) => (
-            <Link key={tag} href={`/tags/${tag}`} style={{ textDecoration: "none" }}>
+            <Link key={tag} href={`/tags/${encodeURIComponent(tag)}`} style={{ textDecoration: "none" }}>
               <Chip
                 label={`#${tag}`}
                 size="small"

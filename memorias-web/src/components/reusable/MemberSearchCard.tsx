@@ -167,7 +167,7 @@ export function MemberSearchCard({ member: m }: MemberSearchCardProps) {
           }}
         >
           {m.tags.slice(0, 3).map((tag: string, idx: number) => (
-            <Link key={idx} href={`/tags/${tag}`} style={{ textDecoration: "none" }}>
+            <Link key={idx} href={`/tags/${encodeURIComponent(tag)}`} style={{ textDecoration: "none" }}>
               <Chip
                 label={`#${tag}`}
                 size="small"

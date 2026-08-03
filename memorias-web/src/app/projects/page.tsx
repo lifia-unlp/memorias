@@ -423,22 +423,28 @@ export default async function ProjectsPage(props: {
                         {project.tags.length > 0 && (
                           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, pt: project.members.length > 0 ? 0 : 2, mt: project.members.length > 0 ? 0 : "auto" }}>
                             {project.tags.slice(0, 4).map((tag) => (
-                              <Chip
-                                key={tag}
-                                label={`#${tag}`}
-                                size="small"
-                                sx={{
-                                  fontSize: "0.625rem",
-                                  height: 18,
-                                  borderRadius: 1,
-                                  border: "1px solid",
-                                  borderColor: "primary.light",
-                                  bgcolor: "primary.light",
-                                  color: "primary.main",
-                                  fontWeight: "bold",
-                                }}
-                                data-component-semantics="Tag badge"
-                              />
+                              <Link key={tag} href={`/tags/${encodeURIComponent(tag)}`} style={{ textDecoration: "none" }}>
+                                <Chip
+                                  label={`#${tag}`}
+                                  size="small"
+                                  sx={{
+                                    fontSize: "0.625rem",
+                                    height: 18,
+                                    borderRadius: 1,
+                                    border: "1px solid",
+                                    borderColor: "primary.light",
+                                    bgcolor: "primary.light",
+                                    color: "primary.main",
+                                    fontWeight: "bold",
+                                    cursor: "pointer",
+                                    "&:hover": {
+                                      bgcolor: "primary.main",
+                                      color: "common.white",
+                                    },
+                                  }}
+                                  data-component-semantics="Tag badge"
+                                />
+                              </Link>
                             ))}
                           </Box>
                         )}

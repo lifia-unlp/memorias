@@ -119,8 +119,8 @@ export function PublicationSearchCard({ publication: pb }: PublicationSearchCard
                 data-component-semantics="Metadata badge"
               />
             )}
-            {pb.tags.map((tag: string) => (
-              <Link key={tag} href={`/tags/${tag}`} style={{ textDecoration: "none" }}>
+            {(pb.tags || []).map((tag: string) => (
+              <Link key={tag} href={`/tags/${encodeURIComponent(tag)}`} style={{ textDecoration: "none" }}>
                 <Chip
                   label={`#${tag}`}
                   size="small"

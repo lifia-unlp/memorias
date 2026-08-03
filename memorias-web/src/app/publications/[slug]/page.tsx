@@ -402,22 +402,28 @@ export default async function PublicationDetailPage({
                       </Typography>
                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
                         {pb.tags.map((tag) => (
-                          <Chip
-                            key={tag}
-                            label={`#${tag}`}
-                            size="small"
-                            sx={{
-                              fontSize: "0.625rem",
-                              height: 18,
-                              borderRadius: 1,
-                              border: "1px solid",
-                              borderColor: "primary.light",
-                              bgcolor: "primary.light",
-                              color: "primary.main",
-                              fontWeight: "bold",
-                            }}
-                            data-component-semantics="Tag badge"
-                          />
+                          <Link key={tag} href={`/tags/${encodeURIComponent(tag)}`} style={{ textDecoration: "none" }}>
+                            <Chip
+                              label={`#${tag}`}
+                              size="small"
+                              sx={{
+                                fontSize: "0.625rem",
+                                height: 18,
+                                borderRadius: 1,
+                                border: "1px solid",
+                                borderColor: "primary.light",
+                                bgcolor: "primary.light",
+                                color: "primary.main",
+                                fontWeight: "bold",
+                                cursor: "pointer",
+                                "&:hover": {
+                                  bgcolor: "primary.main",
+                                  color: "common.white",
+                                },
+                              }}
+                              data-component-semantics="Tag badge"
+                            />
+                          </Link>
                         ))}
                       </Box>
                     </Box>

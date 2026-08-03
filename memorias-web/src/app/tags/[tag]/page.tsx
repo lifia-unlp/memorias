@@ -209,22 +209,28 @@ export default async function TagDetailsPage({ params }: TagPageProps) {
                               sx={{ fontSize: "0.625rem", fontWeight: 600, height: 20 }}
                             />
                             {member.tags.slice(0, 5).map((t, idx) => (
-                              <Chip
-                                key={idx}
-                                label={`#${t}`}
-                                size="small"
-                                sx={{
-                                  fontSize: "0.625rem",
-                                  height: 18,
-                                  borderRadius: 1,
-                                  border: "1px solid",
-                                  borderColor: "primary.light",
-                                  bgcolor: "primary.light",
-                                  color: "primary.main",
-                                  fontWeight: "bold",
-                                }}
-                                data-component-semantics="Tag badge"
-                              />
+                              <Link key={idx} href={`/tags/${encodeURIComponent(t)}`} style={{ textDecoration: "none" }}>
+                                <Chip
+                                  label={`#${t}`}
+                                  size="small"
+                                  sx={{
+                                    fontSize: "0.625rem",
+                                    height: 18,
+                                    borderRadius: 1,
+                                    border: "1px solid",
+                                    borderColor: "primary.light",
+                                    bgcolor: "primary.light",
+                                    color: "primary.main",
+                                    fontWeight: "bold",
+                                    cursor: "pointer",
+                                    "&:hover": {
+                                      bgcolor: "primary.main",
+                                      color: "common.white",
+                                    },
+                                  }}
+                                  data-component-semantics="Tag badge"
+                                />
+                              </Link>
                             ))}
                             {member.tags.length > 5 && (
                               <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700 }}>
