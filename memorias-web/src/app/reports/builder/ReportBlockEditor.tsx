@@ -17,6 +17,7 @@ import {
   Chip,
 } from "@mui/material";
 import { Block, InitData } from "./types";
+import { DebouncedTextField } from "./DebouncedTextField";
 
 interface ReportBlockEditorProps {
   block: Block;
@@ -104,12 +105,12 @@ export function ReportBlockEditor({
             <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", mb: 1, display: "block" }}>
               Markdown text content
             </Typography>
-            <TextField
+            <DebouncedTextField
               fullWidth
               multiline
               rows={6}
               value={block.content || ""}
-              onChange={(e) => updateBlockContent(block.id, e.target.value)}
+              onCommit={(val) => updateBlockContent(block.id, val)}
               placeholder="Type markdown syntax here..."
               slotProps={{
                 htmlInput: { style: { fontFamily: "monospace", fontSize: "0.75rem" } }
@@ -135,12 +136,12 @@ export function ReportBlockEditor({
               <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", mb: 1, display: "block" }}>
                 GenAI Synthesis Instruction Prompt
               </Typography>
-              <TextField
+              <DebouncedTextField
                 fullWidth
                 multiline
                 rows={3}
                 value={block.filters.prompt || ""}
-                onChange={(e) => updateBlockFilter(block.id, "prompt", e.target.value)}
+                onCommit={(val) => updateBlockFilter(block.id, "prompt", val)}
                 placeholder="e.g. Summarize the main topics of these publications and suggest future lines of work."
                 size="small"
               />
@@ -151,12 +152,12 @@ export function ReportBlockEditor({
               <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", mb: 1, display: "block" }}>
                 Maximum generated text length (words)
               </Typography>
-              <TextField
+              <DebouncedTextField
                 fullWidth
                 type="number"
                 size="small"
                 value={block.filters.maxLength || 300}
-                onChange={(e) => updateBlockFilter(block.id, "maxLength", parseInt(e.target.value, 10) || 100)}
+                onCommit={(val) => updateBlockFilter(block.id, "maxLength", parseInt(val, 10) || 100)}
                 placeholder="300"
               />
             </Box>
@@ -268,24 +269,24 @@ export function ReportBlockEditor({
                 </FormControl>
               </Grid>
               <Grid size={{ xs: 12, sm: 4 }}>
-                <TextField
+                <DebouncedTextField
                   fullWidth
                   size="small"
                   label="Start Year"
                   type="number"
                   value={block.filters.startYear || ""}
-                  onChange={(e) => updateBlockFilter(block.id, "startYear", e.target.value)}
+                  onCommit={(val) => updateBlockFilter(block.id, "startYear", val)}
                   placeholder="Min Year"
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 4 }}>
-                <TextField
+                <DebouncedTextField
                   fullWidth
                   size="small"
                   label="End Year"
                   type="number"
                   value={block.filters.endYear || ""}
-                  onChange={(e) => updateBlockFilter(block.id, "endYear", e.target.value)}
+                  onCommit={(val) => updateBlockFilter(block.id, "endYear", val)}
                   placeholder="Max Year"
                 />
               </Grid>
@@ -325,24 +326,24 @@ export function ReportBlockEditor({
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Grid container spacing={2}>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
+                <DebouncedTextField
                   fullWidth
                   size="small"
                   label="Timeline range (from)"
                   type="number"
                   value={block.filters.startYear || ""}
-                  onChange={(e) => updateBlockFilter(block.id, "startYear", e.target.value)}
+                  onCommit={(val) => updateBlockFilter(block.id, "startYear", val)}
                   placeholder="Start Year"
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
+                <DebouncedTextField
                   fullWidth
                   size="small"
                   label="Timeline range (to)"
                   type="number"
                   value={block.filters.endYear || ""}
-                  onChange={(e) => updateBlockFilter(block.id, "endYear", e.target.value)}
+                  onCommit={(val) => updateBlockFilter(block.id, "endYear", val)}
                   placeholder="End Year"
                 />
               </Grid>
