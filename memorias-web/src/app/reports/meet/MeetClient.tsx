@@ -259,83 +259,126 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
             const catChanges = filteredChanges.filter((ch) => ch.followUpItem.category === catKey);
             if (catChanges.length === 0) return null;
 
+            // Group news/changes by FollowUpItem ID for meeting efficiency
+            const itemMap = new Map<string, { item: FollowUpItem; changes: ChangeHistory[] }>();
+            catChanges.forEach((ch) => {
+              const itemId = ch.followUpItem.id;
+              if (!itemMap.has(itemId)) {
+                itemMap.set(itemId, { item: ch.followUpItem, changes: [] });
+              }
+              itemMap.get(itemId)!.changes.push(ch);
+            });
+            const groupedItems = Array.from(itemMap.values());
+
             return (
               <Box key={catKey}>
                 <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                   {CATEGORY_LABELS[catKey]}
                 </Typography>
                 
-                <Grid container spacing={3}>
-                  {catChanges.map((change) => {
+                <Stack spacing={2.5}>
+                  {groupedItems.map(({ item, changes }) => {
+                    const currentStatusLabel = STATUS_LABELS[item.status as keyof typeof STATUS_LABELS] || item.status;
                     return (
-                      <Grid size={{ xs: 12, md: 6 }} key={change.id}>
-                        <Card sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider", height: "100%", display: "flex", flexDirection: "column" }}>
-                          <CardContent sx={{ flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                            <Box>
-                              <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "flex-start", mb: 1.5 }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: "bold", flexGrow: 1, pr: 2 }}>
-                                  {change.followUpItem.title}
-                                </Typography>
-                                <Chip
-                                  label={`${STATUS_LABELS[change.fromStatus as keyof typeof STATUS_LABELS] || change.fromStatus} -> ${STATUS_LABELS[change.toStatus as keyof typeof STATUS_LABELS] || change.toStatus}`}
-                                  size="small"
-                                  color="secondary"
-                                  variant="outlined"
-                                  sx={{ fontSize: "0.75rem", fontWeight: "bold" }}
-                                />
-                              </Stack>
-                              <Box sx={{ mb: 2 }}>
-                                {renderMarkdown(change.notes)}
+                      <Card key={item.id} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider", p: 2.5 }}>
+                        {/* Item Header */}
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 1.5, pb: 1.5, borderBottom: "1px solid", borderColor: "divider" }}>
+                          <Box sx={{ flexGrow: 1 }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: "bold", color: "text.primary" }}>
+                              {item.title}
+                            </Typography>
+                            {item.owners && item.owners.length > 0 && (
+                              <Typography variant="caption" color="text.secondary">
+                                Owners: {item.owners.map((o) => `${o.firstName} ${o.lastName}`).join(", ")}
+                              </Typography>
+                            )}
+                          </Box>
+                          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                            <Chip
+                              label={currentStatusLabel}
+                              size="small"
+                              color="primary"
+                              sx={{ fontSize: "0.75rem", fontWeight: "bold" }}
+                            />
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={() => {
+                                setAddingNewsItem(item);
+                                setNewStatus(item.status);
+                                setNewNoteText("");
+                              }}
+                              sx={{ textTransform: "none", fontSize: "0.75rem", fontWeight: "bold" }}
+                            >
+                              Add News
+                            </Button>
+                            <Button
+                              size="small"
+                              variant="text"
+                              onClick={() => setHistoryItem(item)}
+                              sx={{ textTransform: "none", fontSize: "0.75rem" }}
+                            >
+                              View History
+                            </Button>
+                          </Stack>
+                        </Box>
+
+                        {/* News / Notes for selected period */}
+                        <Box sx={{ pt: 2, display: "flex", flexDirection: "column", gap: 1.5 }}>
+                          <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                            News & Updates for Period ({changes.length})
+                          </Typography>
+                          {changes.map((ch) => {
+                            const transitionStr = `${STATUS_LABELS[ch.fromStatus as keyof typeof STATUS_LABELS] || ch.fromStatus} → ${STATUS_LABELS[ch.toStatus as keyof typeof STATUS_LABELS] || ch.toStatus}`;
+                            return (
+                              <Box key={ch.id} sx={{ p: 2, bgcolor: "action.hover", borderRadius: 2, border: "1px solid", borderColor: "divider" }}>
+                                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1, flexWrap: "wrap", gap: 1 }}>
+                                  <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                                    <Chip
+                                      label={transitionStr}
+                                      size="small"
+                                      color="secondary"
+                                      variant="outlined"
+                                      sx={{ fontSize: "0.6875rem", fontWeight: "bold", height: 20 }}
+                                    />
+                                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+                                      By {ch.loggedBy?.name || ch.loggedBy?.email || "System"} on {new Date(ch.meetingDate).toLocaleDateString()}
+                                    </Typography>
+                                  </Stack>
+                                  <Stack direction="row" spacing={0.5}>
+                                    <Button
+                                      size="small"
+                                      variant="text"
+                                      onClick={() => {
+                                        setEditingChange(ch);
+                                        setEditNotesText(ch.notes || "");
+                                      }}
+                                      sx={{ textTransform: "none", fontSize: "0.7rem", py: 0 }}
+                                    >
+                                      Edit
+                                    </Button>
+                                    <Button
+                                      size="small"
+                                      variant="text"
+                                      color="error"
+                                      onClick={() => handleDeleteHistory(ch.id)}
+                                      sx={{ textTransform: "none", fontSize: "0.7rem", py: 0 }}
+                                    >
+                                      Delete
+                                    </Button>
+                                  </Stack>
+                                </Box>
+                                <Box sx={{ pt: 0.5 }}>
+                                  {renderMarkdown(ch.notes)}
+                                </Box>
                               </Box>
-                            </Box>
-                            
-                            <Box>
-                              <Divider sx={{ my: 1.5 }} />
-                              <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center" }}>
-                                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
-                                  By {change.loggedBy?.name || change.loggedBy?.email || "System"} on {new Date(change.meetingDate).toLocaleDateString()}
-                                </Typography>
-                                <Stack direction="row" spacing={0.5}>
-                                  <Button
-                                    size="small"
-                                    variant="text"
-                                    onClick={() => setHistoryItem(change.followUpItem)}
-                                    sx={{ textTransform: "none", fontSize: "0.75rem" }}
-                                  >
-                                    View History
-                                  </Button>
-                                  <Button
-                                    size="small"
-                                    variant="text"
-                                    onClick={() => {
-                                      setAddingNewsItem(change.followUpItem);
-                                      setNewStatus(change.followUpItem.status);
-                                      setNewNoteText("");
-                                    }}
-                                    sx={{ textTransform: "none", fontSize: "0.75rem" }}
-                                  >
-                                    Add News
-                                  </Button>
-                                  <Button
-                                    size="small"
-                                    variant="text"
-                                    onClick={() => {
-                                      setEditingChange(change);
-                                      setEditNotesText(change.notes || "");
-                                    }}
-                                    sx={{ textTransform: "none", fontSize: "0.75rem" }}
-                                  >
-                                    Edit News
-                                  </Button>
-                                </Stack>
-                              </Stack>
-                            </Box>
-                          </CardContent>
-                        </Card>
-                      </Grid>
+                            );
+                          })}
+                        </Box>
+                      </Card>
                     );
                   })}
-                </Grid>
+                </Stack>
               </Box>
             );
           })}

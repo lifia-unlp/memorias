@@ -35,14 +35,15 @@ export async function createFollowUpItem(data: {
   thesisId?: string;
   scholarshipId?: string;
 }) {
-  await ensureActiveUser();
+  const session = await ensureActiveUser();
+  const initialStatus = data.status || "PLANNING";
 
   const item = await prisma.followUpItem.create({
     data: {
       title: data.title,
       description: data.description,
       category: data.category,
-      status: data.status || "PLANNING",
+      status: initialStatus,
       owners: {
         connect: data.ownerIds.map((id) => ({ id })),
       },
@@ -50,6 +51,21 @@ export async function createFollowUpItem(data: {
       project: data.projectId ? { connect: { id: data.projectId } } : undefined,
       thesis: data.thesisId ? { connect: { id: data.thesisId } } : undefined,
       scholarship: data.scholarshipId ? { connect: { id: data.scholarshipId } } : undefined,
+    },
+  });
+
+  // Automatically record initial news/note log
+  const initialNote = data.description && data.description.trim() !== ""
+    ? data.description.trim()
+    : `Item registrado en estado inicial: ${initialStatus}`;
+
+  await prisma.followUpHistory.create({
+    data: {
+      followUpItemId: item.id,
+      fromStatus: initialStatus,
+      toStatus: initialStatus,
+      notes: initialNote,
+      loggedById: session.user.id,
     },
   });
 
