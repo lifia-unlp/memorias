@@ -2,12 +2,14 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Autocomplete,
   Box,
   Button,
   Card,
   Chip,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -208,57 +210,78 @@ export default function FollowUpClient({
   const [editingHistoryId, setEditingHistoryId] = useState<string | null>(null);
   const [editHistoryNote, setEditHistoryNote] = useState("");
 
-  const handleCreate = async () => {
-    if (!newTitle.trim()) return;
-    const payload: Parameters<typeof createFollowUpItem>[0] = {
-      title: newTitle,
-      description: newDesc || undefined,
-      category: newCategory,
-      status: newStatus,
-      ownerIds: newOwners,
-    };
-    if (newCategory === "PUBLICATION") payload.publicationId = newRealizationId || undefined;
-    else if (newCategory === "PROJECT") payload.projectId = newRealizationId || undefined;
-    else if (newCategory === "THESIS") payload.thesisId = newRealizationId || undefined;
-    else if (newCategory === "SCHOLARSHIP") payload.scholarshipId = newRealizationId || undefined;
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const res = await createFollowUpItem(payload);
-    if (res.success) {
-      window.location.reload();
+  const handleCreate = async () => {
+    if (isSubmitting || !newTitle.trim()) return;
+    setIsSubmitting(true);
+    try {
+      const payload: Parameters<typeof createFollowUpItem>[0] = {
+        title: newTitle,
+        description: newDesc || undefined,
+        category: newCategory,
+        status: newStatus,
+        ownerIds: newOwners,
+      };
+      if (newCategory === "PUBLICATION") payload.publicationId = newRealizationId || undefined;
+      else if (newCategory === "PROJECT") payload.projectId = newRealizationId || undefined;
+      else if (newCategory === "THESIS") payload.thesisId = newRealizationId || undefined;
+      else if (newCategory === "SCHOLARSHIP") payload.scholarshipId = newRealizationId || undefined;
+
+      const res = await createFollowUpItem(payload);
+      if (res.success) {
+        setIsCreateOpen(false);
+        setNewTitle("");
+        setNewDesc("");
+        router.refresh();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleEditSave = async () => {
-    if (!editingItem || !editTitle.trim()) return;
+    if (isSubmitting || !editingItem || !editTitle.trim()) return;
+    setIsSubmitting(true);
+    try {
+      const payload: any = {
+        title: editTitle,
+        description: editDesc || undefined,
+        ownerIds: editOwners,
+        publicationId: null,
+        projectId: null,
+        thesisId: null,
+        scholarshipId: null,
+      };
 
-    const payload: any = {
-      title: editTitle,
-      description: editDesc || undefined,
-      ownerIds: editOwners,
-      publicationId: null,
-      projectId: null,
-      thesisId: null,
-      scholarshipId: null,
-    };
+      if (editingItem.category === "PUBLICATION") payload.publicationId = editRealizationId || null;
+      else if (editingItem.category === "PROJECT") payload.projectId = editRealizationId || null;
+      else if (editingItem.category === "THESIS") payload.thesisId = editRealizationId || null;
+      else if (editingItem.category === "SCHOLARSHIP") payload.scholarshipId = editRealizationId || null;
 
-    if (editingItem.category === "PUBLICATION") payload.publicationId = editRealizationId || null;
-    else if (editingItem.category === "PROJECT") payload.projectId = editRealizationId || null;
-    else if (editingItem.category === "THESIS") payload.thesisId = editRealizationId || null;
-    else if (editingItem.category === "SCHOLARSHIP") payload.scholarshipId = editRealizationId || null;
-
-    const res = await updateFollowUpItem(editingItem.id, payload);
-    if (res.success) {
-      setEditingItem(null);
-      window.location.reload();
+      const res = await updateFollowUpItem(editingItem.id, payload);
+      if (res.success) {
+        setEditingItem(null);
+        router.refresh();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleUpdateStatus = async (itemId: string) => {
-    const res = await updateFollowUpItemStatus(itemId, updateStatus, updateNote);
-    if (res.success) {
-      setUpdateNote("");
-      setExpandedId(null);
-      window.location.reload();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const res = await updateFollowUpItemStatus(itemId, updateStatus, updateNote);
+      if (res.success) {
+        setUpdateNote("");
+        setExpandedId(null);
+        router.refresh();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -279,10 +302,16 @@ export default function FollowUpClient({
   };
 
   const handleEditHistorySave = async (historyId: string) => {
-    const res = await updateFollowUpHistory(historyId, editHistoryNote);
-    if (res.success) {
-      setEditingHistoryId(null);
-      window.location.reload();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const res = await updateFollowUpHistory(historyId, editHistoryNote);
+      if (res.success) {
+        setEditingHistoryId(null);
+        router.refresh();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -628,8 +657,9 @@ export default function FollowUpClient({
                                       variant="contained"
                                       size="small"
                                       onClick={() => handleUpdateStatus(item.id)}
+                                      disabled={isSubmitting}
                                     >
-                                      Save Update
+                                      {isSubmitting ? <CircularProgress size={16} color="inherit" /> : "Save Update"}
                                     </Button>
                                   </Box>
                                 </Collapse>
@@ -759,8 +789,8 @@ export default function FollowUpClient({
           <Button onClick={() => setIsCreateOpen(false)} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleCreate} variant="contained">
-            Create Item
+          <Button onClick={handleCreate} variant="contained" disabled={isSubmitting || !newTitle.trim()}>
+            {isSubmitting ? <CircularProgress size={18} color="inherit" /> : "Create Item"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -860,8 +890,8 @@ export default function FollowUpClient({
           <Button onClick={() => setEditingItem(null)} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleEditSave} variant="contained">
-            Save Changes
+          <Button onClick={handleEditSave} variant="contained" disabled={isSubmitting || !editTitle.trim()}>
+            {isSubmitting ? <CircularProgress size={18} color="inherit" /> : "Save Changes"}
           </Button>
         </DialogActions>
       </Dialog>

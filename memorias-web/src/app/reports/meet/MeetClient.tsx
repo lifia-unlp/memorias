@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Box,
   Button,
   Card,
   CardContent,
   Chip,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -151,43 +153,67 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
     return meetingDay >= dateFrom && meetingDay <= dateTo;
   });
 
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSaveItemEdit = async () => {
-    if (!editingItem) return;
-    const res = await updateFollowUpItem(editingItem.id, {
-      title: editTitle,
-      description: editDescription,
-      ownerIds: editingItem.owners ? editingItem.owners.map((o) => o.id) : [],
-    });
-    if (res.success) {
-      setEditingItem(null);
-      window.location.reload();
+    if (isSubmitting || !editingItem) return;
+    setIsSubmitting(true);
+    try {
+      const res = await updateFollowUpItem(editingItem.id, {
+        title: editTitle,
+        description: editDescription,
+        ownerIds: editingItem.owners ? editingItem.owners.map((o) => o.id) : [],
+      });
+      if (res.success) {
+        setEditingItem(null);
+        router.refresh();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleEditChangeSave = async () => {
-    if (!editingChange) return;
-    const res = await updateFollowUpHistory(editingChange.id, editNotesText);
-    if (res.success) {
-      setEditingChange(null);
-      window.location.reload();
+    if (isSubmitting || !editingChange) return;
+    setIsSubmitting(true);
+    try {
+      const res = await updateFollowUpHistory(editingChange.id, editNotesText);
+      if (res.success) {
+        setEditingChange(null);
+        router.refresh();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleAddNewsSave = async () => {
-    if (!addingNewsItem) return;
-    const res = await updateFollowUpItemStatus(addingNewsItem.id, newStatus as any, newNoteText);
-    if (res.success) {
-      setAddingNewsItem(null);
-      setNewNoteText("");
-      window.location.reload();
+    if (isSubmitting || !addingNewsItem) return;
+    setIsSubmitting(true);
+    try {
+      const res = await updateFollowUpItemStatus(addingNewsItem.id, newStatus as any, newNoteText);
+      if (res.success) {
+        setAddingNewsItem(null);
+        setNewNoteText("");
+        router.refresh();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleEditHistorySave = async (historyId: string) => {
-    const res = await updateFollowUpHistory(historyId, editHistoryNote);
-    if (res.success) {
-      setEditingHistoryId(null);
-      window.location.reload();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const res = await updateFollowUpHistory(historyId, editHistoryNote);
+      if (res.success) {
+        setEditingHistoryId(null);
+        router.refresh();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -456,8 +482,8 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
           <Button onClick={() => setAddingNewsItem(null)} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleAddNewsSave} variant="contained" color="primary">
-            Confirm News
+          <Button onClick={handleAddNewsSave} variant="contained" color="primary" disabled={isSubmitting}>
+            {isSubmitting ? <CircularProgress size={18} color="inherit" /> : "Confirm News"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -483,8 +509,8 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
           <Button onClick={() => setEditingChange(null)} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleEditChangeSave} variant="contained" color="primary">
-            Save Notes
+          <Button onClick={handleEditChangeSave} variant="contained" color="primary" disabled={isSubmitting}>
+            {isSubmitting ? <CircularProgress size={18} color="inherit" /> : "Save Notes"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -598,8 +624,8 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
           <Button onClick={() => setEditingItem(null)} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleSaveItemEdit} variant="contained" color="primary">
-            Save Changes
+          <Button onClick={handleSaveItemEdit} variant="contained" color="primary" disabled={isSubmitting || !editTitle.trim()}>
+            {isSubmitting ? <CircularProgress size={18} color="inherit" /> : "Save Changes"}
           </Button>
         </DialogActions>
       </Dialog>
