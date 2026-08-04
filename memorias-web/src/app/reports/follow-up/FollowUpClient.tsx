@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -168,6 +168,10 @@ export default function FollowUpClient({
   scholarships,
 }: FollowUpClientProps) {
   const [items, setItems] = useState<FollowUpItem[]>(initialItems);
+
+  useEffect(() => {
+    setItems(initialItems);
+  }, [initialItems]);
   
   // Sorting members
   const sortedMembers = [...members].sort((a, b) => {
