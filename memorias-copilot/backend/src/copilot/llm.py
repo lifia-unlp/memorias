@@ -104,12 +104,15 @@ class OpenAIProvider(LLMProvider):
             if dispatcher is not None:
                 for t in TOOLS:
                     if t.get("type") == "function" and "function" in t:
+                        params = dict(t["function"].get("parameters", {}))
+                        params["additionalProperties"] = False
                         tools_list.append(
                             {
                                 "type": "function",
                                 "name": t["function"]["name"],
                                 "description": t["function"].get("description", ""),
-                                "parameters": t["function"].get("parameters", {}),
+                                "parameters": params,
+                                "strict": True,
                             }
                         )
                     else:
