@@ -141,6 +141,7 @@ class OpenAIProvider(LLMProvider):
             tool_calls_acc: dict[str, dict[str, Any]] = {}
             content_acc: list[str] = []
 
+            active_call_id: str | None = None
             async for event in response:
                 if hasattr(event, "type"):
                     if event.type == "response.output_text.delta" and hasattr(event, "delta"):
@@ -150,14 +151,15 @@ class OpenAIProvider(LLMProvider):
                         item = event.item
                         if getattr(item, "type", None) == "function_call":
                             cid = getattr(item, "call_id", "") or ""
+                            active_call_id = cid
                             tool_calls_acc[cid] = {
                                 "id": cid,
                                 "name": getattr(item, "name", ""),
                                 "arguments": [getattr(item, "arguments", "")],
                             }
                     elif event.type == "response.function_call_arguments.delta" and hasattr(event, "delta"):
-                        cid = getattr(event, "call_id", "") or ""
-                        if cid in tool_calls_acc:
+                        cid = getattr(event, "call_id", None) or active_call_id
+                        if cid and cid in tool_calls_acc:
                             tool_calls_acc[cid]["arguments"].append(event.delta)
 
             if not tool_calls_acc or iterations > MAX_ITERATIONS:
