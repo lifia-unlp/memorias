@@ -155,24 +155,20 @@ class OpenAIProvider(LLMProvider):
                     thread.append({"role": "assistant", "content": final_content})
                 break
 
-            openai_tool_calls = []
             for _, tc in sorted(tool_calls_acc.items()):
+                call_id = tc["id"]
+                func_name = tc["name"]
                 args_str = "".join(tc["arguments"])
-                openai_tool_calls.append(
+
+                thread.append(
                     {
-                        "id": tc["id"],
-                        "type": "function",
-                        "function": {"name": tc["name"], "arguments": args_str},
+                        "type": "function_call",
+                        "call_id": call_id,
+                        "name": func_name,
+                        "arguments": args_str,
                     }
                 )
 
-            thread.append(
-                {"role": "assistant", "content": "", "tool_calls": openai_tool_calls}
-            )
-
-            for tc in openai_tool_calls:
-                func_name = tc["function"]["name"]
-                args_str = tc["function"]["arguments"]
                 try:
                     args = json.loads(args_str) if args_str else {}
                 except Exception as je:
@@ -183,10 +179,9 @@ class OpenAIProvider(LLMProvider):
 
                 thread.append(
                     {
-                        "role": "tool",
-                        "tool_call_id": tc["id"],
-                        "name": func_name,
-                        "content": tool_result,
+                        "type": "function_call_output",
+                        "call_id": call_id,
+                        "output": tool_result if isinstance(tool_result, str) else json.dumps(tool_result, ensure_ascii=False),
                     }
                 )
 
