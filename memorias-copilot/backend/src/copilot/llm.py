@@ -167,7 +167,7 @@ class OpenAIProvider(LLMProvider):
                 )
 
             thread.append(
-                {"role": "assistant", "content": None, "tool_calls": openai_tool_calls}
+                {"role": "assistant", "content": "", "tool_calls": openai_tool_calls}
             )
 
             for tc in openai_tool_calls:
