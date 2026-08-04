@@ -29,23 +29,33 @@ def _load_system_prompt() -> str | None:
         return None
 
 
-def _load_skills_config() -> list[dict[str, Any]]:
+def _load_skills_prompt() -> str:
     path = Path(__file__).parent / "config" / "skills.json"
     if not path.exists():
-        return []
+        return ""
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
-        # Filter valid deployed skill IDs
-        skill_ids = [sid for sid in data.values() if sid]
+        skill_ids = {k: v for k, v in data.items() if v}
         if not skill_ids:
-            return []
-        return [{"type": "skill", "skill": {"id": sid}} for sid in skill_ids]
+            return ""
+        
+        prompts = []
+        skills_dir = Path(__file__).parent / "skills"
+        for skill_name in skill_ids.keys():
+            skill_file = skills_dir / skill_name / "SKILL.md"
+            if skill_file.exists():
+                content = skill_file.read_text(encoding="utf-8").strip()
+                prompts.append(content)
+        
+        if prompts:
+            return "\n\n" + "\n\n---\n\n".join(prompts)
+        return ""
     except Exception:
-        return []
+        return ""
 
 
 SYSTEM_PROMPT: Final[str | None] = _load_system_prompt()
-SKILLS_CONFIG: Final[list[dict[str, Any]]] = _load_skills_config()
+SKILLS_PROMPT: Final[str] = _load_skills_prompt()
 
 
 class LLMProvider(ABC):
@@ -78,8 +88,10 @@ class OpenAIProvider(LLMProvider):
         if SYSTEM_PROMPT is None:
             raise RuntimeError("System prompt is not loaded. Chat is offline.")
 
-        # Reconstruct history with prepended SYSTEM_PROMPT
-        thread: list[dict[str, Any]] = [{"role": "system", "content": SYSTEM_PROMPT}]
+        full_system_prompt = SYSTEM_PROMPT + (SKILLS_PROMPT if SKILLS_PROMPT else "")
+
+        # Reconstruct history with prepended full_system_prompt
+        thread: list[dict[str, Any]] = [{"role": "system", "content": full_system_prompt}]
         for msg in messages:
             if msg.role == "system":
                 continue
@@ -98,14 +110,8 @@ class OpenAIProvider(LLMProvider):
                 "stream": True,
             }
 
-            tools_list = []
             if dispatcher is not None:
-                tools_list.extend(TOOLS)
-            if SKILLS_CONFIG:
-                tools_list.extend(SKILLS_CONFIG)
-
-            if tools_list:
-                kwargs["tools"] = tools_list
+                kwargs["tools"] = TOOLS
 
             response = await self._client.chat.completions.create(**kwargs)
 

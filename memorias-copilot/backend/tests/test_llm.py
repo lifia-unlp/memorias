@@ -47,16 +47,14 @@ async def test_openai_provider_streaming() -> None:
 
         assert SYSTEM_PROMPT is not None
         assert chunks == ["Hello", " world", "[GROUNDING:none:0]"]
-        from copilot.llm import SKILLS_CONFIG
-        expected_kwargs = {
-            "model": "fake-model",
-            "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
+        from copilot.llm import SKILLS_PROMPT
+        full_system_prompt = SYSTEM_PROMPT + (SKILLS_PROMPT if SKILLS_PROMPT else "")
+
+        mock_completions.create.assert_called_once_with(
+            model="fake-model",
+            messages=[
+                {"role": "system", "content": full_system_prompt},
                 {"role": "user", "content": "Hi"},
             ],
-            "stream": True,
-        }
-        if SKILLS_CONFIG:
-            expected_kwargs["tools"] = SKILLS_CONFIG
-
-        mock_completions.create.assert_called_once_with(**expected_kwargs)
+            stream=True,
+        )

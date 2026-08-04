@@ -199,7 +199,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres_secure_pwd@memorias-db:5432/memorias?schema=public
       - OPENAI_API_KEY=your_openai_api_key
-      - OPENAI_MODEL=gpt-4o-mini
+      - OPENAI_MODEL=gpt-5.6-luna
       - MEMORIAS_WEB_BASE_URL=http://new-memorias:3000
       - SESSION_TIMEOUT_SECONDS=3600
     volumes:

@@ -57,7 +57,7 @@ class Settings(BaseModel):
 
     openai_api_key: str = Field(default_factory=lambda: os.getenv("OPENAI_API_KEY", ""))
     openai_model: str = Field(
-        default_factory=lambda: os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+        default_factory=lambda: os.getenv("OPENAI_MODEL", "gpt-5.6-luna")
     )
     database_url: str = Field(
         default_factory=lambda: _sanitize_db_url(
