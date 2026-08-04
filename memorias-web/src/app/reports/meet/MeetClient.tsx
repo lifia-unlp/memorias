@@ -84,13 +84,13 @@ const STATUS_ORDER: ("PLANNING" | "IN_PROGRESS" | "UNDER_EVALUATION" | "ACCEPTED
   "COMPLETED",
 ];
 
-const STATUS_CONFIG: Record<string, { label: string; color: "default" | "info" | "warning" | "success" | "error"; icon: string }> = {
-  PLANNING: { label: "Planning / Idea", color: "default", icon: "📌" },
-  IN_PROGRESS: { label: "In Progress", color: "info", icon: "⚡" },
-  UNDER_EVALUATION: { label: "Under Evaluation", color: "warning", icon: "🔍" },
-  ACCEPTED: { label: "Accepted", color: "success", icon: "🎉" },
-  REJECTED: { label: "Rejected", color: "error", icon: "❌" },
-  COMPLETED: { label: "Completed / Finished / Published", color: "success", icon: "✅" },
+const STATUS_CONFIG: Record<string, { label: string; color: "default" | "info" | "warning" | "success" | "error" }> = {
+  PLANNING: { label: "Planning / Idea", color: "default" },
+  IN_PROGRESS: { label: "In Progress", color: "info" },
+  UNDER_EVALUATION: { label: "Under Evaluation", color: "warning" },
+  ACCEPTED: { label: "Accepted", color: "success" },
+  REJECTED: { label: "Rejected", color: "error" },
+  COMPLETED: { label: "Completed / Finished / Published", color: "success" },
 };
 
 const CATEGORY_LABELS = {
@@ -345,14 +345,14 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
                     const statusItems = groupedItems.filter(({ item }) => item.status === stKey);
                     if (statusItems.length === 0) return null;
 
-                    const cfg = STATUS_CONFIG[stKey] || { label: stKey, color: "default", icon: "📄" };
+                    const cfg = STATUS_CONFIG[stKey] || { label: stKey, color: "default" };
 
                     return (
                       <Box key={stKey} sx={{ pl: 1, borderLeft: "3px solid", borderColor: `${cfg.color}.main` }}>
                         {/* Status Lifecycle Header */}
                         <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1.5 }}>
                           <Chip
-                            label={`${cfg.icon} ${cfg.label}`}
+                            label={cfg.label}
                             size="small"
                             color={cfg.color}
                             sx={{ fontWeight: "bold", fontSize: "0.75rem" }}
