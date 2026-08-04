@@ -5,13 +5,29 @@ This living document tracks active status, findings, and handoffs between AI ses
 ---
 
 ## Current Status
-* **Active Phase**: Phase 3 Complete (Traceability Verification & Wiki Publishing) & Active Maintenance (Search Enhancements)
-* **Last Updated**: 2026-05-28
-* **Overall Progress**: 100% completed (Maintenance active)
+* **Active Phase**: Phase 3 Complete & Maintenance (Issue #27 Agent Skills Refactoring Completed)
+* **Last Updated**: 2026-08-04
+* **Overall Progress**: 100% completed
 
 ---
 
 ## Session Logs
+
+### Session 6 (2026-08-04)
+* **Goal**: Execute Issue #27 ("Refactor monolithic system-prompt to skills") in `memorias-copilot`.
+* **Accomplished**:
+  * Extracted "Rule 9: Student Orientation Mode" into `backend/src/copilot/skills/student-orientation/SKILL.md`.
+  * Extracted "Rule 6: Unrelated Topics" into `backend/src/copilot/skills/unrelated-topics/SKILL.md`.
+  * Refactored `backend/src/copilot/prompts/system_prompt.md` to remove Rule 6 and Rule 9 to reduce initial token usage.
+  * Created lockfile `backend/src/copilot/config/skills.json` to hard-pin semantic skill names to OpenAI Skill IDs.
+  * Created CLI deployment script `backend/sync_skills.py` (`deploy`, `deploy-all`, `verify` subcommands).
+  * Updated `backend/src/copilot/llm.py` to read `skills.json` and dynamically attach registered skills to OpenAI completion requests.
+  * Created automated unit tests in `backend/tests/test_skills.py` covering prompt refactoring, skill zipping, deployment ID parsing, and lockfile verification.
+  * Ran full pytest test suite (15 passed).
+* **Blocked Items**:
+  * None.
+* **Next Steps**:
+  * Deploy skills using `python sync_skills.py deploy-all` when an `OPENAI_API_KEY` with OpenAI Skills API access is available.
 
 ### Session 5 (2026-05-28)
 * **Goal**: Analyze the provided copilot session log `session_a0d7ff69-6f76-423c-b118-344be714f25b.json` and fix search shortcomings where users query members by courses taught or academic positions.

@@ -346,7 +346,7 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
                                     </Typography>
                                     {item.owners && item.owners.length > 0 && (
                                       <Typography variant="caption" color="text.secondary" sx={{ display: "block", fontSize: "0.725rem", mt: 0.25 }}>
-                                        Responsibles: {item.owners.map((o) => `${o.firstName} ${o.lastName}`).join(", ")}
+                                        Owners: {item.owners.map((o) => `${o.firstName} ${o.lastName}`).join(", ")}
                                       </Typography>
                                     )}
                                     {item.description && (

@@ -29,7 +29,23 @@ def _load_system_prompt() -> str | None:
         return None
 
 
+def _load_skills_config() -> list[dict[str, Any]]:
+    path = Path(__file__).parent / "config" / "skills.json"
+    if not path.exists():
+        return []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        # Filter valid deployed skill IDs
+        skill_ids = [sid for sid in data.values() if sid]
+        if not skill_ids:
+            return []
+        return [{"type": "skill", "skill": {"id": sid}} for sid in skill_ids]
+    except Exception:
+        return []
+
+
 SYSTEM_PROMPT: Final[str | None] = _load_system_prompt()
+SKILLS_CONFIG: Final[list[dict[str, Any]]] = _load_skills_config()
 
 
 class LLMProvider(ABC):
@@ -81,8 +97,15 @@ class OpenAIProvider(LLMProvider):
                 "messages": list(thread),
                 "stream": True,
             }
+
+            tools_list = []
             if dispatcher is not None:
-                kwargs["tools"] = TOOLS
+                tools_list.extend(TOOLS)
+            if SKILLS_CONFIG:
+                tools_list.extend(SKILLS_CONFIG)
+
+            if tools_list:
+                kwargs["tools"] = tools_list
 
             response = await self._client.chat.completions.create(**kwargs)
 
