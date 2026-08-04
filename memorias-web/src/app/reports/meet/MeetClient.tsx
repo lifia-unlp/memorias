@@ -239,26 +239,9 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
     if (confirm("Are you sure you want to delete this progress note/news log entry?")) {
       const res = await deleteFollowUpHistory(historyId);
       if (res.success) {
-        window.location.reload();
+        router.refresh();
       }
     }
-  };
-
-  const getMinutesText = () => {
-    let txt = `FOLLOW-UP MEETING MINUTES - ${new Date().toLocaleDateString()}\n\n`;
-    txt += `RECORDED CHANGES AND NEWS:\n`;
-    filteredChanges.forEach((ch, idx) => {
-      txt += `${idx + 1}. [${ch.followUpItem.category}] ${ch.followUpItem.title}\n`;
-      txt += `   - Change: ${STATUS_LABELS[ch.fromStatus as keyof typeof STATUS_LABELS] || ch.fromStatus} to ${STATUS_LABELS[ch.toStatus as keyof typeof STATUS_LABELS] || ch.toStatus}\n`;
-      txt += `   - News/Notes: "${ch.notes || "No additional notes."}"\n`;
-      txt += `   - Logged By: ${ch.loggedBy?.name || ch.loggedBy?.email || "System"}\n\n`;
-    });
-    return txt;
-  };
-
-  const copyMinutesToClipboard = () => {
-    navigator.clipboard.writeText(getMinutesText());
-    alert("Minutes copied to clipboard!");
   };
 
   const categoryKeys: (keyof typeof CATEGORY_LABELS)[] = ["PUBLICATION", "PROJECT", "THESIS", "SCHOLARSHIP"];
@@ -268,7 +251,7 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
       {/* Upper Toolbar */}
       <Paper sx={{ p: 2.5, mb: 4, borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
         <Grid container spacing={2} sx={{ alignItems: "center" }}>
-          <Grid size={{ xs: 12, sm: 3 }}>
+          <Grid size={{ xs: 12, sm: 4, md: 3 }}>
             <TextField
               fullWidth
               size="small"
@@ -279,7 +262,7 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
               slotProps={{ inputLabel: { shrink: true } }}
             />
           </Grid>
-          <Grid size={{ xs: 12, sm: 3 }}>
+          <Grid size={{ xs: 12, sm: 4, md: 3 }}>
             <TextField
               fullWidth
               size="small"
@@ -289,18 +272,6 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
               onChange={(e) => setDateTo(e.target.value)}
               slotProps={{ inputLabel: { shrink: true } }}
             />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <Stack direction="row" spacing={2} sx={{ justifyContent: "flex-end" }}>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={() => setIsMinutesOpen(true)}
-                sx={{ borderRadius: 2, fontWeight: "bold" }}
-              >
-                Generate Minutes
-              </Button>
-            </Stack>
           </Grid>
         </Grid>
       </Paper>
@@ -672,29 +643,6 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
         </DialogActions>
       </Dialog>
 
-      {/* Minutes Dialog */}
-      <Dialog open={isMinutesOpen} onClose={() => setIsMinutesOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle sx={{ fontWeight: "bold" }}>Meeting Minutes Preview</DialogTitle>
-        <DialogContent>
-          <TextField
-            fullWidth
-            multiline
-            rows={10}
-            variant="outlined"
-            value={getMinutesText()}
-            slotProps={{ input: { readOnly: true } }}
-            sx={{ fontFamily: "monospace", fontSize: "0.85rem", bgcolor: "action.hover", mt: 1 }}
-          />
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button onClick={() => setIsMinutesOpen(false)} color="secondary">
-            Close
-          </Button>
-          <Button onClick={copyMinutesToClipboard} variant="contained" color="secondary">
-            Copy to Clipboard
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 }
