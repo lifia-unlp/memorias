@@ -33,9 +33,9 @@ def test_zip_skill(tmp_path, monkeypatch):
 
 
 class DummySkillsAPI:
-    def create(self, file, name):
+    def create(self, files=None, name=None, **kwargs):
         class Resp:
-            id = f"skill_mock_{name}"
+            id = "skill_mock_student-orientation"
         return Resp()
 
     def retrieve(self, skill_id):

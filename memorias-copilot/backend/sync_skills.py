@@ -11,6 +11,26 @@ try:
 except ImportError:
     OpenAI = None  # type: ignore
 
+try:
+    from dotenv import load_dotenv
+    env_path = Path(__file__).resolve().parent / ".env"
+    if env_path.exists():
+        load_dotenv(dotenv_path=env_path)
+    else:
+        load_dotenv()
+except ImportError:
+    pass
+
+# Fallback .env parser if python-dotenv is not installed
+if not os.environ.get("OPENAI_API_KEY"):
+    env_file = Path(__file__).resolve().parent / ".env"
+    if env_file.exists():
+        for line in env_file.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                key, val = line.split("=", 1)
+                os.environ[key.strip()] = val.strip().strip("'\"")
+
 BASE_DIR = Path(__file__).resolve().parent
 SKILLS_DIR = BASE_DIR / "src" / "copilot" / "skills"
 LOCKFILE_PATH = BASE_DIR / "src" / "copilot" / "config" / "skills.json"
@@ -40,7 +60,7 @@ def zip_skill(skill_name: str) -> Path:
         for root, _, files in os.walk(skill_path):
             for file in files:
                 file_p = Path(root) / file
-                arcname = file_p.relative_to(skill_path)
+                arcname = Path(skill_name) / file_p.relative_to(skill_path)
                 zipf.write(file_p, arcname)
     return zip_path
 
@@ -62,8 +82,7 @@ def deploy_skill(skill_name: str, client: Any = None) -> str:
         
         # Deploy using OpenAI Skills API
         with open(zip_path, "rb") as f:
-            # Assuming client.skills.create API interface
-            response = client.skills.create(file=f, name=skill_name)
+            response = client.skills.create(files=[f])
             if hasattr(response, "id"):
                 skill_id = response.id
             elif isinstance(response, dict):
