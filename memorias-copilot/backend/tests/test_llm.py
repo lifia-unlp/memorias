@@ -10,29 +10,29 @@ from copilot.models import Message
 @pytest.mark.asyncio
 async def test_openai_provider_streaming() -> None:
     mock_client = MagicMock()
-    mock_completions = AsyncMock()
+    mock_responses = AsyncMock()
 
-    # Define mock response chunks
-    mock_chunk_1 = MagicMock()
-    mock_chunk_1.choices = [MagicMock()]
-    mock_chunk_1.choices[0].delta.content = "Hello"
+    # Define mock response events from Responses API
+    mock_event_1 = MagicMock()
+    mock_event_1.type = "response.output_text.delta"
+    mock_event_1.delta = "Hello"
 
-    mock_chunk_2 = MagicMock()
-    mock_chunk_2.choices = [MagicMock()]
-    mock_chunk_2.choices[0].delta.content = " world"
+    mock_event_2 = MagicMock()
+    mock_event_2.type = "response.output_text.delta"
+    mock_event_2.delta = " world"
 
     from openai import AsyncStream
 
     mock_response = MagicMock(spec=AsyncStream)
 
     async def async_generator() -> AsyncIterator[MagicMock]:
-        yield mock_chunk_1
-        yield mock_chunk_2
+        yield mock_event_1
+        yield mock_event_2
 
     mock_response.__aiter__.side_effect = lambda: async_generator()
 
-    mock_completions.create.return_value = mock_response
-    mock_client.chat.completions = mock_completions
+    mock_responses.create.return_value = mock_response
+    mock_client.responses = mock_responses
 
     # Patch AsyncOpenAI to return our mock client
     with patch("copilot.llm.AsyncOpenAI", return_value=mock_client):
@@ -43,18 +43,18 @@ async def test_openai_provider_streaming() -> None:
         async for chunk in provider.stream_completions(messages):
             chunks.append(chunk)
 
-        from copilot.llm import SYSTEM_PROMPT
+        from copilot.llm import SYSTEM_PROMPT, SKILLS_CONFIG
 
         assert SYSTEM_PROMPT is not None
         assert chunks == ["Hello", " world", "[GROUNDING:none:0]"]
-        from copilot.llm import SKILLS_PROMPT
-        full_system_prompt = SYSTEM_PROMPT + (SKILLS_PROMPT if SKILLS_PROMPT else "")
 
-        mock_completions.create.assert_called_once_with(
-            model="fake-model",
-            messages=[
-                {"role": "system", "content": full_system_prompt},
-                {"role": "user", "content": "Hi"},
-            ],
-            stream=True,
-        )
+        expected_kwargs = {
+            "model": "fake-model",
+            "instructions": SYSTEM_PROMPT,
+            "input": [{"role": "user", "content": "Hi"}, {"role": "assistant", "content": "Hello world"}],
+            "stream": True,
+        }
+        if SKILLS_CONFIG:
+            expected_kwargs["tools"] = SKILLS_CONFIG
+
+        mock_responses.create.assert_called_once_with(**expected_kwargs)

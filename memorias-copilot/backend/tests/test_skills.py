@@ -3,7 +3,7 @@ import pytest
 from pathlib import Path
 
 import sync_skills
-from copilot.llm import _load_system_prompt, _load_skills_prompt
+from copilot.llm import _load_system_prompt, _load_skills_config
 
 
 def test_system_prompt_loading_has_no_rule6_or_rule9():
@@ -13,10 +13,12 @@ def test_system_prompt_loading_has_no_rule6_or_rule9():
     assert "MANDATORY `get_tag_cloud` CALL FOR UNRELATED TOPICS" not in prompt
 
 
-def test_skills_prompt_loader():
-    skills_prompt = _load_skills_prompt()
-    assert isinstance(skills_prompt, str)
-    assert "STUDENT ORIENTATION MODE" in skills_prompt
+def test_skills_config_loader():
+    skills = _load_skills_config()
+    assert isinstance(skills, list)
+    if skills:
+        assert skills[0]["type"] == "shell"
+        assert skills[0]["environment"]["type"] == "container_auto"
 
 
 def test_zip_skill(tmp_path, monkeypatch):

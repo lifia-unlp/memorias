@@ -29,33 +29,34 @@ def _load_system_prompt() -> str | None:
         return None
 
 
-def _load_skills_prompt() -> str:
+def _load_skills_config() -> list[dict[str, Any]]:
     path = Path(__file__).parent / "config" / "skills.json"
     if not path.exists():
-        return ""
+        return []
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
-        skill_ids = {k: v for k, v in data.items() if v}
-        if not skill_ids:
-            return ""
-        
-        prompts = []
-        skills_dir = Path(__file__).parent / "skills"
-        for skill_name in skill_ids.keys():
-            skill_file = skills_dir / skill_name / "SKILL.md"
-            if skill_file.exists():
-                content = skill_file.read_text(encoding="utf-8").strip()
-                prompts.append(content)
-        
-        if prompts:
-            return "\n\n" + "\n\n---\n\n".join(prompts)
-        return ""
+        skill_refs = [
+            {"type": "skill_reference", "skill_id": sid}
+            for sid in data.values()
+            if sid
+        ]
+        if not skill_refs:
+            return []
+        return [
+            {
+                "type": "shell",
+                "environment": {
+                    "type": "container_auto",
+                    "skills": skill_refs,
+                },
+            }
+        ]
     except Exception:
-        return ""
+        return []
 
 
 SYSTEM_PROMPT: Final[str | None] = _load_system_prompt()
-SKILLS_PROMPT: Final[str] = _load_skills_prompt()
+SKILLS_CONFIG: Final[list[dict[str, Any]]] = _load_skills_config()
 
 
 class LLMProvider(ABC):
@@ -88,77 +89,61 @@ class OpenAIProvider(LLMProvider):
         if SYSTEM_PROMPT is None:
             raise RuntimeError("System prompt is not loaded. Chat is offline.")
 
-        full_system_prompt = SYSTEM_PROMPT + (SKILLS_PROMPT if SKILLS_PROMPT else "")
-
-        # Reconstruct history with prepended full_system_prompt
-        thread: list[dict[str, Any]] = [{"role": "system", "content": full_system_prompt}]
+        # Reconstruct history
+        thread: list[dict[str, Any]] = []
         for msg in messages:
             if msg.role == "system":
                 continue
             thread.append({"role": msg.role, "content": msg.content})
 
         tool_calls_count = 0
-        # Track where in the thread the history ends so we know which messages
-        # were generated during this turn (tool calls, results, final reply).
         history_end_index = len(thread)
 
         while True:
-            # Build API completions request kwargs
+            tools_list = []
+            if dispatcher is not None:
+                tools_list.extend(TOOLS)
+            if SKILLS_CONFIG:
+                tools_list.extend(SKILLS_CONFIG)
+
             kwargs: dict[str, Any] = {
                 "model": self._model,
-                "messages": list(thread),
+                "instructions": SYSTEM_PROMPT,
+                "input": thread,
                 "stream": True,
             }
+            if tools_list:
+                kwargs["tools"] = tools_list
 
-            if dispatcher is not None:
-                kwargs["tools"] = TOOLS
-
-            response = await self._client.chat.completions.create(**kwargs)
+            response = await self._client.responses.create(**kwargs)
 
             if not isinstance(response, AsyncStream):
-                raise TypeError("Expected an AsyncStream from OpenAI Completions API")
+                raise TypeError("Expected an AsyncStream from OpenAI Responses API")
 
             tool_calls_acc: dict[int, dict[str, Any]] = {}
             content_acc: list[str] = []
 
-            async for chunk in response:
-                if not chunk.choices:
-                    continue
-                delta = chunk.choices[0].delta
-
-                # Stream out raw text chunks immediately to client
-                if delta.content is not None:
-                    content_acc.append(delta.content)
-                    yield delta.content
-
-                # Accumulate tool calls chunks
-                if delta.tool_calls:
-                    for tc in delta.tool_calls:
-                        idx = tc.index
-                        if idx not in tool_calls_acc:
+            async for event in response:
+                if hasattr(event, "type"):
+                    if event.type == "response.output_text.delta" and hasattr(event, "delta"):
+                        content_acc.append(event.delta)
+                        yield event.delta
+                    elif event.type == "response.output_item.added" and hasattr(event, "item"):
+                        item = event.item
+                        if getattr(item, "type", None) == "function_call":
+                            idx = getattr(item, "call_id", 0)
                             tool_calls_acc[idx] = {
-                                "id": tc.id or "",
-                                "name": tc.function.name if tc.function else "",
-                                "arguments": [],
+                                "id": getattr(item, "call_id", ""),
+                                "name": getattr(item, "name", ""),
+                                "arguments": [getattr(item, "arguments", "")],
                             }
-                        if tc.id and not tool_calls_acc[idx]["id"]:
-                            tool_calls_acc[idx]["id"] = tc.id
-                        if tc.function:
-                            if tc.function.name:
-                                tool_calls_acc[idx]["name"] = tc.function.name
-                            if tc.function.arguments:
-                                tool_calls_acc[idx]["arguments"].append(
-                                    tc.function.arguments
-                                )
 
-            # If no tool calls were generated, the stream is finished!
             if not tool_calls_acc:
                 final_content = "".join(content_acc)
                 if final_content:
                     thread.append({"role": "assistant", "content": final_content})
                 break
 
-            # Reconstruct complete tool calls
             openai_tool_calls = []
             for _, tc in sorted(tool_calls_acc.items()):
                 args_str = "".join(tc["arguments"])
@@ -170,12 +155,10 @@ class OpenAIProvider(LLMProvider):
                     }
                 )
 
-            # Append assistant tool calls request to conversation thread
             thread.append(
                 {"role": "assistant", "content": None, "tool_calls": openai_tool_calls}
             )
 
-            # Execute each tool and append the result message to thread
             for tc in openai_tool_calls:
                 func_name = tc["function"]["name"]
                 args_str = tc["function"]["arguments"]
@@ -205,8 +188,6 @@ class OpenAIProvider(LLMProvider):
 
         if session_id:
             try:
-                # Only the messages appended during this turn
-                # (tool calls, results, final reply).
                 generated_this_turn = list(thread[history_end_index:])
                 turn_metadata = {
                     "role": "metadata",
@@ -220,11 +201,9 @@ class OpenAIProvider(LLMProvider):
                 log_file = logs_dir / f"session_{session_id}.json"
 
                 if log_file.exists():
-                    # Append mode: preserve prior turns exactly as they happened.
                     existing_log: list[dict[str, Any]] = json.loads(
                         log_file.read_text(encoding="utf-8")
                     )
-                    # The new user message is the last message in the incoming history.
                     new_user_msg = {
                         "role": messages[-1].role,
                         "content": messages[-1].content,
@@ -234,7 +213,6 @@ class OpenAIProvider(LLMProvider):
                     existing_log.append(turn_metadata)
                     full_log = existing_log
                 else:
-                    # First turn: write the full initial thread plus generated messages.
                     full_log = list(thread)
                     full_log.append(turn_metadata)
 
