@@ -138,7 +138,7 @@ class OpenAIProvider(LLMProvider):
             if not isinstance(response, AsyncStream):
                 raise TypeError("Expected an AsyncStream from OpenAI Responses API")
 
-            tool_calls_acc: dict[int, dict[str, Any]] = {}
+            tool_calls_acc: dict[str, dict[str, Any]] = {}
             content_acc: list[str] = []
 
             async for event in response:
@@ -149,12 +149,16 @@ class OpenAIProvider(LLMProvider):
                     elif event.type == "response.output_item.added" and hasattr(event, "item"):
                         item = event.item
                         if getattr(item, "type", None) == "function_call":
-                            idx = getattr(item, "call_id", 0)
-                            tool_calls_acc[idx] = {
-                                "id": getattr(item, "call_id", ""),
+                            cid = getattr(item, "call_id", "") or ""
+                            tool_calls_acc[cid] = {
+                                "id": cid,
                                 "name": getattr(item, "name", ""),
                                 "arguments": [getattr(item, "arguments", "")],
                             }
+                    elif event.type == "response.function_call_arguments.delta" and hasattr(event, "delta"):
+                        cid = getattr(event, "call_id", "") or ""
+                        if cid in tool_calls_acc:
+                            tool_calls_acc[cid]["arguments"].append(event.delta)
 
             if not tool_calls_acc or iterations > MAX_ITERATIONS:
                 final_content = "".join(content_acc)
