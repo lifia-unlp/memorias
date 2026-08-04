@@ -653,14 +653,28 @@ export default function FollowUpClient({
                                       onChange={(e) => setUpdateNote(e.target.value)}
                                       sx={{ flexGrow: 1 }}
                                     />
-                                    <Button
-                                      variant="contained"
-                                      size="small"
-                                      onClick={() => handleUpdateStatus(item.id)}
-                                      disabled={isSubmitting}
-                                    >
-                                      {isSubmitting ? <CircularProgress size={16} color="inherit" /> : "Save Update"}
-                                    </Button>
+                                    <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                                      <Button
+                                        variant="contained"
+                                        size="small"
+                                        onClick={() => handleUpdateStatus(item.id)}
+                                        disabled={isSubmitting}
+                                      >
+                                        {isSubmitting ? <CircularProgress size={16} color="inherit" /> : "Save Update"}
+                                      </Button>
+                                      <Button
+                                        variant="outlined"
+                                        color="secondary"
+                                        size="small"
+                                        onClick={() => {
+                                          setExpandedId(null);
+                                          setUpdateNote("");
+                                        }}
+                                        disabled={isSubmitting}
+                                      >
+                                        Cancel Update
+                                      </Button>
+                                    </Stack>
                                   </Box>
                                 </Collapse>
                               </TableCell>
