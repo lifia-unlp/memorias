@@ -19,23 +19,28 @@ class ToolDispatcher:
         try:
             # --- Search Tools ---
             if name == "search_members":
-                members = await self._db.search_members(arguments["query"])
+                query = arguments.get("query", "")
+                members = await self._db.search_members(query)
                 return json.dumps([m.model_dump(mode="json") for m in members])
 
             elif name == "search_projects":
-                projects = await self._db.search_projects(arguments["query"])
+                query = arguments.get("query", "")
+                projects = await self._db.search_projects(query)
                 return json.dumps([p.model_dump(mode="json") for p in projects])
 
             elif name == "search_theses":
-                theses = await self._db.search_theses(arguments["query"])
+                query = arguments.get("query", "")
+                theses = await self._db.search_theses(query)
                 return json.dumps([t.model_dump(mode="json") for t in theses])
 
             elif name == "search_scholarships":
-                scholarships = await self._db.search_scholarships(arguments["query"])
+                query = arguments.get("query", "")
+                scholarships = await self._db.search_scholarships(query)
                 return json.dumps([s.model_dump(mode="json") for s in scholarships])
 
             elif name == "search_publications":
-                publications = await self._db.search_publications(arguments["query"])
+                query = arguments.get("query", "")
+                publications = await self._db.search_publications(query)
                 return json.dumps([p.model_dump(mode="json") for p in publications])
 
             elif name == "get_tag_cloud":
