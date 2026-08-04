@@ -207,6 +207,9 @@ services:
     networks:
       - memorias-network
 
+> [!NOTE]
+> **OpenAI Agent Skills Architecture**: The Copilot relies on `skills.json` (located inside `/app/src/copilot/config/skills.json` in the container) to reference deployed Agent Skill IDs (`student-orientation`, `unrelated-topics`). When changing or adding skills, run `python sync_skills.py deploy-all` locally with your target environment's `OPENAI_API_KEY` before building the production Docker image.
+
 volumes:
   copilot-logs:
 

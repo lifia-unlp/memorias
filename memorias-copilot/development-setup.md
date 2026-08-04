@@ -202,6 +202,30 @@ uv run pytest
 
 ---
 
+## 5b. Managing Agent Skills (OpenAI Skills API)
+
+The copilot uses OpenAI Agent Skills (`src/copilot/skills/`) to handle specific interaction modes (e.g. Student Orientation, Unrelated Topics).
+
+### Deploying skills to OpenAI
+Deploying zips the skill, uploads it to OpenAI under the project defined by your `OPENAI_API_KEY`, and updates `src/copilot/config/skills.json`:
+
+```bash
+# Deploy a single skill
+uv run python sync_skills.py deploy student-orientation
+
+# Deploy all skills in src/copilot/skills/
+uv run python sync_skills.py deploy-all
+```
+
+### Verifying skill IDs
+To check that all skill IDs in `skills.json` exist and are accessible in your current OpenAI project:
+
+```bash
+uv run python sync_skills.py verify
+```
+
+---
+
 ## 6. Managing the uv cache
 
 The cache is shared across all your Python projects and lives at the path you
