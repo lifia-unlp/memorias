@@ -207,7 +207,7 @@ async def get_info() -> dict[str, Any]:
 _frontend_dir = Path(
     os.getenv(
         "FRONTEND_DIR",
-        str(Path(__file__).parent.parent.parent.parent.parent / "frontend"),
+        str(Path(__file__).resolve().parent.parent.parent.parent / "frontend"),
     )
 )
 if _frontend_dir.is_dir():
