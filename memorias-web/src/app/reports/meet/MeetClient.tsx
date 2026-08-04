@@ -75,6 +75,24 @@ interface MeetClientProps {
   recentChanges: ChangeHistory[];
 }
 
+const STATUS_ORDER: ("PLANNING" | "IN_PROGRESS" | "UNDER_EVALUATION" | "ACCEPTED" | "REJECTED" | "COMPLETED")[] = [
+  "PLANNING",
+  "IN_PROGRESS",
+  "UNDER_EVALUATION",
+  "ACCEPTED",
+  "REJECTED",
+  "COMPLETED",
+];
+
+const STATUS_CONFIG: Record<string, { label: string; color: "default" | "info" | "warning" | "success" | "error"; icon: string }> = {
+  PLANNING: { label: "Planning / Idea", color: "default", icon: "📌" },
+  IN_PROGRESS: { label: "In Progress", color: "info", icon: "⚡" },
+  UNDER_EVALUATION: { label: "Under Evaluation", color: "warning", icon: "🔍" },
+  ACCEPTED: { label: "Accepted", color: "success", icon: "🎉" },
+  REJECTED: { label: "Rejected", color: "error", icon: "❌" },
+  COMPLETED: { label: "Completed / Finished / Published", color: "success", icon: "✅" },
+};
+
 const CATEGORY_LABELS = {
   PUBLICATION: "Follow-up items for Publications",
   PROJECT: "Follow-up items for Projects",
@@ -315,128 +333,152 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
             const groupedItems = Array.from(itemMap.values());
 
             return (
-              <Box key={catKey}>
-                <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                  {CATEGORY_LABELS[catKey]}
+              <Box key={catKey} sx={{ bgcolor: "background.paper", p: 2.5, borderRadius: 3, border: "1px solid", borderColor: "divider", boxShadow: 1 }}>
+                {/* Category Header */}
+                <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 2.5, color: "primary.main", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "2px solid", borderColor: "primary.main", pb: 0.5 }}>
+                  {CATEGORY_LABELS[catKey]} ({groupedItems.length} active items)
                 </Typography>
                 
-                <Stack spacing={2.5}>
-                  {groupedItems.map(({ item, changes }) => {
-                    const currentStatusLabel = STATUS_LABELS[item.status as keyof typeof STATUS_LABELS] || item.status;
-                    return (
-                      <Card key={item.id} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider", p: 2.5 }}>
-                        {/* Item Header */}
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 1.5, pb: 1.5, borderBottom: "1px solid", borderColor: "divider" }}>
-                          <Box sx={{ flexGrow: 1 }}>
-                            <Typography variant="subtitle1" sx={{ fontWeight: "bold", color: "text.primary" }}>
-                              {item.title}
-                            </Typography>
-                            {item.owners && item.owners.length > 0 && (
-                              <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-                                Owners: {item.owners.map((o) => `${o.firstName} ${o.lastName}`).join(", ")}
-                              </Typography>
-                            )}
-                            {item.description && (
-                              <Box sx={{ mt: 0.5, color: "text.secondary" }}>
-                                {renderMarkdown(item.description)}
-                              </Box>
-                            )}
-                          </Box>
-                          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-                            <Chip
-                              label={currentStatusLabel}
-                              size="small"
-                              color="primary"
-                              sx={{ fontSize: "0.75rem", fontWeight: "bold" }}
-                            />
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              onClick={() => {
-                                setAddingNewsItem(item);
-                                setNewStatus(item.status);
-                                setNewNoteText("");
-                              }}
-                              sx={{ textTransform: "none", fontSize: "0.75rem", fontWeight: "bold" }}
-                            >
-                              Add News
-                            </Button>
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              onClick={() => {
-                                setEditingItem(item);
-                                setEditTitle(item.title);
-                                setEditDescription(item.description || "");
-                              }}
-                              sx={{ textTransform: "none", fontSize: "0.75rem", fontWeight: "bold" }}
-                            >
-                              Edit Item
-                            </Button>
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              onClick={() => setHistoryItem(item)}
-                              sx={{ textTransform: "none", fontSize: "0.75rem", fontWeight: "bold" }}
-                            >
-                              View History
-                            </Button>
-                          </Stack>
-                        </Box>
+                <Stack spacing={3}>
+                  {/* Group items by lifecycle status: PLANNING first, COMPLETED last */}
+                  {STATUS_ORDER.map((stKey) => {
+                    const statusItems = groupedItems.filter(({ item }) => item.status === stKey);
+                    if (statusItems.length === 0) return null;
 
-                        {/* News / Notes for selected period */}
-                        <Box sx={{ pt: 2, display: "flex", flexDirection: "column", gap: 1.5 }}>
-                          <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                            News & Updates for Period ({changes.length})
+                    const cfg = STATUS_CONFIG[stKey] || { label: stKey, color: "default", icon: "📄" };
+
+                    return (
+                      <Box key={stKey} sx={{ pl: 1, borderLeft: "3px solid", borderColor: `${cfg.color}.main` }}>
+                        {/* Status Lifecycle Header */}
+                        <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1.5 }}>
+                          <Chip
+                            label={`${cfg.icon} ${cfg.label}`}
+                            size="small"
+                            color={cfg.color}
+                            sx={{ fontWeight: "bold", fontSize: "0.75rem" }}
+                          />
+                          <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
+                            ({statusItems.length} {statusItems.length === 1 ? "item" : "items"})
                           </Typography>
-                          {changes.map((ch) => {
-                            const transitionStr = `${STATUS_LABELS[ch.fromStatus as keyof typeof STATUS_LABELS] || ch.fromStatus} → ${STATUS_LABELS[ch.toStatus as keyof typeof STATUS_LABELS] || ch.toStatus}`;
+                        </Stack>
+
+                        {/* Compact Item Rows */}
+                        <Stack spacing={1.5}>
+                          {statusItems.map(({ item, changes }) => {
                             return (
-                              <Box key={ch.id} sx={{ p: 2, bgcolor: "action.hover", borderRadius: 2, border: "1px solid", borderColor: "divider" }}>
-                                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1, flexWrap: "wrap", gap: 1 }}>
-                                  <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-                                    <Chip
-                                      label={transitionStr}
-                                      size="small"
-                                      color="secondary"
-                                      variant="outlined"
-                                      sx={{ fontSize: "0.6875rem", fontWeight: "bold", height: 20 }}
-                                    />
-                                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
-                                      By {ch.loggedBy?.name || ch.loggedBy?.email || "System"} on {new Date(ch.meetingDate).toLocaleDateString()}
+                              <Paper key={item.id} variant="outlined" sx={{ p: 1.75, borderRadius: 2, bgcolor: "background.paper", "&:hover": { borderColor: "primary.light" } }}>
+                                {/* Dense Item Header */}
+                                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 1, pb: 1, borderBottom: "1px dashed", borderColor: "divider" }}>
+                                  <Box sx={{ flexGrow: 1, minWidth: 240 }}>
+                                    <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.primary", lineHeight: 1.3 }}>
+                                      {item.title}
                                     </Typography>
-                                  </Stack>
-                                  <Stack direction="row" spacing={0.5}>
+                                    {item.owners && item.owners.length > 0 && (
+                                      <Typography variant="caption" color="text.secondary" sx={{ display: "block", fontSize: "0.725rem", mt: 0.25 }}>
+                                        Responsibles: {item.owners.map((o) => `${o.firstName} ${o.lastName}`).join(", ")}
+                                      </Typography>
+                                    )}
+                                    {item.description && (
+                                      <Box sx={{ mt: 0.5, color: "text.secondary", fontSize: "0.8rem" }}>
+                                        {renderMarkdown(item.description)}
+                                      </Box>
+                                    )}
+                                  </Box>
+
+                                  {/* Compact Inline Action Buttons */}
+                                  <Stack direction="row" spacing={0.75} sx={{ alignItems: "center" }}>
                                     <Button
                                       size="small"
-                                      variant="text"
+                                      variant="outlined"
                                       onClick={() => {
-                                        setEditingChange(ch);
-                                        setEditNotesText(ch.notes || "");
+                                        setAddingNewsItem(item);
+                                        setNewStatus(item.status);
+                                        setNewNoteText("");
                                       }}
-                                      sx={{ textTransform: "none", fontSize: "0.7rem", py: 0 }}
+                                      sx={{ textTransform: "none", fontSize: "0.7rem", py: 0.25, px: 1, fontWeight: "bold" }}
+                                    >
+                                      + Add News
+                                    </Button>
+                                    <Button
+                                      size="small"
+                                      variant="outlined"
+                                      onClick={() => {
+                                        setEditingItem(item);
+                                        setEditTitle(item.title);
+                                        setEditDescription(item.description || "");
+                                      }}
+                                      sx={{ textTransform: "none", fontSize: "0.7rem", py: 0.25, px: 1, fontWeight: "bold" }}
                                     >
                                       Edit
                                     </Button>
                                     <Button
                                       size="small"
-                                      variant="text"
-                                      color="error"
-                                      onClick={() => handleDeleteHistory(ch.id)}
-                                      sx={{ textTransform: "none", fontSize: "0.7rem", py: 0 }}
+                                      variant="outlined"
+                                      onClick={() => setHistoryItem(item)}
+                                      sx={{ textTransform: "none", fontSize: "0.7rem", py: 0.25, px: 1 }}
                                     >
-                                      Delete
+                                      History ({item.history.length})
                                     </Button>
                                   </Stack>
                                 </Box>
-                                <Box sx={{ pt: 0.5 }}>
-                                  {renderMarkdown(ch.notes)}
+
+                                {/* Compact News Timeline for Period */}
+                                <Box sx={{ pt: 1, display: "flex", flexDirection: "column", gap: 1 }}>
+                                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary", fontSize: "0.675rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                    Period Updates ({changes.length})
+                                  </Typography>
+                                  {changes.map((ch) => {
+                                    const transitionStr = `${STATUS_LABELS[ch.fromStatus as keyof typeof STATUS_LABELS] || ch.fromStatus} → ${STATUS_LABELS[ch.toStatus as keyof typeof STATUS_LABELS] || ch.toStatus}`;
+                                    return (
+                                      <Box key={ch.id} sx={{ p: 1.25, bgcolor: "action.hover", borderRadius: 1.5, border: "1px solid", borderColor: "divider" }}>
+                                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5, flexWrap: "wrap", gap: 1 }}>
+                                          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                                            <Chip
+                                              label={transitionStr}
+                                              size="small"
+                                              color="secondary"
+                                              variant="outlined"
+                                              sx={{ fontSize: "0.65rem", fontWeight: "bold", height: 18 }}
+                                            />
+                                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.6875rem" }}>
+                                              By {ch.loggedBy?.name || ch.loggedBy?.email || "System"} on {new Date(ch.meetingDate).toLocaleDateString()}
+                                            </Typography>
+                                          </Stack>
+                                          <Stack direction="row" spacing={0.5}>
+                                            <Button
+                                              size="small"
+                                              variant="text"
+                                              onClick={() => {
+                                                setEditingChange(ch);
+                                                setEditNotesText(ch.notes || "");
+                                              }}
+                                              sx={{ textTransform: "none", fontSize: "0.675rem", py: 0, px: 0.75, minWidth: 0 }}
+                                            >
+                                              Edit
+                                            </Button>
+                                            <Button
+                                              size="small"
+                                              variant="text"
+                                              color="error"
+                                              onClick={() => handleDeleteHistory(ch.id)}
+                                              sx={{ textTransform: "none", fontSize: "0.675rem", py: 0, px: 0.75, minWidth: 0 }}
+                                            >
+                                              Delete
+                                            </Button>
+                                          </Stack>
+                                        </Box>
+                                        <Box sx={{ pt: 0.25 }}>
+                                          {renderMarkdown(ch.notes)}
+                                        </Box>
+                                      </Box>
+                                    );
+                                  })}
                                 </Box>
-                              </Box>
+                              </Paper>
                             );
                           })}
-                        </Box>
-                      </Card>
+                        </Stack>
+                      </Box>
                     );
                   })}
                 </Stack>
