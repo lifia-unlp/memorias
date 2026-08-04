@@ -98,10 +98,14 @@ class OpenAIProvider(LLMProvider):
 
         tool_calls_count = 0
         history_end_index = len(thread)
+        executed_calls_cache: set[str] = set()
+        iterations = 0
+        MAX_ITERATIONS = 10
 
         while True:
+            iterations += 1
             tools_list = []
-            if dispatcher is not None:
+            if dispatcher is not None and iterations <= MAX_ITERATIONS:
                 for t in TOOLS:
                     if t.get("type") == "function" and "function" in t:
                         params = dict(t["function"].get("parameters", {}))
@@ -117,7 +121,7 @@ class OpenAIProvider(LLMProvider):
                         )
                     else:
                         tools_list.append(t)
-            if SKILLS_CONFIG:
+            if SKILLS_CONFIG and iterations <= MAX_ITERATIONS:
                 tools_list.extend(SKILLS_CONFIG)
 
             kwargs: dict[str, Any] = {
@@ -152,7 +156,7 @@ class OpenAIProvider(LLMProvider):
                                 "arguments": [getattr(item, "arguments", "")],
                             }
 
-            if not tool_calls_acc:
+            if not tool_calls_acc or iterations > MAX_ITERATIONS:
                 final_content = "".join(content_acc)
                 if final_content:
                     thread.append({"role": "assistant", "content": final_content})
@@ -172,13 +176,20 @@ class OpenAIProvider(LLMProvider):
                     }
                 )
 
-                try:
-                    args = json.loads(args_str) if args_str else {}
-                except Exception as je:
-                    args = {"error": f"Invalid JSON arguments: {je}"}
+                call_signature = f"{func_name}:{args_str}"
+                if call_signature in executed_calls_cache:
+                    tool_result = json.dumps({
+                        "info": "This query was already executed in this turn. Please synthesize a response with the information gathered so far."
+                    })
+                else:
+                    executed_calls_cache.add(call_signature)
+                    try:
+                        args = json.loads(args_str) if args_str else {}
+                    except Exception as je:
+                        args = {"error": f"Invalid JSON arguments: {je}"}
 
-                tool_calls_count += 1
-                tool_result = await dispatcher.dispatch(func_name, args)
+                    tool_calls_count += 1
+                    tool_result = await dispatcher.dispatch(func_name, args)
 
                 thread.append(
                     {
