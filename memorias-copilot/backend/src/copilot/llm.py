@@ -102,7 +102,18 @@ class OpenAIProvider(LLMProvider):
         while True:
             tools_list = []
             if dispatcher is not None:
-                tools_list.extend(TOOLS)
+                for t in TOOLS:
+                    if t.get("type") == "function" and "function" in t:
+                        tools_list.append(
+                            {
+                                "type": "function",
+                                "name": t["function"]["name"],
+                                "description": t["function"].get("description", ""),
+                                "parameters": t["function"].get("parameters", {}),
+                            }
+                        )
+                    else:
+                        tools_list.append(t)
             if SKILLS_CONFIG:
                 tools_list.extend(SKILLS_CONFIG)
 
