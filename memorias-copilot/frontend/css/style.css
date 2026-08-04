@@ -441,6 +441,20 @@ button { font-family: inherit; }
   30%            { transform: translateY(-4px); opacity: 1;    }
 }
 
+.streaming-status-dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 4px;
+}
+
+.streaming-status-dots .status-text {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 /* ─── Offline panel ───────────────────────────────────────────────────────── */
 .offline-panel         { display: none; padding: 24px; }
 .offline-panel.visible { display: block; }

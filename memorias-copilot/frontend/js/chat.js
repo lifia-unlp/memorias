@@ -101,6 +101,19 @@ export class ChatView {
     const bodyEl = row.querySelector(".message-body");
 
     let accumulated = initialContent;
+    const innerEl = row.querySelector(".message-inner");
+
+    // Add inline status dots to indicate ongoing thinking / tool reasoning
+    const thinkingStatus = document.createElement("div");
+    thinkingStatus.className = "streaming-status-dots";
+    thinkingStatus.innerHTML = `
+      <span class="status-text">Thinking</span>
+      <div class="thinking-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>`;
+    innerEl.appendChild(thinkingStatus);
 
     return {
       appendChunk: (chunk) => {
@@ -122,6 +135,7 @@ export class ChatView {
         this._scrollToBottom();
       },
       finalise: () => {
+        thinkingStatus.remove();
         const match = accumulated.match(/\[GROUNDING:([a-z]+):(\d+)\]/);
         let textToRender = accumulated;
 
