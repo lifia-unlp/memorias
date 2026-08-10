@@ -342,6 +342,7 @@ TOOLS: Final[list[dict[str, Any]]] = [
                         "description": "Whether to include archived items (default false)",
                     },
                 },
+                "required": ["query", "category", "status", "show_archived"],
             },
         },
     },
@@ -358,6 +359,7 @@ TOOLS: Final[list[dict[str, Any]]] = [
                         "description": "Number of past days to look back for updates (default 30)",
                     }
                 },
+                "required": ["days"],
             },
         },
     },
@@ -374,6 +376,7 @@ TOOLS: Final[list[dict[str, Any]]] = [
                         "description": "Number of days without updates threshold (default 30)",
                     }
                 },
+                "required": ["days"],
             },
         },
     },
