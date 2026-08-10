@@ -170,6 +170,43 @@ class MockDatabaseAdapter(DatabaseAdapter):
     async def get_thesis_publications(self, thesis_id: str) -> list[Publication]:
         return []
 
+    @override
+    async def get_user_by_id_or_email(self, identifier: str):
+        from copilot.models import UserInfo
+        if identifier in ("user-1", "user@example.com"):
+            return UserInfo(
+                id="user-1",
+                email="user@example.com",
+                name="Test User",
+                role="USER",
+                memberId="member-1",
+                memberName="Jane Doe",
+                memberSlug="dr-jane-doe",
+            )
+        return None
+
+    @override
+    async def search_followup_items(
+        self,
+        query: str = "",
+        category: str | None = None,
+        status: str | None = None,
+        show_archived: bool = False,
+    ):
+        return []
+
+    @override
+    async def get_recent_followup_changes(self, days: int = 30):
+        return []
+
+    @override
+    async def get_stale_followup_items(self, days: int = 30):
+        return []
+
+    @override
+    async def get_member_followups(self, member_id_or_slug: str):
+        return []
+
 
 
 

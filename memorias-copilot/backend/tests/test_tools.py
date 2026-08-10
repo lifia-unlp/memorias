@@ -38,6 +38,13 @@ async def test_tool_dispatcher_search() -> None:
     error = json.loads(error_json)
     assert "error" in error
 
+    # Test FollowUp tools dispatching
+    followup_search = await dispatcher.dispatch("search_followup_items", {"query": ""})
+    assert json.loads(followup_search) == []
+
+    followup_changes = await dispatcher.dispatch("get_recent_followup_changes", {"days": 30})
+    assert json.loads(followup_changes) == []
+
 
 @pytest.mark.asyncio
 async def test_model_serialization_exclusions() -> None:

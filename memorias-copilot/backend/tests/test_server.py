@@ -17,8 +17,12 @@ class MockLLMProvider(LLMProvider):
         messages: list[Message],
         dispatcher: Any = None,
         session_id: str | None = None,
+        user_info: Any = None,
     ) -> AsyncIterator[str]:
-        yield "Hello"
+        if user_info:
+            yield f"Hello {user_info.memberName or user_info.name}"
+        else:
+            yield "Hello"
         yield "\n"
         yield "World"
 
@@ -179,4 +183,29 @@ async def test_feedback_endpoint_not_found() -> None:
                 "status": "ignored",
                 "reason": "Session log or message content not found",
             }
+
+
+@pytest.mark.asyncio
+async def test_chat_endpoint_authenticated() -> None:
+    app.dependency_overrides[get_llm_provider] = lambda: MockLLMProvider()
+    mock_db = MockDatabaseAdapter()
+
+    with (
+        patch("copilot.server.db_adapter", mock_db),
+        patch("copilot.server.tool_dispatcher._db", mock_db),
+    ):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as ac:
+            response = await ac.post(
+                "/chat",
+                json={"messages": [{"role": "user", "content": "Hi"}]},
+                headers={
+                    "X-Session-Token": "test-session-token",
+                    "X-User-Email": "user@example.com",
+                },
+            )
+
+            assert response.status_code == 200
+            assert "Hello Jane Doe" in response.text
 

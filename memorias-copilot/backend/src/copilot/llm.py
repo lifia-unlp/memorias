@@ -66,6 +66,7 @@ class LLMProvider(ABC):
         messages: list[Message],
         dispatcher: Any = None,
         session_id: str | None = None,
+        user_info: Any = None,
     ) -> AsyncIterator[str]:
         if False:
             yield ""
@@ -83,11 +84,32 @@ class OpenAIProvider(LLMProvider):
         messages: list[Message],
         dispatcher: Any = None,
         session_id: str | None = None,
+        user_info: Any = None,
     ) -> AsyncIterator[str]:
         from copilot.tools.definitions import TOOLS
 
         if SYSTEM_PROMPT is None:
             raise RuntimeError("System prompt is not loaded. Chat is offline.")
+
+        instructions = SYSTEM_PROMPT
+        if user_info is not None:
+            name_to_use = user_info.memberName or user_info.name or user_info.email
+            user_context = (
+                f"\n\nCURRENT USER CONTEXT:\n"
+                f"- Authenticated User: Yes\n"
+                f"- Name: {name_to_use}\n"
+                f"- Email: {user_info.email}\n"
+                f"- Role: {user_info.role}\n"
+            )
+            if user_info.memberSlug:
+                user_context += f"- Linked Member Slug: {user_info.memberSlug}\n"
+            user_context += (
+                "Greet the user by their name if they greet you or ask who they are. "
+                "You may assist them with their assigned follow-up items or lab activities."
+            )
+            instructions += user_context
+        else:
+            instructions += "\n\nCURRENT USER CONTEXT:\n- Authenticated User: No (Anonymous Visitor)\n"
 
         # Reconstruct history
         thread: list[dict[str, Any]] = []
@@ -126,7 +148,7 @@ class OpenAIProvider(LLMProvider):
 
             kwargs: dict[str, Any] = {
                 "model": self._model,
-                "instructions": SYSTEM_PROMPT,
+                "instructions": instructions,
                 "input": thread,
                 "stream": True,
             }

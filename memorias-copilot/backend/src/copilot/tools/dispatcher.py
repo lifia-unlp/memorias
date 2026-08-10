@@ -138,6 +138,31 @@ class ToolDispatcher:
                 publications = await self._db.get_thesis_publications(val)
                 return json.dumps([p.model_dump(mode="json") for p in publications])
 
+            # --- Follow-Up Query Tools ---
+            elif name == "search_followup_items":
+                items = await self._db.search_followup_items(
+                    query=arguments.get("query", ""),
+                    category=arguments.get("category"),
+                    status=arguments.get("status"),
+                    show_archived=arguments.get("show_archived", False),
+                )
+                return json.dumps([item.model_dump(mode="json") for item in items])
+
+            elif name == "get_recent_followup_changes":
+                days = int(arguments.get("days", 30))
+                changes = await self._db.get_recent_followup_changes(days=days)
+                return json.dumps(changes, default=str)
+
+            elif name == "get_stale_followup_items":
+                days = int(arguments.get("days", 30))
+                items = await self._db.get_stale_followup_items(days=days)
+                return json.dumps([item.model_dump(mode="json") for item in items])
+
+            elif name == "get_member_followups":
+                val = arguments.get("member_id_or_slug") or arguments.get("member_id") or ""
+                items = await self._db.get_member_followups(val)
+                return json.dumps([item.model_dump(mode="json") for item in items])
+
             else:
                 logger.error(f"[Dispatcher] Tool '{name}' is not registered.")
                 return json.dumps({"error": f"Tool '{name}' is not registered."})

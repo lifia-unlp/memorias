@@ -48,9 +48,11 @@ async def test_openai_provider_streaming() -> None:
         assert SYSTEM_PROMPT is not None
         assert chunks == ["Hello", " world", "[GROUNDING:none:0]"]
 
+        expected_instructions = SYSTEM_PROMPT + "\n\nCURRENT USER CONTEXT:\n- Authenticated User: No (Anonymous Visitor)\n"
+
         expected_kwargs = {
             "model": "fake-model",
-            "instructions": SYSTEM_PROMPT,
+            "instructions": expected_instructions,
             "input": [{"role": "user", "content": "Hi"}, {"role": "assistant", "content": "Hello world"}],
             "stream": True,
         }

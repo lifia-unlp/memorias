@@ -77,6 +77,8 @@ def get_llm_provider() -> LLMProvider:
 async def chat_endpoint(
     request: ChatRequest,
     x_session_token: str = Header(..., alias="X-Session-Token"),
+    x_user_id: str | None = Header(None, alias="X-User-Id"),
+    x_user_email: str | None = Header(None, alias="X-User-Email"),
     llm: LLMProvider = Depends(get_llm_provider),
 ) -> StreamingResponse:
     from copilot.llm import SYSTEM_PROMPT
@@ -101,6 +103,14 @@ async def chat_endpoint(
     logger.info(
         f"[Server] Received POST /chat request. Session Token: {x_session_token}"
     )
+
+    user_info = None
+    auth_identifier = x_user_id or x_user_email
+    if auth_identifier:
+        user_info = await db_adapter.get_user_by_id_or_email(auth_identifier)
+        if user_info:
+            logger.info(f"[Server] Identified user: {user_info.email} (Name: {user_info.name})")
+
     logger.info(f"[Server] Request Message Count: {len(request.messages)}")
     if request.messages:
         logger.info(f"[Server] Last message content: {request.messages[-1].content}")
@@ -115,6 +125,7 @@ async def chat_endpoint(
                 session.messages,
                 dispatcher=tool_dispatcher,
                 session_id=session_id.value,
+                user_info=user_info,
             ):
                 chunk_count += 1
                 # Escape newlines and carriage returns so they don't break SSE framing

@@ -4,7 +4,16 @@ from typing import Any, Final, final, override
 from psycopg.rows import dict_row
 from psycopg_pool import AsyncConnectionPool
 
-from copilot.models import Member, Project, Publication, Scholarship, Thesis
+from copilot.models import (
+    FollowUpHistory,
+    FollowUpItem,
+    Member,
+    Project,
+    Publication,
+    Scholarship,
+    Thesis,
+    UserInfo,
+)
 
 
 class DatabaseAdapter(ABC):
@@ -99,6 +108,34 @@ class DatabaseAdapter(ABC):
 
     @abstractmethod
     async def get_thesis_publications(self, thesis_id_or_slug: str) -> list[Publication]:
+        pass
+
+    # --- User & Session Authentication Methods ---
+    @abstractmethod
+    async def get_user_by_id_or_email(self, identifier: str) -> UserInfo | None:
+        pass
+
+    # --- Follow-Up Query Methods ---
+    @abstractmethod
+    async def search_followup_items(
+        self,
+        query: str = "",
+        category: str | None = None,
+        status: str | None = None,
+        show_archived: bool = False,
+    ) -> list[FollowUpItem]:
+        pass
+
+    @abstractmethod
+    async def get_recent_followup_changes(self, days: int = 30) -> list[dict[str, Any]]:
+        pass
+
+    @abstractmethod
+    async def get_stale_followup_items(self, days: int = 30) -> list[FollowUpItem]:
+        pass
+
+    @abstractmethod
+    async def get_member_followups(self, member_id_or_slug: str) -> list[FollowUpItem]:
         pass
 
 
@@ -467,3 +504,161 @@ class PostgresDatabaseAdapter(DatabaseAdapter):
         """
         records = await self._fetch(sql, (thesis_id_or_slug, thesis_id_or_slug))
         return [Publication(**r) for r in records]
+
+    # --- User & Session Authentication Methods ---
+    @override
+    async def get_user_by_id_or_email(self, identifier: str) -> UserInfo | None:
+        sql = """
+            SELECT u.id, u.email, u.name, u.role, u."memberId",
+                   m."firstName" || ' ' || m."lastName" as "memberName",
+                   m.slug as "memberSlug"
+            FROM "User" u
+            LEFT JOIN "Member" m ON u."memberId" = m.id
+            WHERE u.id = %s OR u.email = %s
+        """
+        r = await self._fetchrow(sql, (identifier, identifier))
+        return UserInfo(**r) if r else None
+
+    # Helper function to enrich FollowUpItems with owners and history
+    async def _populate_followup_items(self, items: list[dict[str, Any]]) -> list[FollowUpItem]:
+        if not items:
+            return []
+
+        item_ids = [i["id"] for i in items]
+
+        # Fetch owners
+        owners_sql = """
+            SELECT fo."A" as item_id, m."firstName" || ' ' || m."lastName" as owner_name
+            FROM "_FollowUpOwners" fo
+            JOIN "Member" m ON fo."B" = m.id
+            WHERE fo."A" = ANY(%s)
+        """
+        owner_rows = await self._fetch(owners_sql, (item_ids,))
+        owners_by_item: dict[str, list[str]] = {}
+        for row in owner_rows:
+            owners_by_item.setdefault(row["item_id"], []).append(row["owner_name"])
+
+        # Fetch histories
+        history_sql = """
+            SELECT h.id, h."followUpItemId", h."fromStatus", h."toStatus", h.notes,
+                   h."meetingDate", h."loggedById", u.name as "loggedByName"
+            FROM "FollowUpHistory" h
+            LEFT JOIN "User" u ON h."loggedById" = u.id
+            WHERE h."followUpItemId" = ANY(%s)
+            ORDER BY h."meetingDate" DESC
+        """
+        history_rows = await self._fetch(history_sql, (item_ids,))
+        history_by_item: dict[str, list[FollowUpHistory]] = {}
+        for h in history_rows:
+            history_by_item.setdefault(h["followUpItemId"], []).append(
+                FollowUpHistory(**h)
+            )
+
+        res = []
+        for item in items:
+            iid = item["id"]
+            res.append(
+                FollowUpItem(
+                    id=item["id"],
+                    title=item["title"],
+                    description=item["description"],
+                    category=item["category"],
+                    status=item["status"],
+                    archived=item["archived"],
+                    createdAt=item["createdAt"],
+                    updatedAt=item["updatedAt"],
+                    owners=owners_by_item.get(iid, []),
+                    history=history_by_item.get(iid, []),
+                )
+            )
+        return res
+
+    @override
+    async def search_followup_items(
+        self,
+        query: str = "",
+        category: str | None = None,
+        status: str | None = None,
+        show_archived: bool = False,
+    ) -> list[FollowUpItem]:
+        conditions = []
+        params: dict[str, Any] = {}
+
+        if not show_archived:
+            conditions.append('f.archived = FALSE')
+
+        if category:
+            conditions.append('f.category = %(category)s')
+            params["category"] = category.upper()
+
+        if status:
+            conditions.append('f.status = %(status)s')
+            params["status"] = status.upper()
+
+        if query:
+            tokens = [t.strip() for t in query.split() if t.strip()]
+            for i, token in enumerate(tokens):
+                p_name = f"token_{i}"
+                conditions.append(f"""
+                    (unaccent(f.title) ILIKE unaccent(%({p_name})s)
+                    OR unaccent(COALESCE(f.description, '')) ILIKE unaccent(%({p_name})s))
+                """)
+                params[p_name] = f"%{token}%"
+
+        where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+        sql = f"""
+            SELECT f.* FROM "FollowUpItem" f
+            {where_clause}
+            ORDER BY f."updatedAt" DESC
+            LIMIT 50
+        """
+        items = await self._fetch(sql, params)
+        return await self._populate_followup_items(items)
+
+    @override
+    async def get_recent_followup_changes(self, days: int = 30) -> list[dict[str, Any]]:
+        sql = """
+            SELECT h.id as history_id, h."fromStatus", h."toStatus", h.notes, h."meetingDate",
+                   u.name as logged_by, f.id as item_id, f.title as item_title,
+                   f.category, f.status as current_status
+            FROM "FollowUpHistory" h
+            JOIN "FollowUpItem" f ON h."followUpItemId" = f.id
+            LEFT JOIN "User" u ON h."loggedById" = u.id
+            WHERE h."meetingDate" >= NOW() - (%s || ' days')::INTERVAL
+            ORDER BY h."meetingDate" DESC
+            LIMIT 50
+        """
+        records = await self._fetch(sql, (days,))
+        return records
+
+    @override
+    async def get_stale_followup_items(self, days: int = 30) -> list[FollowUpItem]:
+        sql = """
+            SELECT f.* FROM "FollowUpItem" f
+            LEFT JOIN (
+                SELECT "followUpItemId", MAX("meetingDate") as last_update
+                FROM "FollowUpHistory"
+                GROUP BY "followUpItemId"
+            ) h ON f.id = h."followUpItemId"
+            WHERE f.archived = FALSE
+              AND f.status NOT IN ('COMPLETED', 'REJECTED')
+              AND (
+                h.last_update IS NULL OR h.last_update < NOW() - (%s || ' days')::INTERVAL
+              )
+            ORDER BY f."updatedAt" ASC
+            LIMIT 50
+        """
+        items = await self._fetch(sql, (days,))
+        return await self._populate_followup_items(items)
+
+    @override
+    async def get_member_followups(self, member_id_or_slug: str) -> list[FollowUpItem]:
+        sql = """
+            SELECT f.* FROM "FollowUpItem" f
+            JOIN "_FollowUpOwners" fo ON fo."A" = f.id
+            JOIN "Member" m ON fo."B" = m.id
+            WHERE (m.id = %s OR m.slug = %s) AND f.archived = FALSE
+            ORDER BY f."updatedAt" DESC
+        """
+        items = await self._fetch(sql, (member_id_or_slug, member_id_or_slug))
+        return await self._populate_followup_items(items)

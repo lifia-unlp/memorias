@@ -316,4 +316,82 @@ TOOLS: Final[list[dict[str, Any]]] = [
             },
         },
     },
+    # --- Follow-Up Management & Tracking Tools ---
+    {
+        "type": "function",
+        "function": {
+            "name": "search_followup_items",
+            "description": "Search follow-up items (tracked papers, projects, theses, or scholarships) by title/description keywords, category (PUBLICATION, PROJECT, THESIS, SCHOLARSHIP), or status (PLANNING, UNDER_EVALUATION, ACCEPTED, REJECTED, IN_PROGRESS, COMPLETED).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Optional title or description keyword search",
+                    },
+                    "category": {
+                        "type": "string",
+                        "description": "Optional category filter: PUBLICATION, PROJECT, THESIS, or SCHOLARSHIP",
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Optional status filter: PLANNING, UNDER_EVALUATION, ACCEPTED, REJECTED, IN_PROGRESS, COMPLETED",
+                    },
+                    "show_archived": {
+                        "type": "boolean",
+                        "description": "Whether to include archived items (default false)",
+                    },
+                },
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_recent_followup_changes",
+            "description": "Retrieve recent follow-up history entries logged within the past N days (default 30). Use this to answer 'what is new?', prepare monthly group meeting reports, or list recent status updates.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "days": {
+                        "type": "integer",
+                        "description": "Number of past days to look back for updates (default 30)",
+                    }
+                },
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_stale_followup_items",
+            "description": "Get active follow-up items that have not received any updates or log entries in the past N days (default 30). Use this to identify inactive, neglected, or stalled tasks.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "days": {
+                        "type": "integer",
+                        "description": "Number of days without updates threshold (default 30)",
+                    }
+                },
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_member_followups",
+            "description": "Get all follow-up items assigned to or owned by a specific member.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "member_id_or_slug": {
+                        "type": "string",
+                        "description": "Member's UUID string or slug (e.g. 'alejandro-fernandez')",
+                    }
+                },
+                "required": ["member_id_or_slug"],
+            },
+        },
+    },
 ]

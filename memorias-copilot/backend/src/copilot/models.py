@@ -17,9 +17,63 @@ class Message(BaseModel):
     content: str
 
 
+class UserInfo(BaseModel):
+    model_config = {"frozen": True}
+    id: str
+    email: str
+    name: str | None = None
+    role: str = "USER"
+    memberId: str | None = None
+    memberName: str | None = None
+    memberSlug: str | None = None
+
+
 class ChatRequest(BaseModel):
     model_config = {"frozen": True}
     messages: list[Message]
+
+
+class FollowUpCategory(str):
+    PUBLICATION = "PUBLICATION"
+    PROJECT = "PROJECT"
+    THESIS = "THESIS"
+    SCHOLARSHIP = "SCHOLARSHIP"
+
+
+class FollowUpStatus(str):
+    PLANNING = "PLANNING"
+    UNDER_EVALUATION = "UNDER_EVALUATION"
+    ACCEPTED = "ACCEPTED"
+    REJECTED = "REJECTED"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETED = "COMPLETED"
+
+
+class FollowUpHistory(BaseModel):
+    model_config = {"frozen": True}
+    id: str
+    followUpItemId: str
+    fromStatus: str
+    toStatus: str
+    notes: str | None = None
+    meetingDate: datetime
+    loggedById: str | None = None
+    loggedByName: str | None = None
+
+
+class FollowUpItem(BaseModel):
+    model_config = {"frozen": True}
+    id: str
+    title: str
+    description: str | None = None
+    category: str
+    status: str
+    archived: bool = False
+    createdAt: datetime
+    updatedAt: datetime
+    owners: list[str] = []
+    history: list[FollowUpHistory] = []
+
 
 
 class Member(BaseModel):
