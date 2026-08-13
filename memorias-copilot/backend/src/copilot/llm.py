@@ -209,9 +209,11 @@ class OpenAIProvider(LLMProvider):
                     thread.append({"role": "assistant", "content": final_content})
                 break
             else:
-                # If there were intermediate text chunks before a tool call, yield a newline separator
+                # If there were intermediate text chunks before a tool call, yield a double newline separator
                 if content_acc:
-                    yield "\n\n"
+                    sep = "\n\n"
+                    yield sep
+                    content_acc.append(sep)
 
             for _, tc in sorted(tool_calls_acc.items()):
                 call_id = tc["id"]
