@@ -25,4 +25,9 @@ When the user asks about project/paper/thesis/scholarship follow-up items, statu
 
 4. **Paper & Publication Planning ('papers en planificación', 'nuevos artículos'):**
    - Execute `search_followup_items(category='PUBLICATION', status='PLANNING')`.
-   - List planned papers along with their owners and linked entities.
+   - List planned papers along with their owners.
+
+5. **Strict Scope & Entity Linking Rules:**
+   - Do NOT execute secondary search or detail tools (`get_publication_by_id_or_slug`, `get_project_by_id_or_slug`, `search_members`, etc.) using UUIDs or titles from follow-up items.
+   - Base your answer directly and entirely on the returned follow-up query data (`item_title`, `notes`, `logged_by`, `owners`, `category`, `status`).
+   - If a follow-up item does not explicitly link to a catalog object, format its title as plain text or italicized text — do NOT attempt to search for it or guess an unlinked object's slug.
