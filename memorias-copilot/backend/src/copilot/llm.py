@@ -124,18 +124,29 @@ class OpenAIProvider(LLMProvider):
         iterations = 0
         MAX_ITERATIONS = 10
 
+        FOLLOWUP_TOOL_NAMES: Final[set[str]] = {
+            "search_followup_items",
+            "get_recent_followup_changes",
+            "get_stale_followup_items",
+            "get_member_followups",
+        }
+
         while True:
             iterations += 1
             tools_list = []
             if dispatcher is not None and iterations <= MAX_ITERATIONS:
                 for t in TOOLS:
                     if t.get("type") == "function" and "function" in t:
+                        func_name = t["function"]["name"]
+                        if user_info is None and func_name in FOLLOWUP_TOOL_NAMES:
+                            continue
+
                         params = dict(t["function"].get("parameters", {}))
                         params["additionalProperties"] = False
                         tools_list.append(
                             {
                                 "type": "function",
-                                "name": t["function"]["name"],
+                                "name": func_name,
                                 "description": t["function"].get("description", ""),
                                 "parameters": params,
                                 "strict": True,
@@ -144,7 +155,15 @@ class OpenAIProvider(LLMProvider):
                     else:
                         tools_list.append(t)
             if SKILLS_CONFIG and iterations <= MAX_ITERATIONS:
-                tools_list.extend(SKILLS_CONFIG)
+                filtered_skills = []
+                for s in SKILLS_CONFIG:
+                    # Filter out followup-tracking skill if user is not authenticated
+                    if user_info is None and isinstance(s, dict):
+                        env_skills = s.get("environment", {}).get("skills", [])
+                        if any("followup" in str(sk.get("skill_id", "")) for sk in env_skills):
+                            continue
+                    filtered_skills.append(s)
+                tools_list.extend(filtered_skills)
 
             kwargs: dict[str, Any] = {
                 "model": self._model,
@@ -221,7 +240,9 @@ class OpenAIProvider(LLMProvider):
                         args = {"error": f"Invalid JSON arguments: {je}"}
 
                     tool_calls_count += 1
-                    tool_result = await dispatcher.dispatch(func_name, args)
+                    tool_result = await dispatcher.dispatch(
+                        func_name, args, user_info=user_info
+                    )
 
                 thread.append(
                     {

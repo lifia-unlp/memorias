@@ -7,15 +7,32 @@ from copilot.db.adapter import DatabaseAdapter
 logger = logging.getLogger("uvicorn")
 
 
+FOLLOWUP_TOOLS: Final[set[str]] = {
+    "search_followup_items",
+    "get_recent_followup_changes",
+    "get_stale_followup_items",
+    "get_member_followups",
+}
+
+
 @final
 class ToolDispatcher:
     def __init__(self, db: DatabaseAdapter) -> None:
         self._db: Final[DatabaseAdapter] = db
 
-    async def dispatch(self, name: str, arguments: dict[str, Any]) -> str:
+    async def dispatch(
+        self, name: str, arguments: dict[str, Any], user_info: Any = None
+    ) -> str:
         logger.info(
             f"[Dispatcher] Dispatching tool call: '{name}' with arguments: {arguments}"
         )
+        if name in FOLLOWUP_TOOLS and user_info is None:
+            logger.warning(
+                f"[Dispatcher] Unauthorized access attempt to follow-up tool '{name}'."
+            )
+            return json.dumps({
+                "error": "Unauthorized access. Follow-up items and meeting updates are restricted to authenticated users logged in to memorias-web."
+            })
         try:
             # --- Search Tools ---
             if name == "search_members":
