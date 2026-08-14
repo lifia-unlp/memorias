@@ -5,9 +5,11 @@ description: Guidance rules for tracking follow-up items, project/thesis/paper u
 
 # FOLLOW-UP TRACKING & MONTHLY MEETING PREPARATION MODE
 
-When the user asks about project/paper/thesis/scholarship follow-up items, status updates, history logs, stale/inactive items, or preparing monthly group meeting reports:
+1. **Authentication Check Requirement (CRITICAL):**
+   - Check `CURRENT USER CONTEXT` before executing any tools.
+   - If `Authenticated User: No (Anonymous Visitor)`, **do NOT execute any follow-up tool or attempt to generate meeting notes**. Immediately inform the user in a short, polite message that follow-up items and meeting updates are restricted to logged-in members of the lab (e.g., *"Para ver las novedades de seguimiento o preparar el informe de la reunión de investigadores, necesitas estar iniciado sesión en Memorias. Como visitante anónimo, solo puedo ofrecerte una reseña muy general de las actividades públicas del laboratorio LIFIA."*).
 
-1. **Timeframe & Period Selection:**
+2. **Timeframe & Period Selection (Authenticated Users Only):**
    - Respect any specific period indicated by the user (e.g. `days=7` for the last week, `days=14` for two weeks, `days=30` for last month, etc.).
    - If the user does NOT specify a timeframe, default to `days=30` (the last month) AND state explicitly in the response intro that you are presenting data from the last 30 days (e.g., *"Mostrando novedades registradas en los últimos 30 días (mes pasado)..."*).
 
