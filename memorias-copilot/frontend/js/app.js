@@ -65,15 +65,6 @@ class App {
     this._autoResize(this._chatInput);
     this._showConsentIfNeeded();
     this._initFooter();
-    this._checkAndSendInitialGreeting();
-  }
-
-  _checkAndSendInitialGreeting() {
-    // If conversation is empty and user is authenticated (via session/auth headers), send greeting request
-    if (this._chat.history.length === 0 && !this._busy) {
-      // Trigger a silent system-like request to get greeting
-      this._requestGreeting();
-    }
   }
 
   // ── Event binding ────────────────────────────────────────────────────────
@@ -241,39 +232,6 @@ class App {
     this._sendBtn.disabled = false;
     this._chatInput.value = "";
     this._autoResize(this._chatInput);
-    this._checkAndSendInitialGreeting();
-  }
-
-  _requestGreeting() {
-    // Send an initial prompt to get the assistant's personalized greeting
-    this._busy = true;
-    this._sendBtn.disabled = true;
-    this._chat.showThinking();
-
-    const streamHandle = this._chat.beginAssistantMessage();
-    const promptHistory = [
-      { role: "user", content: "Hola! Preséntate brevemente y salúdame." }
-    ];
-
-    this._cancelStream = this._api.sendMessage(
-      promptHistory,
-      (chunk) => streamHandle.appendChunk(chunk),
-      () => {
-        streamHandle.finish();
-        this._chat.hideThinking();
-        this._busy = false;
-        this._sendBtn.disabled = false;
-        this._cancelStream = null;
-      },
-      (err) => {
-        streamHandle.finish();
-        this._chat.hideThinking();
-        this._busy = false;
-        this._sendBtn.disabled = false;
-        this._cancelStream = null;
-        console.log("[App] Initial greeting skipped:", err.message);
-      }
-    );
   }
 
   // ── Theme toggle ──────────────────────────────────────────────────────────
