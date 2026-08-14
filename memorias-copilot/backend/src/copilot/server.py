@@ -190,7 +190,10 @@ async def chat_feedback(
 
 
 @app.get("/info")
-async def get_info() -> dict[str, Any]:
+async def get_info(
+    x_user_id: str | None = Header(None, alias="X-User-Id"),
+    x_user_email: str | None = Header(None, alias="X-User-Email"),
+) -> dict[str, Any]:
     try:
         logs_dir = Path(__file__).parent / ".." / ".." / "logs"
         if logs_dir.is_dir():
@@ -201,10 +204,21 @@ async def get_info() -> dict[str, Any]:
     except Exception:
         count = 0
 
+    user_data = None
+    auth_identifier = x_user_id or x_user_email
+    if auth_identifier:
+        user_info = await db_adapter.get_user_by_id_or_email(auth_identifier)
+        if user_info:
+            user_data = {
+                "name": user_info.name,
+                "email": user_info.email,
+            }
+
     return {
         "lab_name": settings.lab_name,
         "conversations_count": count,
         "repo_url": "https://github.com/lifia-unlp/memorias",
+        "user": user_data,
     }
 
 

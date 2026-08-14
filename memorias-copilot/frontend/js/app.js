@@ -296,12 +296,66 @@ class App {
             countEl.textContent = info.conversations_count;
             statsEl.style.display = "";
           }
+
+          // Customize empty state depending on user authentication
+          this._updateEmptyStateForUser(info.user);
         })
         .catch((err) => {
           console.warn("Could not load footer stats from backend:", err);
         });
     } catch (e) {
       console.error("Error initializing footer:", e);
+    }
+  }
+
+  _updateEmptyStateForUser(user) {
+    const titleEl = this._emptyState.querySelector(".empty-title");
+    const subtitleEl = this._emptyState.querySelector(".empty-subtitle");
+    const suggestionsEl = this._emptyState.querySelector("#suggestions");
+
+    if (user && user.name) {
+      const firstName = user.name.split(" ")[0];
+      if (titleEl) titleEl.textContent = `¡Hola, ${firstName}!`;
+      if (subtitleEl) {
+        subtitleEl.textContent = `Bienvenido a Memorias Research Copilot. Como miembro autenticado, puedes consultar publicaciones, tesinas, proyectos y preparar el informe de seguimiento para la próxima reunión de investigadores.`;
+      }
+      if (suggestionsEl) {
+        suggestionsEl.innerHTML = `
+          <button class="chip">¿Qué tenemos para la próxima reunión entre las novedades de seguimiento?</button>
+          <button class="chip">¿Cuáles fueron las novedades de la última semana?</button>
+          <button class="chip">¿Qué publicaciones están sin actualización hace más de 30 días?</button>
+          <button class="chip">Listar proyectos de investigación activos</button>
+        `;
+        // Re-wire click events for newly injected suggestion chips
+        suggestionsEl.querySelectorAll(".chip").forEach((chip) => {
+          chip.addEventListener("click", () => {
+            this._chatInput.value = chip.textContent.trim();
+            this._autoResize(this._chatInput);
+            this._chatInput.focus();
+          });
+        });
+      }
+    } else {
+      if (titleEl) titleEl.textContent = "Memorias Research Copilot";
+      if (subtitleEl) {
+        subtitleEl.textContent = `Ask me anything about the lab's publications, projects, members, theses, and scholarships. I answer only from data in the Memorias database — I never invent information.`;
+      }
+      if (suggestionsEl) {
+        suggestionsEl.innerHTML = `
+          <button class="chip">Which papers were published in 2023?</button>
+          <button class="chip">Who are the current PhD students?</button>
+          <button class="chip">List active research projects</button>
+          <button class="chip">Find theses on natural language processing</button>
+          <button class="chip">What can I do for my thesis or internship?</button>
+        `;
+        suggestionsEl.querySelectorAll(".chip").forEach((chip) => {
+          chip.addEventListener("click", () => {
+            this._chatInput.value = chip.textContent.trim();
+            this._autoResize(this._chatInput);
+            this._chatInput.focus();
+          });
+        });
+      }
     }
   }
 
