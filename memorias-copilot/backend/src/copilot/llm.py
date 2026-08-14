@@ -209,13 +209,10 @@ class OpenAIProvider(LLMProvider):
                     thread.append({"role": "assistant", "content": final_content})
                 break
             else:
-                # If there were intermediate text chunks before a tool call, record them in thread history
-                # and yield a double newline separator so markdown headers render on a fresh line.
+                # If there were intermediate text chunks before a tool call, record them in thread history.
                 if content_acc:
                     interm_text = "".join(content_acc)
                     thread.append({"role": "assistant", "content": interm_text})
-                    sep = "\n\n"
-                    yield sep
 
             for _, tc in sorted(tool_calls_acc.items()):
                 call_id = tc["id"]
@@ -255,6 +252,10 @@ class OpenAIProvider(LLMProvider):
                         "output": tool_result if isinstance(tool_result, str) else json.dumps(tool_result, ensure_ascii=False),
                     }
                 )
+
+            # Insert a double newline break into the stream before the next iteration begins so subsequent text chunks start on a new paragraph.
+            sep = "\n\n"
+            yield sep
 
         if tool_calls_count == 0:
             level = "none"
