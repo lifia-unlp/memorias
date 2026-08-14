@@ -13,27 +13,27 @@ description: Guidance rules for tracking follow-up items, project/thesis/paper u
    - Respect any specific period indicated by the user (e.g. `days=7` for the last week, `days=14` for two weeks, `days=30` for last month, etc.).
    - If the user does NOT specify a timeframe, default to `days=30` (the last month) AND state explicitly in the response intro that you are presenting data from the last 30 days (e.g., *"Mostrando novedades registradas en los últimos 30 días (mes pasado)..."*).
 
-2. **Monthly Meeting Preparation & Recent Updates ('novedades', 'reunión mensual', 'preparar informe'):**
+3. **Monthly Meeting Preparation & Recent Updates ('novedades', 'reunión mensual', 'preparar informe'):**
    - Execute `get_recent_followup_changes(days=N)`.
-   - **Hierarchy & Grouping Requirement**: Structure and group the update report strictly in the following hierarchy:
-     1. **By Reporter / Responsible (`Member`)**: Group updates under the user or member who reported/owns the update (`[{base_url}/members/{slug}]({base_url}/members/{slug})`).
-     2. **By Object Type (`category`)**: Sub-group by category (e.g., Publications/Papers, Theses, Projects, Scholarships).
-     3. **By State / Status**: Group by state in logical sequence: Planned (`PLANNING`), Under Evaluation (`UNDER_EVALUATION`), Accepted (`ACCEPTED`), Rejected (`REJECTED`), Completed/Published (`COMPLETED` / `ACCEPTED`).
-   - Include logged notes, update date, and links to related entities for each entry.
+   - **Direct Pre-Grouped Render**: The tool returns a pre-grouped structure: `Reporter -> Category -> Status -> Items`. Render this JSON directly into Markdown:
+     1. `### {reporter_name}` (with link `[{reporter_name}]({base_url}/members/{reporter_slug})` if `reporter_slug` is present, otherwise plain bold `**{reporter_name}**`).
+     2. `#### {Category}` (e.g., Projects, Publications, Theses, Scholarships).
+     3. `**{Status}**`: Bulleted list of items with title, date, and notes.
+   - Do NOT attempt to re-group or change this structure. Render it directly as presented in the JSON response.
 
-3. **Inactive / Stalled Follow-ups ('items sin actualización', 'seguimientos demorados'):**
+4. **Inactive / Stalled Follow-ups ('items sin actualización', 'seguimientos demorados'):**
    - Execute `get_stale_followup_items(days=N)` to find items that have not received any log entry or status update in the last N days (defaulting to 30 if unspecified).
    - List the title, current status, owner members, and the date of the last recorded update.
 
-4. **Personal & Member Follow-ups ('mis seguimientos', 'seguimientos de [miembro]'):**
+5. **Personal & Member Follow-ups ('mis seguimientos', 'seguimientos de [miembro]'):**
    - If the user is authenticated (indicated by `CURRENT USER CONTEXT`), prioritize items assigned to them or run `get_member_followups(member_id_or_slug)`.
    - If querying about another researcher, resolve their slug and retrieve their assigned follow-up items.
 
-5. **Paper & Publication Planning ('papers en planificación', 'nuevos artículos'):**
+6. **Paper & Publication Planning ('papers en planificación', 'nuevos artículos'):**
    - Execute `search_followup_items(category='PUBLICATION', status='PLANNING')`.
    - List planned papers along with their owners.
 
-6. **Educational / Instructional Suggestions Requirement:**
+7. **Educational / Instructional Suggestions Requirement:**
    - At the end of your response, whenever this mode/skill is active, ALWAYS suggest 2 to 3 additional query examples to teach the user how to get more out of this skill (e.g., *"También puedes preguntarme:"*).
    - Examples to suggest:
      - *"¿Cuáles fueron las novedades de la última semana (últimos 7 días)?"*
@@ -41,7 +41,7 @@ description: Guidance rules for tracking follow-up items, project/thesis/paper u
      - *"¿Qué artículos se están planificando en el área de seguimiento?"*
      - *"¿Cuáles son mis seguimientos asignados pendientes?"*
 
-7. **Strict Output & Formatting Guidelines:**
+8. **Strict Output & Formatting Guidelines:**
    - **No Repetitive Progress Announcements**: Do NOT repeat intro phrases across iterations like *"Estoy usando la guía de seguimiento..."*. State your progress smoothly at most once (e.g., *"Sigo consultando novedades..."* if resuming after intermediate steps).
    - **Markdown Spacing**: ALWAYS place a blank line (double newline) before any Markdown header (e.g., `##`, `###`, `####`). Never glue a header directly to the previous sentence.
    - **Member Link Resolution**:

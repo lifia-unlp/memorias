@@ -619,17 +619,43 @@ class PostgresDatabaseAdapter(DatabaseAdapter):
     async def get_recent_followup_changes(self, days: int = 30) -> list[dict[str, Any]]:
         sql = """
             SELECT h.id as history_id, h."fromStatus", h."toStatus", h.notes, h."meetingDate",
-                   u.name as logged_by, f.id as item_id, f.title as item_title,
+                   COALESCE(u.name, 'Sin responsable asignado') as logged_by,
+                   m.slug as logged_by_slug,
+                   f.id as item_id, f.title as item_title,
                    f.category, f.status as current_status
             FROM "FollowUpHistory" h
             JOIN "FollowUpItem" f ON h."followUpItemId" = f.id
             LEFT JOIN "User" u ON h."loggedById" = u.id
+            LEFT JOIN "Member" m ON u.email = m."institutionalEmail"
             WHERE h."meetingDate" >= NOW() - (%s || ' days')::INTERVAL
-            ORDER BY h."meetingDate" DESC
+            ORDER BY u.name ASC NULLS LAST, f.category ASC, h."meetingDate" DESC
             LIMIT 50
         """
         records = await self._fetch(sql, (days,))
-        return records
+        
+        # Pre-group changes hierarchically: Reporter -> Category -> Status -> items list
+        grouped: dict[str, Any] = {}
+        for r in records:
+            reporter = r["logged_by"]
+            cat = r["category"]
+            status = r["current_status"]
+
+            reporter_node = grouped.setdefault(reporter, {
+                "reporter_name": reporter,
+                "reporter_slug": r.get("logged_by_slug"),
+                "categories": {}
+            })
+            cat_node = reporter_node["categories"].setdefault(cat, {})
+            status_list = cat_node.setdefault(status, [])
+
+            status_list.append({
+                "item_title": r["item_title"],
+                "status": status,
+                "update_notes": r["notes"],
+                "meeting_date": str(r["meetingDate"])[:10] if r.get("meetingDate") else None
+            })
+
+        return list(grouped.values())
 
     @override
     async def get_stale_followup_items(self, days: int = 30) -> list[FollowUpItem]:
