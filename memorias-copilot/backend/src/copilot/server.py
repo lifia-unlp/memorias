@@ -73,12 +73,55 @@ def get_llm_provider() -> LLMProvider:
     return OpenAIProvider(api_key=settings.openai_api_key, model=settings.openai_model)
 
 
+async def resolve_authenticated_user(
+    x_user_id: str | None = None,
+    x_user_email: str | None = None,
+    cookie_header: str | None = None,
+) -> Any:
+    """
+    Resolves the authenticated User record.
+    Prioritizes verified NextAuth JWT tokens (from cookies) if AUTH_SECRET is set.
+    Falls back to development headers if explicitly enabled or AUTH_SECRET is not configured.
+    """
+    # 1. Try decoding NextAuth JWT from cookies if AUTH_SECRET is configured
+    if settings.auth_secret and cookie_header:
+        import jwt
+        # Parse cookie string for NextAuth session token
+        tokens = []
+        for item in cookie_header.split(";"):
+            item = item.strip()
+            if "=" in item:
+                k, v = item.split("=", 1)
+                if k in ("__Secure-authjs.session-token", "authjs.session-token", "__Secure-next-auth.session-token", "next-auth.session-token"):
+                    tokens.append(v)
+        
+        for token_val in tokens:
+            try:
+                # NextAuth uses HS256 JWT by default with AUTH_SECRET
+                decoded = jwt.decode(token_val, settings.auth_secret, algorithms=["HS256"])
+                user_identifier = decoded.get("email") or decoded.get("sub")
+                if user_identifier:
+                    u = await db_adapter.get_user_by_id_or_email(user_identifier)
+                    if u:
+                        return u
+            except Exception as e:
+                logger.debug(f"[Auth] JWT decoding skipped/failed: {e}")
+
+    # 2. Fallback for local development or explicit header simulation
+    auth_identifier = x_user_id or x_user_email
+    if auth_identifier:
+        return await db_adapter.get_user_by_id_or_email(auth_identifier)
+    
+    return None
+
+
 @app.post("/chat")
 async def chat_endpoint(
     request: ChatRequest,
     x_session_token: str = Header(..., alias="X-Session-Token"),
     x_user_id: str | None = Header(None, alias="X-User-Id"),
     x_user_email: str | None = Header(None, alias="X-User-Email"),
+    cookie: str | None = Header(None, alias="Cookie"),
     llm: LLMProvider = Depends(get_llm_provider),
 ) -> StreamingResponse:
     from copilot.llm import SYSTEM_PROMPT
@@ -104,12 +147,13 @@ async def chat_endpoint(
         f"[Server] Received POST /chat request. Session Token: {x_session_token}"
     )
 
-    user_info = None
-    auth_identifier = x_user_id or x_user_email
-    if auth_identifier:
-        user_info = await db_adapter.get_user_by_id_or_email(auth_identifier)
-        if user_info:
-            logger.info(f"[Server] Identified user: {user_info.email} (Name: {user_info.name})")
+    user_info = await resolve_authenticated_user(
+        x_user_id=x_user_id,
+        x_user_email=x_user_email,
+        cookie_header=cookie,
+    )
+    if user_info:
+        logger.info(f"[Server] Identified user: {user_info.email} (Name: {user_info.name})")
 
     logger.info(f"[Server] Request Message Count: {len(request.messages)}")
     if request.messages:
@@ -193,6 +237,7 @@ async def chat_feedback(
 async def get_info(
     x_user_id: str | None = Header(None, alias="X-User-Id"),
     x_user_email: str | None = Header(None, alias="X-User-Email"),
+    cookie: str | None = Header(None, alias="Cookie"),
 ) -> dict[str, Any]:
     try:
         logs_dir = Path(__file__).parent / ".." / ".." / "logs"
@@ -205,14 +250,16 @@ async def get_info(
         count = 0
 
     user_data = None
-    auth_identifier = x_user_id or x_user_email
-    if auth_identifier:
-        user_info = await db_adapter.get_user_by_id_or_email(auth_identifier)
-        if user_info:
-            user_data = {
-                "name": user_info.name,
-                "email": user_info.email,
-            }
+    user_info = await resolve_authenticated_user(
+        x_user_id=x_user_id,
+        x_user_email=x_user_email,
+        cookie_header=cookie,
+    )
+    if user_info:
+        user_data = {
+            "name": user_info.name,
+            "email": user_info.email,
+        }
 
     return {
         "lab_name": settings.lab_name,

@@ -107,7 +107,7 @@ export class ApiClient {
     const endpoint = `${this._baseUrl}/info`;
     console.log("[ApiClient] Fetching server stats...");
     try {
-      const response = await fetch(endpoint);
+      const response = await fetch(endpoint, { credentials: "include" });
       if (!response.ok) {
         throw new Error(`Failed to fetch stats: ${response.status}`);
       }
@@ -127,6 +127,7 @@ export class ApiClient {
 
     fetch(endpoint, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
         "X-Session-Token": this._sessionToken,

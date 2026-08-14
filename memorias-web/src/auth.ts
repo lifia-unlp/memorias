@@ -7,8 +7,24 @@ import authConfig from "./auth.config";
 
 import Credentials from "next-auth/providers/credentials";
 
+const cookieDomain = process.env.COOKIE_DOMAIN?.trim();
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  cookies: cookieDomain
+    ? {
+        sessionToken: {
+          name: `__Secure-authjs.session-token`,
+          options: {
+            httpOnly: true,
+            sameSite: "lax",
+            path: "/",
+            domain: cookieDomain,
+            secure: true,
+          },
+        },
+      }
+    : undefined,
   ...authConfig,
   providers: [
     ...authConfig.providers,

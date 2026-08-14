@@ -68,6 +68,7 @@ class Settings(BaseModel):
         )
     )
     session_timeout_seconds: int = Field(default=3600)
+    auth_secret: str = Field(default_factory=lambda: os.getenv("AUTH_SECRET", ""))
     memorias_web_base_url: str = Field(
         default_factory=lambda: os.getenv(
             "MEMORIAS_WEB_BASE_URL",
