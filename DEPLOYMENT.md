@@ -202,10 +202,17 @@ services:
       - OPENAI_MODEL=gpt-5.6-luna
       - MEMORIAS_WEB_BASE_URL=http://new-memorias:3000
       - SESSION_TIMEOUT_SECONDS=3600
+      - AUTH_SECRET=your_next_auth_secret_placeholder # MUST match AUTH_SECRET in docker-compose.app.yml for cross-subdomain SSO JWT verification
     volumes:
       - copilot-logs:/app/logs
     networks:
       - memorias-network
+
+> [!NOTE]
+> **Cross-Subdomain SSO & Authentication Setup**:
+> To enable automatic, secure single sign-on across `memorias-web` (e.g. `memorias.lifia.ar`) and `memorias-copilot` (e.g. `memorioso.lifia.ar`):
+> 1. Set `COOKIE_DOMAIN=.lifia.ar` in `docker-compose.app.yml` (`memorias-web`) environment variables.
+> 2. Ensure `AUTH_SECRET` in `docker-compose.copilot.yml` (`memorias-copilot`) matches the exact same secret key as `memorias-web`.
 
 > [!NOTE]
 > **OpenAI Agent Skills Architecture**: The Copilot relies on `skills.json` (located inside `/app/src/copilot/config/skills.json` in the container) to reference deployed Agent Skill IDs (`student-orientation`, `unrelated-topics`). When changing or adding skills, run `python sync_skills.py deploy-all` locally with your target environment's `OPENAI_API_KEY` before building the production Docker image.
