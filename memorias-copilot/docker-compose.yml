@@ -9,6 +9,7 @@ services:
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-5.6-luna}
       - MEMORIAS_WEB_BASE_URL=${MEMORIAS_WEB_BASE_URL:-http://localhost:3000}
       - SESSION_TIMEOUT_SECONDS=${SESSION_TIMEOUT_SECONDS:-3600}
+      - AUTH_SECRET=${AUTH_SECRET}
     volumes:
       - copilot-logs:/app/logs
     ports:
