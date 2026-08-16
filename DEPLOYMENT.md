@@ -158,6 +158,8 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres_secure_pwd@memorias-db:5432/memorias?schema=public
       - AUTH_SECRET=your_very_long_auth_jwt_secret_key
       - AUTH_URL=http://your-server-ip:3000
+      # Optional Cross-Subdomain Cookie Domain (e.g., .lifia.ar for SSO across memorias.lifia.ar & memorioso.lifia.ar)
+      - COOKIE_DOMAIN=.lifia.ar
       # Google OAuth Credentials (Optional)
       - AUTH_GOOGLE_ID=your_google_oauth_client_id.apps.googleusercontent.com
       - AUTH_GOOGLE_SECRET=your_google_oauth_client_secret
@@ -202,7 +204,7 @@ services:
       - OPENAI_MODEL=gpt-5.6-luna
       - MEMORIAS_WEB_BASE_URL=http://new-memorias:3000
       - SESSION_TIMEOUT_SECONDS=3600
-      - AUTH_SECRET=your_next_auth_secret_placeholder # MUST match AUTH_SECRET in docker-compose.app.yml for cross-subdomain SSO JWT verification
+      - AUTH_SECRET=your_very_long_auth_jwt_secret_key # MUST match AUTH_SECRET in docker-compose.app.yml for cross-subdomain SSO JWT verification
     volumes:
       - copilot-logs:/app/logs
     networks:
