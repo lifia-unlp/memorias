@@ -154,29 +154,8 @@ services:
     restart: always
     ports:
       - "3000:3000"
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres_secure_pwd@memorias-db:5432/memorias?schema=public
-      - AUTH_SECRET=your_very_long_auth_jwt_secret_key
-      - AUTH_URL=http://your-server-ip:3000
-      # Optional Cross-Subdomain Cookie Domain (e.g., .lifia.ar for SSO across memorias.lifia.ar & memorioso.lifia.ar)
-      - COOKIE_DOMAIN=.lifia.ar
-      # Google OAuth Credentials (Optional)
-      - AUTH_GOOGLE_ID=your_google_oauth_client_id.apps.googleusercontent.com
-      - AUTH_GOOGLE_SECRET=your_google_oauth_client_secret
-      # GitHub OAuth Credentials (Optional)
-      - AUTH_GITHUB_ID=your_github_client_id
-      - AUTH_GITHUB_SECRET=your_github_client_secret
-      # Microsoft OAuth (Entra ID) Credentials (Optional)
-      - AUTH_MICROSOFT_ENTRA_ID_ID=your_microsoft_client_id
-      - AUTH_MICROSOFT_ENTRA_ID_SECRET=your_microsoft_client_secret
-      # SMTP Mail Settings (Google/Office 365)
-      - SMTP_HOST=smtp.gmail.com
-      - SMTP_PORT=587
-      - SMTP_SECURE=false
-      - SMTP_USER=your-email@gmail.com
-      - SMTP_PASS=your-app-password
-      - SMTP_FROM_NAME=LIFIA Memorias
-      - SMTP_FROM_EMAIL=noreply@lifia.info.unlp.edu.ar
+    env_file:
+      - .env
     networks:
       - memorias-network
 
@@ -198,13 +177,8 @@ services:
     restart: unless-stopped
     ports:
       - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres_secure_pwd@memorias-db:5432/memorias?schema=public
-      - OPENAI_API_KEY=your_openai_api_key
-      - OPENAI_MODEL=gpt-5.6-luna
-      - MEMORIAS_WEB_BASE_URL=http://new-memorias:3000
-      - SESSION_TIMEOUT_SECONDS=3600
-      - AUTH_SECRET=your_very_long_auth_jwt_secret_key # MUST match AUTH_SECRET in docker-compose.app.yml for cross-subdomain SSO JWT verification
+    env_file:
+      - .env
     volumes:
       - copilot-logs:/app/logs
     networks:
