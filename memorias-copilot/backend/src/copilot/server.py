@@ -83,6 +83,12 @@ async def resolve_authenticated_user(
     Prioritizes verified NextAuth JWT tokens (from cookies) if AUTH_SECRET is set.
     Falls back to development headers if explicitly enabled or AUTH_SECRET is not configured.
     """
+    if not settings.auth_secret:
+        logger.info("[Auth] AUTH_SECRET is NOT set in Copilot settings. Skipping JWT cookie verification.")
+
+    if not cookie_header:
+        logger.info("[Auth] No Cookie header received in request.")
+
     # 1. Try decoding NextAuth JWT from cookies if AUTH_SECRET is configured
     if settings.auth_secret and cookie_header:
         import jwt
@@ -95,6 +101,9 @@ async def resolve_authenticated_user(
                 if k in ("__Secure-authjs.session-token", "authjs.session-token", "__Secure-next-auth.session-token", "next-auth.session-token"):
                     tokens.append(v)
         
+        if not tokens:
+            logger.info(f"[Auth] Cookie header received, but no session token matching NextAuth keys found. Raw cookies: {cookie_header}")
+
         for token_val in tokens:
             try:
                 # NextAuth uses HS256 JWT by default with AUTH_SECRET
@@ -104,8 +113,10 @@ async def resolve_authenticated_user(
                     u = await db_adapter.get_user_by_id_or_email(user_identifier)
                     if u:
                         return u
+                    else:
+                        logger.warning(f"[Auth] Valid JWT decoded for '{user_identifier}', but user was not found in Copilot database.")
             except Exception as e:
-                logger.debug(f"[Auth] JWT decoding skipped/failed: {e}")
+                logger.warning(f"[Auth] JWT decoding failed: {e}")
 
     # 2. Fallback for local development or explicit header simulation
     auth_identifier = x_user_id or x_user_email
