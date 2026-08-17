@@ -173,10 +173,10 @@ class MockDatabaseAdapter(DatabaseAdapter):
     @override
     async def get_user_by_id_or_email(self, identifier: str):
         from copilot.models import UserInfo
-        if identifier in ("user-1", "user@example.com"):
+        if identifier in ("user-1", "user@example.com", "casco@lifia.info.unlp.edu.ar"):
             return UserInfo(
                 id="user-1",
-                email="user@example.com",
+                email="casco@lifia.info.unlp.edu.ar",
                 name="Test User",
                 role="USER",
                 memberId="member-1",

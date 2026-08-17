@@ -116,31 +116,14 @@ async def resolve_authenticated_user(
             except Exception:
                 pass
 
-            # 2) NextAuth v5 / Auth.js encrypts session JWTs using JWE (HKDF derived key)
+            # 2) NextAuth v5 / Auth.js encrypts session JWTs using JWE (A256CBC-HS512 with HKDF derived key)
             try:
+                import hmac
                 import hashlib
-                from cryptography.hazmat.primitives.kdf.hkdf import HKDF
-                from cryptography.hazmat.primitives import hashes
-                from cryptography.hazmat.primitives.ciphers.aead import AESGCM
                 import base64
-
-                # NextAuth can use different HKDF info labels depending on version (NextAuth v4 vs Auth.js v5)
-                # Try all candidate HKDF info strings:
-                cookie_candidates = [
-                    "__Secure-authjs.session-token",
-                    "authjs.session-token",
-                    "__Secure-next-auth.session-token",
-                    "next-auth.session-token",
-                ]
-                
-                info_candidates = [
-                    f"Auth.js Generated Encryption Key ({c})" for c in cookie_candidates
-                ] + [
-                    f"NextAuth.js Generated Encryption Key ({c})" for c in cookie_candidates
-                ] + [
-                    "Auth.js Generated Encryption Key",
-                    "NextAuth.js Generated Encryption Key",
-                ]
+                from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+                from cryptography.hazmat.primitives import hashes, padding
+                from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
                 parts = token_val.split(".")
                 if len(parts) == 5:
@@ -153,35 +136,52 @@ async def resolve_authenticated_user(
                     tag = b64_decode(parts[4])
                     aad = parts[0].encode("utf-8")
 
-                    last_err = None
-                    for info_label in info_candidates:
-                        try:
-                            hkdf = HKDF(
-                                algorithm=hashes.SHA256(),
-                                length=32,
-                                salt=b"",
-                                info=info_label.encode("utf-8"),
-                            )
-                            derived_key = hkdf.derive(settings.auth_secret.encode("utf-8"))
+                    # Extract cookie name for HKDF info salt
+                    cookie_name = "__Secure-authjs.session-token"
+                    for candidate in ("__Secure-authjs.session-token", "authjs.session-token", "__Secure-next-auth.session-token", "next-auth.session-token"):
+                        if candidate in cookie_header:
+                            cookie_name = candidate
+                            break
 
-                            aesgcm = AESGCM(derived_key)
-                            # AESGCM.decrypt expects ciphertext + tag combined
-                            decrypted_bytes = aesgcm.decrypt(iv, ciphertext + tag, aad)
-                            payload_json = json.loads(decrypted_bytes.decode("utf-8"))
+                    # Auth.js v5 HKDF key derivation: 64 bytes total (32 bytes HMAC key + 32 bytes AES key)
+                    # NextAuth passes salt = cookie_name and info = "Auth.js Generated Encryption Key (<cookie_name>)"
+                    info_label = f"Auth.js Generated Encryption Key ({cookie_name})"
+                    hkdf = HKDF(
+                        algorithm=hashes.SHA256(),
+                        length=64,
+                        salt=cookie_name.encode("utf-8"),
+                        info=info_label.encode("utf-8"),
+                    )
+                    key_material = hkdf.derive(settings.auth_secret.encode("utf-8"))
+                    mac_key = key_material[:32]
+                    enc_key = key_material[32:]
 
-                            user_identifier = payload_json.get("email") or payload_json.get("sub")
-                            if user_identifier:
-                                u = await db_adapter.get_user_by_id_or_email(user_identifier)
-                                if u:
-                                    logger.info(f"[Auth] Successfully decrypted JWE token for '{user_identifier}' using info label: {info_label}")
-                                    return u
-                                else:
-                                    logger.warning(f"[Auth] Valid JWE session decrypted for '{user_identifier}', but user was not found in Copilot database.")
-                        except Exception as e:
-                            last_err = e
+                    # Verify HMAC-SHA512 auth tag according to JWE A256CBC-HS512 spec:
+                    # al_bytes = 64-bit big endian representation of AAD length in bits
+                    al_bytes = (len(aad) * 8).to_bytes(8, byteorder="big")
+                    expected_tag = hmac.new(mac_key, aad + iv + ciphertext + al_bytes, hashlib.sha512).digest()[:32]
 
-                    if last_err:
-                        logger.warning(f"[Auth] JWE decryption attempted across all HKDF labels but failed: {repr(last_err)}")
+                    if hmac.compare_digest(expected_tag, tag):
+                        # Decrypt AES-256-CBC
+                        cipher = Cipher(algorithms.AES(enc_key), modes.CBC(iv))
+                        decryptor = cipher.decryptor()
+                        padded_plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+
+                        # Remove PKCS7 padding
+                        unpadder = padding.PKCS7(128).unpadder()
+                        plaintext = unpadder.update(padded_plaintext) + unpadder.finalize()
+                        payload_json = json.loads(plaintext.decode("utf-8"))
+
+                        user_identifier = payload_json.get("email") or payload_json.get("sub")
+                        if user_identifier:
+                            u = await db_adapter.get_user_by_id_or_email(user_identifier)
+                            if u:
+                                logger.info(f"[Auth] Successfully decrypted NextAuth v5 JWE token for '{user_identifier}'")
+                                return u
+                            else:
+                                logger.warning(f"[Auth] Valid JWE session decrypted for '{user_identifier}', but user was not found in Copilot database.")
+                    else:
+                        logger.warning("[Auth] JWE HMAC-SHA512 signature mismatch (AUTH_SECRET mismatch or invalid key).")
             except Exception as jwe_err:
                 logger.warning(f"[Auth] JWE processing exception: {repr(jwe_err)}")
 

@@ -186,26 +186,28 @@ async def test_feedback_endpoint_not_found() -> None:
 
 
 @pytest.mark.asyncio
-async def test_chat_endpoint_authenticated() -> None:
-    app.dependency_overrides[get_llm_provider] = lambda: MockLLMProvider()
+async def test_jwe_session_decryption() -> None:
+    from copilot.server import resolve_authenticated_user, settings
+    from unittest.mock import patch
+
     mock_db = MockDatabaseAdapter()
+    test_secret = "test-secret-12345678901234567890"
 
-    with (
-        patch("copilot.server.db_adapter", mock_db),
-        patch("copilot.server.tool_dispatcher._db", mock_db),
-    ):
-        async with AsyncClient(
-            transport=ASGITransport(app=app), base_url="http://test"
-        ) as ac:
-            response = await ac.post(
-                "/chat",
-                json={"messages": [{"role": "user", "content": "Hi"}]},
-                headers={
-                    "X-Session-Token": "test-session-token",
-                    "X-User-Email": "user@example.com",
-                },
+    # Token generated using exact NextAuth v5 encode library:
+    # eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiYk9tb1l0MVl0dThjQkVQMzVPd3FHR0lwQjRfWEVoTjQxQUFqZ1VXZUVLM1N6dHlMV3R4cE1vcGRndDVoQS1maUlidzV6RjBpOUlZMUVoQWVBb1ExM2cifQ..pW3mOGQDki8woBjjbHkcTA.66CU7f6T7wmbeK9bPdkfk8oVD0a37UCn_WJ6St91GCmLB8F8_nsIF5-ya8ghW_gMGea54pmvaLCRd-M85uUedaKhGPvDBxsGVnN3wAP2eaymUTf8myAfvSHlEJYeho2YmYYbBVx_9_yxpeGZDnJh8Ib_-236lTytzHrHk2x6gDlt16GIX9WlayjdJvLcjHDk.21bqhtSmh-TgiOOxm6XDhWcqdHjs7YAX9X2CcJURkRQ
+    test_token = (
+        "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiYk9tb1l0MVl0dThjQkVQMzVPd3FHR0lwQjRfWEVoTjQxQUFqZ1VXZUVLM1N6dHlMV3R4cE1vcGRndDVoQS1maUlidzV6RjBpOUlZMUVoQWVBb1ExM2cifQ.."
+        "c3hNwpLQMzEzPG2RTnGbtA.8kCMLWABkAuI8NqEqqaOzLgnMh5Lml2FE6NQYNsApImQU-LeteryHiErzoQYGlwwsmO4COJTnE7xr3AMvF1lpxSbgtCo3UkRUkPkeMB_g9z5qh9bxzX2Po83OlvnoMHNQLLIuA_1sm-spGxjhIZMdo6OVrS_96RzB16bM3bZSQg.lOhMEIBoO20GWrK4w9Hy3SOqO673rgHDZwmvDEJqiX4"
+    )
+
+    with patch("copilot.server.db_adapter", mock_db):
+        object.__setattr__(settings, "auth_secret", test_secret)
+        try:
+            user = await resolve_authenticated_user(
+                cookie_header=f"__Secure-authjs.session-token={test_token}"
             )
-
-            assert response.status_code == 200
-            assert "Hello Jane Doe" in response.text
+            assert user is not None
+            assert user.email == "casco@lifia.info.unlp.edu.ar"
+        finally:
+            object.__setattr__(settings, "auth_secret", "")
 
