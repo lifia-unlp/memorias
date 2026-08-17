@@ -106,17 +106,68 @@ async def resolve_authenticated_user(
 
         for token_val in tokens:
             try:
-                # NextAuth uses HS256 JWT by default with AUTH_SECRET
+                # 1) Try standard JWT decode first
                 decoded = jwt.decode(token_val, settings.auth_secret, algorithms=["HS256"])
                 user_identifier = decoded.get("email") or decoded.get("sub")
                 if user_identifier:
                     u = await db_adapter.get_user_by_id_or_email(user_identifier)
                     if u:
                         return u
-                    else:
-                        logger.warning(f"[Auth] Valid JWT decoded for '{user_identifier}', but user was not found in Copilot database.")
-            except Exception as e:
-                logger.warning(f"[Auth] JWT decoding failed: {e}")
+            except Exception:
+                pass
+
+            # 2) NextAuth v5 / Auth.js encrypts session JWTs using JWE (HKDF derived key)
+            try:
+                import hashlib
+                from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+                from cryptography.hazmat.primitives import hashes
+                from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+                import base64
+
+                # Derive NextAuth encryption key using HKDF-SHA256
+                # NextAuth v5 uses cookie name as HKDF info salt if secure cookie
+                cookie_name = "__Secure-authjs.session-token" if "__Secure-authjs.session-token" in cookie_header else "authjs.session-token"
+                if "__Secure-next-auth.session-token" in cookie_header:
+                    cookie_name = "__Secure-next-auth.session-token"
+                elif "next-auth.session-token" in cookie_header:
+                    cookie_name = "next-auth.session-token"
+
+                info_label = f"Auth.js Generated Encryption Key ({cookie_name})"
+                
+                hkdf = HKDF(
+                    algorithm=hashes.SHA256(),
+                    length=32,
+                    salt=b"",
+                    info=info_label.encode("utf-8"),
+                )
+                derived_key = hkdf.derive(settings.auth_secret.encode("utf-8"))
+
+                # JWE Compact Serialization: header.encrypted_key.iv.ciphertext.tag
+                parts = token_val.split(".")
+                if len(parts) == 5:
+                    def b64_decode(s):
+                        pad = "=" * ((4 - len(s) % 4) % 4)
+                        return base64.urlsafe_b64decode(s + pad)
+
+                    iv = b64_decode(parts[2])
+                    ciphertext = b64_decode(parts[3])
+                    tag = b64_decode(parts[4])
+                    aad = parts[0].encode("utf-8")
+
+                    aesgcm = AESGCM(derived_key)
+                    # AESGCM.decrypt expects ciphertext + tag combined
+                    decrypted_bytes = aesgcm.decrypt(iv, ciphertext + tag, aad)
+                    payload_json = json.loads(decrypted_bytes.decode("utf-8"))
+
+                    user_identifier = payload_json.get("email") or payload_json.get("sub")
+                    if user_identifier:
+                        u = await db_adapter.get_user_by_id_or_email(user_identifier)
+                        if u:
+                            return u
+                        else:
+                            logger.warning(f"[Auth] Valid JWE session decrypted for '{user_identifier}', but user was not found in Copilot database.")
+            except Exception as jwe_err:
+                logger.warning(f"[Auth] JWE decryption failed: {jwe_err}")
 
     # 2. Fallback for local development or explicit header simulation
     auth_identifier = x_user_id or x_user_email
