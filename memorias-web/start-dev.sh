@@ -4,10 +4,18 @@
 cd "$(dirname "$0")"
 
 echo "🚀 Iniciando base de datos local (Prisma Postgres Sandbox)..."
-npx prisma dev --detach
+PRISMA_DEV_OUT=$(npx prisma dev --detach)
+echo "$PRISMA_DEV_OUT"
 
-echo "📡 Estado del sandbox:"
-npx prisma dev ls
+DETECTED_URL=$(echo "$PRISMA_DEV_OUT" | grep -o 'postgres://[^ ]*' | head -n 1)
+
+if [ -n "$DETECTED_URL" ]; then
+  echo "✅ Base de datos sandbox activa en: $DETECTED_URL"
+  export DATABASE_URL="$DETECTED_URL"
+else
+  echo "⚠️ No se detectó una URL dinámica de Prisma Sandbox, se utilizará la configuración de .env"
+fi
 
 echo "💻 Iniciando servidor Next.js..."
 npm run dev
+
