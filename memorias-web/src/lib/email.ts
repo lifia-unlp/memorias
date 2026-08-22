@@ -49,6 +49,7 @@ export function getTransporter(): nodemailer.Transporter {
     host,
     port,
     secure,
+    family: 4,
     auth: {
       user,
       pass,
