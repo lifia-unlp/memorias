@@ -14,6 +14,19 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 
 ## Session Logs
 
+### Session 28 (2026-08-22)
+* **Goal**: Implementar plantillas editables por bloque en el Report Builder para desacoplar el formateo en código hardcodeado (inglés) y soportar idiomas y atributos personalizados.
+* **Accomplished**:
+  * Diseñado e implementado `templateEngine.ts` con soporte para variables (`{{var}}`), HTML crudo (`{{{citationHtml}}}`), bloques condicionales (`{{#if var}}`) y formateador numérico de fechas (`{{date startDate "MM/YYYY"}}`).
+  * Desacopladas las cadenas rígidas en inglés e incorporadas plantillas predeterminadas (`DEFAULT_*_TEMPLATE`) para los bloques `projects`, `publications`, `scholarships` y `theses`.
+  * Eliminado el checkbox `showSummary` de la UI e incorporado el editor de plantillas multilínea en `ReportBlockEditor.tsx`.
+  * Actualizado `ReportPreviewCanvas.tsx` y `useReportCompiler.ts` para compilar y previsualizar en tiempo real el resultado de las plantillas personalizadas.
+  * Elaborada la guía de usuario en `memorias-web/public/user_guide_report_templates.md`.
+  * Ejecutada la suite completa de pruebas unitarias/integración (321 pruebas pasadas exitosamente sin regresiones).
+* **Blocked Items**: Ninguno.
+* **Next Steps**:
+  * Coordinar con el equipo la publicación de la guía de usuario en la Wiki del proyecto.
+
 ### Session 27 (2026-07-11)
 * **Goal**: Reportar en GitHub los tres hallazgos de seguridad identificados y etiquetarlos como `security`.
 * **Accomplished**:

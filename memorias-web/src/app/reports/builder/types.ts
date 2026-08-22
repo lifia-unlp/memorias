@@ -9,8 +9,8 @@ export interface Block {
     startYear: string;
     endYear: string;
     style: string; // apa, vancouver, harvard
-    showSummary: boolean;
     tags?: string[];
+    template?: string;
 
     // GenAI specifics
     prompt?: string;

@@ -90,6 +90,15 @@ export function formatCitation(pb: any, style: string = "apa"): FormattedCitatio
     // Clean up CSL wrappers if present
     formattedHtml = formattedHtml.replace(/<div[^>]*csl-bib-body[^>]*>/i, "").replace(/<\/div>\s*$/i, "");
     formattedHtml = formattedHtml.replace(/<div[^>]*csl-entry[^>]*>/i, "").replace(/<\/div>\s*$/i, "");
+    formattedHtml = formattedHtml.replace(/&#38;/g, "&").replace(/&#x26;/g, "&").replace(/&amp;/g, "&");
+    if (style === "vancouver") {
+      formattedHtml = formattedHtml
+        .replace(/^<div[^>]*>/i, "")
+        .replace(/<\/div>$/i, "")
+        .replace(/^\s*\d+\.\s*/, "")
+        .replace(/(<[^>]+>)\s*\d+\.\s*/g, "$1")
+        .trim();
+    }
     formattedHtml = formattedHtml.trim();
 
     // If DOI is present, cleanly linkify it in-place or append it
@@ -147,7 +156,13 @@ export function formatCitation(pb: any, style: string = "apa"): FormattedCitatio
       }
     }
 
-    const sanitizedResultHtml = sanitizeHtml(formattedHtml || backupApa);
+    let sanitizedResultHtml = sanitizeHtml(formattedHtml || backupApa);
+    if (style === "vancouver") {
+      sanitizedResultHtml = sanitizedResultHtml
+        .replace(/^(?:<[^>]+>)*\s*\d+\.\s*/, (match) => match.replace(/\d+\.\s*/, ""))
+        .replace(/^\s*\d+\.\s*/, "")
+        .trim();
+    }
     const plainText = sanitizedResultHtml.replace(/<[^>]*>/g, "").trim();
 
     return {

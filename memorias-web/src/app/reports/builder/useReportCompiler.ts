@@ -26,110 +26,47 @@ export const formatDateRange = (startDate?: string | Date | null, endDate?: stri
   return `${startStr} - ${endStr}`;
 };
 
-export const buildProjectSentence = (proj: any) => {
-  const parts: string[] = [];
-  const dateRange = formatDateRange(proj.startDate, proj.endDate);
-  parts.push(`Active from ${dateRange}`);
-  
-  if (proj.director && proj.director !== "N/A") {
-    parts.push(`directed by ${proj.director}`);
-  }
-  if (proj.coDirector && proj.coDirector !== "N/A") {
-    parts.push(`with Co-Director ${proj.coDirector}`);
-  }
-  if (proj.responsibleGroup && proj.responsibleGroup !== "N/A") {
-    parts.push(`under the responsible group ${proj.responsibleGroup}`);
-  }
-  
-  const fundingParts: string[] = [];
-  if (proj.fundingAgency && proj.fundingAgency !== "N/A") {
-    fundingParts.push(`funding provided by ${proj.fundingAgency}`);
-  }
-  if (proj.amount && proj.amount !== "N/A") {
-    fundingParts.push(`amount: ${proj.amount}`);
-  }
-  if (fundingParts.length > 0) {
-    parts.push(`with ${fundingParts.join(" (")}${fundingParts.length > 1 ? ")" : ""}`);
-  }
-  return parts.join(", ") + ".";
+import {
+  renderTemplate,
+  DEFAULT_PROJECT_TEMPLATE,
+  DEFAULT_PUBLICATION_TEMPLATE,
+  DEFAULT_SCHOLARSHIP_TEMPLATE,
+  DEFAULT_THESIS_TEMPLATE,
+} from "./templateEngine";
+
+export const buildProjectSentence = (proj: any, template?: string) => {
+  return renderTemplate(template || DEFAULT_PROJECT_TEMPLATE, proj);
 };
 
-export const buildScholarshipSentence = (schol: any) => {
-  const parts: string[] = [];
-  const dateRange = formatDateRange(schol.startDate, schol.endDate);
-  parts.push(`Scholarship active from ${dateRange}`);
-  
-  if (schol.student && schol.student !== "N/A") {
-    parts.push(`awarded to student ${schol.student}`);
-  }
-  if (schol.director && schol.director !== "N/A") {
-    parts.push(`directed by ${schol.director}`);
-  }
-  if (schol.coDirector && schol.coDirector !== "N/A") {
-    parts.push(`with Co-Director ${schol.coDirector}`);
-  }
-  if (schol.fundingAgency && schol.fundingAgency !== "N/A") {
-    parts.push(`with funding provided by ${schol.fundingAgency}`);
-  }
-  return parts.join(", ") + ".";
+export const buildScholarshipSentence = (schol: any, template?: string) => {
+  return renderTemplate(template || DEFAULT_SCHOLARSHIP_TEMPLATE, schol);
 };
 
-export const buildThesisSentence = (thesis: any) => {
-  const parts: string[] = [];
-  let thesisPrefix = "Thesis";
-  if (thesis.career && thesis.career !== "N/A") {
-    thesisPrefix += ` for career ${thesis.career}`;
-  }
-  const dateRange = formatDateRange(thesis.startDate, thesis.endDate);
-  parts.push(`${thesisPrefix} active from ${dateRange}`);
-  
-  if (thesis.student && thesis.student !== "N/A") {
-    parts.push(`with student ${thesis.student}`);
-  }
-  if (thesis.director && thesis.director !== "N/A") {
-    parts.push(`directed by ${thesis.director}`);
-  }
-  if (thesis.coDirector && thesis.coDirector !== "N/A") {
-    parts.push(`with Co-Director ${thesis.coDirector}`);
-  }
-  if (thesis.otherAdvisors && thesis.otherAdvisors !== "N/A") {
-    parts.push(`and advisors ${thesis.otherAdvisors}`);
-  }
-  if (thesis.progress && thesis.progress !== "N/A") {
-    parts.push(`progress: ${thesis.progress}%`);
-  }
-  return parts.join(", ") + ".";
+export const buildThesisSentence = (thesis: any, template?: string) => {
+  return renderTemplate(template || DEFAULT_THESIS_TEMPLATE, thesis);
+};
+
+export const buildPublicationSentence = (pub: any, template?: string) => {
+  return renderTemplate(template || DEFAULT_PUBLICATION_TEMPLATE, pub);
 };
 
 export const getBlockMarkdownContext = (block: Block): string => {
   if (block.type === "markdown") return block.content || "";
   if (block.type === "publications") {
     if (block.compiledItems.length === 0) return "*No publications matched.*";
-    return block.compiledItems.map((pub) => pub.citationText).join("\n\n");
+    return block.compiledItems.map((pub) => buildPublicationSentence(pub, block.filters.template)).join("\n\n");
   }
   if (block.type === "projects") {
     if (block.compiledItems.length === 0) return "*No projects matched.*";
-    return block.compiledItems.map((proj) => {
-      let text = `### Project: ${proj.title} ${proj.code ? `(${proj.code})` : ""}\n${buildProjectSentence(proj)}`;
-      if (proj.summary) text += `\nSummary: ${proj.summary}`;
-      return text;
-    }).join("\n\n");
+    return block.compiledItems.map((proj) => buildProjectSentence(proj, block.filters.template)).join("\n\n");
   }
   if (block.type === "scholarships") {
     if (block.compiledItems.length === 0) return "*No scholarships matched.*";
-    return block.compiledItems.map((schol) => {
-      let text = `### Scholarship: ${schol.title} ${schol.type ? `(${schol.type})` : ""}\n${buildScholarshipSentence(schol)}`;
-      if (schol.summary) text += `\nSummary: ${schol.summary}`;
-      return text;
-    }).join("\n\n");
+    return block.compiledItems.map((schol) => buildScholarshipSentence(schol, block.filters.template)).join("\n\n");
   }
   if (block.type === "theses") {
     if (block.compiledItems.length === 0) return "*No theses matched.*";
-    return block.compiledItems.map((thesis) => {
-      let text = `### Thesis: ${thesis.title} ${thesis.level ? `(${thesis.level})` : ""}\n${buildThesisSentence(thesis)}`;
-      if (thesis.summary) text += `\nSummary: ${thesis.summary}`;
-      return text;
-    }).join("\n\n");
+    return block.compiledItems.map((thesis) => buildThesisSentence(thesis, block.filters.template)).join("\n\n");
   }
   return "";
 };

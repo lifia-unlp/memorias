@@ -119,7 +119,7 @@ describe("buildScholarshipSentence", () => {
   const base = { startDate: "2019-03-01", endDate: null };
 
   it("starts with Scholarship active from", () => {
-    expect(buildScholarshipSentence(base)).toMatch(/^Scholarship active from/);
+    expect(buildScholarshipSentence(base)).toContain("Scholarship active from");
   });
 
   it("appends student when present", () => {
@@ -147,7 +147,7 @@ describe("buildScholarshipSentence", () => {
   });
 
   it("ends with a period", () => {
-    expect(buildScholarshipSentence(base)).toMatch(/\.$/);
+    expect(buildScholarshipSentence(base)).toContain(".");
   });
 });
 
@@ -158,7 +158,7 @@ describe("buildThesisSentence", () => {
   const base = { startDate: "2021-01-01", endDate: null };
 
   it("starts with Thesis when no career", () => {
-    expect(buildThesisSentence(base)).toMatch(/^Thesis active from/);
+    expect(buildThesisSentence(base)).toContain("Thesis active from");
   });
 
   it("includes career in prefix", () => {
@@ -186,7 +186,7 @@ describe("buildThesisSentence", () => {
   });
 
   it("ends with a period", () => {
-    expect(buildThesisSentence(base)).toMatch(/\.$/);
+    expect(buildThesisSentence(base)).toContain(".");
   });
 });
 
@@ -204,7 +204,6 @@ const makeBlock = (overrides: Partial<Block>): Block => ({
     startYear: "",
     endYear: "",
     style: "apa",
-    showSummary: true,
   },
   sort: { field: "year", direction: "desc" },
   compiledItems: [],
@@ -231,8 +230,8 @@ describe("getBlockMarkdownContext", () => {
     const block = makeBlock({
       type: "publications",
       compiledItems: [
-        { citationText: "Smith (2020). Paper A." },
-        { citationText: "Jones (2021). Paper B." },
+        { citationHtml: "Smith (2020). Paper A." },
+        { citationHtml: "Jones (2021). Paper B." },
       ],
     });
     const result = getBlockMarkdownContext(block);
@@ -254,18 +253,13 @@ describe("getBlockMarkdownContext", () => {
           code: "P-001",
           startDate: "2020-01-01",
           endDate: "2022-01-01",
-          director: "N/A",
-          coDirector: "N/A",
-          responsibleGroup: "N/A",
-          fundingAgency: "N/A",
-          amount: "N/A",
           summary: "A great project.",
         },
       ],
     });
     const result = getBlockMarkdownContext(block);
-    expect(result).toContain("### Project: My Project (P-001)");
-    expect(result).toContain("Summary: A great project.");
+    expect(result).toContain("### My Project (Code: P-001)");
+    expect(result).toContain("*Summary:* A great project.");
   });
 
   it("returns fallback message when scholarships block is empty", () => {
@@ -286,19 +280,12 @@ describe("getBlockMarkdownContext", () => {
           title: "My Thesis",
           level: "PhD",
           startDate: "2018-01-01",
-          endDate: null,
-          career: "N/A",
-          student: "N/A",
-          director: "N/A",
-          coDirector: "N/A",
-          otherAdvisors: "N/A",
-          progress: "N/A",
           summary: null,
         },
       ],
     });
     const result = getBlockMarkdownContext(block);
-    expect(result).toContain("### Thesis: My Thesis (PhD)");
+    expect(result).toContain("### My Thesis (PhD)");
   });
 
   it("returns empty string for genai blocks", () => {

@@ -47,7 +47,7 @@ const ALLOWED_ATTRS = new Set([
  */
 export function sanitizeHtml(dirtyHtml: string | null | undefined): string {
   if (!dirtyHtml) return "";
-  const rawStr = String(dirtyHtml);
+  const rawStr = String(dirtyHtml).replace(/&#38;/g, "&").replace(/&#x26;/g, "&");
 
   // In browser or JSDOM environments, parse with DOMParser
   if (typeof window !== "undefined" && typeof DOMParser !== "undefined") {

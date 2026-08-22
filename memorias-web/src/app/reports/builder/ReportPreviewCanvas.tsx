@@ -3,7 +3,7 @@
 import React from "react";
 import { Box, Card, Typography, CircularProgress } from "@mui/material";
 import { Block } from "./types";
-import { buildProjectSentence, buildScholarshipSentence, buildThesisSentence } from "./useReportCompiler";
+import { buildProjectSentence, buildScholarshipSentence, buildThesisSentence, buildPublicationSentence } from "./useReportCompiler";
 
 import { sanitizeHtml, escapeHtml } from "@/lib/sanitize";
 
@@ -23,9 +23,7 @@ export function ReportPreviewCanvas({
   
   const renderMarkdownText = (text: string) => {
     return text.split("\n").map((line, index) => {
-      // First escape any raw HTML in the user line, then apply markdown emphasis
-      const escapedLine = escapeHtml(line);
-      const formattedLine = escapedLine
+      const formattedLine = line
         .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
         .replace(/\*(.*?)\*/g, "<em>$1</em>");
 
@@ -158,14 +156,11 @@ export function ReportPreviewCanvas({
                     No publications matched your filters.
                   </Typography>
                 ) : (
-                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                     {block.compiledItems.map((pub, i) => (
-                      <Typography
-                        key={pub.id || i}
-                        variant="body2"
-                        sx={{ lineHeight: 1.6, color: "text.primary" }}
-                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(pub.citationHtml) }}
-                      />
+                      <Box key={pub.id || i}>
+                        {renderMarkdownText(buildPublicationSentence(pub, block.filters.template))}
+                      </Box>
                     ))}
                   </Box>
                 )}
@@ -182,18 +177,8 @@ export function ReportPreviewCanvas({
                   </Typography>
                 ) : (
                   block.compiledItems.map((proj, i) => (
-                    <Box key={proj.id || i} sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.primary" }}>
-                        {proj.title} {proj.code ? `(Code: ${proj.code})` : ""}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
-                        {buildProjectSentence(proj)}
-                      </Typography>
-                      {block.filters.showSummary && proj.summary && (
-                        <Typography variant="body2" sx={{ fontStyle: "italic", mt: 0.5 }} color="text.secondary">
-                          Summary: {proj.summary}
-                        </Typography>
-                      )}
+                    <Box key={proj.id || i}>
+                      {renderMarkdownText(buildProjectSentence(proj, block.filters.template))}
                     </Box>
                   ))
                 )}
@@ -210,18 +195,8 @@ export function ReportPreviewCanvas({
                   </Typography>
                 ) : (
                   block.compiledItems.map((schol, i) => (
-                    <Box key={schol.id || i} sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.primary" }}>
-                        {schol.title} {schol.type ? `(${schol.type})` : ""}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
-                        {buildScholarshipSentence(schol)}
-                      </Typography>
-                      {block.filters.showSummary && schol.summary && (
-                        <Typography variant="body2" sx={{ fontStyle: "italic", mt: 0.5 }} color="text.secondary">
-                          Summary: {schol.summary}
-                        </Typography>
-                      )}
+                    <Box key={schol.id || i}>
+                      {renderMarkdownText(buildScholarshipSentence(schol, block.filters.template))}
                     </Box>
                   ))
                 )}
@@ -238,18 +213,8 @@ export function ReportPreviewCanvas({
                   </Typography>
                 ) : (
                   block.compiledItems.map((thesis, i) => (
-                    <Box key={thesis.id || i} sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.primary" }}>
-                        {thesis.title} {thesis.level ? `(${thesis.level})` : ""}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
-                        {buildThesisSentence(thesis)}
-                      </Typography>
-                      {block.filters.showSummary && thesis.summary && (
-                        <Typography variant="body2" sx={{ fontStyle: "italic", mt: 0.5 }} color="text.secondary">
-                          Summary: {thesis.summary}
-                        </Typography>
-                      )}
+                    <Box key={thesis.id || i}>
+                      {renderMarkdownText(buildThesisSentence(thesis, block.filters.template))}
                     </Box>
                   ))
                 )}

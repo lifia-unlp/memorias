@@ -18,6 +18,12 @@ import {
 } from "@mui/material";
 import { Block, InitData } from "./types";
 import { DebouncedTextField } from "./DebouncedTextField";
+import {
+  DEFAULT_PROJECT_TEMPLATE,
+  DEFAULT_PUBLICATION_TEMPLATE,
+  DEFAULT_SCHOLARSHIP_TEMPLATE,
+  DEFAULT_THESIS_TEMPLATE,
+} from "./templateEngine";
 
 interface ReportBlockEditorProps {
   block: Block;
@@ -265,6 +271,7 @@ export function ReportBlockEditor({
                     <MenuItem value="apa">APA Style Guide</MenuItem>
                     <MenuItem value="vancouver">Vancouver Reference List</MenuItem>
                     <MenuItem value="harvard">Harvard Style Manual</MenuItem>
+                    <MenuItem value="bibtex">BibTeX Entry Format</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -527,17 +534,56 @@ export function ReportBlockEditor({
         )}
 
         {block.type !== "markdown" && block.type !== "genai" && (
-          <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 1.5 }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  size="small"
-                  checked={block.filters.showSummary}
-                  onChange={(e) => updateBlockFilter(block.id, "showSummary", e.target.checked)}
-                />
+          <Box sx={{ borderTop: "1px solid", borderColor: "divider", pt: 2 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Block Rendering Template
+              </Typography>
+              <Button
+                size="small"
+                variant="text"
+                color="secondary"
+                sx={{ fontSize: "0.625rem", p: 0, minWidth: 0, textTransform: "none", fontWeight: "bold" }}
+                onClick={() => {
+                  let defaultTmpl = "";
+                  if (block.type === "projects") defaultTmpl = DEFAULT_PROJECT_TEMPLATE;
+                  if (block.type === "publications") defaultTmpl = DEFAULT_PUBLICATION_TEMPLATE;
+                  if (block.type === "scholarships") defaultTmpl = DEFAULT_SCHOLARSHIP_TEMPLATE;
+                  if (block.type === "theses") defaultTmpl = DEFAULT_THESIS_TEMPLATE;
+                  updateBlockFilter(block.id, "template", defaultTmpl);
+                }}
+              >
+                Reset Default Template
+              </Button>
+            </Box>
+            <DebouncedTextField
+              fullWidth
+              multiline
+              rows={4}
+              size="small"
+              value={
+                block.filters.template !== undefined
+                  ? block.filters.template
+                  : block.type === "projects"
+                  ? DEFAULT_PROJECT_TEMPLATE
+                  : block.type === "publications"
+                  ? DEFAULT_PUBLICATION_TEMPLATE
+                  : block.type === "scholarships"
+                  ? DEFAULT_SCHOLARSHIP_TEMPLATE
+                  : block.type === "theses"
+                  ? DEFAULT_THESIS_TEMPLATE
+                  : ""
               }
-              label={<Typography variant="body2" sx={{ fontWeight: "bold" }}>Show Summary Text (if available)</Typography>}
+              onCommit={(val) => updateBlockFilter(block.id, "template", val)}
+              placeholder="Enter custom handlebars template..."
             />
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block", fontSize: "0.7rem" }}>
+              Available variables:{" "}
+              {block.type === "projects" && "title, code, startDate, endDate, startYear, endYear, director, coDirector, responsibleGroup, fundingAgency, amount, summary, website, tags"}
+              {block.type === "publications" && "citationHtml, selfArchivingUrl, abstract, ranking, journal, publisher, doi, title, year, authors, tags"}
+              {block.type === "scholarships" && "title, type, startDate, endDate, startYear, endYear, student, director, coDirector, fundingAgency, summary, tags"}
+              {block.type === "theses" && "title, level, career, startDate, endDate, startYear, endYear, student, director, coDirector, otherAdvisors, progress, summary, reportUrl, website, keywords, tags"}
+            </Typography>
           </Box>
         )}
       </Box>
