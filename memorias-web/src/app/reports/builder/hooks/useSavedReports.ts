@@ -137,7 +137,7 @@ export function useSavedReports() {
         type: "markdown",
         content:
           "# Research Report\nThis report has been compiled dynamically using the MEMORIAS Research Portal.\n\nUse the builder tools to configure elements, sort criteria, and filter by members or years.",
-        filters: { memberIds: [], types: [], year: "all", startYear: "", endYear: "", style: "apa", showSummary: true },
+        filters: { memberIds: [], types: [], year: "all", startYear: "", endYear: "", style: "apa" },
         sort: { field: "year", direction: "desc" },
         compiledItems: [],
       },

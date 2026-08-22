@@ -341,7 +341,7 @@ export function useReportCompiler() {
           md += "*No publications found.*\n\n";
         } else {
           block.compiledItems.forEach((pub) => {
-            md += `${pub.citationText}\n\n`;
+            md += `${buildPublicationSentence(pub, block.filters.template)}\n\n`;
           });
         }
       } else if (block.type === "projects") {
@@ -349,12 +349,7 @@ export function useReportCompiler() {
           md += "*No projects found.*\n\n";
         } else {
           block.compiledItems.forEach((proj) => {
-            md += `### ${proj.title} ${proj.code ? `(${proj.code})` : ""}\n`;
-            md += `${buildProjectSentence(proj)}\n`;
-            if (block.filters.showSummary && proj.summary) {
-              md += `Summary: ${proj.summary}\n`;
-            }
-            md += `\n`;
+            md += `${buildProjectSentence(proj, block.filters.template)}\n\n`;
           });
         }
       } else if (block.type === "scholarships") {
@@ -362,12 +357,7 @@ export function useReportCompiler() {
           md += "*No scholarships found.*\n\n";
         } else {
           block.compiledItems.forEach((schol) => {
-            md += `### ${schol.title} ${schol.type ? `(${schol.type})` : ""}\n`;
-            md += `${buildScholarshipSentence(schol)}\n`;
-            if (block.filters.showSummary && schol.summary) {
-              md += `Summary: ${schol.summary}\n`;
-            }
-            md += `\n`;
+            md += `${buildScholarshipSentence(schol, block.filters.template)}\n\n`;
           });
         }
       } else if (block.type === "theses") {
@@ -375,12 +365,7 @@ export function useReportCompiler() {
           md += "*No theses found.*\n\n";
         } else {
           block.compiledItems.forEach((thesis) => {
-            md += `### ${thesis.title} ${thesis.level ? `(${thesis.level})` : ""}\n`;
-            md += `${buildThesisSentence(thesis)}\n`;
-            if (block.filters.showSummary && thesis.summary) {
-              md += `Summary: ${thesis.summary}\n`;
-            }
-            md += `\n`;
+            md += `${buildThesisSentence(thesis, block.filters.template)}\n\n`;
           });
         }
       }
