@@ -57,7 +57,7 @@ export function getTransporter(): nodemailer.Transporter {
     tls: {
       rejectUnauthorized: true,
     },
-  });
+  } as any);
 
   return transporter;
 }
