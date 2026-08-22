@@ -1,7 +1,7 @@
 import React from "react";
 import { LinkButton, LinkIconButton, LinkListItemButton } from "@/components/reusable/LinkComponents";
 import { adminUserService } from "@/lib/services/adminUserService";
-import { RoleSelector, ActivationButton, DeleteUserButton, MemberSelector, BroadcastEmailButton, EmailUserButton } from "./UserControls";
+import { RoleSelector, ActivationButton, DeleteUserButton, MemberSelector, BroadcastEmailButton, EmailUserButton, EditUserButton } from "./UserControls";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
@@ -31,6 +31,14 @@ export default async function AdminUsersPage() {
   // Fetch all users and members for assignment using adminUserService
   const users = await adminUserService.getAllUsers();
   const members = await adminUserService.getMembersForUserAssignment();
+
+  // Compute candidate emails for each user
+  const usersWithCandidates = await Promise.all(
+    users.map(async (u) => {
+      const candidates = await adminUserService.getUserCandidateEmails(u.id);
+      return { ...u, candidateEmails: candidates };
+    })
+  );
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>
@@ -101,68 +109,87 @@ export default async function AdminUsersPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {users.map((u) => (
-                <TableRow key={u.id} sx={{ "&:hover": { bgcolor: "action.hover" }, transition: "background-color 0.2s" }}>
-                  {/* User Info */}
-                  <TableCell>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                      <Avatar
-                        src={u.image || undefined}
-                        alt={u.name || "User Avatar"}
-                        sx={{ width: 40, height: 40, border: "1px solid", borderColor: "divider", bgcolor: "primary.light", color: "primary.contrastText", fontWeight: "bold" }}
-                      >
-                        {!u.image && (u.name ? u.name.charAt(0).toUpperCase() : "U")}
-                      </Avatar>
-                      <Box>
-                        <Typography variant="body2" sx={{ fontWeight: "bold", color: "text.primary" }}>
-                          {u.name || "Unnamed User"}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-                          {u.email}
-                        </Typography>
+              {usersWithCandidates.map((u) => {
+                const primaryNotificationEmail = u.notificationEmail || u.candidateEmails[0]?.email;
+                const isSyntheticEmail = u.email.endsWith("@orcid.org");
+
+                return (
+                  <TableRow key={u.id} sx={{ "&:hover": { bgcolor: "action.hover" }, transition: "background-color 0.2s" }}>
+                    {/* User Info */}
+                    <TableCell>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                        <Avatar
+                          src={u.image || undefined}
+                          alt={u.name || "User Avatar"}
+                          sx={{ width: 40, height: 40, border: "1px solid", borderColor: "divider", bgcolor: "primary.light", color: "primary.contrastText", fontWeight: "bold" }}
+                        >
+                          {!u.image && (u.name ? u.name.charAt(0).toUpperCase() : "U")}
+                        </Avatar>
+                        <Box>
+                          <Typography variant="body2" sx={{ fontWeight: "bold", color: "text.primary" }}>
+                            {u.name || "Unnamed User"}
+                          </Typography>
+
+                          <Chip
+                            label={isSyntheticEmail ? `ORCID: ${u.email.replace("@orcid.org", "")}` : `Auth: ${u.email}`}
+                            size="small"
+                            variant="outlined"
+                            sx={{ fontSize: "0.625rem", height: 18, mt: 0.5, fontFamily: "monospace" }}
+                          />
+                        </Box>
                       </Box>
-                    </Box>
-                  </TableCell>
+                    </TableCell>
 
-                  {/* Status Badge */}
-                  <TableCell>
-                    {u.active ? (
-                      <Chip
-                        label="Active"
-                        color="success"
-                        size="small"
-                        sx={{ fontWeight: "bold", fontSize: "0.625rem", borderRadius: 1 }}
-                      />
-                    ) : (
-                      <Chip
-                        label="Pending Review"
-                        color="warning"
-                        size="small"
-                        sx={{ fontWeight: "bold", fontSize: "0.625rem", borderRadius: 1 }}
-                      />
-                    )}
-                  </TableCell>
+                    {/* Status Badge */}
+                    <TableCell>
+                      {u.active ? (
+                        <Chip
+                          label="Active"
+                          color="success"
+                          size="small"
+                          sx={{ fontWeight: "bold", fontSize: "0.625rem", borderRadius: 1 }}
+                        />
+                      ) : (
+                        <Chip
+                          label="Pending Review"
+                          color="warning"
+                          size="small"
+                          sx={{ fontWeight: "bold", fontSize: "0.625rem", borderRadius: 1 }}
+                        />
+                      )}
+                    </TableCell>
 
-                  {/* Role Dropdown */}
-                  <TableCell>
-                    <RoleSelector userId={u.id} initialRole={u.role} />
-                  </TableCell>
+                    {/* Role Dropdown */}
+                    <TableCell>
+                      <RoleSelector userId={u.id} initialRole={u.role} />
+                    </TableCell>
 
-                  {/* Member Profile */}
-                  <TableCell>
-                    <MemberSelector userId={u.id} initialMemberId={u.memberId} members={members} />
-                  </TableCell>
+                    {/* Member Profile */}
+                    <TableCell>
+                      <MemberSelector userId={u.id} initialMemberId={u.memberId} members={members} />
+                    </TableCell>
 
-                  {/* Actions */}
-                  <TableCell align="right">
-                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 1 }}>
-                      <EmailUserButton userId={u.id} userEmail={u.email} />
-                      <ActivationButton userId={u.id} initialActive={u.active} />
-                      <DeleteUserButton userId={u.id} currentUserId={session.user?.id} />
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    {/* Actions */}
+                    <TableCell align="right">
+                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 1 }}>
+                        <EditUserButton
+                          userId={u.id}
+                          currentName={u.name || ""}
+                          currentNotificationEmail={u.notificationEmail}
+                          userAuthEmail={u.email}
+                        />
+                        <EmailUserButton
+                          userId={u.id}
+                          userName={u.name || "User"}
+                          candidateEmails={u.candidateEmails}
+                        />
+                        <ActivationButton userId={u.id} initialActive={u.active} />
+                        <DeleteUserButton userId={u.id} />
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>

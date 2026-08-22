@@ -85,12 +85,15 @@ export const userService = {
       }
     }
 
+    const isSyntheticEmail = !email || email.endsWith("@orcid.org");
+    const notificationEmail = isSyntheticEmail ? null : email;
+
     return prisma.user.update({
       where: { id: userId },
       data: {
         role,
         active,
-        notificationEmail: email,
+        notificationEmail,
         avatarUrl: image,
       },
     });

@@ -4,6 +4,9 @@ import { prisma } from "@/lib/prisma";
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
+    user: {
+      findMany: vi.fn(),
+    },
     auditLog: {
       findMany: vi.fn(),
       count: vi.fn(),
@@ -17,15 +20,20 @@ describe("auditService", () => {
   });
 
   describe("getLogs", () => {
-    it("fetches audit logs with options using findMany", async () => {
-      vi.mocked(prisma.auditLog.findMany).mockResolvedValue([{ id: "l1", action: "CREATE" }] as any);
+    it("fetches audit logs with options using findMany and maps user names", async () => {
+      vi.mocked(prisma.auditLog.findMany).mockResolvedValue([{ id: "l1", action: "CREATE", userId: "u1", userEmail: "test@example.com" }] as any);
+      vi.mocked(prisma.user.findMany).mockResolvedValue([{ id: "u1", name: "John Doe", email: "test@example.com" }] as any);
       const res = await auditService.getLogs({ where: { action: "CREATE" }, skip: 0, take: 10 });
-      expect(res).toEqual([{ id: "l1", action: "CREATE" }]);
+      expect(res).toEqual([{ id: "l1", action: "CREATE", userId: "u1", userEmail: "test@example.com", userName: "John Doe" }]);
       expect(prisma.auditLog.findMany).toHaveBeenCalledWith({
         where: { action: "CREATE" },
         orderBy: { createdAt: "desc" },
         skip: 0,
         take: 10,
+      });
+      expect(prisma.user.findMany).toHaveBeenCalledWith({
+        where: { id: { in: ["u1"] } },
+        select: { id: true, name: true, email: true },
       });
     });
   });

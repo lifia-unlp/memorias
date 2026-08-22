@@ -379,11 +379,20 @@ export default async function AdminAuditPage({ searchParams }: PageProps) {
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2" sx={{ fontWeight: "bold", fontSize: "0.8rem" }}>
-                            {log.userEmail || "System/Anonymous"}
+                            {log.userName || log.userEmail || "System/Anonymous"}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary" sx={{ fontFamily: "monospace", fontSize: "0.65rem" }}>
-                            ID: {log.userId || "N/A"}
-                          </Typography>
+                          {!log.userName && (
+                            <>
+                              {log.userEmail && (
+                                <Typography variant="caption" color="text.secondary" sx={{ display: "block", fontSize: "0.7rem" }}>
+                                  {log.userEmail}
+                                </Typography>
+                              )}
+                              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: "monospace", fontSize: "0.65rem" }}>
+                                ID: {log.userId || "N/A"}
+                              </Typography>
+                            </>
+                          )}
                         </TableCell>
                         <TableCell>
                           <Chip

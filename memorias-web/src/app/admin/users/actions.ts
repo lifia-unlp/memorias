@@ -95,9 +95,10 @@ export async function sendUserEmailAction(formData: FormData) {
 
   if (recipientType === "individual") {
     const userId = formData.get("userId") as string;
+    const selectedEmail = (formData.get("selectedEmail") as string)?.trim();
     if (!userId) throw new Error("User ID is required for direct email.");
 
-    const email = await adminUserService.getUserEmail(userId);
+    const email = selectedEmail || (await adminUserService.getUserEmail(userId));
 
     if (!email) throw new Error("User not found or has no email.");
 
@@ -144,4 +145,20 @@ export async function sendUserEmailAction(formData: FormData) {
   } else {
     throw new Error("Invalid recipient type specified.");
   }
+}
+
+export async function updateUserProfileAction(formData: FormData) {
+  await ensureAdmin();
+
+  const userId = formData.get("userId") as string;
+  const name = (formData.get("name") as string)?.trim();
+  const notificationEmailRaw = (formData.get("notificationEmail") as string)?.trim();
+  const notificationEmail = notificationEmailRaw || null;
+
+  if (!userId) throw new Error("User ID is required.");
+  if (!name) throw new Error("Name is required.");
+
+  await adminUserService.updateUserProfile(userId, { name, notificationEmail });
+
+  revalidatePath("/admin/users");
 }

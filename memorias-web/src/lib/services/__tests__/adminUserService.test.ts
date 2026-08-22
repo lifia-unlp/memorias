@@ -105,19 +105,61 @@ describe("adminUserService", () => {
     });
   });
 
+  describe("getUserCandidateEmails", () => {
+    it("gathers candidate emails from user preferences and member profile while ignoring synthetic emails", async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        id: "u1",
+        email: "0000-0002-1825-0097@orcid.org",
+        notificationEmail: "notif@test.com",
+        member: {
+          institutionalEmail: "inst@test.com",
+          personalEmail: "pers@test.com",
+        },
+      } as any);
+
+      const candidates = await adminUserService.getUserCandidateEmails("u1");
+      expect(candidates).toEqual([
+        { label: "User Notification Email", email: "notif@test.com" },
+        { label: "Member Institutional Email", email: "inst@test.com" },
+        { label: "Member Personal Email", email: "pers@test.com" },
+      ]);
+    });
+  });
+
+  describe("updateUserProfile", () => {
+    it("updates user name and notification email", async () => {
+      await adminUserService.updateUserProfile("u1", { name: "New Name", notificationEmail: "new@test.com" });
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id: "u1" },
+        data: {
+          name: "New Name",
+          notificationEmail: "new@test.com",
+        },
+      });
+    });
+  });
+
   describe("getUserEmail", () => {
-    it("gets user email", async () => {
-      vi.mocked(prisma.user.findUnique).mockResolvedValue({ email: "test@test.com" } as any);
+    it("gets user candidate email first", async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        id: "u1",
+        email: "0000-0002-1825-0097@orcid.org",
+        notificationEmail: "real@test.com",
+      } as any);
       const email = await adminUserService.getUserEmail("u1");
-      expect(email).toBe("test@test.com");
+      expect(email).toBe("real@test.com");
     });
   });
 
   describe("getActiveUserEmails", () => {
-    it("returns list of active emails", async () => {
-      vi.mocked(prisma.user.findMany).mockResolvedValue([{ email: "a@test.com" }, { email: "b@test.com" }] as any);
+    it("returns list of active emails filtering out synthetic emails", async () => {
+      vi.mocked(prisma.user.findMany).mockResolvedValue([
+        { id: "u1", email: "a@orcid.org", notificationEmail: "notif@test.com", member: null },
+        { id: "u2", email: "b@test.com", notificationEmail: null, member: null },
+        { id: "u3", email: "c@orcid.org", notificationEmail: null, member: null },
+      ] as any);
       const emails = await adminUserService.getActiveUserEmails();
-      expect(emails).toEqual(["a@test.com", "b@test.com"]);
+      expect(emails).toEqual(["notif@test.com", "b@test.com"]);
     });
   });
 });

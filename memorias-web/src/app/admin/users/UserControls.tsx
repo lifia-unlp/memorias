@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { toggleUserActivationAction, updateUserRoleAction, deleteUserAction, updateUserMemberAction, sendUserEmailAction } from "./actions";
+import { toggleUserActivationAction, updateUserRoleAction, deleteUserAction, updateUserMemberAction, sendUserEmailAction, updateUserProfileAction } from "./actions";
 import {
   Box,
   Select,
@@ -15,7 +15,132 @@ import {
   TextField,
   Typography,
   Alert,
+  InputLabel,
 } from "@mui/material";
+
+export function EditUserButton({
+  userId,
+  currentName,
+  currentNotificationEmail,
+  userAuthEmail,
+}: {
+  userId: string;
+  currentName: string;
+  currentNotificationEmail: string | null;
+  userAuthEmail: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState(currentName);
+  const [notificationEmail, setNotificationEmail] = useState(currentNotificationEmail || "");
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) {
+      setError("Name is required.");
+      return;
+    }
+
+    setIsSaving(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("userId", userId);
+      formData.append("name", name);
+      formData.append("notificationEmail", notificationEmail);
+
+      await updateUserProfileAction(formData);
+      setOpen(false);
+    } catch (err: any) {
+      console.error("Failed to update user profile:", err);
+      setError(err instanceof Error ? err.message : "Failed to update profile.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <>
+      <Button
+        variant="outlined"
+        size="small"
+        onClick={() => setOpen(true)}
+        sx={{
+          minWidth: 0,
+          p: 0.75,
+          borderRadius: 2,
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        title="Edit User Details"
+      >
+        <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+        </svg>
+      </Button>
+
+      <Dialog open={open} onClose={isSaving ? undefined : () => setOpen(false)} fullWidth maxWidth="xs">
+        <DialogTitle sx={{ fontWeight: 800, pb: 1 }}>Edit User Profile</DialogTitle>
+        <Box component="form" onSubmit={handleSave}>
+          <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
+            {error && <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>}
+
+            <Box sx={{ p: 1.5, bgcolor: "action.hover", borderRadius: 2 }}>
+              <Typography variant="caption" color="text.secondary" sx={{ display: "block", fontWeight: "bold" }}>
+                Auth Identifier (ORCID / DB Key):
+              </Typography>
+              <Typography variant="caption" sx={{ fontFamily: "monospace", wordBreak: "break-all" }}>
+                {userAuthEmail}
+              </Typography>
+            </Box>
+
+            <TextField
+              fullWidth
+              label="Full Name"
+              variant="outlined"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={isSaving}
+              required
+              size="small"
+            />
+
+            <TextField
+              fullWidth
+              label="Notification Email"
+              variant="outlined"
+              placeholder="e.g. user@institution.edu"
+              value={notificationEmail}
+              onChange={(e) => setNotificationEmail(e.target.value)}
+              disabled={isSaving}
+              size="small"
+              helperText="Destination email for notifications and announcements"
+            />
+          </DialogContent>
+
+          <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
+            <Button onClick={() => setOpen(false)} disabled={isSaving} variant="outlined" size="small" sx={{ borderRadius: 2 }}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSaving}
+              variant="contained"
+              color="primary"
+              size="small"
+              sx={{ borderRadius: 2, minWidth: 90 }}
+            >
+              {isSaving ? "Saving..." : "Save"}
+            </Button>
+          </DialogActions>
+        </Box>
+      </Dialog>
+    </>
+  );
+}
 
 export function RoleSelector({
   userId,
@@ -104,84 +229,65 @@ export function ActivationButton({
   };
 
   return (
-    <Box component="form" onSubmit={handleToggle}>
-      <Button
-        type="submit"
-        disabled={isUpdating}
-        variant="outlined"
-        size="small"
-        color={active ? "error" : "success"}
-        sx={{
-          fontWeight: "bold",
-          fontSize: "0.75rem",
-          textTransform: "none",
-          px: 2,
-          py: 0.75,
-          borderRadius: 2,
-        }}
-      >
-        {isUpdating ? "Processing..." : active ? "Deactivate" : "Activate"}
-      </Button>
-    </Box>
+    <Button
+      onClick={handleToggle}
+      disabled={isUpdating}
+      variant={active ? "outlined" : "contained"}
+      color={active ? "warning" : "success"}
+      size="small"
+      sx={{
+        fontSize: "0.625rem",
+        fontWeight: "black",
+        textTransform: "uppercase",
+        py: 0.75,
+        px: 1.5,
+        borderRadius: 2,
+      }}
+    >
+      {isUpdating ? "Updating..." : active ? "Deactivate" : "Activate"}
+    </Button>
   );
 }
 
-export function DeleteUserButton({
-  userId,
-  currentUserId,
-}: {
-  userId: string;
-  currentUserId?: string;
-}) {
+export function DeleteUserButton({ userId }: { userId: string }) {
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDelete = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (userId === currentUserId) {
-      alert("You cannot delete your own admin account.");
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
       return;
     }
-    if (!confirm("Are you sure you want to permanently delete this user? This action cannot be undone.")) {
-      return;
-    }
+
     setIsDeleting(true);
     try {
       const formData = new FormData();
       formData.append("userId", userId);
       await deleteUserAction(formData);
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error("Failed to delete user:", err);
-      const errorMessage = err instanceof Error ? err.message : "Failed to delete user.";
-      alert(errorMessage);
+      alert(err.message || "Failed to delete user.");
     } finally {
       setIsDeleting(false);
     }
   };
 
-  if (userId === currentUserId) {
-    return null;
-  }
-
   return (
-    <Box component="form" onSubmit={handleDelete} sx={{ display: "inline-block", ml: 1 }}>
-      <Button
-        type="submit"
-        disabled={isDeleting}
-        variant="contained"
-        size="small"
-        color="error"
-        sx={{
-          fontWeight: "bold",
-          fontSize: "0.75rem",
-          textTransform: "none",
-          px: 2,
-          py: 0.75,
-          borderRadius: 2,
-        }}
-      >
-        {isDeleting ? "Deleting..." : "Delete"}
-      </Button>
-    </Box>
+    <Button
+      onClick={handleDelete}
+      disabled={isDeleting}
+      variant="outlined"
+      color="error"
+      size="small"
+      sx={{
+        fontSize: "0.625rem",
+        fontWeight: "black",
+        textTransform: "uppercase",
+        py: 0.75,
+        px: 1.5,
+        borderRadius: 2,
+      }}
+    >
+      {isDeleting ? "Deleting..." : "Delete"}
+    </Button>
   );
 }
 
@@ -192,14 +298,9 @@ export function MemberSelector({
 }: {
   userId: string;
   initialMemberId: string | null;
-  members: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    user: { id: string; email: string } | null;
-  }[];
+  members: Array<{ id: string; firstName: string; lastName: string; user?: { id: string; email: string } | null }>;
 }) {
-  const [memberId, setMemberId] = useState(initialMemberId || "");
+  const [memberId, setMemberId] = useState<string>(initialMemberId || "");
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async (e: React.FormEvent) => {
@@ -208,11 +309,11 @@ export function MemberSelector({
     try {
       const formData = new FormData();
       formData.append("userId", userId);
-      formData.append("memberId", memberId);
+      formData.append("memberId", memberId || "");
       await updateUserMemberAction(formData);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to update user member mapping:", err);
-      alert(err instanceof Error ? err.message : "Failed to update member mapping.");
+      alert(err.message || "Failed to assign member profile.");
       setMemberId(initialMemberId || "");
     } finally {
       setIsSaving(false);
@@ -226,20 +327,17 @@ export function MemberSelector({
           value={memberId}
           onChange={(e) => setMemberId(e.target.value)}
           disabled={isSaving}
-          sx={{ fontSize: "0.75rem", minWidth: 150, borderRadius: 2 }}
+          displayEmpty
+          sx={{ fontSize: "0.75rem", fontWeight: "bold", minWidth: 160, borderRadius: 2 }}
         >
-          <MenuItem value=""><em>None / Unassigned</em></MenuItem>
+          <MenuItem value="">
+            <em>Unlinked (No Member)</em>
+          </MenuItem>
           {members.map((m) => {
             const isAssignedToOther = m.user && m.user.id !== userId;
-            const assignedEmail = isAssignedToOther && m.user ? m.user.email : "";
             return (
-              <MenuItem
-                key={m.id}
-                value={m.id}
-                disabled={!!isAssignedToOther}
-                sx={{ fontSize: "0.85rem" }}
-              >
-                {m.lastName}, {m.firstName} {assignedEmail ? `(Assigned to ${assignedEmail})` : ""}
+              <MenuItem key={m.id} value={m.id} disabled={Boolean(isAssignedToOther)}>
+                {m.lastName}, {m.firstName} {isAssignedToOther ? "(Assigned)" : ""}
               </MenuItem>
             );
           })}
@@ -249,7 +347,7 @@ export function MemberSelector({
         type="submit"
         variant="outlined"
         size="small"
-        disabled={isSaving || memberId === (initialMemberId || "")}
+        disabled={isSaving || (memberId === (initialMemberId || ""))}
         sx={{
           fontSize: "0.625rem",
           fontWeight: "black",
@@ -270,24 +368,40 @@ export function SendEmailDialog({
   onClose,
   recipientType,
   userId,
-  userEmail,
+  userName,
+  candidateEmails = [],
 }: {
   open: boolean;
   onClose: () => void;
   recipientType: "individual" | "all_active";
   userId?: string;
-  userEmail?: string;
+  userName?: string;
+  candidateEmails?: Array<{ label: string; email: string }>;
 }) {
+  const [selectedEmail, setSelectedEmail] = useState<string>(candidateEmails[0]?.email || "");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  React.useEffect(() => {
+    if (candidateEmails.length > 0) {
+      setSelectedEmail(candidateEmails[0].email);
+    } else {
+      setSelectedEmail("");
+    }
+  }, [candidateEmails]);
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!subject.trim() || !message.trim()) {
       setError("Subject and message are required.");
+      return;
+    }
+
+    if (recipientType === "individual" && !selectedEmail) {
+      setError("Please select or specify a destination email address.");
       return;
     }
 
@@ -302,6 +416,7 @@ export function SendEmailDialog({
       formData.append("message", message);
       if (recipientType === "individual" && userId) {
         formData.append("userId", userId);
+        formData.append("selectedEmail", selectedEmail);
       }
 
       const res = await sendUserEmailAction(formData);
@@ -325,21 +440,43 @@ export function SendEmailDialog({
   return (
     <Dialog open={open} onClose={isSending ? undefined : onClose} fullWidth maxWidth="sm">
       <DialogTitle sx={{ fontWeight: 800, pb: 1 }}>
-        {recipientType === "all_active" ? "Broadcast Email Announcement" : "Send Direct Email"}
+        {recipientType === "all_active" ? "Broadcast Email Announcement" : `Send Email to ${userName || "User"}`}
       </DialogTitle>
       <Box component="form" onSubmit={handleSend}>
         <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
           {error && <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>}
           {success && <Alert severity="success" sx={{ borderRadius: 2 }}>{success}</Alert>}
-          
-          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: "bold" }}>
-            Recipient:{" "}
-            <Typography component="span" variant="body2" color="primary.main" sx={{ fontWeight: "bold" }}>
-              {recipientType === "all_active"
-                ? "All Active Portal Users"
-                : userEmail || "Individual User"}
+
+          {recipientType === "individual" ? (
+            <FormControl fullWidth size="small">
+              <InputLabel id="destination-email-label">Destination Email Address</InputLabel>
+              <Select
+                labelId="destination-email-label"
+                label="Destination Email Address"
+                value={selectedEmail}
+                onChange={(e) => setSelectedEmail(e.target.value)}
+                disabled={isSending || !!success || candidateEmails.length === 0}
+              >
+                {candidateEmails.map((c, idx) => (
+                  <MenuItem key={idx} value={c.email}>
+                    {c.email} ({c.label})
+                  </MenuItem>
+                ))}
+              </Select>
+              {candidateEmails.length === 0 && (
+                <Typography variant="caption" color="error" sx={{ mt: 0.5 }}>
+                  This user has no notification or member emails configured.
+                </Typography>
+              )}
+            </FormControl>
+          ) : (
+            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: "bold" }}>
+              Recipient:{" "}
+              <Typography component="span" variant="body2" color="primary.main" sx={{ fontWeight: "bold" }}>
+                All Active Portal Users with registered emails
+              </Typography>
             </Typography>
-          </Typography>
+          )}
 
           <TextField
             fullWidth
@@ -374,7 +511,7 @@ export function SendEmailDialog({
           </Button>
           <Button
             type="submit"
-            disabled={isSending || !!success}
+            disabled={isSending || !!success || (recipientType === "individual" && !selectedEmail)}
             variant="contained"
             color="primary"
             size="small"
@@ -425,10 +562,12 @@ export function BroadcastEmailButton() {
 
 export function EmailUserButton({
   userId,
-  userEmail,
+  userName,
+  candidateEmails,
 }: {
   userId: string;
-  userEmail: string;
+  userName: string;
+  candidateEmails: Array<{ label: string; email: string }>;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -447,7 +586,7 @@ export function EmailUserButton({
           alignItems: "center",
           justifyContent: "center",
         }}
-        title={`Email ${userEmail}`}
+        title={`Send email to ${userName}`}
       >
         <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -458,7 +597,8 @@ export function EmailUserButton({
         onClose={() => setOpen(false)}
         recipientType="individual"
         userId={userId}
-        userEmail={userEmail}
+        userName={userName}
+        candidateEmails={candidateEmails}
       />
     </>
   );
