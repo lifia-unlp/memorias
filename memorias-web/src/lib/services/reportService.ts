@@ -234,6 +234,9 @@ export const reportService = {
 
     return publications.map((pb) => {
       const citation = formatCitation(pb, style || "apa");
+      const bibData = pb.bibtexData && typeof pb.bibtexData === "object" ? (pb.bibtexData as any) : {};
+      const entryTags = bibData.entryTags || {};
+
       return {
         id: pb.id,
         slug: pb.slug,
@@ -241,6 +244,13 @@ export const reportService = {
         title: pb.title,
         authors: pb.authors,
         year: pb.year,
+        ranking: pb.ranking,
+        selfArchivingUrl: pb.selfArchivingUrl,
+        abstract: entryTags.abstract || bibData.abstract || null,
+        journal: entryTags.journal || null,
+        publisher: entryTags.publisher || null,
+        doi: entryTags.doi || entryTags.DOI || null,
+        tags: pb.tags,
         citationHtml: citation.html,
         citationText: citation.text,
         members: pb.members,
@@ -288,7 +298,7 @@ export const reportService = {
       orderBy.push({ startDate: "desc" });
     }
 
-    return await prisma.project.findMany({
+    const projects = await prisma.project.findMany({
       where,
       orderBy,
       include: {
@@ -302,6 +312,12 @@ export const reportService = {
         },
       },
     });
+
+    return projects.map((proj) => ({
+      ...proj,
+      startYear: proj.startDate ? new Date(proj.startDate).getUTCFullYear() : null,
+      endYear: proj.endDate ? new Date(proj.endDate).getUTCFullYear() : null,
+    }));
   },
 
   /**
@@ -348,7 +364,7 @@ export const reportService = {
       orderBy.push({ startDate: "desc" });
     }
 
-    return await prisma.scholarship.findMany({
+    const scholarships = await prisma.scholarship.findMany({
       where,
       orderBy,
       include: {
@@ -362,6 +378,12 @@ export const reportService = {
         },
       },
     });
+
+    return scholarships.map((schol) => ({
+      ...schol,
+      startYear: schol.startDate ? new Date(schol.startDate).getUTCFullYear() : null,
+      endYear: schol.endDate ? new Date(schol.endDate).getUTCFullYear() : null,
+    }));
   },
 
   /**
@@ -408,7 +430,7 @@ export const reportService = {
       orderBy.push({ startDate: "desc" });
     }
 
-    return await prisma.thesis.findMany({
+    const theses = await prisma.thesis.findMany({
       where,
       orderBy,
       include: {
@@ -422,6 +444,12 @@ export const reportService = {
         },
       },
     });
+
+    return theses.map((thesis) => ({
+      ...thesis,
+      startYear: thesis.startDate ? new Date(thesis.startDate).getUTCFullYear() : null,
+      endYear: thesis.endDate ? new Date(thesis.endDate).getUTCFullYear() : null,
+    }));
   },
 
   /**
