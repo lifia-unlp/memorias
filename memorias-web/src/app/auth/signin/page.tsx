@@ -86,7 +86,16 @@ export default async function SignInPage({ searchParams }: PageProps) {
             </Alert>
           )}
 
-          {error && error !== "OAuthAccountNotLinked" && (
+          {error === "CredentialsSignin" && (
+            <Alert severity="error" sx={{ fontSize: "0.75rem" }}>
+              <Typography component="span" sx={{ fontWeight: "bold", display: "block", mb: 0.5 }}>
+                Invalid Credentials
+              </Typography>
+              The entered email or developer secret passphrase was invalid, or your account is currently inactive.
+            </Alert>
+          )}
+
+          {error && error !== "OAuthAccountNotLinked" && error !== "CredentialsSignin" && (
             <Alert severity="error" sx={{ fontSize: "0.75rem" }}>
               <Typography component="span" sx={{ fontWeight: "bold", display: "block", mb: 0.5 }}>
                 Authentication Error
