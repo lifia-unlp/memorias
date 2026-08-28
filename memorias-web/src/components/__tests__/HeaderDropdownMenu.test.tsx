@@ -64,7 +64,7 @@ describe("HeaderClient component", () => {
     fireEvent.click(signOutOption);
 
     await waitFor(() => {
-      expect(handleSignOut).toHaveBeenCalledWith("/");
+      expect(handleSignOut).toHaveBeenCalledWith("/auth/signin");
     });
   });
 

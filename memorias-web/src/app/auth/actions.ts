@@ -46,6 +46,6 @@ export async function handleDevSignInForm(formData: FormData) {
  * Utilizes the Auth.js signOut method directly to invalidate session cookies
  * and perform an atomic server-side redirect.
  */
-export async function handleSignOut(redirectTo: string = "/") {
+export async function handleSignOut(redirectTo: string = "/auth/signin") {
   await signOut({ redirectTo });
 }

@@ -181,7 +181,7 @@ export function AdminDropdown() {
 
 interface UserDropdownProps {
   session: any; // eslint-disable-line @typescript-eslint/no-explicit-any
-  handleSignOut: () => void | Promise<void>;
+  handleSignOut: (redirectTo?: string) => void | Promise<void>;
 }
 
 export function UserDropdown({ session, handleSignOut }: UserDropdownProps) {
@@ -253,7 +253,7 @@ export function UserDropdown({ session, handleSignOut }: UserDropdownProps) {
         <MenuItem
           onClick={async () => {
             setAnchorEl(null);
-            await handleSignOut();
+            await handleSignOut("/auth/signin");
           }}
           sx={{ fontSize: "0.75rem", fontWeight: "bold", color: "error.main" }}
         >

@@ -33,7 +33,7 @@ export function HeaderClient({ session, logoUrl, activeTab, copilotUrl }: Header
   const isAdmin = session?.user?.role === "ADMIN";
 
   const onSignOut = async () => {
-    await handleSignOut("/");
+    await handleSignOut("/auth/signin");
   };
 
   const navLinks = [

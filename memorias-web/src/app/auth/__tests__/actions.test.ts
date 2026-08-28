@@ -105,14 +105,14 @@ describe("Auth Server Actions", () => {
   });
 
   describe("handleSignOut", () => {
-    it("calls signOut with default redirectTo '/'", async () => {
+    it("calls signOut with default redirectTo '/auth/signin'", async () => {
       await handleSignOut();
-      expect(signOut).toHaveBeenCalledWith({ redirectTo: "/" });
+      expect(signOut).toHaveBeenCalledWith({ redirectTo: "/auth/signin" });
     });
 
     it("calls signOut with custom redirectTo", async () => {
-      await handleSignOut("/auth/signin");
-      expect(signOut).toHaveBeenCalledWith({ redirectTo: "/auth/signin" });
+      await handleSignOut("/");
+      expect(signOut).toHaveBeenCalledWith({ redirectTo: "/" });
     });
   });
 });

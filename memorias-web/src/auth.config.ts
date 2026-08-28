@@ -3,6 +3,8 @@ import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 
+const cookieDomain = process.env.COOKIE_DOMAIN?.trim();
+
 /**
  * Edge-compatible NextAuth configuration.
  *
@@ -14,6 +16,21 @@ import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
  * are loaded in `src/auth.ts` for Node.js runtime execution.
  */
 export default {
+  trustHost: true,
+  cookies: cookieDomain
+    ? {
+        sessionToken: {
+          name: `__Secure-authjs.session-token`,
+          options: {
+            httpOnly: true,
+            sameSite: "lax",
+            path: "/",
+            domain: cookieDomain,
+            secure: true,
+          },
+        },
+      }
+    : undefined,
   providers: [
     GitHub({
       clientId: process.env.AUTH_GITHUB_ID || "mock-github-id",
