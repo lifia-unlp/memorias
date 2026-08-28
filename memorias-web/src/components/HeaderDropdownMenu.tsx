@@ -181,7 +181,7 @@ export function AdminDropdown() {
 
 interface UserDropdownProps {
   session: any; // eslint-disable-line @typescript-eslint/no-explicit-any
-  handleSignOut: () => void;
+  handleSignOut: () => void | Promise<void>;
 }
 
 export function UserDropdown({ session, handleSignOut }: UserDropdownProps) {
@@ -251,9 +251,9 @@ export function UserDropdown({ session, handleSignOut }: UserDropdownProps) {
         </MenuItem>
         <Divider />
         <MenuItem
-          onClick={() => {
+          onClick={async () => {
             setAnchorEl(null);
-            handleSignOut();
+            await handleSignOut();
           }}
           sx={{ fontSize: "0.75rem", fontWeight: "bold", color: "error.main" }}
         >

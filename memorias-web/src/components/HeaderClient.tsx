@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { signOut } from "next-auth/react";
+import { handleSignOut } from "@/app/auth/actions";
 import {
   AppBar,
   Toolbar,
@@ -32,8 +32,8 @@ export function HeaderClient({ session, logoUrl, activeTab, copilotUrl }: Header
     (session.user.role === "EDITOR" || session.user.role === "ADMIN" || session.user.role === "POWER_EDITOR");
   const isAdmin = session?.user?.role === "ADMIN";
 
-  const handleSignOut = async () => {
-    await signOut({ redirectTo: "/" });
+  const onSignOut = async () => {
+    await handleSignOut("/");
   };
 
   const navLinks = [
@@ -127,7 +127,7 @@ export function HeaderClient({ session, logoUrl, activeTab, copilotUrl }: Header
             </Box>
 
             {isLoggedIn ? (
-              <UserDropdown session={session} handleSignOut={handleSignOut} />
+              <UserDropdown session={session} handleSignOut={onSignOut} />
             ) : (
               <Button
                 data-component-semantics="Session button"

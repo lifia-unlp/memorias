@@ -5,14 +5,25 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ---
 
 ## Current Status
-* **Active Phase**: COMPLETE — All Reopened Technical Debt Issues Resolved
-* **Last Updated**: 2026-07-09
-* **Overall Progress**: 100% completed (All reopened issues: #41-#46 and #48-#54 resolved; umbrella Issue #28 closed)
-
+* **Active Phase**: Bug Fix & Auth Stabilization
+* **Last Updated**: 2026-08-28
+* **Overall Progress**: Issue #59 resolved (sign-out functionality migrated to Auth.js v5 Server Action)
 
 ---
 
 ## Session Logs
+
+### Session 29 (2026-08-28)
+* **Goal**: Diagnosticar y corregir el Issue #59 ("sign-out does not effectively logout the current user").
+* **Accomplished**:
+  * Diagnosticado el problema: el botón de Sign Out utilizaba `signOut` de `next-auth/react` en un componente de cliente sin sincronización de sesión ni invalidación de cookies de servidor, provocando que la sesión persistiera tras refrescar la página.
+  * Creada la Server Action `handleSignOut` en `memorias-web/src/app/auth/actions.ts` invocando directamente `signOut` de Auth.js (`@/auth`).
+  * Actualizado `HeaderClient.tsx` y `HeaderDropdownMenu.tsx` para consumir la Server Action `handleSignOut`.
+  * Añadidas pruebas unitarias en `src/app/auth/__tests__/actions.test.ts` y `src/components/__tests__/HeaderDropdownMenu.test.tsx`.
+  * Ejecutada la suite completa de 330 pruebas en Vitest pasando al 100%.
+* **Blocked Items**: Ninguno.
+* **Next Steps**:
+  * Proceder con el cierre del Issue #59 en GitHub.
 
 ### Session 28 (2026-08-22)
 * **Goal**: Implementar plantillas editables por bloque en el Report Builder para desacoplar el formateo en código hardcodeado (inglés) y soportar idiomas y atributos personalizados.
