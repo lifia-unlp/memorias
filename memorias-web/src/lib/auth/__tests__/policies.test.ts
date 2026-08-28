@@ -55,10 +55,14 @@ describe("Route Authorization Policies", () => {
       expect(getRouteRedirect("/api/auth/signout", inactiveUser)).toBeNull();
     });
 
-    it("redirects active logged-in users away from /pending-activation and /auth pages to home", () => {
+    it("redirects active logged-in users away from /pending-activation to home", () => {
       const activeUser = { isLoggedIn: true, isActive: true, role: "USER" };
       expect(getRouteRedirect("/pending-activation", activeUser)).toBe("/");
-      expect(getRouteRedirect("/auth/signin", activeUser)).toBe("/");
+    });
+
+    it("allows active logged-in users on /auth sign-in pages (for account switching or logout flows)", () => {
+      const activeUser = { isLoggedIn: true, isActive: true, role: "USER" };
+      expect(getRouteRedirect("/auth/signin", activeUser)).toBeNull();
     });
 
     it("allows active logged-in users on standard public and reports routes", () => {

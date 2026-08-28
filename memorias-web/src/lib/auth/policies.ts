@@ -52,17 +52,12 @@ export function getRouteRedirect(
     return "/";
   }
 
-  // 3. Active logged-in users shouldn't access /auth sign-in pages
-  if (isLoggedIn && isActive && isAuthRoute(pathname)) {
-    return "/";
-  }
-
-  // 4. Admin route protection: Only logged in, active ADMIN users
+  // 3. Admin route protection: Only logged in, active ADMIN users
   if (isAdminRoute(pathname) && (!isLoggedIn || !isActive || !isAdmin)) {
     return "/";
   }
 
-  // 5. Reports route protection: Only logged in, active users
+  // 4. Reports route protection: Only logged in, active users
   if (isReportsRoute(pathname) && (!isLoggedIn || !isActive)) {
     return "/auth/signin";
   }

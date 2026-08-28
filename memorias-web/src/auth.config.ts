@@ -4,6 +4,8 @@ import Google from "next-auth/providers/google";
 import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 
 const cookieDomain = process.env.COOKIE_DOMAIN?.trim();
+const useSecureCookies = process.env.NODE_ENV === "production";
+const cookiePrefix = useSecureCookies ? "__Secure-" : "";
 
 /**
  * Edge-compatible NextAuth configuration.
@@ -17,20 +19,19 @@ const cookieDomain = process.env.COOKIE_DOMAIN?.trim();
  */
 export default {
   trustHost: true,
-  cookies: cookieDomain
-    ? {
-        sessionToken: {
-          name: `__Secure-authjs.session-token`,
-          options: {
-            httpOnly: true,
-            sameSite: "lax",
-            path: "/",
-            domain: cookieDomain,
-            secure: true,
-          },
-        },
-      }
-    : undefined,
+  useSecureCookies,
+  cookies: {
+    sessionToken: {
+      name: `${cookiePrefix}authjs.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        domain: cookieDomain || undefined,
+        secure: useSecureCookies,
+      },
+    },
+  },
   providers: [
     GitHub({
       clientId: process.env.AUTH_GITHUB_ID || "mock-github-id",

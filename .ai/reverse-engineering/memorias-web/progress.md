@@ -14,16 +14,16 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ## Session Logs
 
 ### Session 31 (2026-08-28)
-* **Goal**: Corregir fallo de Sign-Out en producción derivado del rechazo de Server Actions por `UntrustedHost` en Auth.js v5 y sincronizar configuración de cookies entre runtime Edge y Node.
+* **Goal**: Corregir fallo de Sign-Out y bucle de redirección en producción derivado de cookies host-only previas (RFC 6265) y rebote automático en políticas de ruta.
 * **Accomplished**:
-  * Configurado `trustHost: true` en [`src/auth.config.ts`](file:///Users/casco/Development/memorias-migration-antigrativy/memorias-web/src/auth.config.ts) para que Auth.js confíe en las cabeceras `Host` / `X-Forwarded-Host` en producción detrás de reverse proxies.
-  * Centralizada la configuración de cookies con soporte para `COOKIE_DOMAIN` en `src/auth.config.ts`, compartiéndola entre `src/proxy.ts` (Edge) y `src/auth.ts` (Node.js).
-  * Actualizado `handleSignOut` para redirigir por defecto a `/auth/signin` asegurando una limpieza completa de estado en componentes clientes.
-  * Actualizadas las pruebas unitarias en `src/app/auth/__tests__/actions.test.ts` y `src/components/__tests__/HeaderDropdownMenu.test.tsx`.
-  * Ejecutada la suite completa de 354 pruebas en Vitest pasando al 100% y validado `tsc --noEmit` con 0 errores.
+  * Configurado `trustHost: true` y `useSecureCookies: process.env.NODE_ENV === "production"` canónicamente en [`src/auth.config.ts`](file:///Users/casco/Development/memorias-migration-antigrativy/memorias-web/src/auth.config.ts).
+  * En [`src/lib/auth/policies.ts`](file:///Users/casco/Development/memorias-migration-antigrativy/memorias-web/src/lib/auth/policies.ts), removido el bloqueo/rebote automático de `/auth/signin` a `/` para usuarios con sesión activa, permitiendo acceso deliberado a la pantalla de login sin bucles.
+  * Actualizado `handleSignOut` en [`src/app/auth/actions.ts`](file:///Users/casco/Development/memorias-migration-antigrativy/memorias-web/src/app/auth/actions.ts) para realizar la expiración atómica tanto a nivel de dominio (`COOKIE_DOMAIN`) como host-only.
+  * Actualizadas las pruebas unitarias en `src/lib/auth/__tests__/policies.test.ts` y `src/app/auth/__tests__/actions.test.ts`.
+  * Ejecutada la suite completa de 355 pruebas en Vitest pasando al 100% y validado `tsc --noEmit` con 0 errores.
 * **Blocked Items**: Ninguno.
 * **Next Steps**:
-  * Probar en el despliegue de producción el flujo de sign-out.
+  * Desplegar en producción y verificar el cierre de sesión.
 
 ### Session 30 (2026-08-28)
 * **Goal**: Garantizar que el envío de correos electrónicos (alertas inmediatas, digest semanal/cron y correos administrativos) use estricta y exclusivamente `User.notificationEmail` sin asumir correos alternativos por defecto ni enviar a correos sintéticos (`@orcid.org`), ignorando el envío cuando `notificationEmail` sea nulo o vacío.

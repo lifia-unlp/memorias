@@ -7,6 +7,18 @@ import {
 } from "../actions";
 import { AuthError, CredentialsSignin } from "@auth/core/errors";
 
+const { mockCookieStore } = vi.hoisted(() => ({
+  mockCookieStore: {
+    get: vi.fn(),
+    set: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
+
+vi.mock("next/headers", () => ({
+  cookies: vi.fn().mockResolvedValue(mockCookieStore),
+}));
+
 vi.mock("next/navigation", () => ({
   redirect: vi.fn((url: string) => {
     const err = new Error("NEXT_REDIRECT");
@@ -105,14 +117,18 @@ describe("Auth Server Actions", () => {
   });
 
   describe("handleSignOut", () => {
-    it("calls signOut with default redirectTo '/auth/signin'", async () => {
-      await handleSignOut();
-      expect(signOut).toHaveBeenCalledWith({ redirectTo: "/auth/signin" });
+    it("calls signOut, clears cookies, and redirects to default '/auth/signin'", async () => {
+      await expect(handleSignOut()).rejects.toThrow("NEXT_REDIRECT");
+      expect(signOut).toHaveBeenCalledWith({ redirect: false });
+      expect(mockCookieStore.set).toHaveBeenCalled();
+      expect(redirect).toHaveBeenCalledWith("/auth/signin");
     });
 
-    it("calls signOut with custom redirectTo", async () => {
-      await handleSignOut("/");
-      expect(signOut).toHaveBeenCalledWith({ redirectTo: "/" });
+    it("calls signOut, clears cookies, and redirects to custom redirectTo", async () => {
+      await expect(handleSignOut("/")).rejects.toThrow("NEXT_REDIRECT");
+      expect(signOut).toHaveBeenCalledWith({ redirect: false });
+      expect(mockCookieStore.set).toHaveBeenCalled();
+      expect(redirect).toHaveBeenCalledWith("/");
     });
   });
 });
