@@ -1,5 +1,6 @@
 import React from "react";
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
+import { handleSignOut } from "@/app/auth/actions";
 import { redirect } from "next/navigation";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -173,10 +174,7 @@ export default async function PendingActivationPage() {
 
         {/* Sign Out Action */}
         <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/auth/signin" });
-          }}
+          action={handleSignOut.bind(null, "/auth/signin")}
           style={{ paddingTop: 8 }}
         >
           <button

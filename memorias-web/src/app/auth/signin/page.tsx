@@ -1,5 +1,5 @@
 import React from "react";
-import { signIn } from "@/auth";
+import { handleSignInWithProvider, handleDevSignInForm } from "@/app/auth/actions";
 import { systemSettingsService } from "@/lib/services/systemSettingsService";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -153,12 +153,7 @@ export default async function SignInPage({ searchParams }: PageProps) {
                       >
                         Recommended Option
                       </Typography>
-                      <form
-                        action={async () => {
-                          "use server";
-                          await signIn("orcid", { redirectTo: "/" });
-                        }}
-                      >
+                      <form action={handleSignInWithProvider.bind(null, "orcid", "/")}>
                         <button
                           type="submit"
                           style={{
@@ -206,12 +201,7 @@ export default async function SignInPage({ searchParams }: PageProps) {
                   )}
 
                   {isGitHubConfigured && (
-                    <form
-                      action={async () => {
-                        "use server";
-                        await signIn("github", { redirectTo: "/" });
-                      }}
-                    >
+                    <form action={handleSignInWithProvider.bind(null, "github", "/")}>
                       <button
                         type="submit"
                         style={{
@@ -243,12 +233,7 @@ export default async function SignInPage({ searchParams }: PageProps) {
                   )}
 
                   {isGoogleConfigured && (
-                    <form
-                      action={async () => {
-                        "use server";
-                        await signIn("google", { redirectTo: "/" });
-                      }}
-                    >
+                    <form action={handleSignInWithProvider.bind(null, "google", "/")}>
                       <button
                         type="submit"
                         style={{
@@ -295,12 +280,7 @@ export default async function SignInPage({ searchParams }: PageProps) {
                   )}
 
                   {isMicrosoftConfigured && (
-                    <form
-                      action={async () => {
-                        "use server";
-                        await signIn("microsoft-entra-id", { redirectTo: "/" });
-                      }}
-                    >
+                    <form action={handleSignInWithProvider.bind(null, "microsoft-entra-id", "/")}>
                       <button
                         type="submit"
                         style={{
@@ -365,12 +345,7 @@ export default async function SignInPage({ searchParams }: PageProps) {
                 </Typography>
               </Box>
               <form
-                action={async (formData: FormData) => {
-                  "use server";
-                  const email = (formData.get("email") as string) || "";
-                  const devSecret = (formData.get("devSecret") as string) || "";
-                  await signIn("credentials", { email, devSecret, redirectTo: "/" });
-                }}
+                action={handleDevSignInForm}
                 style={{ display: "flex", flexDirection: "column", gap: 12 }}
               >
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>

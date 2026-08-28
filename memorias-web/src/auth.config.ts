@@ -3,6 +3,16 @@ import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 
+/**
+ * Edge-compatible NextAuth configuration.
+ *
+ * This configuration is loaded by `src/proxy.ts` (Next.js 16 Edge runtime).
+ * It intentionally excludes Node.js-only packages (such as `@prisma/client` and `prisma`)
+ * to allow lightweight execution at the proxy layer.
+ *
+ * Full database adapters, callbacks with Prisma queries, and credentials providers
+ * are loaded in `src/auth.ts` for Node.js runtime execution.
+ */
 export default {
   providers: [
     GitHub({

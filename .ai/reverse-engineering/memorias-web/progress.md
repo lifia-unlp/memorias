@@ -14,16 +14,17 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ## Session Logs
 
 ### Session 29 (2026-08-28)
-* **Goal**: Diagnosticar y corregir el Issue #59 ("sign-out does not effectively logout the current user").
+* **Goal**: Diagnosticar y corregir el Issue #59 ("sign-out does not effectively logout the current user") y resolver la deuda técnica relacionada en autenticación y políticas de enrutamiento.
 * **Accomplished**:
-  * Diagnosticado el problema: el botón de Sign Out utilizaba `signOut` de `next-auth/react` en un componente de cliente sin sincronización de sesión ni invalidación de cookies de servidor, provocando que la sesión persistiera tras refrescar la página.
-  * Creada la Server Action `handleSignOut` en `memorias-web/src/app/auth/actions.ts` invocando directamente `signOut` de Auth.js (`@/auth`).
-  * Actualizado `HeaderClient.tsx` y `HeaderDropdownMenu.tsx` para consumir la Server Action `handleSignOut`.
-  * Añadidas pruebas unitarias en `src/app/auth/__tests__/actions.test.ts` y `src/components/__tests__/HeaderDropdownMenu.test.tsx`.
-  * Ejecutada la suite completa de 330 pruebas en Vitest pasando al 100%.
+  * Diagnosticado y corregido Issue #59 migrando el flujo de sign-out desde el helper de cliente `next-auth/react` a la Server Action `handleSignOut` (`@/app/auth/actions.ts`), garantizando la invalidación server-side de cookies y redirección limpia.
+  * Centralizadas todas las acciones de autenticación (`handleSignInWithProvider`, `handleDevSignIn`, `handleDevSignInForm`, `handleSignOut`) en `memorias-web/src/app/auth/actions.ts`, eliminando closures inline `"use server"` en `signin/page.tsx` y `pending-activation/page.tsx`.
+  * Diseñado y creado el módulo centralizado de políticas de autorización [`src/lib/auth/policies.ts`](file:///Users/casco/Development/memorias-migration-antigrativy/memorias-web/src/lib/auth/policies.ts), unificando las reglas de acceso para `src/proxy.ts` (Next.js 16 Edge runtime) y `src/app/layout.tsx` (RSC).
+  * Documentada la separación arquitectónica entre `src/auth.config.ts` (Edge runtime para `proxy.ts`) y `src/auth.ts` (Node.js/Prisma runtime).
+  * Creadas suites de pruebas unitarias exhaustivas en `src/lib/auth/__tests__/policies.test.ts`, `src/app/auth/__tests__/actions.test.ts` y `src/components/__tests__/HeaderDropdownMenu.test.tsx`.
+  * Ejecutada la suite completa de 346 pruebas en Vitest pasando al 100% y validado `tsc --noEmit` con 0 errores.
 * **Blocked Items**: Ninguno.
 * **Next Steps**:
-  * Proceder con el cierre del Issue #59 en GitHub.
+  * Abordar las tareas de seguridad pendientes en el backlog (Issue #56: fail-closed digest cron y #57: dev credentials hardening).
 
 ### Session 28 (2026-08-22)
 * **Goal**: Implementar plantillas editables por bloque en el Report Builder para desacoplar el formateo en código hardcodeado (inglés) y soportar idiomas y atributos personalizados.

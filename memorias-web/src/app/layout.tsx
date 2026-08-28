@@ -6,6 +6,7 @@ export const dynamic = "force-dynamic";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { getRouteRedirect } from "@/lib/auth/policies";
 import ThemeRegistry from "@/components/ThemeRegistry";
 import { ThemeContextProvider } from "@/context/ThemeContext";
 
@@ -23,24 +24,15 @@ export default async function RootLayout({
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") || "";
 
-  const isLoggedIn = !!session?.user;
-  const isActive = session?.user?.active === true;
+  // Evaluate centralized authorization policies in Server Component layout
+  const redirectUrl = getRouteRedirect(pathname, {
+    isLoggedIn: !!session?.user,
+    isActive: session?.user?.active === true,
+    role: session?.user?.role,
+  });
 
-  const isPendingPage = pathname === "/pending-activation";
-  const isAuthPage = pathname.startsWith("/auth");
-  const isApiAuth = pathname.startsWith("/api/auth");
-
-  // Real-time active status check:
-  // If logged in but inactive, strictly restrict access to /pending-activation (unless on auth or api routes)
-  if (isLoggedIn && !isActive) {
-    if (!isPendingPage && !isAuthPage && !isApiAuth) {
-      redirect("/pending-activation");
-    }
-  }
-
-  // If logged in and already activated, redirect away from /pending-activation to homepage
-  if (isLoggedIn && isActive && isPendingPage) {
-    redirect("/");
+  if (redirectUrl) {
+    redirect(redirectUrl);
   }
 
   const highlightSemantics = process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_HIGHLIGHT_SEMANTIC_COMPONENTS === "true";

@@ -9,6 +9,12 @@ import Credentials from "next-auth/providers/credentials";
 
 const cookieDomain = process.env.COOKIE_DOMAIN?.trim();
 
+/**
+ * Node.js Runtime NextAuth initialization.
+ *
+ * Extends the Edge configuration (`auth.config.ts`) with Prisma database adapter,
+ * complete user profile loading in JWT callbacks, and development credentials.
+ */
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   cookies: cookieDomain
