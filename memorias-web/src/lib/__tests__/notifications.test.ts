@@ -61,7 +61,7 @@ describe("Notification System Services", () => {
   });
 
   describe("Immediate Notifications", () => {
-    it("should successfully trigger immediate emails to mapped users of a new publication", async () => {
+    it("should successfully trigger immediate emails to mapped users with configured notificationEmail", async () => {
       // 1. Mock publication authors lookup
       vi.mocked(prisma.publication.findUnique).mockResolvedValue({
         id: "pub-1",
@@ -70,8 +70,8 @@ describe("Notification System Services", () => {
 
       // 2. Mock mapped users lookup
       vi.mocked(prisma.user.findMany).mockResolvedValue([
-        { email: "author-a@example.com" },
-        { email: "author-b@example.com" },
+        { notificationEmail: "author-a@example.com" },
+        { notificationEmail: "author-b@example.com" },
       ] as any);
 
       // 3. Mock sendEmail to return success
@@ -99,8 +99,9 @@ describe("Notification System Services", () => {
           memberId: { in: ["member-a", "member-b"] },
           active: true,
           immediateNotifications: true,
+          notificationEmail: { not: null },
         },
-        select: { email: true },
+        select: { notificationEmail: true },
       });
 
       expect(emailModule.sendEmail).toHaveBeenCalledTimes(2);
@@ -114,7 +115,7 @@ describe("Notification System Services", () => {
     it("should send immediate email to a user when their personal Member profile is updated", async () => {
       // 1. Mock mapped user lookup for Member update (the memberId is the entityId itself)
       vi.mocked(prisma.user.findMany).mockResolvedValue([
-        { email: "member-profile-user@example.com" },
+        { notificationEmail: "member-profile-user@example.com" },
       ] as any);
 
       vi.mocked(emailModule.sendEmail).mockResolvedValue({ success: true, messageId: "msg-id" });
@@ -135,8 +136,9 @@ describe("Notification System Services", () => {
           memberId: { in: ["member-a"] },
           active: true,
           immediateNotifications: true,
+          notificationEmail: { not: null },
         },
-        select: { email: true },
+        select: { notificationEmail: true },
       });
 
       expect(emailModule.sendEmail).toHaveBeenCalledTimes(1);
@@ -211,8 +213,8 @@ describe("Notification System Services", () => {
 
       // 2. Mock digest subscribers query
       vi.mocked(prisma.user.findMany).mockResolvedValue([
-        { email: "subscriber-a@example.com" },
-        { email: "subscriber-b@example.com" },
+        { notificationEmail: "subscriber-a@example.com" },
+        { notificationEmail: "subscriber-b@example.com" },
       ] as any);
 
       vi.mocked(emailModule.sendEmail).mockResolvedValue({ success: true });
@@ -230,8 +232,9 @@ describe("Notification System Services", () => {
         where: {
           active: true,
           digestEmails: true,
+          notificationEmail: { not: null },
         },
-        select: { email: true },
+        select: { notificationEmail: true },
       });
 
       expect(emailModule.sendEmail).toHaveBeenCalledTimes(2);
@@ -240,6 +243,31 @@ describe("Notification System Services", () => {
       expect(sendOptions.subject).toContain("Weekly Portal Digest");
       expect(sendOptions.html).toContain("monorepo migration with agents");
       expect(sendOptions.html).toContain("Updated thesis level to PhD");
+    });
+
+    it("should exit cleanly and return count 0 if subscribers have null or empty notificationEmail", async () => {
+      vi.mocked(prisma.auditLog.findMany).mockResolvedValue([
+        {
+          id: "log-1",
+          action: "CREATE",
+          entityType: "Publication",
+          entityId: "pub-1",
+          entitySlug: "agents-migration",
+          details: "Created publication",
+          createdAt: new Date(),
+        },
+      ] as any);
+
+      vi.mocked(prisma.user.findMany).mockResolvedValue([
+        { notificationEmail: "" },
+        { notificationEmail: null },
+      ] as any);
+
+      const result = await sendDigestEmails("weekly");
+
+      expect(result.success).toBe(true);
+      expect(result.count).toBe(0);
+      expect(emailModule.sendEmail).not.toHaveBeenCalled();
     });
 
     it("should exit cleanly and return count 0 if no audit logs are found during the lookback window", async () => {

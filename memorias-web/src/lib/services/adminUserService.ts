@@ -92,55 +92,43 @@ export const adminUserService = {
   getUserCandidateEmails: async (id: string) => {
     const user = await prisma.user.findUnique({
       where: { id },
-      include: { member: true },
+      select: { notificationEmail: true },
     });
     if (!user) return [];
 
     const candidates: Array<{ label: string; email: string }> = [];
 
-    if (user.notificationEmail && user.notificationEmail.trim()) {
+    if (user.notificationEmail && user.notificationEmail.trim() && !user.notificationEmail.endsWith("@orcid.org")) {
       candidates.push({ label: "User Notification Email", email: user.notificationEmail.trim() });
-    }
-    if (user.member?.institutionalEmail && user.member.institutionalEmail.trim()) {
-      candidates.push({ label: "Member Institutional Email", email: user.member.institutionalEmail.trim() });
-    }
-    if (user.member?.personalEmail && user.member.personalEmail.trim()) {
-      candidates.push({ label: "Member Personal Email", email: user.member.personalEmail.trim() });
-    }
-
-    if (candidates.length === 0 && user.email && !user.email.endsWith("@orcid.org")) {
-      candidates.push({ label: "Primary Account Email", email: user.email.trim() });
     }
 
     return candidates;
   },
 
   getUserEmail: async (id: string) => {
-    const candidates = await adminUserService.getUserCandidateEmails(id);
-    if (candidates.length > 0) return candidates[0].email;
     const user = await prisma.user.findUnique({
       where: { id },
-      select: { email: true },
+      select: { notificationEmail: true },
     });
-    return user?.email || null;
+    if (user?.notificationEmail && !user.notificationEmail.endsWith("@orcid.org")) {
+      return user.notificationEmail.trim();
+    }
+    return null;
   },
 
   getActiveUserEmails: async () => {
     const activeUsers = await prisma.user.findMany({
-      where: { active: true },
-      include: { member: true },
+      where: {
+        active: true,
+        notificationEmail: { not: null },
+      },
+      select: { notificationEmail: true },
     });
     
     const emails: string[] = [];
     for (const u of activeUsers) {
-      if (u.notificationEmail && u.notificationEmail.trim()) {
+      if (u.notificationEmail && u.notificationEmail.trim() && !u.notificationEmail.endsWith("@orcid.org")) {
         emails.push(u.notificationEmail.trim());
-      } else if (u.member?.institutionalEmail && u.member.institutionalEmail.trim()) {
-        emails.push(u.member.institutionalEmail.trim());
-      } else if (u.member?.personalEmail && u.member.personalEmail.trim()) {
-        emails.push(u.member.personalEmail.trim());
-      } else if (u.email && !u.email.endsWith("@orcid.org")) {
-        emails.push(u.email.trim());
       }
     }
     return Array.from(new Set(emails));

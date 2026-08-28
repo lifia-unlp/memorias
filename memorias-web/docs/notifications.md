@@ -97,3 +97,35 @@ To automate digests, set up an external scheduler (like an LXC/VM crontab, Googl
 
 Alternatively, you can trigger a custom frequency override manually in your browser or a webhook:
 `https://your-domain.com/api/cron/digest?frequency=daily&secret=your_cron_secret_token`
+
+---
+
+## 5. SMTP Delivery & Provider Configuration
+
+The notification subsystem relies on standard SMTP for delivering real email messages.
+
+### Environment Variables
+```env
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_SECURE="false" # "true" for port 465 (SSL/TLS), or "false" for 587 (STARTTLS)
+SMTP_USER="your-email@gmail.com"
+SMTP_PASS="your-16-char-app-password"
+SMTP_FROM_NAME="LIFIA Memorias"
+SMTP_FROM_EMAIL="your-email@gmail.com"
+```
+
+### Gmail Setup & Troubleshooting
+Attempting to use your standard Google account password will fail with:
+`Invalid login: 535-5.7.8 Username and Password not accepted`
+
+To configure a Gmail sender account properly:
+1. Enable **2-Step Verification (2FA)** under [Google Account Security](https://myaccount.google.com/security).
+2. Generate an App Password directly at [Google App Passwords](https://myaccount.google.com/apppasswords).
+3. Name the app (e.g. `Memorias Web`) and click **Create**.
+4. Set `SMTP_PASS` to the generated 16-character string (without spaces).
+
+### Microsoft 365 / Office 365 Setup
+* Set `SMTP_HOST="smtp.office365.com"`.
+* Ensure `SMTP AUTH` is enabled for the mailbox in the Microsoft 365 Admin Center.
+* If MFA is enabled on the Microsoft account, generate and use an App Password.

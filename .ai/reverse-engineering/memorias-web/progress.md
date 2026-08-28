@@ -5,13 +5,25 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 ---
 
 ## Current Status
-* **Active Phase**: Bug Fix & Auth Stabilization
+* **Active Phase**: Bug Fix & Notification Hardening
 * **Last Updated**: 2026-08-28
-* **Overall Progress**: Issue #59 resolved (sign-out functionality migrated to Auth.js v5 Server Action)
+* **Overall Progress**: Strict notificationEmail enforcement implemented for immediate alerts, digest emails, and admin emails.
 
 ---
 
 ## Session Logs
+
+### Session 30 (2026-08-28)
+* **Goal**: Garantizar que el envío de correos electrónicos (alertas inmediatas, digest semanal/cron y correos administrativos) use estricta y exclusivamente `User.notificationEmail` sin asumir correos alternativos por defecto ni enviar a correos sintéticos (`@orcid.org`), ignorando el envío cuando `notificationEmail` sea nulo o vacío.
+* **Accomplished**:
+  * Modificado `src/lib/notifications.ts` (`triggerImmediateNotification` y `sendDigestEmails`) para filtrar y seleccionar únicamente usuarios con `notificationEmail` configurado, descartando valores nulos, vacíos y direcciones sintéticas `@orcid.org`.
+  * Actualizado `src/lib/services/adminUserService.ts` (`getUserCandidateEmails`, `getUserEmail`, `getActiveUserEmails`) para retornar únicamente `notificationEmail` válidos sin hacer fallback a emails de perfiles de miembros ni correos de autenticación primarios.
+  * Limpiada la vista de administración en `src/app/admin/users/page.tsx`.
+  * Actualizadas las suites de pruebas unitarias en `src/lib/__tests__/notifications.test.ts` y `src/lib/services/__tests__/adminUserService.test.ts` para validar el comportamiento estricto.
+  * Ejecutada la suite completa de 352 pruebas en Vitest pasando al 100%.
+* **Blocked Items**: Ninguno.
+* **Next Steps**:
+  * Monitorear el despacho de digests en producción y asegurar que los usuarios configuren su correo de notificaciones en `/preferences`.
 
 ### Session 29 (2026-08-28)
 * **Goal**: Diagnosticar y corregir el Issue #59 ("sign-out does not effectively logout the current user"), resolver la deuda técnica relacionada en autenticación y políticas de enrutamiento, y manejar adecuadamente excepciones de `AuthError` (`CredentialsSignin`).

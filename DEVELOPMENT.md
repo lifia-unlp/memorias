@@ -246,7 +246,14 @@ SMTP_FROM_EMAIL="noreply@lifia.info.unlp.edu.ar"
 ```
 
 > [!IMPORTANT]
-> When using Google Gmail, you must generate a secure **App Password** from your Google Account settings instead of using your primary account password. Similarly, for Microsoft Outlook/Office 365, ensure SMTP AUTH is enabled for the mailbox and use an app-specific password if Multi-Factor Authentication is active.
+> **Google Gmail Setup & Troubleshooting**:
+> Standard account passwords will fail with `Invalid login: 535-5.7.8 Username and Password not accepted`. To configure a Gmail sender:
+> 1. Go to your [Google Account Security](https://myaccount.google.com/security) settings and enable **2-Step Verification** (2FA).
+> 2. Go directly to [Google App Passwords](https://myaccount.google.com/apppasswords).
+> 3. Create a new App Password (name it e.g. `Memorias Web`).
+> 4. Copy the generated 16-character code (without spaces) and paste it into `SMTP_PASS`.
+>
+> For **Microsoft Outlook / Office 365**, ensure SMTP AUTH is enabled for the mailbox in Exchange Admin Center and use an app-specific password if Multi-Factor Authentication is active.
 
 ### B. Fallback / Development Mode
 * If any of `SMTP_HOST`, `SMTP_USER`, or `SMTP_PASS` are unconfigured in your `.env` file, the email service will automatically fall back to **JSON logging mode**.

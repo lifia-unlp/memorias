@@ -106,23 +106,36 @@ describe("adminUserService", () => {
   });
 
   describe("getUserCandidateEmails", () => {
-    it("gathers candidate emails from user preferences and member profile while ignoring synthetic emails", async () => {
+    it("returns candidate email strictly from user notificationEmail", async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
         id: "u1",
-        email: "0000-0002-1825-0097@orcid.org",
         notificationEmail: "notif@test.com",
-        member: {
-          institutionalEmail: "inst@test.com",
-          personalEmail: "pers@test.com",
-        },
       } as any);
 
       const candidates = await adminUserService.getUserCandidateEmails("u1");
       expect(candidates).toEqual([
         { label: "User Notification Email", email: "notif@test.com" },
-        { label: "Member Institutional Email", email: "inst@test.com" },
-        { label: "Member Personal Email", email: "pers@test.com" },
       ]);
+    });
+
+    it("returns empty candidates when notificationEmail is synthetic orcid", async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        id: "u1",
+        notificationEmail: "0000-0002-1825-0097@orcid.org",
+      } as any);
+
+      const candidates = await adminUserService.getUserCandidateEmails("u1");
+      expect(candidates).toEqual([]);
+    });
+
+    it("returns empty candidates when notificationEmail is null", async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        id: "u2",
+        notificationEmail: null,
+      } as any);
+
+      const candidates = await adminUserService.getUserCandidateEmails("u2");
+      expect(candidates).toEqual([]);
     });
   });
 
@@ -140,26 +153,45 @@ describe("adminUserService", () => {
   });
 
   describe("getUserEmail", () => {
-    it("gets user candidate email first", async () => {
+    it("gets user notificationEmail if configured", async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
         id: "u1",
-        email: "0000-0002-1825-0097@orcid.org",
         notificationEmail: "real@test.com",
       } as any);
       const email = await adminUserService.getUserEmail("u1");
       expect(email).toBe("real@test.com");
     });
+
+    it("returns null if notificationEmail is synthetic orcid", async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        id: "u1",
+        notificationEmail: "0000-0002-1825-0097@orcid.org",
+      } as any);
+      const email = await adminUserService.getUserEmail("u1");
+      expect(email).toBeNull();
+    });
+
+    it("returns null if notificationEmail is null", async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        id: "u2",
+        notificationEmail: null,
+      } as any);
+      const email = await adminUserService.getUserEmail("u2");
+      expect(email).toBeNull();
+    });
   });
 
   describe("getActiveUserEmails", () => {
-    it("returns list of active emails filtering out synthetic emails", async () => {
+    it("returns list of active emails strictly from notificationEmail", async () => {
       vi.mocked(prisma.user.findMany).mockResolvedValue([
-        { id: "u1", email: "a@orcid.org", notificationEmail: "notif@test.com", member: null },
-        { id: "u2", email: "b@test.com", notificationEmail: null, member: null },
-        { id: "u3", email: "c@orcid.org", notificationEmail: null, member: null },
+        { id: "u1", notificationEmail: "notif@test.com" },
+        { id: "u2", notificationEmail: null },
+        { id: "u3", notificationEmail: "other@test.com" },
+        { id: "u4", notificationEmail: " " },
+        { id: "u5", notificationEmail: "0000-0002-1825-0097@orcid.org" },
       ] as any);
       const emails = await adminUserService.getActiveUserEmails();
-      expect(emails).toEqual(["notif@test.com", "b@test.com"]);
+      expect(emails).toEqual(["notif@test.com", "other@test.com"]);
     });
   });
 });

@@ -274,7 +274,10 @@ Configure the mail parameters within the `new-memorias` application environment 
 ```
 
 ### 2. Provider-Specific Recommendations
-* **Google Gmail**: Do not use your primary account password. You must generate a secure **App Password** from your Google Account settings (Security > 2-Step Verification > App passwords) to authenticate with Gmail SMTP.
+* **Google Gmail**: Do not use your primary account password (this triggers `Invalid login: 535-5.7.8 Username and Password not accepted`). You must:
+  1. Enable **2-Step Verification** on the Google account under [Google Account Security](https://myaccount.google.com/security).
+  2. Generate a 16-character code at [Google App Passwords](https://myaccount.google.com/apppasswords) (e.g., app name: `Memorias Portal`).
+  3. Use this 16-character code (without spaces) as `SMTP_PASS`.
 * **Microsoft Office 365 / Exchange**: Ensure SMTP AUTH is enabled for the specific mailbox in your Exchange Admin Center. If MFA is active, generate a Microsoft App Password.
 
 ---

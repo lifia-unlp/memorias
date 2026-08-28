@@ -110,7 +110,6 @@ export default async function AdminUsersPage() {
             </TableHead>
             <TableBody>
               {usersWithCandidates.map((u) => {
-                const primaryNotificationEmail = u.notificationEmail || u.candidateEmails[0]?.email;
                 const isSyntheticEmail = u.email.endsWith("@orcid.org");
 
                 return (

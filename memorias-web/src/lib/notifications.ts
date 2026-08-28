@@ -55,17 +55,22 @@ export async function triggerImmediateNotification(
 
     if (memberIds.length === 0) return;
 
-    // 2. Query mapped active users who want immediate alerts
+    // 2. Query mapped active users who want immediate alerts and have a configured notificationEmail
     const targetUsers = await prisma.user.findMany({
       where: {
         memberId: { in: memberIds },
         active: true,
         immediateNotifications: true,
+        notificationEmail: { not: null },
       },
-      select: { email: true },
+      select: { notificationEmail: true },
     });
 
-    if (targetUsers.length === 0) return;
+    const validRecipientEmails = targetUsers
+      .map((u) => u.notificationEmail?.trim())
+      .filter((email): email is string => Boolean(email && !email.endsWith("@orcid.org")));
+
+    if (validRecipientEmails.length === 0) return;
 
     // 3. Format the lightweight HTML email
     const actionLabel = action === "CREATE" ? "added" : action === "UPDATE" ? "updated" : "deleted";
@@ -100,13 +105,13 @@ export async function triggerImmediateNotification(
 
     // 4. Send emails concurrently
     await Promise.all(
-      targetUsers.map((user) =>
+      validRecipientEmails.map((email) =>
         sendEmail({
-          to: user.email,
+          to: email,
           subject,
           html,
         }).catch((err) => {
-          console.error(`Failed to send immediate notification to ${user.email}:`, err);
+          console.error(`Failed to send immediate notification to ${email}:`, err);
         })
       )
     );
@@ -146,16 +151,21 @@ export async function sendDigestEmails(frequency?: string): Promise<{ success: b
       return { success: true, count: 0 };
     }
 
-    // 3. Fetch digest subscribers
+    // 3. Fetch digest subscribers with configured notificationEmail
     const targetUsers = await prisma.user.findMany({
       where: {
         active: true,
         digestEmails: true,
+        notificationEmail: { not: null },
       },
-      select: { email: true },
+      select: { notificationEmail: true },
     });
 
-    if (targetUsers.length === 0) {
+    const validRecipientEmails = targetUsers
+      .map((u) => u.notificationEmail?.trim())
+      .filter((email): email is string => Boolean(email && !email.endsWith("@orcid.org")));
+
+    if (validRecipientEmails.length === 0) {
       return { success: true, count: 0 };
     }
 
@@ -199,18 +209,18 @@ export async function sendDigestEmails(frequency?: string): Promise<{ success: b
 
     // 5. Send digests concurrently
     await Promise.all(
-      targetUsers.map((user) =>
+      validRecipientEmails.map((email) =>
         sendEmail({
-          to: user.email,
+          to: email,
           subject,
           html,
         }).catch((err) => {
-          console.error(`Failed to send digest email to ${user.email}:`, err);
+          console.error(`Failed to send digest email to ${email}:`, err);
         })
       )
     );
 
-    return { success: true, count: targetUsers.length };
+    return { success: true, count: validRecipientEmails.length };
   } catch (error) {
     console.error("Failed to send digest emails:", error);
     return { success: false, count: 0 };
