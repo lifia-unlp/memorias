@@ -5,24 +5,23 @@ import { useRouter } from "next/navigation";
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Chip,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Grid,
+  ToggleButton,
+  ToggleButtonGroup,
   Stack,
   TextField,
   Typography,
-  Divider,
   Paper,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
+  Menu,
 } from "@mui/material";
 import { updateFollowUpItemStatus, updateFollowUpHistory, deleteFollowUpHistory, updateFollowUpItem } from "../follow-up/actions";
 
@@ -75,15 +74,6 @@ interface MeetClientProps {
   recentChanges: ChangeHistory[];
 }
 
-const STATUS_ORDER: ("PLANNING" | "IN_PROGRESS" | "UNDER_EVALUATION" | "ACCEPTED" | "REJECTED" | "COMPLETED")[] = [
-  "PLANNING",
-  "IN_PROGRESS",
-  "UNDER_EVALUATION",
-  "ACCEPTED",
-  "REJECTED",
-  "COMPLETED",
-];
-
 const STATUS_CONFIG: Record<string, { label: string; color: "default" | "info" | "warning" | "success" | "error" }> = {
   PLANNING: { label: "Planning / Idea", color: "default" },
   IN_PROGRESS: { label: "In Progress", color: "info" },
@@ -94,10 +84,10 @@ const STATUS_CONFIG: Record<string, { label: string; color: "default" | "info" |
 };
 
 const CATEGORY_LABELS = {
-  PUBLICATION: "Follow-up items for Publications",
-  PROJECT: "Follow-up items for Projects",
-  THESIS: "Follow-up items for Theses",
-  SCHOLARSHIP: "Follow-up items for Scholarships",
+  PUBLICATION: "Publications",
+  PROJECT: "Projects",
+  THESIS: "Theses",
+  SCHOLARSHIP: "Scholarships",
 } as const;
 
 // Safe custom markdown parser for news/notes text
@@ -105,7 +95,7 @@ function renderMarkdown(text: string | null) {
   if (!text) return <Typography variant="caption" color="text.secondary" sx={{ fontStyle: "italic" }}>No details logged.</Typography>;
 
   return (
-    <Box sx={{ fontSize: "0.85rem", lineHeight: 1.5, color: "text.primary" }}>
+    <Box sx={{ fontSize: "1rem", lineHeight: 1.6, color: "text.primary" }}>
       {text.split("\n").map((line, i) => {
         let rendered = line;
         // Bold: **text**
@@ -133,7 +123,10 @@ function renderMarkdown(text: string | null) {
 }
 
 export default function MeetClient({ recentChanges }: MeetClientProps) {
-  const [isMinutesOpen, setIsMinutesOpen] = useState(false);
+  const [groupBy, setGroupBy] = useState<"person" | "type">("person");
+
+  const [noteMenu, setNoteMenu] = useState<{ anchor: HTMLElement; change: ChangeHistory } | null>(null);
+  const [itemMenu, setItemMenu] = useState<{ anchor: HTMLElement; item: FollowUpItem } | null>(null);
 
   // Date range state (defaulting to last 7 days)
   const getSevenDaysAgoStr = () => {
@@ -248,246 +241,117 @@ export default function MeetClient({ recentChanges }: MeetClientProps) {
 
   return (
     <Box>
-      {/* Upper Toolbar */}
-      <Paper sx={{ p: 2.5, mb: 4, borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
-        <Grid container spacing={2} sx={{ alignItems: "center" }}>
-          <Grid size={{ xs: 12, sm: 4, md: 3 }}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Meeting Date From"
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              slotProps={{ inputLabel: { shrink: true } }}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 4, md: 3 }}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Meeting Date To"
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              slotProps={{ inputLabel: { shrink: true } }}
-            />
-          </Grid>
-        </Grid>
+      <Paper elevation={0} sx={{ position: "sticky", top: 0, zIndex: 2, py: 2, mb: 3, borderBottom: "1px solid", borderColor: "divider", borderRadius: 0 }}>
+        <Stack direction="row" useFlexGap spacing={2} sx={{ alignItems: "center", flexWrap: "wrap" }}>
+          <TextField size="small" label="Meeting Date From" type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} />
+          <TextField size="small" label="Meeting Date To" type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} />
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "block" } }} />
+          <Stack spacing={0.5}>
+            <Typography variant="caption" id="meeting-group-label">Group by</Typography>
+            <ToggleButtonGroup exclusive size="small" value={groupBy} aria-labelledby="meeting-group-label" onChange={(_, value) => { if (value) setGroupBy(value); }}>
+              <ToggleButton value="person">Person reporting</ToggleButton>
+              <ToggleButton value="type">Type</ToggleButton>
+            </ToggleButtonGroup>
+          </Stack>
+        </Stack>
       </Paper>
 
-      <Typography variant="h6" sx={{ fontWeight: "bold", mb: 3 }}>
-        Meeting Notes & Changes for Selected Period
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+        {filteredChanges.length} updates · {new Set(filteredChanges.map((ch) => ch.followUpItem.id)).size} items
       </Typography>
 
       {filteredChanges.length === 0 ? (
-        <Card sx={{ bgcolor: "action.hover", border: "1px dashed", borderColor: "divider", py: 8, textAlign: "center", borderRadius: 3 }}>
-          <Typography variant="body1" color="text.secondary">
-            No changes or news logged during the selected period.
-          </Typography>
-        </Card>
+        <Typography color="text.secondary" sx={{ py: 6, textAlign: "center" }}>
+          No changes or news logged during the selected period.
+        </Typography>
       ) : (
         <Stack spacing={4}>
           {(() => {
-            // Level 1: Group by Persona (loggedBy)
-            const personMap = new Map<string, ChangeHistory[]>();
+            const groups = new Map<string, ChangeHistory[]>();
             filteredChanges.forEach((ch) => {
-              const personName = ch.loggedBy?.name || ch.loggedBy?.email || "Sin responsable asignado";
-              if (!personMap.has(personName)) {
-                personMap.set(personName, []);
-              }
-              personMap.get(personName)!.push(ch);
+              const key = groupBy === "person"
+                ? ch.loggedBy?.email || "unassigned"
+                : ch.followUpItem.category;
+              groups.set(key, [...(groups.get(key) || []), ch]);
             });
-
-            const sortedPersons = Array.from(personMap.entries()).sort(([a], [b]) => {
-              if (a === "Sin responsable asignado") return 1;
-              if (b === "Sin responsable asignado") return -1;
-              return a.localeCompare(b);
+            const personLabel = (changes: ChangeHistory[]) => changes[0].loggedBy?.name || changes[0].loggedBy?.email || "No reporter assigned";
+            const sortedGroups = Array.from(groups.entries()).sort(([a, ac], [b, bc]) => {
+              if (groupBy === "type") return categoryKeys.indexOf(a as keyof typeof CATEGORY_LABELS) - categoryKeys.indexOf(b as keyof typeof CATEGORY_LABELS);
+              if (a === "unassigned") return 1;
+              if (b === "unassigned") return -1;
+              return personLabel(ac).localeCompare(personLabel(bc));
             });
-
-            return sortedPersons.map(([personName, personChanges]) => (
-              <Box key={personName} sx={{ bgcolor: "background.paper", p: 2.5, borderRadius: 3, border: "1px solid", borderColor: "divider", boxShadow: 1 }}>
-                {/* Level 1 Header: Persona */}
-                <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2.5, color: "primary.main", borderBottom: "2px solid", borderColor: "primary.main", pb: 0.5 }}>
-                  {personName} ({personChanges.length} {personChanges.length === 1 ? "novedad" : "novedades"})
-                </Typography>
-
-                {/* Level 2: Group by Category / Tipo */}
-                <Stack spacing={3}>
-                  {categoryKeys.map((catKey) => {
-                    const catChanges = personChanges.filter((ch) => ch.followUpItem.category === catKey);
-                    if (catChanges.length === 0) return null;
-
-                    // Group news/changes by FollowUpItem ID for meeting efficiency
-                    const itemMap = new Map<string, { item: FollowUpItem; changes: ChangeHistory[] }>();
-                    catChanges.forEach((ch) => {
-                      const itemId = ch.followUpItem.id;
-                      if (!itemMap.has(itemId)) {
-                        itemMap.set(itemId, { item: ch.followUpItem, changes: [] });
-                      }
-                      itemMap.get(itemId)!.changes.push(ch);
-                    });
-                    const groupedItems = Array.from(itemMap.values());
-
-                    return (
-                      <Box key={catKey} sx={{ bgcolor: "action.hover", p: 2, borderRadius: 2, border: "1px solid", borderColor: "divider" }}>
-                        {/* Category / Tipo Header */}
-                        <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 2, color: "text.primary", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                          {CATEGORY_LABELS[catKey]} ({groupedItems.length} active items)
+            return sortedGroups.map(([key, groupChanges]) => {
+              const items = new Map<string, { item: FollowUpItem; changes: ChangeHistory[] }>();
+              groupChanges.forEach((ch) => {
+                const existing = items.get(ch.followUpItem.id);
+                if (existing) existing.changes.push(ch);
+                else items.set(ch.followUpItem.id, { item: ch.followUpItem, changes: [ch] });
+              });
+              const orderedItems = Array.from(items.values()).sort((a, b) => categoryKeys.indexOf(a.item.category) - categoryKeys.indexOf(b.item.category));
+              return (
+                <Box component="section" key={key} aria-label={groupBy === "person" ? personLabel(groupChanges) : CATEGORY_LABELS[key as keyof typeof CATEGORY_LABELS]}>
+                  <Typography component="h2" variant="h5" sx={{ fontWeight: 750, pb: 1, borderBottom: "2px solid", borderColor: "divider" }}>
+                    {groupBy === "person" ? personLabel(groupChanges) : CATEGORY_LABELS[key as keyof typeof CATEGORY_LABELS]}
+                    <Typography component="span" color="text.secondary" sx={{ ml: 1, fontSize: "0.9rem", fontWeight: 400 }}>· {items.size} {items.size === 1 ? "item" : "items"}</Typography>
+                  </Typography>
+                  {orderedItems.map(({ item, changes }, index) => (
+                    <React.Fragment key={item.id}>
+                      {groupBy === "person" && (index === 0 || orderedItems[index - 1].item.category !== item.category) && (
+                        <Typography component="h3" variant="h6" sx={{ mt: 3, mb: 0.5, fontWeight: 650, color: "primary.main" }}>
+                          {CATEGORY_LABELS[item.category]}
                         </Typography>
-                        
-                        {/* Level 3: Group by Status / Estado */}
-                        <Stack spacing={2.5}>
-                          {STATUS_ORDER.map((stKey) => {
-                            const statusItems = groupedItems.filter(({ item }) => item.status === stKey);
-                            if (statusItems.length === 0) return null;
-
-                            const cfg = STATUS_CONFIG[stKey] || { label: stKey, color: "default" };
-
-                            return (
-                              <Box key={stKey} sx={{ pl: 1, borderLeft: "3px solid", borderColor: `${cfg.color}.main` }}>
-                                {/* Status Lifecycle Header */}
-                                <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1.5 }}>
-                                  <Chip
-                                    label={cfg.label}
-                                    size="small"
-                                    color={cfg.color}
-                                    sx={{ fontWeight: "bold", fontSize: "0.75rem" }}
-                                  />
-                                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary" }}>
-                                    ({statusItems.length} {statusItems.length === 1 ? "item" : "items"})
-                                  </Typography>
-                                </Stack>
-
-                                {/* Compact Item Rows */}
-                                <Stack spacing={1.5}>
-                                  {statusItems.map(({ item, changes }) => {
-                                    return (
-                                      <Paper key={item.id} variant="outlined" sx={{ p: 1.75, borderRadius: 2, bgcolor: "background.paper", "&:hover": { borderColor: "primary.light" } }}>
-                                        {/* Dense Item Header */}
-                                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 1, pb: 1, borderBottom: "1px dashed", borderColor: "divider" }}>
-                                          <Box sx={{ flexGrow: 1, minWidth: 240 }}>
-                                            <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "text.primary", lineHeight: 1.3 }}>
-                                              {item.title}
-                                            </Typography>
-                                            {item.owners && item.owners.length > 0 && (
-                                              <Typography variant="caption" color="text.secondary" sx={{ display: "block", fontSize: "0.725rem", mt: 0.25 }}>
-                                                Owners: {item.owners.map((o) => `${o.firstName} ${o.lastName}`).join(", ")}
-                                              </Typography>
-                                            )}
-                                            {item.description && (
-                                              <Box sx={{ mt: 0.5, color: "text.secondary", fontSize: "0.8rem" }}>
-                                                {renderMarkdown(item.description)}
-                                              </Box>
-                                            )}
-                                          </Box>
-
-                                          {/* Compact Inline Action Buttons */}
-                                          <Stack direction="row" spacing={0.75} sx={{ alignItems: "center" }}>
-                                            <Button
-                                              size="small"
-                                              variant="outlined"
-                                              onClick={() => {
-                                                setAddingNewsItem(item);
-                                                setNewStatus(item.status);
-                                                setNewNoteText("");
-                                              }}
-                                              sx={{ textTransform: "none", fontSize: "0.7rem", py: 0.25, px: 1, fontWeight: "bold" }}
-                                            >
-                                              + Add News
-                                            </Button>
-                                            <Button
-                                              size="small"
-                                              variant="outlined"
-                                              onClick={() => {
-                                                setEditingItem(item);
-                                                setEditTitle(item.title);
-                                                setEditDescription(item.description || "");
-                                              }}
-                                              sx={{ textTransform: "none", fontSize: "0.7rem", py: 0.25, px: 1, fontWeight: "bold" }}
-                                            >
-                                              Edit
-                                            </Button>
-                                            <Button
-                                              size="small"
-                                              variant="outlined"
-                                              onClick={() => setHistoryItem(item)}
-                                              sx={{ textTransform: "none", fontSize: "0.7rem", py: 0.25, px: 1 }}
-                                            >
-                                              History ({item.history.length})
-                                            </Button>
-                                          </Stack>
-                                        </Box>
-
-                                        {/* Compact News Timeline for Period */}
-                                        <Box sx={{ pt: 1, display: "flex", flexDirection: "column", gap: 1 }}>
-                                          <Typography variant="caption" sx={{ fontWeight: "bold", color: "text.secondary", fontSize: "0.675rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                                            Period Updates ({changes.length})
-                                          </Typography>
-                                          {changes.map((ch) => {
-                                            const transitionStr = `${STATUS_LABELS[ch.fromStatus as keyof typeof STATUS_LABELS] || ch.fromStatus} → ${STATUS_LABELS[ch.toStatus as keyof typeof STATUS_LABELS] || ch.toStatus}`;
-                                            return (
-                                              <Box key={ch.id} sx={{ p: 1.25, bgcolor: "action.hover", borderRadius: 1.5, border: "1px solid", borderColor: "divider" }}>
-                                                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5, flexWrap: "wrap", gap: 1 }}>
-                                                  <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-                                                    <Chip
-                                                      label={transitionStr}
-                                                      size="small"
-                                                      color="secondary"
-                                                      variant="outlined"
-                                                      sx={{ fontSize: "0.65rem", fontWeight: "bold", height: 18 }}
-                                                    />
-                                                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.6875rem" }}>
-                                                      By {ch.loggedBy?.name || ch.loggedBy?.email || "System"} on {new Date(ch.meetingDate).toLocaleDateString()}
-                                                    </Typography>
-                                                  </Stack>
-                                                  <Stack direction="row" spacing={0.5}>
-                                                    <Button
-                                                      size="small"
-                                                      variant="text"
-                                                      onClick={() => {
-                                                        setEditingChange(ch);
-                                                        setEditNotesText(ch.notes || "");
-                                                      }}
-                                                      sx={{ textTransform: "none", fontSize: "0.675rem", py: 0, px: 0.75, minWidth: 0 }}
-                                                    >
-                                                      Edit
-                                                    </Button>
-                                                    <Button
-                                                      size="small"
-                                                      variant="text"
-                                                      color="error"
-                                                      onClick={() => handleDeleteHistory(ch.id)}
-                                                      sx={{ textTransform: "none", fontSize: "0.675rem", py: 0, px: 0.75, minWidth: 0 }}
-                                                    >
-                                                      Delete
-                                                    </Button>
-                                                  </Stack>
-                                                </Box>
-                                                <Box sx={{ pt: 0.25 }}>
-                                                  {renderMarkdown(ch.notes)}
-                                                </Box>
-                                              </Box>
-                                            );
-                                          })}
-                                        </Box>
-                                      </Paper>
-                                    );
-                                  })}
-                                </Stack>
-                              </Box>
-                            );
-                          })}
-                        </Stack>
-                      </Box>
-                    );
-                  })}
-                </Stack>
-              </Box>
-            ));
+                      )}
+                    <Box component="article" sx={{ py: 2.5, borderBottom: "1px solid", borderColor: "divider" }}>
+                      <Stack direction="row" spacing={2} sx={{ justifyContent: "space-between", alignItems: "flex-start", mb: 0.75 }}>
+                        <Typography component={groupBy === "person" ? "h4" : "h3"} variant="subtitle1" sx={{ fontWeight: 400, lineHeight: 1.5 }}>{item.title}</Typography>
+                        <Chip size="small" label={STATUS_CONFIG[item.status]?.label || item.status} color={STATUS_CONFIG[item.status]?.color || "default"} />
+                      </Stack>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                        {item.owners.length > 0 && `Owners: ${item.owners.map((o) => `${o.firstName} ${o.lastName}`).join(", ")}`}
+                      </Typography>
+                      <Stack spacing={0.5}>
+                        {[...changes].sort((a, b) => new Date(b.meetingDate).getTime() - new Date(a.meetingDate).getTime()).map((ch) => (
+                          <Box key={ch.id} sx={{ display: "grid", gridTemplateColumns: "max-content minmax(0, 1fr) auto", columnGap: { xs: 1, sm: 2 }, alignItems: "start" }}>
+                            <Typography component="time" dateTime={ch.meetingDate} variant="body2" color="text.secondary" sx={{ pt: 0.25, whiteSpace: "nowrap" }}>
+                              {new Date(ch.meetingDate).toLocaleDateString()}
+                            </Typography>
+                            <Box sx={{ minWidth: 0, "& p": { mb: 0 }, "& li": { mb: 0 } }}>
+                              {renderMarkdown(ch.notes?.trim() || null)}
+                              {(groupBy === "type" || ch.fromStatus !== ch.toStatus) && (
+                                <Typography variant="caption" color="text.secondary">
+                                  {groupBy === "type" && `· ${ch.loggedBy?.name || ch.loggedBy?.email || "No reporter assigned"}`}
+                                  {ch.fromStatus !== ch.toStatus && ` · ${STATUS_LABELS[ch.fromStatus as keyof typeof STATUS_LABELS] || ch.fromStatus} → ${STATUS_LABELS[ch.toStatus as keyof typeof STATUS_LABELS] || ch.toStatus}`}
+                                </Typography>
+                              )}
+                            </Box>
+                            <Button size="small" color="inherit" aria-label="Note actions" aria-haspopup="menu" onClick={(event) => setNoteMenu({ anchor: event.currentTarget, change: ch })} sx={{ color: "text.secondary", minWidth: 0, px: 0.5, py: 0, lineHeight: 1.5, fontWeight: 400, textTransform: "none" }}>Actions</Button>
+                          </Box>
+                        ))}
+                      </Stack>
+                      <Stack direction="row" spacing={1} sx={{ mt: 1, flexWrap: "wrap" }}>
+                        <Button size="small" onClick={() => { setAddingNewsItem(item); setNewStatus(item.status); setNewNoteText(""); }}>+ Add News</Button>
+                        <Button size="small" color="inherit" aria-label="Item actions" aria-haspopup="menu" onClick={(event) => setItemMenu({ anchor: event.currentTarget, item })} sx={{ color: "text.secondary", fontWeight: 400, textTransform: "none" }}>More</Button>
+                      </Stack>
+                      {item.description && <Box component="details" sx={{ mt: 1 }}><Typography component="summary" variant="body2" sx={{ cursor: "pointer", color: "text.secondary" }}>Description</Typography><Box sx={{ mt: 1 }}>{renderMarkdown(item.description)}</Box></Box>}
+                    </Box>
+                    </React.Fragment>
+                  ))}
+                </Box>
+              );
+            });
           })()}
         </Stack>
       )}
+
+      <Menu anchorEl={noteMenu?.anchor} open={Boolean(noteMenu)} onClose={() => setNoteMenu(null)}>
+        <MenuItem onClick={() => { if (noteMenu) { setEditingChange(noteMenu.change); setEditNotesText(noteMenu.change.notes || ""); } setNoteMenu(null); }}>Edit note</MenuItem>
+        <MenuItem sx={{ color: "error.main" }} onClick={() => { if (noteMenu) void handleDeleteHistory(noteMenu.change.id); setNoteMenu(null); }}>Delete note</MenuItem>
+      </Menu>
+      <Menu anchorEl={itemMenu?.anchor} open={Boolean(itemMenu)} onClose={() => setItemMenu(null)}>
+        <MenuItem onClick={() => { if (itemMenu) setHistoryItem(itemMenu.item); setItemMenu(null); }}>History ({itemMenu?.item.history.length || 0})</MenuItem>
+        <MenuItem onClick={() => { if (itemMenu) { setEditingItem(itemMenu.item); setEditTitle(itemMenu.item.title); setEditDescription(itemMenu.item.description || ""); } setItemMenu(null); }}>Edit details</MenuItem>
+      </Menu>
 
       {/* Add new Update / News to a specific item Dialog */}
       <Dialog open={Boolean(addingNewsItem)} onClose={() => setAddingNewsItem(null)} fullWidth maxWidth="sm">

@@ -13,6 +13,15 @@ This living document tracks active status, findings, and handoffs between AI ses
 
 ## Session Logs
 
+### Mantenimiento local (2026-10-26): restauración de PostgreSQL
+* **Accomplished**:
+  * Reemplazada la base local `postgres` en `memorias-postgres-dev` con `backup-20261026.dump`, compartida por ambas aplicaciones según sus configuraciones locales.
+  * Restauración previa en base temporal con `pg_restore --no-owner --no-privileges --exit-on-error --single-transaction`; luego eliminación de la base anterior y renombrado de la restauración a `postgres`.
+  * Verificados 25 tablas, 51 miembros, 61 proyectos, 541 publicaciones, 159 tesis y 67 becas; ninguna restricción sin validar. Ejecutado `ANALYZE`.
+* **Blocked Items**: Ninguno.
+* **Next Steps**: Verificar los flujos de las aplicaciones locales utilizando los datos restaurados. No se modificaron código, configuración ni hitos de ingeniería reversa.
+
+
 ### Session 6 (2026-08-04)
 * **Goal**: Execute Issue #27 ("Refactor monolithic system-prompt to skills") in `memorias-copilot`.
 * **Accomplished**:

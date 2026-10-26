@@ -24,13 +24,13 @@ export default async function MeetingPage() {
         sx={{
           background: "linear-gradient(135deg, var(--mui-palette-primary-main) 0%, var(--mui-palette-primary-dark) 100%)",
           color: "common.white",
-          py: 5,
+          py: 2,
           px: 3,
           boxShadow: "inset 0px -4px 10px rgba(0, 0, 0, 0.1)",
         }}
       >
         <Container maxWidth="xl">
-          <Typography variant="h4" component="h1" sx={{ color: "common.white", fontWeight: 700, mb: 1 }}>
+          <Typography variant="h5" component="h1" sx={{ color: "common.white", fontWeight: 700, mb: 1 }}>
             Follow-Up Meeting Dashboard
           </Typography>
           <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.85)" }}>
@@ -40,7 +40,7 @@ export default async function MeetingPage() {
       </Box>
 
       {/* Workspace */}
-      <Container maxWidth="xl" sx={{ py: 4, flex: 1, display: "flex", flexDirection: "column" }}>
+      <Container maxWidth="xl" sx={{ py: 2, flex: 1, display: "flex", flexDirection: "column" }}>
         <MeetClient
           initialItems={JSON.parse(JSON.stringify(initialItems))}
           recentChanges={JSON.parse(JSON.stringify(recentChanges))}

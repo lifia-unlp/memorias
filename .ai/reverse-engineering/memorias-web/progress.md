@@ -13,6 +13,64 @@ Este documento de progreso registra el estado activo, hallazgos e hitos de entre
 
 ## Session Logs
 
+### Entrega de mejoras de reunión (2026-10-26)
+* **Accomplished**: Cambios de interfaz y pruebas preparados para commit y push a `origin/main` por solicitud del usuario. Incluidos los registros de continuidad de esta sesión y de la restauración local compartida. Confirmada ausencia del dump en los archivos a versionar.
+* **Validation**: 12 pruebas de reunión aprobadas, TypeScript sin errores y diff sin errores de whitespace.
+* **Blocked Items**: Ninguno al preparar la entrega.
+* **Next Steps**: Recoger comentarios durante el uso de la pantalla en reuniones.
+
+### Filas sin transición de estado (2026-10-26)
+* **Accomplished**: Eliminados saltos de línea exteriores al mostrar notas y padding vertical del botón Actions para que no imponga altura extra a filas de una línea. Se conserva el texto original al editar.
+* **Validation**: 12 pruebas aprobadas, incluida regresión con notas consecutivas sin transición y saltos finales; TypeScript sin errores.
+* **Blocked Items**: Ninguno.
+* **Next Steps**: Validar el espaciado con notas reales de reunión.
+
+### Espaciado compacto entre novedades (2026-10-26)
+* **Accomplished**: Reducida la separación entre novedades de 12 a 4 px y eliminados los márgenes inferiores de párrafos y listas dentro del texto de cada novedad.
+* **Validation**: 11 pruebas aprobadas y TypeScript sin errores.
+* **Blocked Items**: Ninguno.
+* **Next Steps**: Validar densidad con varias novedades del mismo objeto durante una reunión.
+
+### Jerarquía tipográfica de reunión (2026-10-26)
+* **Accomplished**: Encabezado de persona de mayor tamaño y peso; sección con tamaño/peso intermedios; título del objeto en peso normal. Se mantienen niveles semánticos h2/h3/h4 en la agrupación por persona.
+* **Validation**: 11 pruebas aprobadas, TypeScript sin errores y revisión visual en localhost.
+* **Blocked Items**: Ninguno.
+* **Next Steps**: Recoger comentarios de lectura durante reuniones.
+
+### Novedades alineadas y subtítulos por tipo (2026-10-26)
+* **Accomplished**: Fecha y texto de la novedad comparten una fila, con acciones discretas al extremo. En agrupación por persona se ordenan los ítems por categoría y se agrega un subtítulo por categoría presente, sin cajas adicionales. La agrupación por tipo conserva su estructura.
+* **Validation**: 10 pruebas aprobadas y `tsc --noEmit` sin errores. Revisada la presentación en localhost.
+* **Blocked Items**: Ninguno.
+* **Next Steps**: Recoger comentarios sobre legibilidad con notas extensas durante la reunión.
+
+### Jerarquía visual y acciones secundarias (2026-10-26)
+* **Accomplished**: Tipo singular destacado encima de cada título (Publication, Project, Thesis, Scholarship). Editar y borrar notas se acceden desde un menú Actions discreto; historial y edición del ítem se trasladaron a More. Agregar novedades sigue visible.
+* **Validation**: 9 pruebas de página/pantalla aprobadas y TypeScript sin errores; revisión visual en localhost.
+* **Blocked Items**: Ninguno.
+* **Next Steps**: Validar legibilidad durante la reunión.
+
+### Implementación de lectura para reunión (2026-10-26)
+* **Accomplished**: Sustituida la jerarquía de cajas por secciones y entradas con separadores. Agregada alternancia por persona que informa (`loggedBy`, agrupada por email) o tipo; en tipo se unifican las novedades del mismo ítem y se muestran sus autores. Conservados filtros por fecha, etiquetas de estado, notas completas y diálogos; descripción plegable. Compactados banner y barra de filtros.
+* **Validation**: 8 pruebas de pantalla y página aprobadas; `tsc --noEmit` sin errores. Revisión visual en localhost con los datos restaurados y ambas agrupaciones.
+* **Blocked Items**: Ninguno.
+* **Next Steps**: Recoger comentarios de uso durante la reunión y ajustar densidad si hace falta.
+
+
+### Propuesta de lectura para reunión (2026-10-26)
+* **Accomplished**: Revisada la composición actual en `MeetClient.tsx`: persona que registra → categoría → estado → tarjeta → novedades. Propuesta una lista plana de dos niveles (grupo y entradas), selector por persona o tipo, estado como etiqueta y novedades como contenido principal. La agrupación actual usa `loggedBy`, no los responsables del ítem.
+* **Blocked Items**: Ninguno. Propuesta pendiente de decisión; sin cambios en la aplicación ni en el Wiki.
+* **Next Steps**: Al implementar, ampliar `MeetClient.test.tsx` para ambas agrupaciones, filtros, conservación de notas y acciones; reutilizar los diálogos existentes.
+
+
+### Mantenimiento local (2026-10-26): restauración de PostgreSQL
+* **Accomplished**:
+  * Reemplazada la base local `postgres` en `memorias-postgres-dev` con `backup-20261026.dump`, compartida por ambas aplicaciones según sus configuraciones locales.
+  * Restauración previa en base temporal con `pg_restore --no-owner --no-privileges --exit-on-error --single-transaction`; luego eliminación de la base anterior y renombrado de la restauración a `postgres`.
+  * Verificados 25 tablas, 51 miembros, 61 proyectos, 541 publicaciones, 159 tesis y 67 becas; ninguna restricción sin validar. Ejecutado `ANALYZE`.
+* **Blocked Items**: Ninguno.
+* **Next Steps**: Verificar los flujos de las aplicaciones locales utilizando los datos restaurados. No se modificaron código, configuración ni hitos de ingeniería reversa.
+
+
 ### Session 31 (2026-08-28)
 * **Goal**: Corregir fallo de Sign-Out y bucle de redirección en producción derivado de cookies host-only previas (RFC 6265) y rebote automático en políticas de ruta.
 * **Accomplished**:
